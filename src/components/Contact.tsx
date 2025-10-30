@@ -8,7 +8,7 @@ const Contact = () => {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="text-4xl lg:text-5xl font-bold">
             Join the Future of{" "}
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <span className="text-gradient">
               Intelligent Healthcare
             </span>
           </h2>
@@ -56,7 +56,7 @@ const Contact = () => {
       <footer className="mt-24 pt-8 border-t border-border">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <div className="text-2xl font-bold text-gradient">
               Vyana AI
             </div>
             <p>© 2025 Vyana AI. Building the future of healthcare technology.</p>

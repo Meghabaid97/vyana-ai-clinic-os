@@ -5,7 +5,7 @@ const Mission = () => {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
             Building the{" "}
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <span className="text-gradient">
               AI Backbone
             </span>{" "}
             for India's Healthcare System
@@ -18,23 +18,23 @@ const Mission = () => {
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 pt-8">
-            <div className="p-6">
-              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+            <div className="p-8 rounded-2xl border-2 border-primary/20 hover:border-primary/50 transition-all hover:shadow-soft">
+              <div className="text-5xl font-bold text-gradient mb-2">
                 10x
               </div>
-              <p className="text-muted-foreground">Faster Documentation</p>
+              <p className="text-muted-foreground font-medium">Faster Documentation</p>
             </div>
-            <div className="p-6">
-              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+            <div className="p-8 rounded-2xl border-2 border-secondary/20 hover:border-secondary/50 transition-all hover:shadow-soft">
+              <div className="text-5xl font-bold text-gradient mb-2">
                 99%
               </div>
-              <p className="text-muted-foreground">Accuracy Rate</p>
+              <p className="text-muted-foreground font-medium">Accuracy Rate</p>
             </div>
-            <div className="p-6">
-              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+            <div className="p-8 rounded-2xl border-2 border-accent/20 hover:border-accent/50 transition-all hover:shadow-soft">
+              <div className="text-5xl font-bold text-gradient mb-2">
                 100%
               </div>
-              <p className="text-muted-foreground">ABDM Compliant</p>
+              <p className="text-muted-foreground font-medium">ABDM Compliant</p>
             </div>
           </div>
         </div>

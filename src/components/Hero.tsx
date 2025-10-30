@@ -15,9 +15,9 @@ const Hero = () => {
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8 animate-fade-in">
-            <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
+            <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
               AI that listens, understands, and writes for{" "}
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <span className="text-gradient">
                 doctors
               </span>
             </h1>
@@ -52,11 +52,11 @@ const Hero = () => {
           </div>
 
           <div className="relative animate-fade-in">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-3xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-accent/30 to-secondary/30 rounded-3xl blur-3xl animate-pulse"></div>
             <img
               src={heroImage}
               alt="AI-powered healthcare technology"
-              className="relative rounded-3xl shadow-2xl w-full h-auto"
+              className="relative rounded-3xl shadow-glow w-full h-auto border-2 border-primary/20"
             />
           </div>
         </div>

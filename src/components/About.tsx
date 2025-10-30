@@ -5,7 +5,7 @@ const About = () => {
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h2 className="text-4xl lg:text-5xl font-bold mb-8">
             Transforming{" "}
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <span className="text-gradient">
               Clinic Operations
             </span>
           </h2>
