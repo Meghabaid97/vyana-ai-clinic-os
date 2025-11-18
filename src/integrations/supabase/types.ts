@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      consultations: {
+        Row: {
+          audio_transcription: string
+          created_at: string
+          doctor_id: string
+          fhir_data: string
+          id: string
+          patient_age: number
+          patient_name: string
+          patient_national_health_id: string
+          updated_at: string
+        }
+        Insert: {
+          audio_transcription: string
+          created_at?: string
+          doctor_id: string
+          fhir_data: string
+          id?: string
+          patient_age: number
+          patient_name: string
+          patient_national_health_id: string
+          updated_at?: string
+        }
+        Update: {
+          audio_transcription?: string
+          created_at?: string
+          doctor_id?: string
+          fhir_data?: string
+          id?: string
+          patient_age?: number
+          patient_name?: string
+          patient_national_health_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

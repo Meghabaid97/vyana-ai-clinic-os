@@ -66,7 +66,10 @@ Please return ONLY valid FHIR R4 JSON format for an Encounter resource. Include 
     }
 
     const result = await response.json();
-    const fhirData = result.choices[0].message.content;
+    let fhirData = result.choices[0].message.content;
+
+    // Remove markdown code blocks if present
+    fhirData = fhirData.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
 
     console.log('FHIR conversion successful');
 
