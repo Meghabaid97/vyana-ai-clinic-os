@@ -19,7 +19,7 @@ const Auth = () => {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/consultation");
+        navigate("/consultations");
       }
     });
 
@@ -28,7 +28,7 @@ const Auth = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/consultation");
+        navigate("/consultations");
       }
     });
 
@@ -45,7 +45,7 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/consultation`,
+            emailRedirectTo: `${window.location.origin}/consultations`,
           },
         });
         if (error) throw error;
@@ -76,7 +76,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/consultation`,
+          redirectTo: `${window.location.origin}/consultations`,
         },
       });
       if (error) throw error;

@@ -168,9 +168,14 @@ const Consultation = () => {
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-4xl font-bold text-foreground">Create Consultation</h1>
-          <Button onClick={handleSignOut} variant="outline">
-            Sign Out
-          </Button>
+          <div className="flex gap-4">
+            <Button onClick={() => navigate("/consultations")} variant="outline">
+              View All Consultations
+            </Button>
+            <Button onClick={handleSignOut} variant="outline">
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         <Card className="p-6 space-y-6">
