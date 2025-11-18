@@ -32,6 +32,98 @@ interface Consultation {
   created_at: string;
 }
 
+interface FHIRData {
+  resourceType?: string;
+  status?: string;
+  class?: any;
+  subject?: {
+    reference?: string;
+    display?: string;
+  };
+  period?: {
+    start?: string;
+    end?: string;
+  };
+  reasonCode?: Array<{
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  }>;
+  diagnosis?: Array<{
+    condition?: {
+      display?: string;
+    };
+  }>;
+  extension?: Array<{
+    url?: string;
+    valueString?: string;
+  }>;
+}
+
+const parseFHIRData = (fhirString: string): FHIRData | null => {
+  try {
+    return JSON.parse(fhirString);
+  } catch (error) {
+    console.error("Error parsing FHIR data:", error);
+    return null;
+  }
+};
+
+const extractKeyInfo = (fhirData: FHIRData | null) => {
+  if (!fhirData) return null;
+
+  const info: {
+    diagnosis: string[];
+    vitals: { label: string; value: string }[];
+    medications: string[];
+    symptoms: string[];
+    notes: string[];
+  } = {
+    diagnosis: [],
+    vitals: [],
+    medications: [],
+    symptoms: [],
+    notes: [],
+  };
+
+  // Extract diagnosis
+  if (fhirData.diagnosis) {
+    info.diagnosis = fhirData.diagnosis
+      .map((d) => d.condition?.display)
+      .filter(Boolean) as string[];
+  }
+
+  if (fhirData.reasonCode) {
+    const reasons = fhirData.reasonCode
+      .map((r) => r.text || r.coding?.[0]?.display)
+      .filter(Boolean) as string[];
+    info.diagnosis.push(...reasons);
+  }
+
+  // Extract from extensions (custom data)
+  if (fhirData.extension) {
+    fhirData.extension.forEach((ext) => {
+      const url = ext.url?.toLowerCase() || "";
+      const value = ext.valueString || "";
+
+      if (url.includes("vital") || url.includes("observation")) {
+        info.vitals.push({ label: url.split("/").pop() || url, value });
+      } else if (url.includes("medication")) {
+        info.medications.push(value);
+      } else if (url.includes("symptom")) {
+        info.symptoms.push(value);
+      } else if (url.includes("note") || url.includes("comment")) {
+        info.notes.push(value);
+      }
+    });
+  }
+
+  return info;
+};
+
 const ConsultationsList = () => {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [filteredConsultations, setFilteredConsultations] = useState<Consultation[]>([]);
@@ -228,29 +320,123 @@ const ConsultationsList = () => {
                 </div>
               </div>
 
+              {(() => {
+                const fhirData = parseFHIRData(selectedConsultation.fhir_data);
+                const keyInfo = extractKeyInfo(fhirData);
+
+                return keyInfo ? (
+                  <>
+                    {keyInfo.diagnosis.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          Diagnosis
+                        </p>
+                        <div className="space-y-2">
+                          {keyInfo.diagnosis.map((diag, idx) => (
+                            <div
+                              key={idx}
+                              className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg"
+                            >
+                              <p className="text-sm font-medium">{diag}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {keyInfo.vitals.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                          Vital Signs
+                        </p>
+                        <div className="grid grid-cols-2 gap-3">
+                          {keyInfo.vitals.map((vital, idx) => (
+                            <div key={idx} className="p-3 bg-muted rounded-lg">
+                              <p className="text-xs text-muted-foreground capitalize">
+                                {vital.label.replace(/_/g, " ")}
+                              </p>
+                              <p className="text-lg font-semibold">{vital.value}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {keyInfo.medications.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                          Medications
+                        </p>
+                        <div className="space-y-2">
+                          {keyInfo.medications.map((med, idx) => (
+                            <div key={idx} className="p-3 bg-primary/10 rounded-lg">
+                              <p className="text-sm">{med}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {keyInfo.symptoms.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                          Symptoms
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {keyInfo.symptoms.map((symptom, idx) => (
+                            <div
+                              key={idx}
+                              className="px-3 py-1 bg-muted rounded-full text-sm"
+                            >
+                              {symptom}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {keyInfo.notes.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                          Clinical Notes
+                        </p>
+                        <div className="space-y-2">
+                          {keyInfo.notes.map((note, idx) => (
+                            <div key={idx} className="p-3 bg-muted rounded-lg text-sm">
+                              {note}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : null;
+              })()}
+
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-2">
                   Transcription
                 </p>
-                <div className="p-4 bg-muted rounded-lg text-sm">
+                <div className="p-4 bg-muted rounded-lg text-sm max-h-48 overflow-y-auto">
                   {selectedConsultation.audio_transcription}
                 </div>
               </div>
 
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">
-                  FHIR Data
-                </p>
-                <div className="p-4 bg-muted rounded-lg text-sm font-mono overflow-auto max-h-96">
+              <details className="group">
+                <summary className="text-sm font-medium text-muted-foreground mb-2 cursor-pointer hover:text-foreground">
+                  View Raw FHIR Data
+                </summary>
+                <div className="mt-2 p-4 bg-muted rounded-lg text-xs font-mono overflow-auto max-h-96">
                   <pre>
                     {JSON.stringify(
-                      JSON.parse(selectedConsultation.fhir_data),
+                      parseFHIRData(selectedConsultation.fhir_data),
                       null,
                       2
                     )}
                   </pre>
                 </div>
-              </div>
+              </details>
             </div>
           )}
         </DialogContent>
