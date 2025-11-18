@@ -35,7 +35,54 @@ Patient Information:
 Consultation Transcript:
 ${transcription}
 
-Please return ONLY valid FHIR R4 JSON format for an Encounter resource. Include the patient information, clinical notes from the transcript, and any relevant observations or conditions mentioned. Use proper FHIR structure with resourceType, id, status, class, subject, and period fields.`;
+Please return ONLY valid FHIR R4 JSON format for an Encounter resource. Include structured extensions for any vitals (blood pressure, temperature, heart rate), medications, symptoms, and clinical observations mentioned in the transcript. Use the following structure:
+
+{
+  "resourceType": "Encounter",
+  "status": "finished",
+  "class": { "code": "AMB" },
+  "subject": {
+    "display": "${patientName}"
+  },
+  "period": {
+    "start": "${new Date().toISOString()}"
+  },
+  "diagnosis": [
+    {
+      "condition": {
+        "display": "Primary diagnosis from transcript"
+      }
+    }
+  ],
+  "extension": [
+    {
+      "url": "http://example.org/fhir/vital/blood_pressure",
+      "valueString": "120/80 mmHg"
+    },
+    {
+      "url": "http://example.org/fhir/vital/temperature",
+      "valueString": "98.6°F"
+    },
+    {
+      "url": "http://example.org/fhir/vital/heart_rate",
+      "valueString": "72 bpm"
+    },
+    {
+      "url": "http://example.org/fhir/medication",
+      "valueString": "Medication name and dosage"
+    },
+    {
+      "url": "http://example.org/fhir/symptom",
+      "valueString": "Symptom description"
+    },
+    {
+      "url": "http://example.org/fhir/note",
+      "valueString": "Additional clinical notes"
+    }
+  ]
+}
+
+Extract all relevant medical information from the transcript and structure it using the extensions array. Return ONLY the JSON without any markdown formatting.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
