@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,12 +59,21 @@ const Navigation = () => {
           </button>
         </div>
 
-        <Button
-          variant="gradient"
-          onClick={() => scrollToSection("contact")}
-        >
-          Get Started
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/auth")}
+            className="hidden md:inline-flex"
+          >
+            Sign In
+          </Button>
+          <Button
+            variant="gradient"
+            onClick={() => scrollToSection("contact")}
+          >
+            Get Started
+          </Button>
+        </div>
       </div>
     </nav>
   );
