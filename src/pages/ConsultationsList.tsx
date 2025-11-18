@@ -73,7 +73,12 @@ const parseFHIRData = (fhirString: string): FHIRData | null => {
 };
 
 const extractKeyInfo = (fhirData: FHIRData | null) => {
-  if (!fhirData) return null;
+  if (!fhirData) {
+    console.log("No FHIR data to parse");
+    return null;
+  }
+
+  console.log("Parsing FHIR data:", fhirData);
 
   const info: {
     diagnosis: string[];
@@ -110,7 +115,8 @@ const extractKeyInfo = (fhirData: FHIRData | null) => {
       const value = ext.valueString || "";
 
       if (url.includes("vital") || url.includes("observation")) {
-        info.vitals.push({ label: url.split("/").pop() || url, value });
+        const label = url.split("/").pop() || url;
+        info.vitals.push({ label: label.replace(/_/g, " "), value });
       } else if (url.includes("medication")) {
         info.medications.push(value);
       } else if (url.includes("symptom")) {
@@ -121,7 +127,17 @@ const extractKeyInfo = (fhirData: FHIRData | null) => {
     });
   }
 
-  return info;
+  console.log("Extracted key info:", info);
+  
+  // Check if we have any data
+  const hasData = 
+    info.diagnosis.length > 0 ||
+    info.vitals.length > 0 ||
+    info.medications.length > 0 ||
+    info.symptoms.length > 0 ||
+    info.notes.length > 0;
+
+  return hasData ? info : null;
 };
 
 const ConsultationsList = () => {
@@ -324,94 +340,104 @@ const ConsultationsList = () => {
                 const fhirData = parseFHIRData(selectedConsultation.fhir_data);
                 const keyInfo = extractKeyInfo(fhirData);
 
-                return keyInfo ? (
+                return (
                   <>
-                    {keyInfo.diagnosis.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                          <FileText className="h-4 w-4" />
-                          Diagnosis
-                        </p>
-                        <div className="space-y-2">
-                          {keyInfo.diagnosis.map((diag, idx) => (
-                            <div
-                              key={idx}
-                              className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg"
-                            >
-                              <p className="text-sm font-medium">{diag}</p>
+                    {keyInfo ? (
+                      <>
+                        {keyInfo.diagnosis.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                              <FileText className="h-4 w-4" />
+                              Diagnosis
+                            </p>
+                            <div className="space-y-2">
+                              {keyInfo.diagnosis.map((diag, idx) => (
+                                <div
+                                  key={idx}
+                                  className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg"
+                                >
+                                  <p className="text-sm font-medium">{diag}</p>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                          </div>
+                        )}
 
-                    {keyInfo.vitals.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-2">
-                          Vital Signs
-                        </p>
-                        <div className="grid grid-cols-2 gap-3">
-                          {keyInfo.vitals.map((vital, idx) => (
-                            <div key={idx} className="p-3 bg-muted rounded-lg">
-                              <p className="text-xs text-muted-foreground capitalize">
-                                {vital.label.replace(/_/g, " ")}
-                              </p>
-                              <p className="text-lg font-semibold">{vital.value}</p>
+                        {keyInfo.vitals.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-2">
+                              Vital Signs
+                            </p>
+                            <div className="grid grid-cols-2 gap-3">
+                              {keyInfo.vitals.map((vital, idx) => (
+                                <div key={idx} className="p-3 bg-muted rounded-lg">
+                                  <p className="text-xs text-muted-foreground capitalize">
+                                    {vital.label}
+                                  </p>
+                                  <p className="text-lg font-semibold">{vital.value}</p>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                          </div>
+                        )}
 
-                    {keyInfo.medications.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-2">
-                          Medications
-                        </p>
-                        <div className="space-y-2">
-                          {keyInfo.medications.map((med, idx) => (
-                            <div key={idx} className="p-3 bg-primary/10 rounded-lg">
-                              <p className="text-sm">{med}</p>
+                        {keyInfo.medications.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-2">
+                              Medications
+                            </p>
+                            <div className="space-y-2">
+                              {keyInfo.medications.map((med, idx) => (
+                                <div key={idx} className="p-3 bg-primary/10 rounded-lg">
+                                  <p className="text-sm">{med}</p>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                          </div>
+                        )}
 
-                    {keyInfo.symptoms.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-2">
-                          Symptoms
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {keyInfo.symptoms.map((symptom, idx) => (
-                            <div
-                              key={idx}
-                              className="px-3 py-1 bg-muted rounded-full text-sm"
-                            >
-                              {symptom}
+                        {keyInfo.symptoms.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-2">
+                              Symptoms
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {keyInfo.symptoms.map((symptom, idx) => (
+                                <div
+                                  key={idx}
+                                  className="px-3 py-1 bg-muted rounded-full text-sm"
+                                >
+                                  {symptom}
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                          </div>
+                        )}
 
-                    {keyInfo.notes.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-2">
-                          Clinical Notes
-                        </p>
-                        <div className="space-y-2">
-                          {keyInfo.notes.map((note, idx) => (
-                            <div key={idx} className="p-3 bg-muted rounded-lg text-sm">
-                              {note}
+                        {keyInfo.notes.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-2">
+                              Clinical Notes
+                            </p>
+                            <div className="space-y-2">
+                              {keyInfo.notes.map((note, idx) => (
+                                <div key={idx} className="p-3 bg-muted rounded-lg text-sm">
+                                  {note}
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="p-4 bg-muted/50 border border-border rounded-lg">
+                        <p className="text-sm text-muted-foreground">
+                          ℹ️ This consultation was created with an older format. Structured clinical data (diagnosis, vitals, medications) is only available for new consultations. Create a new consultation to see the enhanced format.
+                        </p>
                       </div>
                     )}
                   </>
-                ) : null;
+                );
               })()}
 
               <div>
