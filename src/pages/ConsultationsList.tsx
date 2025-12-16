@@ -74,11 +74,8 @@ const parseFHIRData = (fhirString: string): FHIRData | null => {
 
 const extractKeyInfo = (fhirData: FHIRData | null) => {
   if (!fhirData) {
-    console.log("No FHIR data to parse");
     return null;
   }
-
-  console.log("Parsing FHIR data:", fhirData);
 
   const info: {
     diagnosis: string[];
@@ -127,8 +124,6 @@ const extractKeyInfo = (fhirData: FHIRData | null) => {
     });
   }
 
-  console.log("Extracted key info:", info);
-  
   // Check if we have any data
   const hasData = 
     info.diagnosis.length > 0 ||

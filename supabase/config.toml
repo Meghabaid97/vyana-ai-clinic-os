@@ -1,7 +1,7 @@
 project_id = "gnfaxcdapizhfqloiajn"
 
 [functions.transcribe-audio]
-verify_jwt = false
+verify_jwt = true
 
 [functions.convert-to-fhir]
-verify_jwt = false
+verify_jwt = true
