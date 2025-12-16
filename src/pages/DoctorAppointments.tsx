@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import DoctorBreadcrumb from "@/components/DoctorBreadcrumb";
 import {
   Loader2,
   Calendar,
@@ -196,6 +197,7 @@ const DoctorAppointments = () => {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-8">
+        <DoctorBreadcrumb />
         {/* Filter */}
         <div className="flex items-center gap-4 mb-6">
           <Filter className="h-4 w-4 text-muted-foreground" />
