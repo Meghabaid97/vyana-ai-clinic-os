@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import DoctorHeader from "@/components/DoctorHeader";
+import { maskHealthId } from "@/lib/formatters";
 import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder, ExternalLink, Users } from "lucide-react";
 import {
   Table,
@@ -452,7 +453,7 @@ const ConsultationsList = () => {
                             </span>
                           </div>
                           <p className="text-sm text-muted-foreground font-mono">
-                            ID: {group.healthId}
+                            ID: {maskHealthId(group.healthId)}
                           </p>
                         </div>
                       </div>

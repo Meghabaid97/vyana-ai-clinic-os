@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import LocationSelector from "@/components/LocationSelector";
 import {
   Loader2,
   Stethoscope,
@@ -79,6 +80,12 @@ const DoctorProfileSetup = () => {
     maxAppointmentsPerDay: "10",
     appointmentDurationMinutes: "30",
   });
+  const [locationData, setLocationData] = useState({
+    pincode: "",
+    city: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -130,6 +137,12 @@ const DoctorProfileSetup = () => {
         maxAppointmentsPerDay: profile.max_appointments_per_day?.toString() || "10",
         appointmentDurationMinutes: profile.appointment_duration_minutes?.toString() || "30",
       });
+      setLocationData({
+        pincode: profile.pincode || "",
+        city: profile.city || "",
+        latitude: profile.latitude || null,
+        longitude: profile.longitude || null,
+      });
     } else {
       // Pre-fill name from user metadata
       setFormData(prev => ({
@@ -165,6 +178,10 @@ const DoctorProfileSetup = () => {
         availability_end_time: availabilityData.availabilityEndTime,
         max_appointments_per_day: parseInt(availabilityData.maxAppointmentsPerDay) || 10,
         appointment_duration_minutes: parseInt(availabilityData.appointmentDurationMinutes) || 30,
+        pincode: locationData.pincode || null,
+        city: locationData.city || null,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
       };
 
       if (existingProfile) {
@@ -381,6 +398,15 @@ const DoctorProfileSetup = () => {
                         rows={2}
                       />
                     </div>
+
+                    {/* Location */}
+                    <LocationSelector
+                      pincode={locationData.pincode}
+                      city={locationData.city}
+                      latitude={locationData.latitude}
+                      longitude={locationData.longitude}
+                      onLocationChange={setLocationData}
+                    />
                   </div>
                 </div>
               </TabsContent>

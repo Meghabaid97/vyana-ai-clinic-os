@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
+import { getEcoMessage } from "@/lib/formatters";
 import {
   Loader2,
   LogOut,
@@ -206,9 +207,7 @@ const DoctorDashboard = () => {
             Dr. <span className="text-gradient">{doctorName}</span>
           </h1>
           <p className="text-lg text-muted-foreground">
-            {stats.totalConsultations > 0 
-              ? `${stats.totalConsultations} consultations completed • ${stats.totalConsultations * 3} pages saved digitally 🌿`
-              : "Ready to start your first digital consultation?"}
+            {getEcoMessage(stats.totalConsultations, "doctor")}
           </p>
         </div>
 
