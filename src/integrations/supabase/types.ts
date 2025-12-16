@@ -21,6 +21,7 @@ export type Database = {
           doctor_id: string
           fhir_data: string
           id: string
+          is_archived: boolean
           patient_age: number
           patient_name: string
           patient_national_health_id: string
@@ -32,6 +33,7 @@ export type Database = {
           doctor_id: string
           fhir_data: string
           id?: string
+          is_archived?: boolean
           patient_age: number
           patient_name: string
           patient_national_health_id: string
@@ -43,6 +45,7 @@ export type Database = {
           doctor_id?: string
           fhir_data?: string
           id?: string
+          is_archived?: boolean
           patient_age?: number
           patient_name?: string
           patient_national_health_id?: string

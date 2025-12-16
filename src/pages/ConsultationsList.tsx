@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Search, User, Calendar, FileText, Clock } from "lucide-react";
+import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,6 +21,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Consultation {
   id: string;
@@ -219,6 +230,33 @@ const ConsultationsList = () => {
     navigate("/auth");
   };
 
+  const archiveConsultation = async (consultationId: string) => {
+    try {
+      const { error } = await (supabase as any)
+        .from("consultations")
+        .update({ is_archived: true })
+        .eq("id", consultationId);
+
+      if (error) throw error;
+
+      // Remove from local state
+      setConsultations(prev => prev.filter(c => c.id !== consultationId));
+      setSelectedConsultation(null);
+
+      toast({
+        title: "Consultation archived",
+        description: "The consultation has been removed from your list",
+      });
+    } catch (error: any) {
+      console.error("Error archiving consultation:", error);
+      toast({
+        title: "Error",
+        description: "Failed to archive consultation",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -349,14 +387,40 @@ const ConsultationsList = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedConsultation(consultation)}
-                      >
-                        <FileText className="mr-2 h-4 w-4" />
-                        View Details
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedConsultation(consultation)}
+                        >
+                          <FileText className="mr-2 h-4 w-4" />
+                          View
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Archive Consultation?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will remove the consultation from your view. The data will be preserved for compliance purposes.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => archiveConsultation(consultation.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Archive
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -368,11 +432,40 @@ const ConsultationsList = () => {
 
       <Dialog open={!!selectedConsultation} onOpenChange={() => setSelectedConsultation(null)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Consultation Details</DialogTitle>
-            <DialogDescription>
-              {selectedConsultation && formatDate(selectedConsultation.created_at)}
-            </DialogDescription>
+          <DialogHeader className="flex flex-row items-center justify-between">
+            <div>
+              <DialogTitle>Consultation Details</DialogTitle>
+              <DialogDescription>
+                {selectedConsultation && formatDate(selectedConsultation.created_at)}
+              </DialogDescription>
+            </div>
+            {selectedConsultation && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Archive
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Archive Consultation?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will remove the consultation from your view. The data will be preserved for compliance purposes.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => archiveConsultation(selectedConsultation.id)}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Archive
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </DialogHeader>
 
           {selectedConsultation && (
