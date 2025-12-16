@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import DoctorBreadcrumb from "@/components/DoctorBreadcrumb";
+import DoctorHeader from "@/components/DoctorHeader";
 import {
   Loader2,
-  ArrowLeft,
   FileText,
   Image,
   Download,
@@ -160,28 +159,13 @@ const SharedHealthRecords = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Header */}
-      <div className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/doctor-dashboard")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
-              <FolderOpen className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Shared Health Records</h1>
-              <p className="text-sm text-muted-foreground">
-                Records shared by patients with your consent
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DoctorHeader
+        title="Shared Health Records"
+        subtitle="Records shared by patients with your consent"
+        icon={<FolderOpen className="h-5 w-5 text-primary-foreground" />}
+      />
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <DoctorBreadcrumb />
+      <div className="max-w-6xl mx-auto px-6 py-4">
         {records.length === 0 ? (
           <Card className="p-12 text-center">
             <FolderOpen className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />

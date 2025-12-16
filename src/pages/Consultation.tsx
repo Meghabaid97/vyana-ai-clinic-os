@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import DoctorBreadcrumb from "@/components/DoctorBreadcrumb";
-import { Mic, Square, Loader2, Volume2, VolumeX, AlertTriangle, CheckCircle2, XCircle, Shield, ArrowLeft, Home } from "lucide-react";
+import DoctorHeader from "@/components/DoctorHeader";
+import { Mic, Square, Loader2, Volume2, VolumeX, AlertTriangle, CheckCircle2, XCircle, Shield, Stethoscope } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -328,33 +328,23 @@ const Consultation = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth");
-  };
 
   const canStartRecording = patientName && patientAge && patientNationalId && aadhaarVerified === true;
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <DoctorBreadcrumb />
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/doctor-dashboard")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-4xl font-bold text-foreground">Create Consultation</h1>
-          </div>
-          <div className="flex gap-4">
-            <Button onClick={() => navigate("/consultations")} variant="outline">
-              View All Consultations
-            </Button>
-            <Button onClick={handleSignOut} variant="outline">
-              Sign Out
-            </Button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background">
+      <DoctorHeader
+        title="Create Consultation"
+        subtitle="Record and transcribe patient consultation"
+        icon={<Stethoscope className="h-5 w-5 text-primary-foreground" />}
+        actions={
+          <Button onClick={() => navigate("/consultations")} variant="outline" size="sm">
+            View All Consultations
+          </Button>
+        }
+      />
+
+      <div className="max-w-4xl mx-auto px-6 py-4 space-y-8">
 
         <Card className="p-6 space-y-6">
           <div className="space-y-4">

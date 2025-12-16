@@ -5,8 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import DoctorBreadcrumb from "@/components/DoctorBreadcrumb";
-import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder, ExternalLink, ArrowLeft, Home } from "lucide-react";
+import DoctorHeader from "@/components/DoctorHeader";
+import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder, ExternalLink, Users } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -268,10 +268,6 @@ const ConsultationsList = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth");
-  };
 
   const archiveConsultation = async (consultationId: string) => {
     try {
@@ -330,34 +326,25 @@ const ConsultationsList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <DoctorBreadcrumb />
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/doctor-dashboard")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-4xl font-bold text-foreground">My Patients</h1>
-              <p className="text-muted-foreground mt-2">
-                View patient records and consultation history
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <Button onClick={() => navigate("/doctor-appointments")} variant="outline">
+    <div className="min-h-screen bg-background">
+      <DoctorHeader
+        title="My Patients"
+        subtitle="View patient records and consultation history"
+        icon={<Users className="h-5 w-5 text-primary-foreground" />}
+        actions={
+          <>
+            <Button onClick={() => navigate("/doctor-appointments")} variant="outline" size="sm">
               Appointments
             </Button>
-            <Button onClick={() => navigate("/consultation")} size="lg">
-              <Plus className="mr-2 h-5 w-5" />
+            <Button onClick={() => navigate("/consultation")} size="sm">
+              <Plus className="mr-2 h-4 w-4" />
               New Consultation
             </Button>
-            <Button onClick={handleSignOut} variant="outline">
-              Sign Out
-            </Button>
-          </div>
-        </div>
+          </>
+        }
+      />
+
+      <div className="max-w-7xl mx-auto px-6 py-4 space-y-8">
 
         {consultations.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

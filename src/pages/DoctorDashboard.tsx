@@ -55,7 +55,14 @@ const DoctorDashboard = () => {
         return;
       }
 
-      setDoctorName(session.user.email?.split("@")[0] || "Doctor");
+      // Fetch doctor profile name
+      const { data: profile } = await supabase
+        .from("doctor_profiles")
+        .select("full_name")
+        .eq("user_id", session.user.id)
+        .single();
+
+      setDoctorName(profile?.full_name || session.user.email?.split("@")[0] || "Doctor");
 
       // Load consultations
       const { data: consultations } = await supabase

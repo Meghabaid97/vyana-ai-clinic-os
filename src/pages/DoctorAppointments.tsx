@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import DoctorBreadcrumb from "@/components/DoctorBreadcrumb";
+import DoctorHeader from "@/components/DoctorHeader";
 import {
   Loader2,
   Calendar,
@@ -13,9 +13,9 @@ import {
   Phone,
   CheckCircle,
   XCircle,
-  ArrowLeft,
   FileText,
   Filter,
+  CalendarCheck,
 } from "lucide-react";
 import {
   Dialog,
@@ -175,29 +175,20 @@ const DoctorAppointments = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b bg-card">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/doctor-dashboard")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-xl font-semibold">Appointment Requests</h1>
-              <p className="text-sm text-muted-foreground">
-                Manage patient appointment requests
-              </p>
-            </div>
-          </div>
-          {pendingCount > 0 && (
+      <DoctorHeader
+        title="Appointment Requests"
+        subtitle="Manage patient appointment requests"
+        icon={<CalendarCheck className="h-5 w-5 text-primary-foreground" />}
+        actions={
+          pendingCount > 0 ? (
             <Badge variant="secondary" className="text-sm">
               {pendingCount} pending
             </Badge>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <DoctorBreadcrumb />
+      <div className="max-w-6xl mx-auto px-6 py-4">
         {/* Filter */}
         <div className="flex items-center gap-4 mb-6">
           <Filter className="h-4 w-4 text-muted-foreground" />
