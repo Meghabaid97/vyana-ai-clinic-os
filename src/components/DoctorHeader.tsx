@@ -1,6 +1,6 @@
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Leaf, ChevronRight } from "lucide-react";
+import { LogOut, Leaf } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
 
@@ -13,72 +13,49 @@ interface DoctorHeaderProps {
   actions?: React.ReactNode;
 }
 
-const routeLabels: Record<string, string> = {
-  "/doctor-dashboard": "Dashboard",
-  "/consultation": "New Consultation",
-  "/consultations": "Patients",
-  "/doctor-appointments": "Appointments",
-  "/shared-records": "Shared Records",
-  "/doctor-profile-setup": "Profile",
-};
-
 const DoctorHeader = ({
   title,
   subtitle,
   showSignOut = false,
   showProfile = false,
-  icon,
   actions,
 }: DoctorHeaderProps) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const currentPath = location.pathname;
-  const isHome = currentPath === "/doctor-dashboard";
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
   };
 
-  // Build breadcrumb label
-  const getBreadcrumbLabel = () => {
-    if (currentPath.startsWith("/patient/")) {
-      return "Patient Profile";
-    }
-    return routeLabels[currentPath] || title;
-  };
-
   return (
-    <div className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          {/* Vyana AI Logo as Home */}
+    <div className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
+      <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          {/* Vyana AI Logo - Home */}
           <Link
             to="/doctor-dashboard"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 border border-primary/20 transition-all"
+            className="flex items-center gap-2.5 group"
           >
-            <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-              <span className="text-xs font-bold text-primary-foreground">V</span>
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">
+              <span className="text-sm font-bold text-primary-foreground">V</span>
             </div>
-            <span className="text-sm font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hidden sm:inline">
+            <span className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               Vyana AI
             </span>
           </Link>
-          {!isHome && (
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          
+          {/* Page Title */}
+          {title && (
+            <>
+              <div className="h-6 w-px bg-border" />
+              <div>
+                <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+                {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+              </div>
+            </>
           )}
-          {icon && (
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-              {icon}
-            </div>
-          )}
-          <div>
-            <h1 className="text-xl font-bold">{title}</h1>
-            {subtitle && (
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
-            )}
-          </div>
         </div>
+        
         <div className="flex items-center gap-3">
           {/* Eco indicator */}
           <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">

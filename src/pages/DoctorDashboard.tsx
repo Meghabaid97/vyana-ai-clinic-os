@@ -8,7 +8,6 @@ import NotificationBell from "@/components/NotificationBell";
 import {
   Loader2,
   LogOut,
-  Stethoscope,
   Users,
   CalendarCheck,
   FileText,
@@ -175,17 +174,27 @@ const DoctorDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
-      <div className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
-              <Stethoscope className="h-6 w-6 text-primary-foreground" />
+      <div className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            {/* Vyana AI Logo - Home */}
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-md">
+                <span className="text-sm font-bold text-primary-foreground">V</span>
+              </div>
+              <span className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Vyana AI
+              </span>
             </div>
+            
+            <div className="h-6 w-px bg-border" />
+            
             <div>
-              <h1 className="text-2xl font-bold">Welcome, Dr. {doctorName}</h1>
-              <p className="text-sm text-muted-foreground">Vyana AI Clinical Dashboard</p>
+              <h1 className="text-lg font-semibold text-foreground">Welcome, Dr. {doctorName}</h1>
+              <p className="text-xs text-muted-foreground">Clinical Dashboard</p>
             </div>
           </div>
+          
           <div className="flex items-center gap-3">
             {/* Eco indicator */}
             <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
@@ -286,7 +295,7 @@ const DoctorDashboard = () => {
         {/* Recent Activity Prompt */}
         {stats.totalConsultations === 0 && (
           <Card className="p-8 text-center bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-            <Stethoscope className="h-12 w-12 mx-auto text-primary mb-4" />
+            <Activity className="h-12 w-12 mx-auto text-primary mb-4" />
             <h3 className="text-xl font-semibold mb-2">Ready to start?</h3>
             <p className="text-muted-foreground mb-4">
               Create your first consultation to begin building patient records
