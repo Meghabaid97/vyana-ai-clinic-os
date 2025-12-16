@@ -135,7 +135,7 @@ const DoctorDashboard = () => {
     },
     {
       title: "My Patients",
-      description: `${stats.totalPatients} registered patients`,
+      description: `${stats.totalPatients} patients • ${stats.totalConsultations} records`,
       icon: Users,
       color: "bg-blue-500",
       hoverColor: "hover:bg-blue-600",
@@ -153,18 +153,10 @@ const DoctorDashboard = () => {
       badge: stats.pendingAppointments > 0 ? stats.pendingAppointments : undefined,
     },
     {
-      title: "Consultations",
-      description: `${stats.totalConsultations} total records`,
-      icon: FileText,
-      color: "bg-purple-500",
-      hoverColor: "hover:bg-purple-600",
-      onClick: () => navigate("/consultations"),
-    },
-    {
       title: "Shared Records",
       description: stats.sharedRecords > 0
-        ? `${stats.sharedRecords} patient records`
-        : "View patient files",
+        ? `${stats.sharedRecords} patient files`
+        : "View shared files",
       icon: FolderOpen,
       color: "bg-teal-500",
       hoverColor: "hover:bg-teal-600",
@@ -300,7 +292,7 @@ const DoctorDashboard = () => {
             <Activity className="h-5 w-5 text-primary" />
             Quick Actions
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {quickActions.map((action) => (
               <button
                 key={action.title}

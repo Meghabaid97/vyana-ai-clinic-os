@@ -84,6 +84,20 @@ interface Reminder {
   is_sent: boolean;
 }
 
+interface DrugInteraction {
+  drugs: string[];
+  severity: "minor" | "moderate" | "severe" | "contraindicated";
+  description: string;
+  recommendation: string;
+}
+
+interface DrugInteractionResult {
+  interactions: DrugInteraction[];
+  safetyNotes: string[];
+  overallRisk: string;
+  disclaimer: string;
+}
+
 const DoctorPatientView = () => {
   const { healthId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
@@ -108,6 +122,11 @@ const DoctorPatientView = () => {
   const [reminderMessage, setReminderMessage] = useState("");
   const [patientPhone, setPatientPhone] = useState("");
   const [isCreatingReminder, setIsCreatingReminder] = useState(false);
+  
+  // Drug Interactions
+  const [showDrugDialog, setShowDrugDialog] = useState(false);
+  const [isCheckingDrugs, setIsCheckingDrugs] = useState(false);
+  const [drugInteractions, setDrugInteractions] = useState<DrugInteractionResult | null>(null);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -257,7 +276,61 @@ const DoctorPatientView = () => {
     }
   };
 
-  // Prescription Generator
+  // Drug Interaction Checker
+  const checkDrugInteractions = async () => {
+    setIsCheckingDrugs(true);
+    setDrugInteractions(null);
+    
+    try {
+      const allMedications: string[] = [];
+      
+      consultations.forEach(c => {
+        const fhir = parseFHIRData(c.fhir_data);
+        if (fhir) {
+          allMedications.push(...extractMedications(fhir));
+        }
+      });
+
+      const uniqueMeds = [...new Set(allMedications)];
+      
+      if (uniqueMeds.length < 2) {
+        setDrugInteractions({
+          interactions: [],
+          safetyNotes: ["Patient has fewer than 2 recorded medications. No interaction check needed."],
+          overallRisk: "low",
+          disclaimer: "Please consult a healthcare professional for medical advice."
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("check-drug-interactions", {
+        body: { medications: uniqueMeds },
+      });
+
+      if (error) throw error;
+      setDrugInteractions(data);
+    } catch (error: any) {
+      console.error("Error checking drug interactions:", error);
+      toast({
+        title: "Error",
+        description: "Failed to check drug interactions",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingDrugs(false);
+    }
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "contraindicated": return "bg-red-600/10 text-red-700 border-red-600/30";
+      case "severe": return "bg-red-500/10 text-red-600 border-red-500/30";
+      case "moderate": return "bg-amber-500/10 text-amber-600 border-amber-500/30";
+      case "minor": return "bg-green-500/10 text-green-600 border-green-500/30";
+      default: return "bg-muted";
+    }
+  };
+
   const generatePrescription = async (consultation: Consultation) => {
     setSelectedConsultationForRx(consultation);
     setShowPrescriptionDialog(true);
@@ -466,6 +539,17 @@ const DoctorPatientView = () => {
               >
                 <AlertTriangle className="h-4 w-4 mr-2 text-amber-500" />
                 Health Risk Analysis
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {
+                  setShowDrugDialog(true);
+                  checkDrugInteractions();
+                }}
+              >
+                <Pill className="h-4 w-4 mr-2 text-purple-500" />
+                Drug Interactions
               </Button>
               <Button
                 variant="outline"
@@ -867,6 +951,76 @@ const DoctorPatientView = () => {
               Create Reminder
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Drug Interaction Dialog */}
+      <Dialog open={showDrugDialog} onOpenChange={setShowDrugDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pill className="h-5 w-5 text-purple-500" />
+              Drug Interaction Check
+            </DialogTitle>
+            <DialogDescription>
+              AI-powered analysis of potential medication interactions
+            </DialogDescription>
+          </DialogHeader>
+
+          {isCheckingDrugs ? (
+            <div className="flex flex-col items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+              <p className="text-muted-foreground">Checking drug interactions...</p>
+            </div>
+          ) : drugInteractions ? (
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+              {drugInteractions.interactions.length > 0 ? (
+                <div>
+                  <h4 className="font-semibold mb-2">Potential Interactions</h4>
+                  <div className="space-y-2">
+                    {drugInteractions.interactions.map((interaction, i) => (
+                      <div key={i} className={`p-3 rounded-lg border ${getSeverityColor(interaction.severity)}`}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-sm">{interaction.drugs.join(" + ")}</span>
+                          <Badge variant="outline" className={getSeverityColor(interaction.severity)}>
+                            {interaction.severity.toUpperCase()}
+                          </Badge>
+                        </div>
+                        <p className="text-sm opacity-80 mb-2">{interaction.description}</p>
+                        <p className="text-xs font-medium">Recommendation: {interaction.recommendation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/30 text-center">
+                  <p className="text-green-600 font-medium">No significant interactions found</p>
+                </div>
+              )}
+
+              {drugInteractions.safetyNotes.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Safety Notes</h4>
+                  <ul className="space-y-1">
+                    {drugInteractions.safetyNotes.map((note, i) => (
+                      <li key={i} className="text-sm flex items-start gap-2">
+                        <span className="text-primary">•</span>
+                        {note}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <p className="text-xs text-muted-foreground italic">
+                {drugInteractions.disclaimer}
+              </p>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-4">
+              No interaction data available
+            </p>
+          )}
         </DialogContent>
       </Dialog>
     </div>
