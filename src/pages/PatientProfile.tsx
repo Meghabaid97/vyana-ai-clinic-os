@@ -29,6 +29,9 @@ import {
   Mic,
   MicOff,
   Wand2,
+  MessageCircle,
+  Phone,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Select,
@@ -166,6 +169,17 @@ const PatientProfile = () => {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [prescriptionWarning, setPrescriptionWarning] = useState<string>("");
+  const [drugInteractions, setDrugInteractions] = useState<{
+    interactions: Array<{ drugs: string[]; severity: string; description: string; recommendation: string }>;
+    safetyNotes: string[];
+    overallRisk: string;
+    disclaimer: string;
+  } | null>(null);
+  const [isCheckingInteractions, setIsCheckingInteractions] = useState(false);
+  const [patientPhone, setPatientPhone] = useState("");
+  const [showReminderDialog, setShowReminderDialog] = useState(false);
+  const [reminderMessage, setReminderMessage] = useState("");
+  const [reminderDate, setReminderDate] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -679,6 +693,66 @@ const PatientProfile = () => {
     }
   };
 
+  const checkDrugInteractions = async () => {
+    if (uniqueMedications.length < 2) {
+      toast({
+        title: "Not enough medications",
+        description: "At least 2 medications are required to check interactions",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCheckingInteractions(true);
+    try {
+      const response = await supabase.functions.invoke("check-drug-interactions", {
+        body: { medications: uniqueMedications },
+      });
+
+      if (response.error) throw new Error(response.error.message);
+
+      setDrugInteractions(response.data);
+      toast({
+        title: "Analysis Complete",
+        description: `Found ${response.data.interactions?.length || 0} potential interactions`,
+      });
+    } catch (error: any) {
+      console.error("Error checking drug interactions:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to check drug interactions",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingInteractions(false);
+    }
+  };
+
+  const openWhatsAppReminder = (phone: string, message: string) => {
+    const encodedMessage = encodeURIComponent(message);
+    const cleanPhone = phone.replace(/\D/g, "");
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
+  const generateReminderMessage = () => {
+    const latestConsultation = consultations[0];
+    const event = latestConsultation ? extractTimelineData(latestConsultation) : null;
+    
+    let message = `Hi ${patientInfo?.name},\n\nThis is a follow-up reminder from your recent consultation at Vyana AI Clinic.\n\n`;
+    
+    if (event?.diagnosis.length) {
+      message += `Diagnosis: ${event.diagnosis.join(", ")}\n`;
+    }
+    if (event?.medications.length) {
+      message += `\nMedications:\n${event.medications.map(m => `• ${m}`).join("\n")}\n`;
+    }
+    
+    message += `\nPlease ensure you're following the prescribed treatment. Feel free to reach out if you have any questions.\n\nBest regards,\nYour Healthcare Team`;
+    
+    return message;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -750,6 +824,225 @@ const PatientProfile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Sidebar - Medical Summary */}
           <div className="space-y-6">
+            {/* AI Health Risk Indicators - TOP */}
+            <Card className="p-5 border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+              <h3 className="font-semibold flex items-center gap-2 mb-4 text-primary">
+                <HeartPulse className="h-5 w-5" />
+                AI Health Risk Analysis
+              </h3>
+              
+              {!healthRisks ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    AI-powered analysis of patient's medical history to identify potential health risks.
+                  </p>
+                  <Button 
+                    onClick={analyzeHealthRisks} 
+                    disabled={isAnalyzing}
+                    className="w-full"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Analyze Health Risks
+                      </>
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {/* Overall Risk Badge */}
+                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    healthRisks.risks.some(r => r.level === "high")
+                      ? "bg-destructive/20 text-destructive"
+                      : healthRisks.risks.some(r => r.level === "medium")
+                      ? "bg-yellow-500/20 text-yellow-600"
+                      : "bg-green-500/20 text-green-600"
+                  }`}>
+                    Overall Risk: {healthRisks.risks.some(r => r.level === "high") ? "High" : healthRisks.risks.some(r => r.level === "medium") ? "Moderate" : "Low"}
+                  </div>
+
+                  {healthRisks.risks.map((risk, idx) => (
+                    <div 
+                      key={idx}
+                      className={`p-3 rounded-lg border ${
+                        risk.level === "high" 
+                          ? "bg-destructive/10 border-destructive/30" 
+                          : risk.level === "medium"
+                          ? "bg-yellow-500/10 border-yellow-500/30"
+                          : "bg-green-500/10 border-green-500/30"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <ShieldAlert className={`h-4 w-4 flex-shrink-0 ${
+                            risk.level === "high" 
+                              ? "text-destructive" 
+                              : risk.level === "medium"
+                              ? "text-yellow-500"
+                              : "text-green-500"
+                          }`} />
+                          <span className="font-medium text-sm">{risk.condition}</span>
+                        </div>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${
+                          risk.level === "high" 
+                            ? "bg-destructive/20 text-destructive" 
+                            : risk.level === "medium"
+                            ? "bg-yellow-500/20 text-yellow-600"
+                            : "bg-green-500/20 text-green-600"
+                        }`}>
+                          {risk.level}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">{risk.reasoning}</p>
+                    </div>
+                  ))}
+
+                  {healthRisks.recommendations.length > 0 && (
+                    <div className="pt-3 border-t">
+                      <p className="text-xs font-medium mb-2">Recommendations:</p>
+                      <ul className="text-xs text-muted-foreground space-y-1">
+                        {healthRisks.recommendations.map((rec, idx) => (
+                          <li key={idx}>• {rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={analyzeHealthRisks}
+                    disabled={isAnalyzing}
+                    className="w-full"
+                  >
+                    {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                    Re-analyze
+                  </Button>
+                </div>
+              )}
+            </Card>
+
+            {/* WhatsApp Follow-up Reminder */}
+            <Card className="p-5 border-green-500/30">
+              <h3 className="font-semibold flex items-center gap-2 mb-4">
+                <MessageCircle className="h-4 w-4 text-green-500" />
+                Follow-up Reminder
+              </h3>
+              <div className="space-y-3">
+                <Input
+                  placeholder="Patient phone (+91...)"
+                  value={patientPhone}
+                  onChange={(e) => setPatientPhone(e.target.value)}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-green-600 border-green-500/50 hover:bg-green-500/10"
+                  onClick={() => {
+                    const message = generateReminderMessage();
+                    if (patientPhone) {
+                      openWhatsAppReminder(patientPhone, message);
+                    } else {
+                      toast({
+                        title: "Phone required",
+                        description: "Please enter patient phone number",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                >
+                  <Phone className="mr-2 h-4 w-4" />
+                  Send WhatsApp Reminder
+                </Button>
+              </div>
+            </Card>
+
+            {/* Drug Interaction Checker */}
+            {uniqueMedications.length >= 2 && (
+              <Card className="p-5 border-orange-500/30">
+                <h3 className="font-semibold flex items-center gap-2 mb-4">
+                  <AlertTriangle className="h-4 w-4 text-orange-500" />
+                  Drug Interaction Checker
+                </h3>
+                
+                {!drugInteractions ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Check for potential interactions between {uniqueMedications.length} medications.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={checkDrugInteractions}
+                      disabled={isCheckingInteractions}
+                    >
+                      {isCheckingInteractions ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="mr-2 h-4 w-4" />
+                      )}
+                      Check Interactions
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                      drugInteractions.overallRisk === "high"
+                        ? "bg-destructive/20 text-destructive"
+                        : drugInteractions.overallRisk === "moderate"
+                        ? "bg-yellow-500/20 text-yellow-600"
+                        : "bg-green-500/20 text-green-600"
+                    }`}>
+                      {drugInteractions.interactions.length} interaction(s) found
+                    </div>
+
+                    {drugInteractions.interactions.map((interaction, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-3 rounded-lg border ${
+                          interaction.severity === "severe" || interaction.severity === "contraindicated"
+                            ? "bg-destructive/10 border-destructive/30"
+                            : interaction.severity === "moderate"
+                            ? "bg-yellow-500/10 border-yellow-500/30"
+                            : "bg-muted"
+                        }`}
+                      >
+                        <p className="text-xs font-medium">{interaction.drugs.join(" + ")}</p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          interaction.severity === "severe" || interaction.severity === "contraindicated"
+                            ? "bg-destructive/20 text-destructive"
+                            : interaction.severity === "moderate"
+                            ? "bg-yellow-500/20 text-yellow-600"
+                            : "bg-muted text-muted-foreground"
+                        }`}>
+                          {interaction.severity}
+                        </span>
+                        <p className="text-xs text-muted-foreground mt-2">{interaction.description}</p>
+                      </div>
+                    ))}
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={checkDrugInteractions}
+                      disabled={isCheckingInteractions}
+                    >
+                      Re-check
+                    </Button>
+                  </div>
+                )}
+              </Card>
+            )}
+
+            {/* Visit Summary */}
             <Card className="p-5">
               <h3 className="font-semibold flex items-center gap-2 mb-4">
                 <Activity className="h-4 w-4 text-primary" />
@@ -835,108 +1128,6 @@ const PatientProfile = () => {
                 </div>
               </Card>
             )}
-
-            {/* AI Health Risk Indicators */}
-            <Card className="p-5 border-primary/20">
-              <h3 className="font-semibold flex items-center gap-2 mb-4">
-                <HeartPulse className="h-4 w-4 text-primary" />
-                AI Health Risk Indicators
-              </h3>
-              
-              {!healthRisks ? (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Analyze patient history to identify potential health risks.
-                  </p>
-                  <Button 
-                    onClick={analyzeHealthRisks} 
-                    disabled={isAnalyzing}
-                    className="w-full"
-                    size="sm"
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Analyze Risks
-                      </>
-                    )}
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {healthRisks.risks.map((risk, idx) => (
-                    <div 
-                      key={idx}
-                      className={`p-3 rounded-lg border ${
-                        risk.level === "high" 
-                          ? "bg-destructive/10 border-destructive/30" 
-                          : risk.level === "medium"
-                          ? "bg-yellow-500/10 border-yellow-500/30"
-                          : "bg-green-500/10 border-green-500/30"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <ShieldAlert className={`h-4 w-4 ${
-                            risk.level === "high" 
-                              ? "text-destructive" 
-                              : risk.level === "medium"
-                              ? "text-yellow-500"
-                              : "text-green-500"
-                          }`} />
-                          <span className="font-medium text-sm">{risk.condition}</span>
-                        </div>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          risk.level === "high" 
-                            ? "bg-destructive/20 text-destructive" 
-                            : risk.level === "medium"
-                            ? "bg-yellow-500/20 text-yellow-600"
-                            : "bg-green-500/20 text-green-600"
-                        }`}>
-                          {risk.level}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2">{risk.reasoning}</p>
-                    </div>
-                  ))}
-
-                  {healthRisks.recommendations.length > 0 && (
-                    <div className="pt-3 border-t">
-                      <p className="text-xs font-medium mb-2">Recommendations:</p>
-                      <ul className="text-xs text-muted-foreground space-y-1">
-                        {healthRisks.recommendations.map((rec, idx) => (
-                          <li key={idx}>• {rec}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  <p className="text-xs text-muted-foreground italic border-t pt-3">
-                    {healthRisks.disclaimer}
-                  </p>
-
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={analyzeHealthRisks}
-                    disabled={isAnalyzing}
-                    className="w-full"
-                  >
-                    {isAnalyzing ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="mr-2 h-4 w-4" />
-                    )}
-                    Re-analyze
-                  </Button>
-                </div>
-              )}
-            </Card>
           </div>
 
           {/* Main Content - Timeline */}
