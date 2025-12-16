@@ -101,21 +101,29 @@ serve(async (req) => {
     formData.append('file', blob, 'audio.webm');
     formData.append('model', 'whisper-1');
     
-    // Handle mixed language (code-switching) - use prompt to guide transcription
+    // Handle mixed language (code-switching) - use prompt and primary language
     if (mixedLanguage) {
+      // Extract primary language from mixed language code (e.g., 'hi-en' -> 'hi')
+      const primaryLang = mixedLanguage.split('-')[0];
+      formData.append('language', primaryLang);
+      
       // Prompt helps Whisper understand the expected content style
       const prompts: Record<string, string> = {
-        'hi-en': 'This is a medical consultation in Hindi and English. The speaker switches between Hindi and English.',
-        'bn-en': 'This is a medical consultation in Bengali and English. The speaker switches between Bengali and English.',
-        'ta-en': 'This is a medical consultation in Tamil and English. The speaker switches between Tamil and English.',
-        'te-en': 'This is a medical consultation in Telugu and English. The speaker switches between Telugu and English.',
-        'mr-en': 'This is a medical consultation in Marathi and English. The speaker switches between Marathi and English.',
+        'hi-en': 'This is a medical consultation in Hindi and English. The speaker switches between Hindi and English. Transcribe both languages accurately.',
+        'bn-en': 'This is a medical consultation in Bengali and English. The speaker switches between Bengali and English. Transcribe both languages accurately.',
+        'ta-en': 'This is a medical consultation in Tamil and English. The speaker switches between Tamil and English. Transcribe both languages accurately.',
+        'te-en': 'This is a medical consultation in Telugu and English. The speaker switches between Telugu and English. Transcribe both languages accurately.',
+        'mr-en': 'This is a medical consultation in Marathi and English. The speaker switches between Marathi and English. Transcribe both languages accurately.',
       };
       const prompt = prompts[mixedLanguage] || prompts['hi-en'];
       formData.append('prompt', prompt);
-    } else if (language) {
+      console.log('Using mixed language mode with primary:', primaryLang);
+    } else if (language && language !== 'auto') {
       // Add language if specified (improves accuracy for single language)
       formData.append('language', language);
+      console.log('Using single language mode:', language);
+    } else {
+      console.log('Using auto-detect mode');
     }
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
