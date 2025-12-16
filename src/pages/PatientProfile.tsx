@@ -2,8 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import jsPDF from "jspdf";
 import {
   Loader2,
   ArrowLeft,
@@ -17,6 +21,8 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
+  Download,
+  FileEdit,
 } from "lucide-react";
 import {
   Dialog,
@@ -24,6 +30,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 
 interface Consultation {
@@ -126,6 +133,14 @@ const PatientProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
+  const [showPrescriptionDialog, setShowPrescriptionDialog] = useState(false);
+  const [prescription, setPrescription] = useState({
+    medications: "",
+    dosage: "",
+    instructions: "",
+    duration: "",
+    notes: "",
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -217,6 +232,224 @@ const PatientProfile = () => {
     });
   };
 
+  const exportToPDF = () => {
+    if (!patientInfo) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPos = 20;
+
+    // Header
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("Patient Medical Record", pageWidth / 2, yPos, { align: "center" });
+    yPos += 15;
+
+    // Patient Info
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Patient Information", 20, yPos);
+    yPos += 8;
+    doc.setFont("helvetica", "normal");
+    doc.text(`Name: ${patientInfo.name}`, 20, yPos);
+    yPos += 6;
+    doc.text(`Age: ${patientInfo.age} years`, 20, yPos);
+    yPos += 6;
+    doc.text(`Health ID: ${patientInfo.healthId}`, 20, yPos);
+    yPos += 6;
+    doc.text(`Total Visits: ${consultations.length}`, 20, yPos);
+    yPos += 12;
+
+    // Medical Summary
+    if (uniqueDiagnoses.length > 0) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Past Diagnoses:", 20, yPos);
+      yPos += 6;
+      doc.setFont("helvetica", "normal");
+      uniqueDiagnoses.forEach((diagnosis) => {
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.text(`• ${diagnosis}`, 25, yPos);
+        yPos += 6;
+      });
+      yPos += 6;
+    }
+
+    if (uniqueMedications.length > 0) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Medications History:", 20, yPos);
+      yPos += 6;
+      doc.setFont("helvetica", "normal");
+      uniqueMedications.forEach((med) => {
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.text(`• ${med}`, 25, yPos);
+        yPos += 6;
+      });
+      yPos += 6;
+    }
+
+    // Consultation History
+    doc.setFont("helvetica", "bold");
+    doc.text("Consultation History:", 20, yPos);
+    yPos += 8;
+
+    consultations.forEach((consultation, index) => {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      const event = extractTimelineData(consultation);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Visit ${index + 1} - ${formatDate(consultation.created_at)}`, 20, yPos);
+      yPos += 6;
+      doc.setFont("helvetica", "normal");
+
+      if (event.diagnosis.length > 0) {
+        doc.text(`Diagnosis: ${event.diagnosis.join(", ")}`, 25, yPos);
+        yPos += 6;
+      }
+
+      if (event.medications.length > 0) {
+        doc.text(`Medications: ${event.medications.join(", ")}`, 25, yPos);
+        yPos += 6;
+      }
+
+      yPos += 4;
+    });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.text(`Generated on ${new Date().toLocaleString()}`, pageWidth / 2, 285, { align: "center" });
+
+    doc.save(`${patientInfo.name.replace(/\s+/g, "_")}_medical_record.pdf`);
+    toast({
+      title: "PDF Exported",
+      description: "Patient medical record has been downloaded",
+    });
+  };
+
+  const generatePrescription = () => {
+    if (!patientInfo) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPos = 20;
+
+    // Header
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("PRESCRIPTION", pageWidth / 2, yPos, { align: "center" });
+    yPos += 5;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, pageWidth / 2, yPos, { align: "center" });
+    yPos += 15;
+
+    // Divider
+    doc.setDrawColor(0);
+    doc.line(20, yPos, pageWidth - 20, yPos);
+    yPos += 10;
+
+    // Patient Info
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Patient Details:", 20, yPos);
+    yPos += 7;
+    doc.setFont("helvetica", "normal");
+    doc.text(`Name: ${patientInfo.name}`, 20, yPos);
+    yPos += 6;
+    doc.text(`Age: ${patientInfo.age} years`, 20, yPos);
+    yPos += 6;
+    doc.text(`Health ID: ${patientInfo.healthId}`, 20, yPos);
+    yPos += 12;
+
+    // Divider
+    doc.line(20, yPos, pageWidth - 20, yPos);
+    yPos += 10;
+
+    // Rx Symbol
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("Rx", 20, yPos);
+    yPos += 10;
+
+    // Medications
+    doc.setFontSize(12);
+    if (prescription.medications) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Medications:", 20, yPos);
+      yPos += 7;
+      doc.setFont("helvetica", "normal");
+      const medLines = doc.splitTextToSize(prescription.medications, pageWidth - 40);
+      doc.text(medLines, 25, yPos);
+      yPos += medLines.length * 6 + 6;
+    }
+
+    if (prescription.dosage) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Dosage:", 20, yPos);
+      yPos += 7;
+      doc.setFont("helvetica", "normal");
+      doc.text(prescription.dosage, 25, yPos);
+      yPos += 10;
+    }
+
+    if (prescription.duration) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Duration:", 20, yPos);
+      yPos += 7;
+      doc.setFont("helvetica", "normal");
+      doc.text(prescription.duration, 25, yPos);
+      yPos += 10;
+    }
+
+    if (prescription.instructions) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Instructions:", 20, yPos);
+      yPos += 7;
+      doc.setFont("helvetica", "normal");
+      const instrLines = doc.splitTextToSize(prescription.instructions, pageWidth - 40);
+      doc.text(instrLines, 25, yPos);
+      yPos += instrLines.length * 6 + 6;
+    }
+
+    if (prescription.notes) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Additional Notes:", 20, yPos);
+      yPos += 7;
+      doc.setFont("helvetica", "normal");
+      const noteLines = doc.splitTextToSize(prescription.notes, pageWidth - 40);
+      doc.text(noteLines, 25, yPos);
+      yPos += noteLines.length * 6 + 6;
+    }
+
+    // Signature line
+    yPos = Math.max(yPos + 20, 220);
+    doc.line(pageWidth - 80, yPos, pageWidth - 20, yPos);
+    doc.setFontSize(10);
+    doc.text("Doctor's Signature", pageWidth - 50, yPos + 5, { align: "center" });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.text("This prescription is valid for 30 days from the date of issue.", pageWidth / 2, 280, { align: "center" });
+
+    doc.save(`${patientInfo.name.replace(/\s+/g, "_")}_prescription_${new Date().toISOString().split("T")[0]}.pdf`);
+    
+    toast({
+      title: "Prescription Generated",
+      description: "Prescription PDF has been downloaded",
+    });
+    
+    setShowPrescriptionDialog(false);
+    setPrescription({ medications: "", dosage: "", instructions: "", duration: "", notes: "" });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -267,9 +500,19 @@ const PatientProfile = () => {
                 </p>
               </div>
             </div>
-            <Button onClick={() => navigate("/consultation")}>
-              New Consultation
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={exportToPDF}>
+                <Download className="mr-2 h-4 w-4" />
+                Export PDF
+              </Button>
+              <Button variant="outline" onClick={() => setShowPrescriptionDialog(true)}>
+                <FileEdit className="mr-2 h-4 w-4" />
+                Prescription
+              </Button>
+              <Button onClick={() => navigate("/consultation")}>
+                New Consultation
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -683,6 +926,83 @@ const PatientProfile = () => {
               </details>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Prescription Generator Dialog */}
+      <Dialog open={showPrescriptionDialog} onOpenChange={setShowPrescriptionDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Generate Prescription</DialogTitle>
+            <DialogDescription>
+              Create a prescription for {patientInfo?.name}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="medications">Medications *</Label>
+              <Textarea
+                id="medications"
+                placeholder="Enter medications (one per line)"
+                value={prescription.medications}
+                onChange={(e) => setPrescription({ ...prescription, medications: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dosage">Dosage</Label>
+              <Input
+                id="dosage"
+                placeholder="e.g., 1 tablet twice daily"
+                value={prescription.dosage}
+                onChange={(e) => setPrescription({ ...prescription, dosage: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="duration">Duration</Label>
+              <Input
+                id="duration"
+                placeholder="e.g., 7 days, 2 weeks"
+                value={prescription.duration}
+                onChange={(e) => setPrescription({ ...prescription, duration: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="instructions">Instructions</Label>
+              <Textarea
+                id="instructions"
+                placeholder="Special instructions for the patient"
+                value={prescription.instructions}
+                onChange={(e) => setPrescription({ ...prescription, instructions: e.target.value })}
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Additional Notes</Label>
+              <Textarea
+                id="notes"
+                placeholder="Any additional notes"
+                value={prescription.notes}
+                onChange={(e) => setPrescription({ ...prescription, notes: e.target.value })}
+                rows={2}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPrescriptionDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={generatePrescription} disabled={!prescription.medications.trim()}>
+              <Download className="mr-2 h-4 w-4" />
+              Generate PDF
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
