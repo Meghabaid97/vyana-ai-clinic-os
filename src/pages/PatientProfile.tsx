@@ -7,11 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import DoctorBreadcrumb from "@/components/DoctorBreadcrumb";
+import DoctorHeader from "@/components/DoctorHeader";
 import jsPDF from "jspdf";
 import {
   Loader2,
-  ArrowLeft,
   User,
   Calendar,
   FileText,
@@ -777,50 +776,26 @@ const PatientProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="max-w-6xl mx-auto px-8 py-6">
-          <DoctorBreadcrumb />
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/consultations")}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Patients
-          </Button>
-
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-6">
-              <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="h-10 w-10 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold">{patientInfo.name}</h1>
-                <p className="text-muted-foreground mt-1">
-                  {patientInfo.age} years old
-                </p>
-                <p className="text-sm font-mono text-muted-foreground">
-                  Health ID: {patientInfo.healthId}
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={exportToPDF}>
-                <Download className="mr-2 h-4 w-4" />
-                Export PDF
-              </Button>
-              <Button variant="outline" onClick={() => setShowPrescriptionDialog(true)}>
-                <FileEdit className="mr-2 h-4 w-4" />
-                Prescription
-              </Button>
-              <Button onClick={() => navigate("/consultation")}>
-                New Consultation
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DoctorHeader
+        title={patientInfo.name}
+        subtitle={`${patientInfo.age} years old • Health ID: ${patientInfo.healthId}`}
+        icon={<User className="h-5 w-5 text-primary-foreground" />}
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={exportToPDF}>
+              <Download className="mr-2 h-4 w-4" />
+              Export PDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setShowPrescriptionDialog(true)}>
+              <FileEdit className="mr-2 h-4 w-4" />
+              Prescription
+            </Button>
+            <Button size="sm" onClick={() => navigate("/consultation")}>
+              New Consultation
+            </Button>
+          </>
+        }
+      />
 
       <div className="max-w-6xl mx-auto px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
