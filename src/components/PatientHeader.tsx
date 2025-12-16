@@ -23,7 +23,7 @@ const PatientHeader = ({
   };
 
   return (
-    <header className="glass sticky top-0 z-50">
+    <header className="bg-background/80 backdrop-blur-xl border-b border-border/50 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           {/* Vyana AI Logo - Home */}
@@ -31,8 +31,8 @@ const PatientHeader = ({
             to="/patient-dashboard"
             className="flex items-center gap-2.5 group"
           >
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-105 transition-all">
-              <span className="text-lg font-bold text-primary-foreground">V</span>
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-soft group-hover:shadow-glow group-hover:scale-105 transition-all">
+              <span className="text-lg font-bold text-white">V</span>
             </div>
             <span className="text-xl font-bold text-gradient">
               Vyana AI
@@ -53,7 +53,7 @@ const PatientHeader = ({
         
         <div className="flex items-center gap-3">
           {/* Digital indicator */}
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full glass">
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
             <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
             <span className="text-sm font-medium text-primary">100% Digital</span>
           </div>
@@ -62,7 +62,6 @@ const PatientHeader = ({
             variant="outline" 
             size="sm" 
             onClick={() => navigate("/patient-profile")} 
-            className="glass border-border/50 hover:border-primary/50"
           >
             Profile
           </Button>
