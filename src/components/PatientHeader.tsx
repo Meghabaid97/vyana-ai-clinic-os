@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
+import HeaderLocationSelector from "./HeaderLocationSelector";
 
 interface PatientHeaderProps {
   patientName: string;
@@ -16,6 +18,46 @@ const PatientHeader = ({
   subtitle,
 }: PatientHeaderProps) => {
   const navigate = useNavigate();
+  const [location, setLocation] = useState<{ pincode: string | null; city: string | null }>({
+    pincode: null,
+    city: null,
+  });
+
+  useEffect(() => {
+    loadLocation();
+  }, []);
+
+  const loadLocation = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data } = await supabase
+      .from("patients")
+      .select("pincode, city")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    if (data) {
+      setLocation({ pincode: data.pincode, city: data.city });
+    }
+  };
+
+  const handleLocationChange = async (newLocation: { pincode: string; city: string; latitude?: number; longitude?: number }) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    await supabase
+      .from("patients")
+      .update({
+        pincode: newLocation.pincode,
+        city: newLocation.city,
+        latitude: newLocation.latitude || null,
+        longitude: newLocation.longitude || null,
+      })
+      .eq("user_id", session.user.id);
+
+    setLocation({ pincode: newLocation.pincode, city: newLocation.city });
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -52,8 +94,26 @@ const PatientHeader = ({
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Location Selector */}
+          <HeaderLocationSelector
+            pincode={location.pincode}
+            city={location.city}
+            onLocationChange={handleLocationChange}
+          />
+          
+          {/* Find Doctors */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate("/find-doctors")} 
+            className="gap-2 hidden md:flex"
+          >
+            <Search className="h-4 w-4" />
+            Find Doctors
+          </Button>
+          
           {/* Digital indicator */}
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+          <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
             <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
             <span className="text-sm font-medium text-primary">100% Digital</span>
           </div>

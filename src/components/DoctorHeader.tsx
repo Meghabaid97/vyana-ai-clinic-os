@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut, Leaf } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
+import HeaderLocationSelector from "./HeaderLocationSelector";
 
 interface DoctorHeaderProps {
   title: string;
@@ -21,6 +23,46 @@ const DoctorHeader = ({
   actions,
 }: DoctorHeaderProps) => {
   const navigate = useNavigate();
+  const [location, setLocation] = useState<{ pincode: string | null; city: string | null }>({
+    pincode: null,
+    city: null,
+  });
+
+  useEffect(() => {
+    loadLocation();
+  }, []);
+
+  const loadLocation = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data } = await supabase
+      .from("doctor_profiles")
+      .select("pincode, city")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    if (data) {
+      setLocation({ pincode: data.pincode, city: data.city });
+    }
+  };
+
+  const handleLocationChange = async (newLocation: { pincode: string; city: string; latitude?: number; longitude?: number }) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    await supabase
+      .from("doctor_profiles")
+      .update({
+        pincode: newLocation.pincode,
+        city: newLocation.city,
+        latitude: newLocation.latitude || null,
+        longitude: newLocation.longitude || null,
+      })
+      .eq("user_id", session.user.id);
+
+    setLocation({ pincode: newLocation.pincode, city: newLocation.city });
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -57,6 +99,13 @@ const DoctorHeader = ({
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Location Selector */}
+          <HeaderLocationSelector
+            pincode={location.pincode}
+            city={location.city}
+            onLocationChange={handleLocationChange}
+          />
+          
           {/* Eco indicator */}
           <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
             <Leaf className="h-3.5 w-3.5 text-emerald-600" />
