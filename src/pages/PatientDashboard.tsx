@@ -49,7 +49,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// Tabs removed - using collapsible sections instead
 import HealthRecordsTab from "@/components/HealthRecordsTab";
 
 interface Consultation {
@@ -105,6 +105,7 @@ const PatientDashboard = () => {
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
   const [expandedDoctors, setExpandedDoctors] = useState<Set<string>>(new Set());
   const [expandedConsultations, setExpandedConsultations] = useState<Set<string>>(new Set());
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["history", "appointments", "records"]));
   
   // Appointment booking state
   const [showBookingDialog, setShowBookingDialog] = useState(false);
@@ -283,6 +284,16 @@ const PatientDashboard = () => {
     setExpandedConsultations(newExpanded);
   };
 
+  const toggleSection = (section: string) => {
+    const newExpanded = new Set(expandedSections);
+    if (newExpanded.has(section)) {
+      newExpanded.delete(section);
+    } else {
+      newExpanded.add(section);
+    }
+    setExpandedSections(newExpanded);
+  };
+
   const parseFHIRData = (fhirString: string) => {
     try {
       return JSON.parse(fhirString);
@@ -439,239 +450,321 @@ const PatientDashboard = () => {
           </Card>
         </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="history" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="history">Medical History</TabsTrigger>
-            <TabsTrigger value="appointments" className="relative">
-              Appointments
-              {pendingAppointments > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
-                  {pendingAppointments}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="records">
-              <FolderOpen className="h-4 w-4 mr-1" />
-              Health Records
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Medical History Tab */}
-          <TabsContent value="history" className="space-y-6">
-            <div>
-              <h2 className="text-xl font-semibold mb-2">Your Medical History</h2>
-              <p className="text-muted-foreground">Consultations grouped by healthcare provider</p>
-            </div>
-
-            {doctorGroups.length === 0 ? (
-              <Card className="p-8 text-center">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No consultations yet</h3>
-                <p className="text-muted-foreground">
-                  Your consultation history will appear here after your first visit.
-                </p>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {doctorGroups.map((group) => (
-                  <Card key={group.doctor_id} className="overflow-hidden">
-                    <Collapsible
-                      open={expandedDoctors.has(group.doctor_id)}
-                      onOpenChange={() => toggleDoctorExpanded(group.doctor_id)}
-                    >
-                      <CollapsibleTrigger asChild>
-                        <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                <Building2 className="h-6 w-6 text-primary" />
-                              </div>
-                              <div>
-                                <h3 className="font-semibold">Healthcare Provider</h3>
-                                <p className="text-sm text-muted-foreground">
-                                  {group.consultations.length} consultation{group.consultations.length > 1 ? "s" : ""}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openBookingDialog(group.doctor_id);
-                                }}
-                              >
-                                <CalendarPlus className="h-4 w-4 mr-1" />
-                                Book
-                              </Button>
-                              <div className="text-right hidden md:block">
-                                <p className="text-sm font-medium">Last: {formatDate(group.lastVisit)}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  First: {formatDate(group.firstVisit)}
-                                </p>
-                              </div>
-                              {expandedDoctors.has(group.doctor_id) ? (
-                                <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                              ) : (
-                                <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CollapsibleTrigger>
-
-                      <CollapsibleContent>
-                        <div className="border-t px-4 pb-4">
-                          <div className="space-y-3 mt-4">
-                            {group.consultations.map((consultation) => {
-                              const fhirData = parseFHIRData(consultation.fhir_data);
-                              const medications = extractMedications(fhirData);
-                              const diagnoses = extractDiagnosis(fhirData);
-                              const isExpanded = expandedConsultations.has(consultation.id);
-
-                              return (
-                                <Card key={consultation.id} className="p-4 bg-muted/30">
-                                  <div
-                                    className="cursor-pointer"
-                                    onClick={() => toggleConsultationExpanded(consultation.id)}
-                                  >
-                                    <div className="flex items-start justify-between">
-                                      <div>
-                                        <div className="flex items-center gap-2">
-                                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                                          <span className="font-medium">{formatFullDate(consultation.created_at)}</span>
-                                        </div>
-                                        {diagnoses.length > 0 && (
-                                          <div className="mt-2 flex flex-wrap gap-2">
-                                            {diagnoses.slice(0, 2).map((d, i) => (
-                                              <span
-                                                key={i}
-                                                className="px-2 py-1 bg-destructive/10 text-destructive text-xs rounded-md"
-                                              >
-                                                {d}
-                                              </span>
-                                            ))}
-                                            {diagnoses.length > 2 && (
-                                              <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
-                                                +{diagnoses.length - 2} more
-                                              </span>
-                                            )}
-                                          </div>
-                                        )}
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedConsultation(consultation);
-                                          }}
-                                        >
-                                          <FileText className="h-4 w-4 mr-1" />
-                                          Details
-                                        </Button>
-                                        {isExpanded ? (
-                                          <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                                        ) : (
-                                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                                        )}
-                                      </div>
+        {/* Collapsible Sections */}
+        <div className="space-y-4">
+          {/* Medical History Section */}
+          <Card className="overflow-hidden">
+            <Collapsible
+              open={expandedSections.has("history")}
+              onOpenChange={() => toggleSection("history")}
+            >
+              <CollapsibleTrigger asChild>
+                <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors border-b">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-teal-500/20 flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-teal-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold">Medical History</h2>
+                        <p className="text-sm text-muted-foreground">
+                          {consultations.length} consultation{consultations.length !== 1 ? "s" : ""} • {doctorGroups.length} provider{doctorGroups.length !== 1 ? "s" : ""}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-teal-500/10 border-teal-500/30 text-teal-600">
+                        {consultations.length}
+                      </Badge>
+                      {expandedSections.has("history") ? (
+                        <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="animate-accordion-down">
+                <div className="p-4 space-y-4">
+                  {doctorGroups.length === 0 ? (
+                    <div className="p-8 text-center">
+                      <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No consultations yet</h3>
+                      <p className="text-muted-foreground">
+                        Your consultation history will appear here after your first visit.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {doctorGroups.map((group) => (
+                        <Card key={group.doctor_id} className="overflow-hidden bg-muted/30">
+                          <Collapsible
+                            open={expandedDoctors.has(group.doctor_id)}
+                            onOpenChange={() => toggleDoctorExpanded(group.doctor_id)}
+                          >
+                            <CollapsibleTrigger asChild>
+                              <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-4">
+                                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                      <Building2 className="h-6 w-6 text-primary" />
+                                    </div>
+                                    <div>
+                                      <h3 className="font-semibold">Healthcare Provider</h3>
+                                      <p className="text-sm text-muted-foreground">
+                                        {group.consultations.length} consultation{group.consultations.length > 1 ? "s" : ""}
+                                      </p>
                                     </div>
                                   </div>
-
-                                  {isExpanded && medications.length > 0 && (
-                                    <div className="mt-4 pt-4 border-t">
-                                      <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                                        <Pill className="h-4 w-4 text-primary" />
-                                        Prescribed Medications
+                                  <div className="flex items-center gap-4">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        openBookingDialog(group.doctor_id);
+                                      }}
+                                    >
+                                      <CalendarPlus className="h-4 w-4 mr-1" />
+                                      Book
+                                    </Button>
+                                    <div className="text-right hidden md:block">
+                                      <p className="text-sm font-medium">Last: {formatDate(group.lastVisit)}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        First: {formatDate(group.firstVisit)}
                                       </p>
-                                      <div className="space-y-1">
-                                        {medications.map((med, i) => (
-                                          <div key={i} className="p-2 bg-primary/10 rounded-md text-sm">
-                                            {med}
-                                          </div>
-                                        ))}
-                                      </div>
                                     </div>
-                                  )}
-                                </Card>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
+                                    {expandedDoctors.has(group.doctor_id) ? (
+                                      <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                                    ) : (
+                                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </CollapsibleTrigger>
 
-          {/* Appointments Tab */}
-          <TabsContent value="appointments" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold mb-2">Your Appointments</h2>
-                <p className="text-muted-foreground">View and manage your appointment requests</p>
-              </div>
-            </div>
+                            <CollapsibleContent>
+                              <div className="border-t px-4 pb-4">
+                                <div className="space-y-3 mt-4">
+                                  {group.consultations.map((consultation) => {
+                                    const fhirData = parseFHIRData(consultation.fhir_data);
+                                    const medications = extractMedications(fhirData);
+                                    const diagnoses = extractDiagnosis(fhirData);
+                                    const isExpanded = expandedConsultations.has(consultation.id);
 
-            {appointments.length === 0 ? (
-              <Card className="p-8 text-center">
-                <CalendarPlus className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No appointments yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Book an appointment with a doctor from your medical history.
-                </p>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {appointments.map((appointment) => (
-                  <Card key={appointment.id} className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-primary" />
-                          <span className="font-medium">{formatDate(appointment.requested_date)}</span>
-                          <span className="text-muted-foreground">at</span>
-                          <span className="font-medium">{appointment.requested_time_slot}</span>
-                        </div>
-                        {appointment.reason && (
-                          <p className="text-sm text-muted-foreground">
-                            Reason: {appointment.reason}
-                          </p>
-                        )}
-                        {appointment.doctor_notes && appointment.status !== "pending" && (
-                          <p className="text-sm bg-muted p-2 rounded">
-                            Doctor's note: {appointment.doctor_notes}
-                          </p>
-                        )}
-                      </div>
-                      {getStatusBadge(appointment.status)}
+                                    return (
+                                      <Card key={consultation.id} className="p-4 bg-background">
+                                        <div
+                                          className="cursor-pointer"
+                                          onClick={() => toggleConsultationExpanded(consultation.id)}
+                                        >
+                                          <div className="flex items-start justify-between">
+                                            <div>
+                                              <div className="flex items-center gap-2">
+                                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                                <span className="font-medium">{formatFullDate(consultation.created_at)}</span>
+                                              </div>
+                                              {diagnoses.length > 0 && (
+                                                <div className="mt-2 flex flex-wrap gap-2">
+                                                  {diagnoses.slice(0, 2).map((d, i) => (
+                                                    <span
+                                                      key={i}
+                                                      className="px-2 py-1 bg-destructive/10 text-destructive text-xs rounded-md"
+                                                    >
+                                                      {d}
+                                                    </span>
+                                                  ))}
+                                                  {diagnoses.length > 2 && (
+                                                    <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
+                                                      +{diagnoses.length - 2} more
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setSelectedConsultation(consultation);
+                                                }}
+                                              >
+                                                <FileText className="h-4 w-4 mr-1" />
+                                                Details
+                                              </Button>
+                                              {isExpanded ? (
+                                                <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                                              ) : (
+                                                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {isExpanded && medications.length > 0 && (
+                                          <div className="mt-4 pt-4 border-t">
+                                            <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                                              <Pill className="h-4 w-4 text-primary" />
+                                              Prescribed Medications
+                                            </p>
+                                            <div className="space-y-1">
+                                              {medications.map((med, i) => (
+                                                <div key={i} className="p-2 bg-primary/10 rounded-md text-sm">
+                                                  {med}
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </Card>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </CollapsibleContent>
+                          </Collapsible>
+                        </Card>
+                      ))}
                     </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
 
-          {/* Health Records Tab */}
-          <TabsContent value="records">
-            {profile && userId && (
-              <HealthRecordsTab
-                patientId={profile.id}
-                userId={userId}
-                doctors={doctorGroups.map((g) => ({
-                  doctor_id: g.doctor_id,
-                  lastVisit: g.lastVisit,
-                }))}
-              />
-            )}
-          </TabsContent>
-        </Tabs>
+          {/* Appointments Section */}
+          <Card className="overflow-hidden">
+            <Collapsible
+              open={expandedSections.has("appointments")}
+              onOpenChange={() => toggleSection("appointments")}
+            >
+              <CollapsibleTrigger asChild>
+                <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors border-b">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                        <CalendarPlus className="h-5 w-5 text-orange-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold">Appointments</h2>
+                        <p className="text-sm text-muted-foreground">
+                          View and manage your appointment requests
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {pendingAppointments > 0 && (
+                        <Badge className="bg-orange-500 text-white">
+                          {pendingAppointments} pending
+                        </Badge>
+                      )}
+                      <Badge variant="outline" className="bg-orange-500/10 border-orange-500/30 text-orange-600">
+                        {appointments.length}
+                      </Badge>
+                      {expandedSections.has("appointments") ? (
+                        <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="animate-accordion-down">
+                <div className="p-4">
+                  {appointments.length === 0 ? (
+                    <div className="p-8 text-center">
+                      <CalendarPlus className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No appointments yet</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Book an appointment with a doctor from your medical history.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {appointments.map((appointment) => (
+                        <Card key={appointment.id} className="p-4 bg-muted/30">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-primary" />
+                                <span className="font-medium">{formatDate(appointment.requested_date)}</span>
+                                <span className="text-muted-foreground">at</span>
+                                <span className="font-medium">{appointment.requested_time_slot}</span>
+                              </div>
+                              {appointment.reason && (
+                                <p className="text-sm text-muted-foreground">
+                                  Reason: {appointment.reason}
+                                </p>
+                              )}
+                              {appointment.doctor_notes && appointment.status !== "pending" && (
+                                <p className="text-sm bg-muted p-2 rounded">
+                                  Doctor&apos;s note: {appointment.doctor_notes}
+                                </p>
+                              )}
+                            </div>
+                            {getStatusBadge(appointment.status)}
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+
+          {/* Health Records Section */}
+          <Card className="overflow-hidden">
+            <Collapsible
+              open={expandedSections.has("records")}
+              onOpenChange={() => toggleSection("records")}
+            >
+              <CollapsibleTrigger asChild>
+                <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors border-b">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                        <FolderOpen className="h-5 w-5 text-violet-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold">Health Records</h2>
+                        <p className="text-sm text-muted-foreground">
+                          Upload and manage your medical documents
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {expandedSections.has("records") ? (
+                        <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="animate-accordion-down">
+                <div className="p-4">
+                  {profile && userId && (
+                    <HealthRecordsTab
+                      patientId={profile.id}
+                      userId={userId}
+                      doctors={doctorGroups.map((g) => ({
+                        doctor_id: g.doctor_id,
+                        lastVisit: g.lastVisit,
+                      }))}
+                    />
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+        </div>
       </div>
 
       {/* Consultation Detail Dialog */}
