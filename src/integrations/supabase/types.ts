@@ -144,6 +144,53 @@ export type Database = {
           },
         ]
       }
+      health_records: {
+        Row: {
+          ai_summary: string | null
+          consent_shared_with: string[] | null
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          patient_id: string
+          updated_at: string
+          uploaded_at: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          consent_shared_with?: string[] | null
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          patient_id: string
+          updated_at?: string
+          uploaded_at?: string
+        }
+        Update: {
+          ai_summary?: string | null
+          consent_shared_with?: string[] | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          patient_id?: string
+          updated_at?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           age: number | null
