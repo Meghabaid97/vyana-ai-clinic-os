@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, Stethoscope, User, Shield } from "lucide-react";
+import { Mail, Lock, Chrome, Stethoscope, User, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { validatePassword, validateEmail, validateHealthId } from "@/lib/validation";
 
 type UserRole = "doctor" | "patient";
 
@@ -19,6 +20,9 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>("doctor");
+  const [emailError, setEmailError] = useState("");
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [healthIdError, setHealthIdError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -74,8 +78,80 @@ const Auth = () => {
     }
   };
 
+  // Validation handlers
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (isSignUp && value && !validateEmail(value)) {
+      setEmailError("Please enter a valid email address");
+    } else {
+      setEmailError("");
+    }
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    if (isSignUp) {
+      const validation = validatePassword(value);
+      setPasswordErrors(validation.errors);
+    }
+  };
+
+  const handleHealthIdChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, '').slice(0, 12);
+    setHealthId(cleaned);
+    setHealthIdError("");
+  };
+
+  const checkHealthIdExists = async (id: string): Promise<boolean> => {
+    const { data } = await supabase
+      .from("patients")
+      .select("id")
+      .eq("national_health_id", id)
+      .maybeSingle();
+    return !!data;
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation for signup
+    if (isSignUp) {
+      if (!validateEmail(email)) {
+        setEmailError("Please enter a valid email address");
+        return;
+      }
+      
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        setPasswordErrors(passwordValidation.errors);
+        toast({
+          title: "Weak Password",
+          description: "Please meet all password requirements",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (userRole === "patient" && healthId) {
+        if (!validateHealthId(healthId)) {
+          setHealthIdError("Health ID must be exactly 12 digits");
+          return;
+        }
+        
+        // Check if health ID is already registered
+        const exists = await checkHealthIdExists(healthId);
+        if (exists) {
+          setHealthIdError("This Health ID is already registered. Please sign in instead.");
+          toast({
+            title: "Health ID Already Registered",
+            description: "An account with this Health ID already exists. Please sign in.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -219,14 +295,21 @@ const Auth = () => {
                         type="text"
                         placeholder="Enter 12-digit Aadhaar number"
                         value={healthId}
-                        onChange={(e) => setHealthId(e.target.value.replace(/\D/g, '').slice(0, 12))}
+                        onChange={(e) => handleHealthIdChange(e.target.value)}
                         maxLength={12}
                         required
-                        className="bg-background/50"
+                        className={`bg-background/50 ${healthIdError ? "border-destructive" : ""}`}
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Used to link your consultations and medical records
-                      </p>
+                      {healthIdError ? (
+                        <p className="text-xs text-destructive flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {healthIdError}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          Used to link your consultations and medical records
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone (for reminders)</Label>
@@ -254,10 +337,16 @@ const Auth = () => {
                 type="email"
                 placeholder="your@email.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 required
-                className="bg-background/50"
+                className={`bg-background/50 ${emailError ? "border-destructive" : ""}`}
               />
+              {emailError && (
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {emailError}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -270,11 +359,33 @@ const Auth = () => {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => handlePasswordChange(e.target.value)}
                 required
-                minLength={6}
-                className="bg-background/50"
+                className={`bg-background/50 ${isSignUp && passwordErrors.length > 0 ? "border-destructive" : ""}`}
               />
+              {isSignUp && (
+                <div className="text-xs space-y-1">
+                  {password.length === 0 ? (
+                    <p className="text-muted-foreground">
+                      Must have 8+ chars, uppercase, lowercase, number & special char
+                    </p>
+                  ) : passwordErrors.length > 0 ? (
+                    <div className="text-destructive space-y-0.5">
+                      {passwordErrors.map((err, i) => (
+                        <p key={i} className="flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {err}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-green-600 flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Strong password
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <Button
