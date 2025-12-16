@@ -15,6 +15,7 @@ import {
   Clock,
   TrendingUp,
   Activity,
+  FolderOpen,
 } from "lucide-react";
 
 const DoctorDashboard = () => {
@@ -23,6 +24,7 @@ const DoctorDashboard = () => {
     totalConsultations: 0,
     pendingAppointments: 0,
     thisMonthConsultations: 0,
+    sharedRecords: 0,
   });
   const [doctorName, setDoctorName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -67,6 +69,12 @@ const DoctorDashboard = () => {
         .eq("doctor_id", session.user.id)
         .eq("status", "pending");
 
+      // Load shared health records count
+      const { data: sharedRecords } = await supabase
+        .from("health_records")
+        .select("id")
+        .contains("consent_shared_with", [session.user.id]);
+
       const uniquePatients = new Set(consultations?.map(c => c.patient_national_health_id) || []);
       const thisMonth = consultations?.filter(c => {
         const created = new Date(c.created_at);
@@ -79,6 +87,7 @@ const DoctorDashboard = () => {
         totalConsultations: consultations?.length || 0,
         pendingAppointments: appointments?.length || 0,
         thisMonthConsultations: thisMonth,
+        sharedRecords: sharedRecords?.length || 0,
       });
     } catch (error: any) {
       console.error("Error loading dashboard:", error);
@@ -140,6 +149,17 @@ const DoctorDashboard = () => {
       color: "bg-purple-500",
       hoverColor: "hover:bg-purple-600",
       onClick: () => navigate("/consultations"),
+    },
+    {
+      title: "Shared Records",
+      description: stats.sharedRecords > 0
+        ? `${stats.sharedRecords} patient records`
+        : "View patient files",
+      icon: FolderOpen,
+      color: "bg-teal-500",
+      hoverColor: "hover:bg-teal-600",
+      onClick: () => navigate("/shared-records"),
+      badge: stats.sharedRecords > 0 ? stats.sharedRecords : undefined,
     },
   ];
 
