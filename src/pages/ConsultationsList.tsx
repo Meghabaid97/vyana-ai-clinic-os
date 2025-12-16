@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2 } from "lucide-react";
+import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -32,6 +32,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface Consultation {
   id: string;
@@ -42,6 +47,14 @@ interface Consultation {
   fhir_data: string;
   created_at: string;
   updated_at: string;
+}
+
+interface PatientGroup {
+  healthId: string;
+  patientName: string;
+  patientAge: number;
+  consultations: Consultation[];
+  lastVisit: string;
 }
 
 interface FHIRData {
@@ -103,7 +116,6 @@ const extractKeyInfo = (fhirData: FHIRData | null) => {
     notes: [],
   };
 
-  // Extract diagnosis
   if (fhirData.diagnosis) {
     info.diagnosis = fhirData.diagnosis
       .map((d) => d.condition?.display)
@@ -117,7 +129,6 @@ const extractKeyInfo = (fhirData: FHIRData | null) => {
     info.diagnosis.push(...reasons);
   }
 
-  // Extract from extensions (custom data)
   if (fhirData.extension) {
     fhirData.extension.forEach((ext) => {
       const url = ext.url?.toLowerCase() || "";
@@ -136,7 +147,6 @@ const extractKeyInfo = (fhirData: FHIRData | null) => {
     });
   }
 
-  // Check if we have any data
   const hasData = 
     info.diagnosis.length > 0 ||
     info.vitals.length > 0 ||
@@ -149,12 +159,58 @@ const extractKeyInfo = (fhirData: FHIRData | null) => {
 
 const ConsultationsList = () => {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
-  const [filteredConsultations, setFilteredConsultations] = useState<Consultation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
+  const [expandedPatients, setExpandedPatients] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Group consultations by patient health ID
+  const patientGroups = useMemo(() => {
+    const groups = new Map<string, PatientGroup>();
+    
+    consultations.forEach((consultation) => {
+      const healthId = consultation.patient_national_health_id;
+      
+      if (!groups.has(healthId)) {
+        groups.set(healthId, {
+          healthId,
+          patientName: consultation.patient_name,
+          patientAge: consultation.patient_age,
+          consultations: [],
+          lastVisit: consultation.created_at,
+        });
+      }
+      
+      const group = groups.get(healthId)!;
+      group.consultations.push(consultation);
+      
+      // Update to most recent name/age and last visit
+      if (new Date(consultation.created_at) > new Date(group.lastVisit)) {
+        group.lastVisit = consultation.created_at;
+        group.patientName = consultation.patient_name;
+        group.patientAge = consultation.patient_age;
+      }
+    });
+    
+    // Sort groups by last visit (most recent first)
+    return Array.from(groups.values()).sort(
+      (a, b) => new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime()
+    );
+  }, [consultations]);
+
+  // Filter patient groups based on search
+  const filteredGroups = useMemo(() => {
+    if (!searchQuery) return patientGroups;
+    
+    const query = searchQuery.toLowerCase();
+    return patientGroups.filter(
+      (group) =>
+        group.patientName.toLowerCase().includes(query) ||
+        group.healthId.includes(searchQuery)
+    );
+  }, [patientGroups, searchQuery]);
 
   const calculateAvgTimePerVisit = () => {
     if (consultations.length === 0) return null;
@@ -179,19 +235,6 @@ const ConsultationsList = () => {
     checkAuthAndLoadConsultations();
   }, []);
 
-  useEffect(() => {
-    if (searchQuery) {
-      const filtered = consultations.filter(
-        (consultation) =>
-          consultation.patient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          consultation.patient_national_health_id.includes(searchQuery)
-      );
-      setFilteredConsultations(filtered);
-    } else {
-      setFilteredConsultations(consultations);
-    }
-  }, [searchQuery, consultations]);
-
   const checkAuthAndLoadConsultations = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -212,7 +255,6 @@ const ConsultationsList = () => {
       if (error) throw error;
 
       setConsultations(data || []);
-      setFilteredConsultations(data || []);
     } catch (error: any) {
       console.error("Error loading consultations:", error);
       toast({
@@ -239,7 +281,6 @@ const ConsultationsList = () => {
 
       if (error) throw error;
 
-      // Remove from local state
       setConsultations(prev => prev.filter(c => c.id !== consultationId));
       setSelectedConsultation(null);
 
@@ -257,6 +298,18 @@ const ConsultationsList = () => {
     }
   };
 
+  const togglePatient = (healthId: string) => {
+    setExpandedPatients(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(healthId)) {
+        newSet.delete(healthId);
+      } else {
+        newSet.add(healthId);
+      }
+      return newSet;
+    });
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -267,14 +320,22 @@ const ConsultationsList = () => {
     });
   };
 
+  const formatShortDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-4xl font-bold text-foreground">My Consultations</h1>
+            <h1 className="text-4xl font-bold text-foreground">My Patients</h1>
             <p className="text-muted-foreground mt-2">
-              View and manage all patient consultations
+              View patient records and consultation history
             </p>
           </div>
           <div className="flex gap-4">
@@ -287,8 +348,31 @@ const ConsultationsList = () => {
             </Button>
           </div>
         </div>
+
         {consultations.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <User className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Patients</p>
+                  <p className="text-2xl font-bold">{patientGroups.length}</p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <FileText className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Consultations</p>
+                  <p className="text-2xl font-bold">{consultations.length}</p>
+                </div>
+              </div>
+            </Card>
             <Card className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary/10 rounded-lg">
@@ -297,17 +381,6 @@ const ConsultationsList = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Avg. Time per Visit</p>
                   <p className="text-2xl font-bold">{calculateAvgTimePerVisit()}</p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <User className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Consultations</p>
-                  <p className="text-2xl font-bold">{consultations.length}</p>
                 </div>
               </div>
             </Card>
@@ -348,84 +421,119 @@ const ConsultationsList = () => {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : filteredConsultations.length === 0 ? (
+          ) : filteredGroups.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">
                 {searchQuery
-                  ? "No consultations found matching your search"
+                  ? "No patients found matching your search"
                   : "No consultations yet. Create your first one!"}
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Patient Name</TableHead>
-                  <TableHead>Age</TableHead>
-                  <TableHead>Health ID</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredConsultations.map((consultation) => (
-                  <TableRow key={consultation.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        {consultation.patient_name}
+            <div className="space-y-2">
+              {filteredGroups.map((group) => (
+                <Collapsible
+                  key={group.healthId}
+                  open={expandedPatients.has(group.healthId)}
+                  onOpenChange={() => togglePatient(group.healthId)}
+                >
+                  <CollapsibleTrigger asChild>
+                    <div className="flex items-center justify-between p-4 bg-muted/50 hover:bg-muted rounded-lg cursor-pointer transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          {expandedPatients.has(group.healthId) ? (
+                            <FolderOpen className="h-5 w-5 text-primary" />
+                          ) : (
+                            <Folder className="h-5 w-5 text-primary" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-lg">{group.patientName}</h3>
+                            <span className="text-sm text-muted-foreground">
+                              ({group.patientAge} years)
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground font-mono">
+                            ID: {group.healthId}
+                          </p>
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell>{consultation.patient_age} years</TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {consultation.patient_national_health_id}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        {formatDate(consultation.created_at)}
+                      <div className="flex items-center gap-6">
+                        <div className="text-right">
+                          <p className="text-sm font-medium">
+                            {group.consultations.length} visit{group.consultations.length !== 1 ? "s" : ""}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Last: {formatShortDate(group.lastVisit)}
+                          </p>
+                        </div>
+                        {expandedPatients.has(group.healthId) ? (
+                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                        )}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedConsultation(consultation)}
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="ml-6 mt-2 border-l-2 border-muted pl-4 space-y-2">
+                      {group.consultations.map((consultation) => (
+                        <div
+                          key={consultation.id}
+                          className="flex items-center justify-between p-3 bg-background border rounded-lg hover:border-primary/50 transition-colors"
                         >
-                          <FileText className="mr-2 h-4 w-4" />
-                          View
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                              <Trash2 className="h-4 w-4" />
+                          <div className="flex items-center gap-3">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                              <p className="text-sm font-medium">
+                                Consultation - {formatDate(consultation.created_at)}
+                              </p>
+                              <p className="text-xs text-muted-foreground line-clamp-1 max-w-md">
+                                {consultation.audio_transcription.substring(0, 100)}...
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedConsultation(consultation)}
+                            >
+                              View
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Archive Consultation?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will remove the consultation from your view. The data will be preserved for compliance purposes.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => archiveConsultation(consultation.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Archive
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Archive Consultation?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will remove the consultation from your view. The data will be preserved for compliance purposes.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => archiveConsultation(consultation.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Archive
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ))}
+            </div>
           )}
         </Card>
       </div>
@@ -583,7 +691,7 @@ const ConsultationsList = () => {
                     ) : (
                       <div className="p-4 bg-muted/50 border border-border rounded-lg">
                         <p className="text-sm text-muted-foreground">
-                          ℹ️ This consultation was created with an older format. Structured clinical data (diagnosis, vitals, medications) is only available for new consultations. Create a new consultation to see the enhanced format.
+                          ℹ️ This consultation was created with an older format. Structured clinical data (diagnosis, vitals, medications) is only available for new consultations.
                         </p>
                       </div>
                     )}
