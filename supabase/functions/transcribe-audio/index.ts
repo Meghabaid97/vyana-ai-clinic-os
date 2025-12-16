@@ -74,7 +74,7 @@ serve(async (req) => {
       });
     }
 
-    const { audio, language } = await req.json();
+    const { audio, language, mixedLanguage } = await req.json();
     
     // Validate audio input
     if (!audio || typeof audio !== 'string') {
@@ -92,7 +92,7 @@ serve(async (req) => {
       });
     }
 
-    console.log('Processing audio transcription for user:', user.id, 'language:', language || 'auto');
+    console.log('Processing audio transcription for user:', user.id, 'language:', language || 'auto', 'mixed:', mixedLanguage);
 
     const binaryAudio = processBase64Chunks(audio);
     
@@ -101,10 +101,20 @@ serve(async (req) => {
     formData.append('file', blob, 'audio.webm');
     formData.append('model', 'whisper-1');
     
-    // Add language if specified (improves accuracy for non-English)
-    // Supported: hi (Hindi), bn (Bengali), ta (Tamil), te (Telugu), mr (Marathi), 
-    // gu (Gujarati), kn (Kannada), ml (Malayalam), pa (Punjabi), etc.
-    if (language) {
+    // Handle mixed language (code-switching) - use prompt to guide transcription
+    if (mixedLanguage) {
+      // Prompt helps Whisper understand the expected content style
+      const prompts: Record<string, string> = {
+        'hi-en': 'This is a medical consultation in Hindi and English. The speaker switches between Hindi and English.',
+        'bn-en': 'This is a medical consultation in Bengali and English. The speaker switches between Bengali and English.',
+        'ta-en': 'This is a medical consultation in Tamil and English. The speaker switches between Tamil and English.',
+        'te-en': 'This is a medical consultation in Telugu and English. The speaker switches between Telugu and English.',
+        'mr-en': 'This is a medical consultation in Marathi and English. The speaker switches between Marathi and English.',
+      };
+      const prompt = prompts[mixedLanguage] || prompts['hi-en'];
+      formData.append('prompt', prompt);
+    } else if (language) {
+      // Add language if specified (improves accuracy for single language)
       formData.append('language', language);
     }
 

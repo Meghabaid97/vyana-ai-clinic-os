@@ -16,18 +16,23 @@ import {
 } from "@/components/ui/select";
 
 const LANGUAGES = [
-  { code: "", label: "Auto-detect" },
-  { code: "hi", label: "Hindi (हिन्दी)" },
-  { code: "en", label: "English" },
-  { code: "bn", label: "Bengali (বাংলা)" },
-  { code: "ta", label: "Tamil (தமிழ்)" },
-  { code: "te", label: "Telugu (తెలుగు)" },
-  { code: "mr", label: "Marathi (मराठी)" },
-  { code: "gu", label: "Gujarati (ગુજરાતી)" },
-  { code: "kn", label: "Kannada (ಕನ್ನಡ)" },
-  { code: "ml", label: "Malayalam (മലയാളം)" },
-  { code: "pa", label: "Punjabi (ਪੰਜਾਬੀ)" },
-  { code: "ur", label: "Urdu (اردو)" },
+  { code: "", label: "Auto-detect", mixed: false },
+  { code: "hi-en", label: "Hindi + English (Mixed)", mixed: true },
+  { code: "hi", label: "Hindi (हिन्दी)", mixed: false },
+  { code: "en", label: "English", mixed: false },
+  { code: "bn-en", label: "Bengali + English (Mixed)", mixed: true },
+  { code: "bn", label: "Bengali (বাংলা)", mixed: false },
+  { code: "ta-en", label: "Tamil + English (Mixed)", mixed: true },
+  { code: "ta", label: "Tamil (தமிழ்)", mixed: false },
+  { code: "te-en", label: "Telugu + English (Mixed)", mixed: true },
+  { code: "te", label: "Telugu (తెలుగు)", mixed: false },
+  { code: "mr-en", label: "Marathi + English (Mixed)", mixed: true },
+  { code: "mr", label: "Marathi (मराठी)", mixed: false },
+  { code: "gu", label: "Gujarati (ગુજરાતી)", mixed: false },
+  { code: "kn", label: "Kannada (ಕನ್ನಡ)", mixed: false },
+  { code: "ml", label: "Malayalam (മലയാളം)", mixed: false },
+  { code: "pa", label: "Punjabi (ਪੰਜਾਬੀ)", mixed: false },
+  { code: "ur", label: "Urdu (اردو)", mixed: false },
 ];
 
 const Consultation = () => {
@@ -114,9 +119,18 @@ const Consultation = () => {
         }
 
         // Transcribe audio with language preference
+        const selectedLang = LANGUAGES.find(l => l.code === language);
+        const isMixed = selectedLang?.mixed || false;
+        
         const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke(
           "transcribe-audio",
-          { body: { audio: base64Audio, language: language && language !== "auto" ? language : undefined } }
+          { 
+            body: { 
+              audio: base64Audio, 
+              language: !isMixed && language && language !== "auto" ? language : undefined,
+              mixedLanguage: isMixed ? language : undefined
+            } 
+          }
         );
 
         if (transcriptionError) throw transcriptionError;
