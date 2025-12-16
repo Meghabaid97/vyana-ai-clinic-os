@@ -23,6 +23,9 @@ import {
   ChevronUp,
   Download,
   FileEdit,
+  HeartPulse,
+  ShieldAlert,
+  Sparkles,
 } from "lucide-react";
 import {
   Dialog,
@@ -141,6 +144,12 @@ const PatientProfile = () => {
     duration: "",
     notes: "",
   });
+  const [healthRisks, setHealthRisks] = useState<{
+    risks: Array<{ condition: string; level: string; reasoning: string }>;
+    recommendations: string[];
+    disclaimer: string;
+  } | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -201,6 +210,45 @@ const PatientProfile = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const analyzeHealthRisks = async () => {
+    if (!patientInfo || isAnalyzing) return;
+
+    setIsAnalyzing(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await supabase.functions.invoke("analyze-health-risks", {
+        body: {
+          patientName: patientInfo.name,
+          patientAge: patientInfo.age,
+          diagnoses: uniqueDiagnoses,
+          medications: uniqueMedications,
+          symptoms: uniqueSymptoms,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      setHealthRisks(response.data);
+      toast({
+        title: "Analysis Complete",
+        description: "Health risk indicators have been generated",
+      });
+    } catch (error: any) {
+      console.error("Error analyzing health risks:", error);
+      toast({
+        title: "Analysis Failed",
+        description: error.message || "Failed to analyze health risks",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -606,6 +654,108 @@ const PatientProfile = () => {
                 </div>
               </Card>
             )}
+
+            {/* AI Health Risk Indicators */}
+            <Card className="p-5 border-primary/20">
+              <h3 className="font-semibold flex items-center gap-2 mb-4">
+                <HeartPulse className="h-4 w-4 text-primary" />
+                AI Health Risk Indicators
+              </h3>
+              
+              {!healthRisks ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Analyze patient history to identify potential health risks.
+                  </p>
+                  <Button 
+                    onClick={analyzeHealthRisks} 
+                    disabled={isAnalyzing}
+                    className="w-full"
+                    size="sm"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Analyze Risks
+                      </>
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {healthRisks.risks.map((risk, idx) => (
+                    <div 
+                      key={idx}
+                      className={`p-3 rounded-lg border ${
+                        risk.level === "high" 
+                          ? "bg-destructive/10 border-destructive/30" 
+                          : risk.level === "medium"
+                          ? "bg-yellow-500/10 border-yellow-500/30"
+                          : "bg-green-500/10 border-green-500/30"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <ShieldAlert className={`h-4 w-4 ${
+                            risk.level === "high" 
+                              ? "text-destructive" 
+                              : risk.level === "medium"
+                              ? "text-yellow-500"
+                              : "text-green-500"
+                          }`} />
+                          <span className="font-medium text-sm">{risk.condition}</span>
+                        </div>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                          risk.level === "high" 
+                            ? "bg-destructive/20 text-destructive" 
+                            : risk.level === "medium"
+                            ? "bg-yellow-500/20 text-yellow-600"
+                            : "bg-green-500/20 text-green-600"
+                        }`}>
+                          {risk.level}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">{risk.reasoning}</p>
+                    </div>
+                  ))}
+
+                  {healthRisks.recommendations.length > 0 && (
+                    <div className="pt-3 border-t">
+                      <p className="text-xs font-medium mb-2">Recommendations:</p>
+                      <ul className="text-xs text-muted-foreground space-y-1">
+                        {healthRisks.recommendations.map((rec, idx) => (
+                          <li key={idx}>• {rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-muted-foreground italic border-t pt-3">
+                    {healthRisks.disclaimer}
+                  </p>
+
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={analyzeHealthRisks}
+                    disabled={isAnalyzing}
+                    className="w-full"
+                  >
+                    {isAnalyzing ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="mr-2 h-4 w-4" />
+                    )}
+                    Re-analyze
+                  </Button>
+                </div>
+              )}
+            </Card>
           </div>
 
           {/* Main Content - Timeline */}
