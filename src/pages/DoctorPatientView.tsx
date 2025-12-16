@@ -162,7 +162,6 @@ const PatientProfilePage = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-teal-500/5">
       <PatientHeader
         patientName={profile?.name || "Patient"}
-        showBackButton
         title="My Profile"
         subtitle="Manage your health information"
       />

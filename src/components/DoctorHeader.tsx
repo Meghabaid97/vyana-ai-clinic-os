@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Settings, Leaf } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import DoctorBreadcrumb from "./DoctorBreadcrumb";
+import NotificationBell from "./NotificationBell";
 
 interface DoctorHeaderProps {
   title: string;
@@ -51,6 +52,7 @@ const DoctorHeader = ({
               <Leaf className="h-3.5 w-3.5 text-emerald-600" />
               <span className="text-xs font-medium text-emerald-600">100% Digital</span>
             </div>
+            <NotificationBell />
             {actions}
             {showProfile && (
               <Button variant="ghost" size="sm" onClick={() => navigate("/doctor-profile-setup")}>
