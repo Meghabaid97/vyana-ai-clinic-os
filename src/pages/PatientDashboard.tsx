@@ -364,6 +364,26 @@ const PatientDashboard = () => {
       <PatientHeader patientName={profile?.name || "Patient"} />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
+        {/* Eco Banner */}
+        <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-500/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="font-medium text-emerald-700 dark:text-emerald-400">Going Paperless Saves Trees!</p>
+                <p className="text-sm text-muted-foreground">
+                  Your {consultations.length} digital records saved ~{consultations.length * 5} sheets of paper
+                </p>
+              </div>
+            </div>
+            <Badge variant="outline" className="bg-emerald-500/10 border-emerald-500/30 text-emerald-600">
+              🌱 Eco-Friendly
+            </Badge>
+          </div>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Card className="p-5 bg-gradient-to-br from-teal-500/10 to-transparent border-teal-500/20 hover:shadow-lg hover:shadow-teal-500/5 transition-all">
