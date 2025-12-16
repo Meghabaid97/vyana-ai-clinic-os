@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.analyze-health-risks]
 verify_jwt = true
+
+[functions.generate-prescription]
+verify_jwt = true
