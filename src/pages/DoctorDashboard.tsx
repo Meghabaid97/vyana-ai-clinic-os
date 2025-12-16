@@ -17,7 +17,6 @@ import {
   TrendingUp,
   Activity,
   FolderOpen,
-  Settings,
   Leaf,
 } from "lucide-react";
 
@@ -196,8 +195,7 @@ const DoctorDashboard = () => {
               </span>
             </div>
             <NotificationBell />
-            <Button variant="ghost" size="sm" onClick={() => navigate("/doctor-profile-setup")}>
-              <Settings className="h-4 w-4 mr-2" />
+            <Button variant="default" size="sm" onClick={() => navigate("/doctor-profile-setup")}>
               Profile
             </Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut}>

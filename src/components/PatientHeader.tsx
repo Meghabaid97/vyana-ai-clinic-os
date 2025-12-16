@@ -1,6 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Settings, User, Leaf } from "lucide-react";
+import { LogOut, User, Leaf, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
 
@@ -16,6 +16,8 @@ const PatientHeader = ({
   subtitle,
 }: PatientHeaderProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isOnDashboard = location.pathname === "/patient-dashboard";
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -26,6 +28,16 @@ const PatientHeader = ({
     <div className="border-b bg-gradient-to-r from-teal-500/10 via-background to-emerald-500/10 sticky top-0 z-10 backdrop-blur-sm">
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
+          {!isOnDashboard && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/patient-dashboard")}
+              className="h-10 w-10 rounded-xl hover:bg-teal-500/10"
+            >
+              <Home className="h-5 w-5 text-teal-600" />
+            </Button>
+          )}
           <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/25">
             <User className="h-6 w-6 text-white" />
           </div>
@@ -43,8 +55,7 @@ const PatientHeader = ({
             <span className="text-xs font-medium text-emerald-600">100% Digital</span>
           </div>
           <NotificationBell />
-          <Button variant="ghost" size="sm" onClick={() => navigate("/patient-profile")}>
-            <Settings className="h-4 w-4 mr-2" />
+          <Button variant="default" size="sm" onClick={() => navigate("/patient-profile")}>
             Profile
           </Button>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
