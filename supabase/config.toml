@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.check-drug-interactions]
 verify_jwt = true
+
+[functions.summarize-health-record]
+verify_jwt = true

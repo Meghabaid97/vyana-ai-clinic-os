@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, Stethoscope, User } from "lucide-react";
+import { Mail, Lock, Chrome, Stethoscope, User, Shield } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type UserRole = "doctor" | "patient";
@@ -15,6 +15,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [healthId, setHealthId] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>("doctor");
@@ -95,6 +96,7 @@ const Auth = () => {
               user_id: data.user.id,
               name: name,
               phone: phone || null,
+              national_health_id: healthId || null,
             });
           }
         }
@@ -185,17 +187,38 @@ const Auth = () => {
                 </div>
 
                 {userRole === "patient" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone (for reminders)</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+91 98765 43210"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="bg-background/50"
-                    />
-                  </div>
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="healthId" className="flex items-center gap-2">
+                        <Shield className="w-4 h-4" />
+                        National Health ID (Aadhaar)
+                      </Label>
+                      <Input
+                        id="healthId"
+                        type="text"
+                        placeholder="Enter 12-digit Aadhaar number"
+                        value={healthId}
+                        onChange={(e) => setHealthId(e.target.value.replace(/\D/g, '').slice(0, 12))}
+                        maxLength={12}
+                        required
+                        className="bg-background/50"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Used to link your consultations and medical records
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone (for reminders)</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+91 98765 43210"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="bg-background/50"
+                      />
+                    </div>
+                  </>
                 )}
               </>
             )}

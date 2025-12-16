@@ -24,6 +24,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  FolderOpen,
 } from "lucide-react";
 import {
   Dialog,
@@ -47,6 +48,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import HealthRecordsTab from "@/components/HealthRecordsTab";
 
 interface Consultation {
   id: string;
@@ -96,6 +98,7 @@ const PatientDashboard = () => {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [profile, setProfile] = useState<PatientProfile | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
   const [expandedDoctors, setExpandedDoctors] = useState<Set<string>>(new Set());
@@ -145,6 +148,7 @@ const PatientDashboard = () => {
         navigate("/auth");
         return;
       }
+      setUserId(session.user.id);
 
       // Load patient profile
       const { data: patientData } = await supabase
@@ -434,7 +438,7 @@ const PatientDashboard = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="history" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="history">Medical History</TabsTrigger>
             <TabsTrigger value="appointments" className="relative">
               Appointments
@@ -443,6 +447,10 @@ const PatientDashboard = () => {
                   {pendingAppointments}
                 </span>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="records">
+              <FolderOpen className="h-4 w-4 mr-1" />
+              Health Records
             </TabsTrigger>
           </TabsList>
 
@@ -644,6 +652,20 @@ const PatientDashboard = () => {
                   </Card>
                 ))}
               </div>
+            )}
+          </TabsContent>
+
+          {/* Health Records Tab */}
+          <TabsContent value="records">
+            {profile && userId && (
+              <HealthRecordsTab
+                patientId={profile.id}
+                userId={userId}
+                doctors={doctorGroups.map((g) => ({
+                  doctor_id: g.doctor_id,
+                  lastVisit: g.lastVisit,
+                }))}
+              />
             )}
           </TabsContent>
         </Tabs>
