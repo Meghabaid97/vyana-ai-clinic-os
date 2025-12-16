@@ -7,9 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import PatientHeader from "@/components/PatientHeader";
 import {
   Loader2,
-  LogOut,
   Calendar,
   FileText,
   Pill,
@@ -25,6 +25,8 @@ import {
   XCircle,
   AlertCircle,
   FolderOpen,
+  Heart,
+  TrendingUp,
 } from "lucide-react";
 import {
   Dialog,
@@ -255,10 +257,6 @@ const PatientDashboard = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth");
-  };
 
   const openBookingDialog = (doctorId: string) => {
     setSelectedDoctorId(doctorId);
@@ -363,73 +361,58 @@ const PatientDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-teal-500/5">
-      {/* Header */}
-      <div className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
-              <User className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold">{profile?.name || "Patient"}</h1>
-              <p className="text-sm text-muted-foreground">My Health Portal</p>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
-      </div>
+      <PatientHeader patientName={profile?.name || "Patient"} />
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="p-5 bg-gradient-to-br from-teal-500/10 to-transparent border-teal-500/20 hover:shadow-lg hover:shadow-teal-500/5 transition-all">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-teal-500/10 flex items-center justify-center">
-                <Stethoscope className="h-5 w-5 text-teal-500" />
+              <div className="h-12 w-12 rounded-xl bg-teal-500/20 flex items-center justify-center">
+                <Stethoscope className="h-6 w-6 text-teal-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{doctorGroups.length}</p>
+                <p className="text-3xl font-bold text-teal-600">{doctorGroups.length}</p>
                 <p className="text-xs text-muted-foreground">Doctors</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="p-5 bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <Calendar className="h-5 w-5 text-green-500" />
+              <div className="h-12 w-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-emerald-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{consultations.length}</p>
+                <p className="text-3xl font-bold text-emerald-600">{consultations.length}</p>
                 <p className="text-xs text-muted-foreground">Visits</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="p-5 bg-gradient-to-br from-cyan-500/10 to-transparent border-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/5 transition-all">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-orange-500" />
+              <div className="h-12 w-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-cyan-600" />
               </div>
               <div>
-                <p className="text-sm font-medium">
-                  {consultations.length > 0 ? formatDate(consultations[0].created_at) : "-"}
+                <p className="text-sm font-bold text-cyan-600">
+                  {consultations.length > 0 ? formatDate(consultations[0].created_at) : "No visits"}
                 </p>
                 <p className="text-xs text-muted-foreground">Last Visit</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="p-5 bg-gradient-to-br from-violet-500/10 to-transparent border-violet-500/20 hover:shadow-lg hover:shadow-violet-500/5 transition-all">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Activity className="h-5 w-5 text-blue-500" />
+              <div className="h-12 w-12 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                <Heart className="h-6 w-6 text-violet-600" />
               </div>
               <div>
-                <p className="text-sm font-medium truncate">{profile?.national_health_id || "Not set"}</p>
+                <p className="text-sm font-bold text-violet-600 truncate max-w-[100px]">
+                  {profile?.national_health_id ? `...${profile.national_health_id.slice(-4)}` : "Not set"}
+                </p>
                 <p className="text-xs text-muted-foreground">Health ID</p>
               </div>
             </div>
