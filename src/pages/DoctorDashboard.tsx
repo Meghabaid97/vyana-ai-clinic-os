@@ -16,7 +16,6 @@ import {
   FolderOpen,
   Sparkles,
   ArrowRight,
-  Zap,
   FileText,
 } from "lucide-react";
 
@@ -114,8 +113,8 @@ const DoctorDashboard = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
-          <Loader2 className="h-12 w-12 animate-spin text-primary relative" />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/30 to-secondary/30 blur-xl animate-pulse" />
+          <Loader2 className="h-10 w-10 animate-spin text-primary relative" />
         </div>
       </div>
     );
@@ -126,15 +125,14 @@ const DoctorDashboard = () => {
       title: "New Consultation",
       description: "Start recording",
       icon: Plus,
-      gradient: "from-emerald-500 to-teal-400",
+      gradient: "from-primary to-accent",
       onClick: () => navigate("/consultation"),
-      primary: true,
     },
     {
       title: "My Patients",
       description: `${stats.totalPatients} patients`,
       icon: Users,
-      gradient: "from-blue-500 to-cyan-400",
+      gradient: "from-accent to-secondary",
       onClick: () => navigate("/consultations"),
       badge: stats.totalConsultations,
     },
@@ -142,7 +140,7 @@ const DoctorDashboard = () => {
       title: "Appointments",
       description: stats.pendingAppointments > 0 ? `${stats.pendingAppointments} pending` : "Manage schedule",
       icon: CalendarCheck,
-      gradient: "from-amber-500 to-orange-400",
+      gradient: "from-secondary to-primary",
       onClick: () => navigate("/doctor-appointments"),
       badge: stats.pendingAppointments > 0 ? stats.pendingAppointments : undefined,
     },
@@ -150,26 +148,26 @@ const DoctorDashboard = () => {
       title: "Shared Records",
       description: `${stats.sharedRecords} files`,
       icon: FolderOpen,
-      gradient: "from-violet-500 to-purple-400",
+      gradient: "from-primary to-secondary",
       onClick: () => navigate("/shared-records"),
       badge: stats.sharedRecords > 0 ? stats.sharedRecords : undefined,
     },
   ];
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Animated background */}
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+      {/* Decorative background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute top-20 -right-32 w-96 h-96 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-20 -left-32 w-96 h-96 bg-gradient-to-br from-secondary/20 to-primary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "3s" }} />
       </div>
 
       {/* Header */}
-      <header className="glass sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="bg-background/80 backdrop-blur-xl border-b border-border/50 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25">
-              <span className="text-lg font-bold text-primary-foreground">V</span>
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-soft">
+              <span className="text-lg font-bold text-white">V</span>
             </div>
             <div>
               <span className="text-xl font-bold text-gradient">Vyana AI</span>
@@ -178,7 +176,7 @@ const DoctorDashboard = () => {
           </div>
           
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full glass">
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
               <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
               <span className="text-sm font-medium text-primary">100% Digital</span>
             </div>
@@ -187,7 +185,6 @@ const DoctorDashboard = () => {
               variant="outline" 
               size="sm" 
               onClick={() => navigate("/doctor-profile-setup")}
-              className="glass border-border/50"
             >
               Profile
             </Button>
@@ -198,41 +195,42 @@ const DoctorDashboard = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-6 py-10 relative z-10">
         {/* Hero Section */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="mb-12 animate-fade-in">
+          <div className="flex items-center gap-2 mb-3">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium text-primary uppercase tracking-wider">Good to see you</span>
+            <span className="text-sm font-semibold text-primary uppercase tracking-wider">Welcome Back</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-3">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Dr. <span className="text-gradient">{doctorName}</span>
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-lg text-muted-foreground">
             {stats.totalConsultations > 0 
-              ? `${stats.totalConsultations} consultations completed • ${stats.totalConsultations * 3} pages saved digitally`
+              ? `${stats.totalConsultations} consultations completed • ${stats.totalConsultations * 3} pages saved digitally 🌿`
               : "Ready to start your first digital consultation?"}
           </p>
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           {[
-            { label: "Total Patients", value: stats.totalPatients, icon: Users, color: "blue" },
-            { label: "Consultations", value: stats.totalConsultations, icon: FileText, color: "emerald" },
-            { label: "Pending", value: stats.pendingAppointments, icon: Clock, color: "amber" },
-            { label: "This Month", value: stats.thisMonthConsultations, icon: TrendingUp, color: "violet" },
-          ].map((stat) => (
+            { label: "Total Patients", value: stats.totalPatients, icon: Users, gradient: "from-primary/20 to-primary/10" },
+            { label: "Consultations", value: stats.totalConsultations, icon: FileText, gradient: "from-accent/20 to-accent/10" },
+            { label: "Pending", value: stats.pendingAppointments, icon: Clock, gradient: "from-secondary/20 to-secondary/10" },
+            { label: "This Month", value: stats.thisMonthConsultations, icon: TrendingUp, gradient: "from-primary/20 to-primary/10" },
+          ].map((stat, i) => (
             <div
               key={stat.label}
-              className="glass glass-hover rounded-2xl p-5 group cursor-default"
+              className="group bg-card rounded-2xl p-5 shadow-card border border-border/50 hover:shadow-soft hover:border-primary/20 transition-all duration-300 hover:-translate-y-1 animate-fade-in"
+              style={{ animationDelay: `${i * 100}ms` }}
             >
               <div className="flex items-center gap-4">
-                <div className={`h-12 w-12 rounded-xl bg-${stat.color}-500/20 flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <stat.icon className={`h-6 w-6 text-${stat.color}-400`} />
+                <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <stat.icon className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold">{stat.value}</p>
+                  <p className="text-3xl font-bold text-foreground">{stat.value}</p>
                   <p className="text-sm text-muted-foreground">{stat.label}</p>
                 </div>
               </div>
@@ -241,46 +239,40 @@ const DoctorDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-6">
+        <div className="mb-12">
+          <div className="flex items-center gap-2 mb-6">
             <Activity className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-bold">Quick Actions</h2>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {quickActions.map((action) => (
+            {quickActions.map((action, i) => (
               <button
                 key={action.title}
                 onClick={action.onClick}
-                className={`group relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 ${
-                  action.primary ? "col-span-2 md:col-span-1" : ""
-                }`}
+                className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 p-6 text-left shadow-card hover:shadow-glow hover:border-primary/30 transition-all duration-300 hover:-translate-y-2 animate-fade-in"
+                style={{ animationDelay: `${(i + 4) * 100}ms` }}
               >
-                {/* Background */}
-                <div className="absolute inset-0 bg-card rounded-2xl" />
-                <div className={`absolute inset-0 bg-gradient-to-br ${action.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                
-                {/* Glow border on hover */}
-                <div className={`absolute -inset-px bg-gradient-to-br ${action.gradient} rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm`} />
-                <div className="absolute inset-[1px] bg-card rounded-2xl" />
+                {/* Hover gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${action.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
 
                 <div className="relative z-10">
                   {action.badge && (
-                    <span className={`absolute -top-1 -right-1 h-6 w-6 rounded-full bg-gradient-to-br ${action.gradient} text-white text-xs font-bold flex items-center justify-center`}>
+                    <span className={`absolute -top-1 -right-1 h-6 w-6 rounded-full bg-gradient-to-br ${action.gradient} text-white text-xs font-bold flex items-center justify-center shadow-lg`}>
                       {action.badge > 99 ? "99+" : action.badge}
                     </span>
                   )}
 
-                  <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all`}>
+                  <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-4 shadow-soft group-hover:scale-110 group-hover:shadow-glow transition-all`}>
                     <action.icon className="h-7 w-7 text-white" />
                   </div>
 
                   <h3 className="font-bold text-lg mb-1">{action.title}</h3>
                   <p className="text-sm text-muted-foreground">{action.description}</p>
 
-                  <div className="flex items-center gap-1 mt-3 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-all">
+                  <div className="flex items-center gap-1 mt-3 text-sm font-semibold text-primary opacity-0 group-hover:opacity-100 transition-all">
                     <span>Open</span>
-                    <ArrowRight className="h-3 w-3" />
+                    <ArrowRight className="h-4 w-4" />
                   </div>
                 </div>
               </button>
@@ -290,9 +282,9 @@ const DoctorDashboard = () => {
 
         {/* Empty State */}
         {stats.totalConsultations === 0 && (
-          <div className="glass rounded-3xl p-10 text-center">
-            <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto mb-6 shadow-xl animate-float">
-              <Zap className="h-10 w-10 text-white" />
+          <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 rounded-3xl p-10 text-center border border-primary/20 animate-fade-in">
+            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mx-auto mb-6 shadow-glow">
+              <Sparkles className="h-8 w-8 text-white" />
             </div>
             <h3 className="text-2xl font-bold mb-3">Ready to get started?</h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -301,7 +293,7 @@ const DoctorDashboard = () => {
             <Button 
               onClick={() => navigate("/consultation")} 
               size="lg"
-              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
+              variant="gradient"
             >
               <Plus className="mr-2 h-5 w-5" />
               New Consultation
@@ -310,10 +302,9 @@ const DoctorDashboard = () => {
         )}
 
         {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            Vyana AI • The future of clinical documentation
+        <div className="mt-16 text-center">
+          <p className="text-sm text-muted-foreground">
+            Powered by <span className="text-gradient font-semibold">Vyana AI</span> • The future of clinical documentation
           </p>
         </div>
       </div>
