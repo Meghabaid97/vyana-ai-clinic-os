@@ -105,12 +105,17 @@ export type Database = {
       }
       doctor_profiles: {
         Row: {
+          appointment_duration_minutes: number | null
+          availability_days: string[] | null
+          availability_end_time: string | null
+          availability_start_time: string | null
           clinic_address: string | null
           clinic_name: string | null
           created_at: string | null
           full_name: string
           id: string
           is_profile_complete: boolean | null
+          max_appointments_per_day: number | null
           medical_license_number: string | null
           phone: string | null
           qualification: string | null
@@ -120,12 +125,17 @@ export type Database = {
           years_of_experience: number | null
         }
         Insert: {
+          appointment_duration_minutes?: number | null
+          availability_days?: string[] | null
+          availability_end_time?: string | null
+          availability_start_time?: string | null
           clinic_address?: string | null
           clinic_name?: string | null
           created_at?: string | null
           full_name: string
           id?: string
           is_profile_complete?: boolean | null
+          max_appointments_per_day?: number | null
           medical_license_number?: string | null
           phone?: string | null
           qualification?: string | null
@@ -135,12 +145,17 @@ export type Database = {
           years_of_experience?: number | null
         }
         Update: {
+          appointment_duration_minutes?: number | null
+          availability_days?: string[] | null
+          availability_end_time?: string | null
+          availability_start_time?: string | null
           clinic_address?: string | null
           clinic_name?: string | null
           created_at?: string | null
           full_name?: string
           id?: string
           is_profile_complete?: boolean | null
+          max_appointments_per_day?: number | null
           medical_license_number?: string | null
           phone?: string | null
           qualification?: string | null
@@ -238,6 +253,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          related_entity_id: string | null
+          related_entity_type: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       patients: {
         Row: {

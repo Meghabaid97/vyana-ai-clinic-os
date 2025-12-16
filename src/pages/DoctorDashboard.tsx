@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import NotificationBell from "@/components/NotificationBell";
 import {
   Loader2,
   LogOut,
@@ -17,6 +18,7 @@ import {
   Activity,
   FolderOpen,
   Settings,
+  Leaf,
 } from "lucide-react";
 
 const DoctorDashboard = () => {
@@ -188,11 +190,12 @@ const DoctorDashboard = () => {
           <div className="flex items-center gap-3">
             {/* Eco indicator */}
             <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+              <Leaf className="h-3.5 w-3.5 text-emerald-600" />
               <span className="text-xs font-medium text-emerald-600">
                 {stats.totalConsultations > 0 ? `${stats.totalConsultations * 3} pages saved` : "100% Digital"}
               </span>
             </div>
+            <NotificationBell />
             <Button variant="ghost" size="sm" onClick={() => navigate("/doctor-profile-setup")}>
               <Settings className="h-4 w-4 mr-2" />
               Profile
