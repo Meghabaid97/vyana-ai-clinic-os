@@ -7,6 +7,28 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mic, Square, Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const LANGUAGES = [
+  { code: "", label: "Auto-detect" },
+  { code: "hi", label: "Hindi (हिन्दी)" },
+  { code: "en", label: "English" },
+  { code: "bn", label: "Bengali (বাংলা)" },
+  { code: "ta", label: "Tamil (தமிழ்)" },
+  { code: "te", label: "Telugu (తెలుగు)" },
+  { code: "mr", label: "Marathi (मराठी)" },
+  { code: "gu", label: "Gujarati (ગુજરાતી)" },
+  { code: "kn", label: "Kannada (ಕನ್ನಡ)" },
+  { code: "ml", label: "Malayalam (മലയാളം)" },
+  { code: "pa", label: "Punjabi (ਪੰਜਾਬੀ)" },
+  { code: "ur", label: "Urdu (اردو)" },
+];
 
 const Consultation = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -14,6 +36,7 @@ const Consultation = () => {
   const [patientName, setPatientName] = useState("");
   const [patientAge, setPatientAge] = useState("");
   const [patientNationalId, setPatientNationalId] = useState("");
+  const [language, setLanguage] = useState("");
   const [transcription, setTranscription] = useState("");
   const [fhirData, setFhirData] = useState("");
   
@@ -90,10 +113,10 @@ const Consultation = () => {
           throw new Error("Failed to convert audio");
         }
 
-        // Transcribe audio
+        // Transcribe audio with language preference
         const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke(
           "transcribe-audio",
-          { body: { audio: base64Audio } }
+          { body: { audio: base64Audio, language: language && language !== "auto" ? language : undefined } }
         );
 
         if (transcriptionError) throw transcriptionError;
@@ -143,6 +166,7 @@ const Consultation = () => {
         setPatientName("");
         setPatientAge("");
         setPatientNationalId("");
+        setLanguage("");
         setTranscription("");
         setFhirData("");
       };
@@ -175,8 +199,27 @@ const Consultation = () => {
             <Button onClick={handleSignOut} variant="outline">
               Sign Out
             </Button>
+            </div>
+
+            <div>
+              <Label htmlFor="language">Consultation Language</Label>
+              <Select value={language} onValueChange={setLanguage} disabled={isProcessing}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select language (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGES.map((lang) => (
+                    <SelectItem key={lang.code} value={lang.code || "auto"}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Selecting a language improves transcription accuracy
+              </p>
+            </div>
           </div>
-        </div>
 
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
