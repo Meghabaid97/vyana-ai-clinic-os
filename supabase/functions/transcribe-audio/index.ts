@@ -74,7 +74,7 @@ serve(async (req) => {
       });
     }
 
-    const { audio } = await req.json();
+    const { audio, language } = await req.json();
     
     // Validate audio input
     if (!audio || typeof audio !== 'string') {
@@ -92,7 +92,7 @@ serve(async (req) => {
       });
     }
 
-    console.log('Processing audio transcription for user:', user.id);
+    console.log('Processing audio transcription for user:', user.id, 'language:', language || 'auto');
 
     const binaryAudio = processBase64Chunks(audio);
     
@@ -100,6 +100,13 @@ serve(async (req) => {
     const blob = new Blob([binaryAudio], { type: 'audio/webm' });
     formData.append('file', blob, 'audio.webm');
     formData.append('model', 'whisper-1');
+    
+    // Add language if specified (improves accuracy for non-English)
+    // Supported: hi (Hindi), bn (Bengali), ta (Tamil), te (Telugu), mr (Marathi), 
+    // gu (Gujarati), kn (Kannada), ml (Malayalam), pa (Punjabi), etc.
+    if (language) {
+      formData.append('language', language);
+    }
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     if (!OPENAI_API_KEY) {
