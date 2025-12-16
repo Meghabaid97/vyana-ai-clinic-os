@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Activity,
   FolderOpen,
+  Settings,
 } from "lucide-react";
 
 const DoctorDashboard = () => {
@@ -177,10 +178,16 @@ const DoctorDashboard = () => {
               <p className="text-sm text-muted-foreground">Vyana AI Clinical Dashboard</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/doctor-profile-setup")}>
+              <Settings className="h-4 w-4 mr-2" />
+              Profile
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
 
