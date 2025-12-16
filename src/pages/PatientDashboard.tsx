@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import PatientHeader from "@/components/PatientHeader";
+import { getEcoMessage } from "@/lib/formatters";
 import {
   Loader2,
   FileText,
@@ -163,9 +164,7 @@ const PatientDashboard = () => {
             <span className="text-gradient">{profile?.name?.split(" ")[0] || "Patient"}</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            {stats.consultations > 0 
-              ? `You have ${stats.consultations} digital records. Going paperless has never been easier! 🌿`
-              : "Your complete health journey, all in one place."}
+            {getEcoMessage(stats.consultations, "patient")}
           </p>
         </div>
 

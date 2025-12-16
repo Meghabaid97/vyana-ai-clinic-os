@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import PatientHeader from "@/components/PatientHeader";
+import LocationSelector from "@/components/LocationSelector";
+import { calculateDistance } from "@/lib/formatters";
 import {
   Loader2,
   Calendar,
@@ -17,6 +19,10 @@ import {
   XCircle,
   AlertCircle,
   Clock,
+  MapPin,
+  Star,
+  Navigation,
+  Stethoscope,
 } from "lucide-react";
 import {
   Dialog,
@@ -52,6 +58,10 @@ interface PatientProfile {
   name: string;
   phone: string | null;
   national_health_id: string | null;
+  pincode: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 interface DoctorProfile {
@@ -59,6 +69,14 @@ interface DoctorProfile {
   full_name: string;
   specialization: string | null;
   clinic_name: string | null;
+  clinic_address: string | null;
+  pincode: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  avgRating?: number;
+  totalRatings?: number;
+  distance?: number;
 }
 
 const TIME_SLOTS = [
@@ -72,6 +90,13 @@ const PatientAppointments = () => {
   const [doctors, setDoctors] = useState<DoctorProfile[]>([]);
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState({
+    pincode: "",
+    city: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
+  });
+  const [showLocationDialog, setShowLocationDialog] = useState(false);
   
   // Booking state
   const [showBookingDialog, setShowBookingDialog] = useState(false);
@@ -87,6 +112,33 @@ const PatientAppointments = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Sort doctors by distance when location changes
+  const sortedDoctors = useMemo(() => {
+    if (!userLocation.latitude || !userLocation.longitude) {
+      return doctors;
+    }
+
+    return [...doctors].map(doctor => {
+      if (doctor.latitude && doctor.longitude) {
+        doctor.distance = calculateDistance(
+          userLocation.latitude!,
+          userLocation.longitude!,
+          doctor.latitude,
+          doctor.longitude
+        );
+      }
+      return doctor;
+    }).sort((a, b) => {
+      // Prioritize doctors with ratings and distance
+      if (a.distance !== undefined && b.distance !== undefined) {
+        return a.distance - b.distance;
+      }
+      if (a.distance !== undefined) return -1;
+      if (b.distance !== undefined) return 1;
+      return 0;
+    });
+  }, [doctors, userLocation]);
 
   const loadData = async () => {
     try {
@@ -105,6 +157,16 @@ const PatientAppointments = () => {
 
       if (patientData) {
         setProfile(patientData);
+        
+        // Set user location from profile
+        if (patientData.latitude && patientData.longitude) {
+          setUserLocation({
+            pincode: patientData.pincode || "",
+            city: patientData.city || "",
+            latitude: patientData.latitude,
+            longitude: patientData.longitude,
+          });
+        }
 
         // Load appointments
         const { data: appointmentsData } = await supabase
@@ -115,13 +177,38 @@ const PatientAppointments = () => {
         setAppointments(appointmentsData || []);
       }
 
-      // Load doctors for booking
+      // Load doctors with their ratings
       const { data: doctorsData } = await supabase
         .from("doctor_profiles")
-        .select("user_id, full_name, specialization, clinic_name")
+        .select("user_id, full_name, specialization, clinic_name, clinic_address, pincode, city, latitude, longitude")
         .eq("is_profile_complete", true);
 
-      setDoctors(doctorsData || []);
+      if (doctorsData) {
+        // Load ratings for doctors
+        const { data: ratingsData } = await supabase
+          .from("doctor_ratings")
+          .select("doctor_id, rating");
+
+        // Calculate average ratings
+        const ratingsByDoctor = new Map<string, { total: number; count: number }>();
+        ratingsData?.forEach(r => {
+          const existing = ratingsByDoctor.get(r.doctor_id) || { total: 0, count: 0 };
+          ratingsByDoctor.set(r.doctor_id, {
+            total: existing.total + r.rating,
+            count: existing.count + 1,
+          });
+        });
+
+        const doctorsWithRatings = doctorsData.map(doc => ({
+          ...doc,
+          avgRating: ratingsByDoctor.has(doc.user_id) 
+            ? ratingsByDoctor.get(doc.user_id)!.total / ratingsByDoctor.get(doc.user_id)!.count
+            : undefined,
+          totalRatings: ratingsByDoctor.get(doc.user_id)?.count || 0,
+        }));
+
+        setDoctors(doctorsWithRatings);
+      }
     } catch (error: any) {
       console.error("Error loading data:", error);
       toast({
@@ -131,6 +218,30 @@ const PatientAppointments = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const saveUserLocation = async () => {
+    if (!profile) return;
+    
+    try {
+      await supabase
+        .from("patients")
+        .update({
+          pincode: userLocation.pincode,
+          city: userLocation.city,
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+        })
+        .eq("id", profile.id);
+
+      toast({
+        title: "Location Saved",
+        description: "Your location preferences have been updated",
+      });
+      setShowLocationDialog(false);
+    } catch (error) {
+      console.error("Error saving location:", error);
     }
   };
 
@@ -224,10 +335,10 @@ const PatientAppointments = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-orange-500/5">
-      <PatientHeader patientName="Patient" title="Appointments" subtitle="Book and manage your appointments" />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
+      <PatientHeader patientName={profile?.name || "Patient"} title="Appointments" subtitle="Book and manage your appointments" />
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <Button
             variant="ghost"
@@ -236,10 +347,16 @@ const PatientAppointments = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
-          <Button onClick={() => setShowBookingDialog(true)}>
-            <CalendarPlus className="h-4 w-4 mr-2" />
-            Book Appointment
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setShowLocationDialog(true)}>
+              <MapPin className="h-4 w-4 mr-2" />
+              {userLocation.city || "Set Location"}
+            </Button>
+            <Button onClick={() => setShowBookingDialog(true)}>
+              <CalendarPlus className="h-4 w-4 mr-2" />
+              Book Appointment
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -268,10 +385,89 @@ const PatientAppointments = () => {
           </Card>
         </div>
 
+        {/* Nearby Doctors */}
+        <Card className="p-6 mb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+              <Stethoscope className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold">
+                {userLocation.city ? `Doctors near ${userLocation.city}` : "Available Doctors"}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {sortedDoctors.length} doctor{sortedDoctors.length !== 1 ? "s" : ""} available
+              </p>
+            </div>
+          </div>
+
+          {sortedDoctors.length === 0 ? (
+            <div className="p-8 text-center">
+              <Stethoscope className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No doctors available</h3>
+              <p className="text-muted-foreground">
+                Check back later or adjust your location
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {sortedDoctors.slice(0, 6).map((doctor) => (
+                <Card 
+                  key={doctor.user_id} 
+                  className="p-4 hover:shadow-soft hover:border-primary/30 transition-all cursor-pointer"
+                  onClick={() => {
+                    setSelectedDoctorId(doctor.user_id);
+                    setShowBookingDialog(true);
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-semibold">Dr. {doctor.full_name}</h3>
+                      {doctor.specialization && (
+                        <p className="text-sm text-muted-foreground">{doctor.specialization}</p>
+                      )}
+                    </div>
+                    {doctor.avgRating !== undefined && (
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10">
+                        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                        <span className="text-sm font-medium text-amber-600">
+                          {doctor.avgRating.toFixed(1)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          ({doctor.totalRatings})
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-1.5 text-sm text-muted-foreground">
+                    {doctor.clinic_name && (
+                      <p className="flex items-center gap-2">
+                        <MapPin className="h-3.5 w-3.5" />
+                        {doctor.clinic_name}
+                        {doctor.city && `, ${doctor.city}`}
+                      </p>
+                    )}
+                    {doctor.distance !== undefined && (
+                      <p className="flex items-center gap-2 text-primary">
+                        <Navigation className="h-3.5 w-3.5" />
+                        {doctor.distance < 1 
+                          ? `${Math.round(doctor.distance * 1000)}m away`
+                          : `${doctor.distance.toFixed(1)} km away`}
+                      </p>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Appointments List */}
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-orange-600" />
+            <div className="h-12 w-12 rounded-xl bg-accent/20 flex items-center justify-center">
+              <Calendar className="h-6 w-6 text-accent" />
             </div>
             <div>
               <h2 className="text-xl font-semibold">Your Appointments</h2>
@@ -295,35 +491,72 @@ const PatientAppointments = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {appointments.map((appointment) => (
-                <Card key={appointment.id} className="p-4 bg-muted/30">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        <span className="font-medium">{formatDate(appointment.requested_date)}</span>
-                        <span className="text-muted-foreground">at</span>
-                        <span className="font-medium">{appointment.requested_time_slot}</span>
+              {appointments.map((appointment) => {
+                const doctor = doctors.find(d => d.user_id === appointment.doctor_id);
+                return (
+                  <Card key={appointment.id} className="p-4 bg-muted/30">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-primary" />
+                          <span className="font-medium">{formatDate(appointment.requested_date)}</span>
+                          <span className="text-muted-foreground">at</span>
+                          <span className="font-medium">{appointment.requested_time_slot}</span>
+                        </div>
+                        {doctor && (
+                          <p className="text-sm text-muted-foreground">
+                            Dr. {doctor.full_name} {doctor.specialization && `• ${doctor.specialization}`}
+                          </p>
+                        )}
+                        {appointment.reason && (
+                          <p className="text-sm text-muted-foreground">
+                            Reason: {appointment.reason}
+                          </p>
+                        )}
+                        {appointment.doctor_notes && appointment.status !== "pending" && (
+                          <p className="text-sm bg-muted p-2 rounded">
+                            Doctor&apos;s note: {appointment.doctor_notes}
+                          </p>
+                        )}
                       </div>
-                      {appointment.reason && (
-                        <p className="text-sm text-muted-foreground">
-                          Reason: {appointment.reason}
-                        </p>
-                      )}
-                      {appointment.doctor_notes && appointment.status !== "pending" && (
-                        <p className="text-sm bg-muted p-2 rounded">
-                          Doctor&apos;s note: {appointment.doctor_notes}
-                        </p>
-                      )}
+                      {getStatusBadge(appointment.status)}
                     </div>
-                    {getStatusBadge(appointment.status)}
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           )}
         </Card>
       </div>
+
+      {/* Location Dialog */}
+      <Dialog open={showLocationDialog} onOpenChange={setShowLocationDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Your Location</DialogTitle>
+            <DialogDescription>
+              We'll show you doctors near your location
+            </DialogDescription>
+          </DialogHeader>
+
+          <LocationSelector
+            pincode={userLocation.pincode}
+            city={userLocation.city}
+            latitude={userLocation.latitude}
+            longitude={userLocation.longitude}
+            onLocationChange={setUserLocation}
+          />
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowLocationDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveUserLocation}>
+              Save Location
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Booking Dialog */}
       <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
@@ -343,9 +576,25 @@ const PatientAppointments = () => {
                   <SelectValue placeholder="Choose a doctor" />
                 </SelectTrigger>
                 <SelectContent>
-                  {doctors.map((doctor) => (
+                  {sortedDoctors.map((doctor) => (
                     <SelectItem key={doctor.user_id} value={doctor.user_id}>
-                      Dr. {doctor.full_name} {doctor.specialization && `- ${doctor.specialization}`}
+                      <div className="flex items-center gap-2">
+                        <span>Dr. {doctor.full_name}</span>
+                        {doctor.specialization && (
+                          <span className="text-muted-foreground">- {doctor.specialization}</span>
+                        )}
+                        {doctor.avgRating !== undefined && (
+                          <span className="flex items-center gap-1 text-amber-600">
+                            <Star className="h-3 w-3 fill-amber-500" />
+                            {doctor.avgRating.toFixed(1)}
+                          </span>
+                        )}
+                        {doctor.distance !== undefined && (
+                          <span className="text-muted-foreground text-xs">
+                            ({doctor.distance.toFixed(1)} km)
+                          </span>
+                        )}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

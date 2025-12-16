@@ -109,15 +109,19 @@ export type Database = {
           availability_days: string[] | null
           availability_end_time: string | null
           availability_start_time: string | null
+          city: string | null
           clinic_address: string | null
           clinic_name: string | null
           created_at: string | null
           full_name: string
           id: string
           is_profile_complete: boolean | null
+          latitude: number | null
+          longitude: number | null
           max_appointments_per_day: number | null
           medical_license_number: string | null
           phone: string | null
+          pincode: string | null
           qualification: string | null
           specialization: string | null
           updated_at: string | null
@@ -129,15 +133,19 @@ export type Database = {
           availability_days?: string[] | null
           availability_end_time?: string | null
           availability_start_time?: string | null
+          city?: string | null
           clinic_address?: string | null
           clinic_name?: string | null
           created_at?: string | null
           full_name: string
           id?: string
           is_profile_complete?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           max_appointments_per_day?: number | null
           medical_license_number?: string | null
           phone?: string | null
+          pincode?: string | null
           qualification?: string | null
           specialization?: string | null
           updated_at?: string | null
@@ -149,20 +157,54 @@ export type Database = {
           availability_days?: string[] | null
           availability_end_time?: string | null
           availability_start_time?: string | null
+          city?: string | null
           clinic_address?: string | null
           clinic_name?: string | null
           created_at?: string | null
           full_name?: string
           id?: string
           is_profile_complete?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           max_appointments_per_day?: number | null
           medical_license_number?: string | null
           phone?: string | null
+          pincode?: string | null
           qualification?: string | null
           specialization?: string | null
           updated_at?: string | null
           user_id?: string
           years_of_experience?: number | null
+        }
+        Relationships: []
+      }
+      doctor_ratings: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          doctor_id: string
+          id: string
+          patient_id: string
+          rating: number
+          review: string | null
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          doctor_id: string
+          id?: string
+          patient_id: string
+          rating: number
+          review?: string | null
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          doctor_id?: string
+          id?: string
+          patient_id?: string
+          rating?: number
+          review?: string | null
         }
         Relationships: []
       }
@@ -293,31 +335,43 @@ export type Database = {
       patients: {
         Row: {
           age: number | null
+          city: string | null
           created_at: string
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
           national_health_id: string | null
           phone: string | null
+          pincode: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           age?: number | null
+          city?: string | null
           created_at?: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
           national_health_id?: string | null
           phone?: string | null
+          pincode?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           age?: number | null
+          city?: string | null
           created_at?: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           national_health_id?: string | null
           phone?: string | null
+          pincode?: string | null
           updated_at?: string
           user_id?: string
         }
