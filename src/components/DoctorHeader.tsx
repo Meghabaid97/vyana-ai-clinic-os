@@ -1,13 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, Leaf } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import DoctorBreadcrumb from "./DoctorBreadcrumb";
 
 interface DoctorHeaderProps {
   title: string;
   subtitle?: string;
-  showBackButton?: boolean;
   showSignOut?: boolean;
   showProfile?: boolean;
   icon?: React.ReactNode;
@@ -17,7 +16,6 @@ interface DoctorHeaderProps {
 const DoctorHeader = ({
   title,
   subtitle,
-  showBackButton = true,
   showSignOut = false,
   showProfile = false,
   icon,
@@ -35,11 +33,6 @@ const DoctorHeader = ({
       <div className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {showBackButton && (
-              <Button variant="ghost" size="icon" onClick={() => navigate("/doctor-dashboard")}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            )}
             {icon && (
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
                 {icon}
@@ -52,7 +45,12 @@ const DoctorHeader = ({
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Eco indicator */}
+            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <Leaf className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="text-xs font-medium text-emerald-600">100% Digital</span>
+            </div>
             {actions}
             {showProfile && (
               <Button variant="ghost" size="sm" onClick={() => navigate("/doctor-profile-setup")}>
