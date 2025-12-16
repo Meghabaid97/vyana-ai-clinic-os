@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Mic, Square, Loader2, Volume2, VolumeX, AlertTriangle, CheckCircle2, XCircle, Shield } from "lucide-react";
+import { Mic, Square, Loader2, Volume2, VolumeX, AlertTriangle, CheckCircle2, XCircle, Shield, ArrowLeft, Home } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -338,8 +338,17 @@ const Consultation = () => {
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold text-foreground">Create Consultation</h1>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/doctor-dashboard")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-4xl font-bold text-foreground">Create Consultation</h1>
+          </div>
           <div className="flex gap-4">
+            <Button onClick={() => navigate("/doctor-dashboard")} variant="outline">
+              <Home className="mr-2 h-4 w-4" />
+              Home
+            </Button>
             <Button onClick={() => navigate("/consultations")} variant="outline">
               View All Consultations
             </Button>

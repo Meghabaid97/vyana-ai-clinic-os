@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder, ExternalLink } from "lucide-react";
+import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder, ExternalLink, ArrowLeft, Home } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -332,13 +332,22 @@ const ConsultationsList = () => {
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground">My Patients</h1>
-            <p className="text-muted-foreground mt-2">
-              View patient records and consultation history
-            </p>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/doctor-dashboard")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-4xl font-bold text-foreground">My Patients</h1>
+              <p className="text-muted-foreground mt-2">
+                View patient records and consultation history
+              </p>
+            </div>
           </div>
           <div className="flex gap-4">
+            <Button onClick={() => navigate("/doctor-dashboard")} variant="outline">
+              <Home className="mr-2 h-4 w-4" />
+              Home
+            </Button>
             <Button onClick={() => navigate("/doctor-appointments")} variant="outline">
               Appointments
             </Button>
