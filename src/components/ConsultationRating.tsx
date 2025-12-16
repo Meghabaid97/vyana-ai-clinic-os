@@ -91,10 +91,18 @@ const ConsultationRating = ({
         }
       >
         {existingRating ? (
-          <>
-            <Star className="h-4 w-4 fill-primary text-primary" />
-            {existingRating}
-          </>
+          <span className="flex items-center gap-0.5">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`h-3.5 w-3.5 ${
+                  star <= existingRating
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-muted-foreground/30"
+                }`}
+              />
+            ))}
+          </span>
         ) : (
           <>
             <Star className="h-4 w-4" />

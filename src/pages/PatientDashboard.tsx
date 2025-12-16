@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import PatientHeader from "@/components/PatientHeader";
+import TreeProgressIndicator from "@/components/TreeProgressIndicator";
 import { getEcoMessage } from "@/lib/formatters";
 import {
   Loader2,
@@ -163,9 +164,10 @@ const PatientDashboard = () => {
             Welcome back,{" "}
             <span className="text-gradient">{profile?.name?.split(" ")[0] || "Patient"}</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <p className="text-lg text-muted-foreground max-w-2xl mb-6">
             {getEcoMessage(stats.consultations, "patient")}
           </p>
+          <TreeProgressIndicator consultations={stats.consultations} />
         </div>
 
         {/* Stats Row */}
