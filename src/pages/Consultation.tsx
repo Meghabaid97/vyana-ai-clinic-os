@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Mic, Square, Loader2 } from "lucide-react";
+import { Mic, Square, Loader2, Volume2, VolumeX, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -44,9 +44,16 @@ const Consultation = () => {
   const [language, setLanguage] = useState("");
   const [transcription, setTranscription] = useState("");
   const [fhirData, setFhirData] = useState("");
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [audioQuality, setAudioQuality] = useState<"good" | "low" | "high" | "silent">("silent");
+  const [recordingDuration, setRecordingDuration] = useState(0);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -60,12 +67,53 @@ const Consultation = () => {
     checkAuth();
   }, [navigate]);
 
+  const analyzeAudio = () => {
+    if (!analyserRef.current) return;
+    
+    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+    analyserRef.current.getByteFrequencyData(dataArray);
+    
+    // Calculate average volume level (0-100)
+    const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+    const normalizedLevel = Math.min(100, (average / 128) * 100);
+    setAudioLevel(normalizedLevel);
+    
+    // Determine audio quality
+    if (normalizedLevel < 5) {
+      setAudioQuality("silent");
+    } else if (normalizedLevel < 15) {
+      setAudioQuality("low");
+    } else if (normalizedLevel > 85) {
+      setAudioQuality("high");
+    } else {
+      setAudioQuality("good");
+    }
+    
+    animationFrameRef.current = requestAnimationFrame(analyzeAudio);
+  };
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
+
+      // Set up audio analysis
+      audioContextRef.current = new AudioContext();
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      source.connect(analyserRef.current);
+      
+      // Start analyzing audio levels
+      analyzeAudio();
+      
+      // Start duration timer
+      setRecordingDuration(0);
+      durationIntervalRef.current = setInterval(() => {
+        setRecordingDuration(prev => prev + 1);
+      }, 1000);
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -93,6 +141,19 @@ const Consultation = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      
+      // Clean up audio analysis
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+      }
+      setAudioLevel(0);
+      setAudioQuality("silent");
       
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
@@ -272,7 +333,7 @@ const Consultation = () => {
             </div>
           </div>
 
-          <div className="flex justify-center py-8">
+          <div className="flex flex-col items-center py-8 space-y-4">
             {!isRecording ? (
               <Button
                 onClick={startRecording}
@@ -284,15 +345,73 @@ const Consultation = () => {
                 Start Recording
               </Button>
             ) : (
-              <Button
-                onClick={stopRecording}
-                variant="destructive"
-                size="lg"
-                className="w-48"
-              >
-                <Square className="mr-2 h-5 w-5" />
-                Stop Recording
-              </Button>
+              <>
+                <Button
+                  onClick={stopRecording}
+                  variant="destructive"
+                  size="lg"
+                  className="w-48"
+                >
+                  <Square className="mr-2 h-5 w-5" />
+                  Stop Recording
+                </Button>
+                
+                {/* Recording Duration */}
+                <div className="text-sm text-muted-foreground">
+                  Recording: {Math.floor(recordingDuration / 60)}:{(recordingDuration % 60).toString().padStart(2, '0')}
+                </div>
+                
+                {/* Audio Quality Indicator */}
+                <div className="w-full max-w-xs space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Audio Level</span>
+                    <span className={`flex items-center gap-1 font-medium ${
+                      audioQuality === "good" ? "text-green-500" :
+                      audioQuality === "low" ? "text-yellow-500" :
+                      audioQuality === "high" ? "text-red-500" :
+                      "text-muted-foreground"
+                    }`}>
+                      {audioQuality === "good" && <Volume2 className="h-4 w-4" />}
+                      {audioQuality === "low" && <VolumeX className="h-4 w-4" />}
+                      {audioQuality === "high" && <AlertTriangle className="h-4 w-4" />}
+                      {audioQuality === "silent" && <VolumeX className="h-4 w-4" />}
+                      {audioQuality === "good" ? "Good" : 
+                       audioQuality === "low" ? "Too Quiet" : 
+                       audioQuality === "high" ? "Too Loud" : "No Audio"}
+                    </span>
+                  </div>
+                  
+                  {/* Level Bar */}
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-100 rounded-full ${
+                        audioQuality === "good" ? "bg-green-500" :
+                        audioQuality === "low" ? "bg-yellow-500" :
+                        audioQuality === "high" ? "bg-red-500" :
+                        "bg-muted-foreground"
+                      }`}
+                      style={{ width: `${audioLevel}%` }}
+                    />
+                  </div>
+                  
+                  {/* Quality Tips */}
+                  {audioQuality === "low" && (
+                    <p className="text-xs text-yellow-500">
+                      Speak louder or move closer to the microphone
+                    </p>
+                  )}
+                  {audioQuality === "high" && (
+                    <p className="text-xs text-red-500">
+                      Audio may clip. Speak softer or move away from the microphone
+                    </p>
+                  )}
+                  {audioQuality === "silent" && (
+                    <p className="text-xs text-muted-foreground">
+                      No audio detected. Check your microphone
+                    </p>
+                  )}
+                </div>
+              </>
             )}
           </div>
 
