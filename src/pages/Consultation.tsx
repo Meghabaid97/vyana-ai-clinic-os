@@ -54,6 +54,7 @@ const Consultation = () => {
   const [patientName, setPatientName] = useState("");
   const [patientAge, setPatientAge] = useState("");
   const [patientNationalId, setPatientNationalId] = useState("");
+  const [patientPhone, setPatientPhone] = useState("");
   const [language, setLanguage] = useState("");
   const [transcription, setTranscription] = useState("");
   const [fhirData, setFhirData] = useState("");
@@ -307,6 +308,7 @@ const Consultation = () => {
         setPatientName("");
         setPatientAge("");
         setPatientNationalId("");
+        setPatientPhone("");
         setLanguage("");
         setTranscription("");
         setFhirData("");
@@ -430,6 +432,18 @@ const Consultation = () => {
                 onChange={(e) => setPatientAge(e.target.value)}
                 placeholder="Enter patient age"
                 disabled={isProcessing || (aadhaarVerified === true)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="patientPhone">Patient Phone Number</Label>
+              <Input
+                id="patientPhone"
+                value={patientPhone}
+                onChange={(e) => setPatientPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="Enter 10-digit phone number"
+                disabled={isProcessing}
+                maxLength={10}
               />
             </div>
 
