@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import DoctorBreadcrumb from "@/components/DoctorBreadcrumb";
 import jsPDF from "jspdf";
 import {
   Loader2,
@@ -779,6 +780,7 @@ const PatientProfile = () => {
       {/* Header */}
       <div className="border-b bg-card">
         <div className="max-w-6xl mx-auto px-8 py-6">
+          <DoctorBreadcrumb />
           <Button
             variant="ghost"
             onClick={() => navigate("/consultations")}

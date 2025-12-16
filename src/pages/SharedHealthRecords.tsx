@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import DoctorBreadcrumb from "@/components/DoctorBreadcrumb";
 import {
   Loader2,
   ArrowLeft,
@@ -180,6 +181,7 @@ const SharedHealthRecords = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
+        <DoctorBreadcrumb />
         {records.length === 0 ? (
           <Card className="p-12 text-center">
             <FolderOpen className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />

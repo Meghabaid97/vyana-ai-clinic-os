@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import DoctorBreadcrumb from "@/components/DoctorBreadcrumb";
 import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder, ExternalLink, ArrowLeft, Home } from "lucide-react";
 import {
   Table,
@@ -331,6 +332,7 @@ const ConsultationsList = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto space-y-8">
+        <DoctorBreadcrumb />
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate("/doctor-dashboard")}>
@@ -344,10 +346,6 @@ const ConsultationsList = () => {
             </div>
           </div>
           <div className="flex gap-4">
-            <Button onClick={() => navigate("/doctor-dashboard")} variant="outline">
-              <Home className="mr-2 h-4 w-4" />
-              Home
-            </Button>
             <Button onClick={() => navigate("/doctor-appointments")} variant="outline">
               Appointments
             </Button>
