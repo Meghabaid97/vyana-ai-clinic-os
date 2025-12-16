@@ -7,8 +7,9 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Consultation from "./pages/Consultation";
 import ConsultationsList from "./pages/ConsultationsList";
-import PatientProfile from "./pages/PatientProfile";
+// Note: DoctorPatientView needs to be restored - temporarily routing to consultations
 import PatientDashboard from "./pages/PatientDashboard";
+import PatientProfileEdit from "./pages/PatientProfileEdit";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorAppointments from "./pages/DoctorAppointments";
 import SharedHealthRecords from "./pages/SharedHealthRecords";
@@ -28,8 +29,9 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/consultation" element={<Consultation />} />
           <Route path="/consultations" element={<ConsultationsList />} />
-          <Route path="/patient/:healthId" element={<PatientProfile />} />
+          <Route path="/patient/:healthId" element={<ConsultationsList />} />
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
+          <Route path="/patient-profile" element={<PatientProfileEdit />} />
           <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
           <Route path="/doctor-appointments" element={<DoctorAppointments />} />
           <Route path="/shared-records" element={<SharedHealthRecords />} />
