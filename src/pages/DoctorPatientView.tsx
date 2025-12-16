@@ -44,6 +44,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { jsPDF } from "jspdf";
 import { downloadPrescriptionPdf } from "@/lib/prescriptionPdf";
+import { decodePatientId, maskHealthId } from "@/lib/formatters";
 
 interface Consultation {
   id: string;
@@ -110,7 +111,8 @@ interface DoctorProfile {
 }
 
 const DoctorPatientView = () => {
-  const { healthId } = useParams();
+  const { patientId } = useParams();
+  const healthId = patientId ? decodePatientId(patientId) : "";
   const [isLoading, setIsLoading] = useState(true);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -512,7 +514,7 @@ const DoctorPatientView = () => {
       doc.text(`Age: ${patientAge} years`, margin, y);
       y += 8;
     }
-    doc.text(`Health ID: ${healthId}`, margin, y);
+    doc.text(`Health ID: ${maskHealthId(healthId)}`, margin, y);
     y += 8;
     doc.text(`Total Consultations: ${consultations.length}`, margin, y);
     y += 15;
@@ -571,7 +573,7 @@ const DoctorPatientView = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-teal-500/5">
-      <DoctorHeader title="Patient Profile" subtitle={`Health ID: ${healthId}`} />
+      <DoctorHeader title="Patient Profile" subtitle={`ID: ${maskHealthId(healthId)}`} />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
         <Button
@@ -601,7 +603,7 @@ const DoctorPatientView = () => {
                   )}
                   <span className="flex items-center gap-1">
                     <Shield className="h-4 w-4" />
-                    {healthId}
+                    ID: {maskHealthId(healthId)}
                   </span>
                 </div>
               </div>

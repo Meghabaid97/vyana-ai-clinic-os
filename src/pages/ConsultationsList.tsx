@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import DoctorHeader from "@/components/DoctorHeader";
-import { maskHealthId } from "@/lib/formatters";
+import { maskHealthId, encodePatientId } from "@/lib/formatters";
 import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder, ExternalLink, Users } from "lucide-react";
 import {
   Table,
@@ -471,7 +471,7 @@ const ConsultationsList = () => {
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/patient/${encodeURIComponent(group.healthId)}`);
+                            navigate(`/patient-view/${encodePatientId(group.healthId)}`);
                           }}
                         >
                           <ExternalLink className="mr-2 h-4 w-4" />

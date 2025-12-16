@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import PatientHeader from "@/components/PatientHeader";
+import StarRating from "@/components/StarRating";
 import { formatDoctorName } from "@/lib/validation";
 import {
   Loader2,
@@ -16,6 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
   Stethoscope,
+  Star,
 } from "lucide-react";
 import {
   Dialog,
@@ -336,10 +338,13 @@ const PatientMedicalHistory = () => {
                                       </div>
                                     )}
                                   </div>
-                                  <Button variant="outline" size="sm">
-                                    <FileText className="h-4 w-4 mr-1" />
-                                    Details
-                                  </Button>
+                                  <div className="flex items-center gap-2">
+                                    <StarRating rating={0} size="sm" readonly />
+                                    <Button variant="outline" size="sm">
+                                      <FileText className="h-4 w-4 mr-1" />
+                                      Details
+                                    </Button>
+                                  </div>
                                 </div>
                               </Card>
                             );

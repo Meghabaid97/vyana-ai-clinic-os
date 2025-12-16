@@ -17,6 +17,7 @@ import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorAppointments from "./pages/DoctorAppointments";
 import SharedHealthRecords from "./pages/SharedHealthRecords";
 import DoctorProfileSetup from "./pages/DoctorProfileSetup";
+import FindDoctors from "./pages/FindDoctors";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,12 +33,13 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/consultation" element={<Consultation />} />
           <Route path="/consultations" element={<ConsultationsList />} />
-          <Route path="/patient/:healthId" element={<DoctorPatientView />} />
+          <Route path="/patient-view/:patientId" element={<DoctorPatientView />} />
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
           <Route path="/patient-medical-history" element={<PatientMedicalHistory />} />
           <Route path="/patient-appointments" element={<PatientAppointments />} />
           <Route path="/patient-health-records" element={<PatientHealthRecords />} />
           <Route path="/patient-profile" element={<PatientProfileEdit />} />
+          <Route path="/find-doctors" element={<FindDoctors />} />
           <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
           <Route path="/doctor-appointments" element={<DoctorAppointments />} />
           <Route path="/shared-records" element={<SharedHealthRecords />} />

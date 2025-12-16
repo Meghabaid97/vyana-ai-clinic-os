@@ -12,38 +12,64 @@ export const maskHealthId = (healthId: string): string => {
 };
 
 /**
- * Generates catchy eco-impact messages
+ * Encodes a health ID for URL usage (base64)
+ */
+export const encodePatientId = (healthId: string): string => {
+  return btoa(healthId).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+};
+
+/**
+ * Decodes a patient ID from URL back to health ID
+ */
+export const decodePatientId = (encodedId: string): string => {
+  try {
+    const base64 = encodedId.replace(/-/g, '+').replace(/_/g, '/');
+    const padding = base64.length % 4;
+    const paddedBase64 = padding ? base64 + '='.repeat(4 - padding) : base64;
+    return atob(paddedBase64);
+  } catch {
+    return encodedId;
+  }
+};
+
+/**
+ * Generates catchy eco-impact messages with tree/nature focus
  */
 export const getEcoMessage = (
   consultations: number,
   type: "doctor" | "patient" = "doctor"
 ): string => {
   const paperSaved = consultations * 5;
-  const treeImpact = Math.floor(paperSaved / 8000); // ~8000 sheets per tree
+  const treesContribution = (paperSaved / 8000).toFixed(3); // fraction of a tree
+  const waterSaved = Math.round(paperSaved * 0.01); // ~10ml per sheet
 
   if (consultations === 0) {
     return type === "doctor"
-      ? "Start your paperless journey! Every digital consultation saves 5 sheets 🌱"
-      : "Go green with your health records! Join the digital revolution 🌿";
+      ? "🌱 Start your green healthcare journey! Each digital consultation saves 5 sheets of paper"
+      : "🌿 Join the green health revolution! Go paperless with your medical records";
   }
 
   if (consultations < 5) {
-    return `${consultations} digital records = ${paperSaved} sheets saved! You're an eco-starter 🌱`;
+    return `🌱 ${paperSaved} sheets saved! You're planting seeds for a greener future`;
   }
 
-  if (consultations < 20) {
-    return `🎉 ${paperSaved} sheets saved! That's ${Math.round(paperSaved * 0.005)} kg of CO₂ prevented`;
+  if (consultations < 10) {
+    return `🌿 ${paperSaved} sheets saved = ${waterSaved}L water preserved! Go greener, go digital`;
+  }
+
+  if (consultations < 25) {
+    return `🌳 Eco-warrior! ${paperSaved} sheets = ${treesContribution} trees worth of paper saved`;
   }
 
   if (consultations < 50) {
-    return `🌳 Eco-champion! ${paperSaved} sheets = saving a small forest patch`;
+    return `🌲 Forest guardian! ${paperSaved} sheets saved — you're making a real difference`;
   }
 
-  if (treeImpact >= 1) {
-    return `🏆 Legendary! You've saved the equivalent of ${treeImpact} tree${treeImpact > 1 ? "s" : ""}!`;
+  if (consultations < 100) {
+    return `🏆 Green champion! ${paperSaved} sheets = almost ${Math.ceil(parseFloat(treesContribution))} tree(s) saved. Keep going!`;
   }
 
-  return `💚 ${paperSaved} sheets saved digitally — the planet thanks you!`;
+  return `🌍 Planet hero! ${paperSaved}+ sheets saved digitally — leading the green healthcare revolution!`;
 };
 
 /**
