@@ -164,10 +164,9 @@ const PatientDashboard = () => {
             Welcome back,{" "}
             <span className="text-gradient">{profile?.name?.split(" ")[0] || "Patient"}</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-6">
+          <p className="text-lg text-muted-foreground max-w-2xl">
             {getEcoMessage(stats.consultations, "patient")}
           </p>
-          <TreeProgressIndicator consultations={stats.consultations} />
         </div>
 
         {/* Stats Row */}
@@ -250,8 +249,13 @@ const PatientDashboard = () => {
           </div>
         )}
 
+        {/* Tree Progress */}
+        <div className="mt-12">
+          <TreeProgressIndicator consultations={stats.consultations} />
+        </div>
+
         {/* Footer */}
-        <div className="mt-16 text-center">
+        <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
             Powered by <span className="text-gradient font-semibold">Vyana AI</span> • Your health, simplified
           </p>

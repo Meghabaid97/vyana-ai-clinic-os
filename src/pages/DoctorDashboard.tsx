@@ -238,10 +238,9 @@ const DoctorDashboard = () => {
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Dr. <span className="text-gradient">{doctorName}</span>
           </h1>
-          <p className="text-lg text-muted-foreground mb-6">
+          <p className="text-lg text-muted-foreground">
             {getEcoMessage(stats.totalConsultations, "doctor")}
           </p>
-          <TreeProgressIndicator consultations={stats.totalConsultations} />
         </div>
 
         {/* Stats Row */}
@@ -333,8 +332,13 @@ const DoctorDashboard = () => {
           </div>
         )}
 
+        {/* Tree Progress */}
+        <div className="mt-12">
+          <TreeProgressIndicator consultations={stats.totalConsultations} />
+        </div>
+
         {/* Footer */}
-        <div className="mt-16 text-center">
+        <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
             Powered by <span className="text-gradient font-semibold">Vyana AI</span> • The future of clinical documentation
           </p>
