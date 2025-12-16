@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,17 +38,61 @@ function processBase64Chunks(base64String: string, chunkSize = 32768) {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { audio } = await req.json();
-    
-    if (!audio) {
-      throw new Error('No audio data provided');
+    // Authenticate user
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication failed:', authError?.message);
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
-    console.log('Processing audio transcription...');
+    // Verify doctor role
+    const { data: roleData } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'doctor')
+      .single();
+
+    if (!roleData) {
+      console.error('User lacks doctor role:', user.id);
+      return new Response(JSON.stringify({ error: 'Requires doctor role' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const { audio } = await req.json();
+    
+    // Validate audio input
+    if (!audio || typeof audio !== 'string') {
+      return new Response(JSON.stringify({ error: 'Invalid audio data' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Limit to ~25MB (base64 encoded ~33MB)
+    if (audio.length > 33000000) {
+      return new Response(JSON.stringify({ error: 'Audio file too large' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    console.log('Processing audio transcription for user:', user.id);
 
     const binaryAudio = processBase64Chunks(audio);
     
@@ -71,12 +116,12 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', response.status, errorText);
-      throw new Error(`OpenAI API error: ${errorText}`);
+      console.error('OpenAI API error:', response.status);
+      throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const result = await response.json();
-    console.log('Transcription successful');
+    console.log('Transcription successful for user:', user.id);
 
     return new Response(
       JSON.stringify({ text: result.text }),
@@ -84,9 +129,9 @@ serve(async (req) => {
     );
 
   } catch (error: any) {
-    console.error('Transcription error:', error);
+    console.error('Transcription error:', error.message);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Processing failed' }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
