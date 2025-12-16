@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder } from "lucide-react";
+import { Loader2, Plus, Search, User, Calendar, FileText, Clock, Trash2, ChevronDown, ChevronRight, FolderOpen, Folder, ExternalLink } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -459,7 +459,7 @@ const ConsultationsList = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-4">
                         <div className="text-right">
                           <p className="text-sm font-medium">
                             {group.consultations.length} visit{group.consultations.length !== 1 ? "s" : ""}
@@ -468,6 +468,17 @@ const ConsultationsList = () => {
                             Last: {formatShortDate(group.lastVisit)}
                           </p>
                         </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/patient/${encodeURIComponent(group.healthId)}`);
+                          }}
+                        >
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Profile
+                        </Button>
                         {expandedPatients.has(group.healthId) ? (
                           <ChevronDown className="h-5 w-5 text-muted-foreground" />
                         ) : (
