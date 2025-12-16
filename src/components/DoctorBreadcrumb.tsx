@@ -12,6 +12,7 @@ const routeLabels: Record<string, string> = {
   "/consultations": "Patients",
   "/doctor-appointments": "Appointments",
   "/shared-records": "Shared Records",
+  "/doctor-profile-setup": "Profile Setup",
 };
 
 const DoctorBreadcrumb = () => {

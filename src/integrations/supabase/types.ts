@@ -103,6 +103,54 @@ export type Database = {
         }
         Relationships: []
       }
+      doctor_profiles: {
+        Row: {
+          clinic_address: string | null
+          clinic_name: string | null
+          created_at: string | null
+          full_name: string
+          id: string
+          is_profile_complete: boolean | null
+          medical_license_number: string | null
+          phone: string | null
+          qualification: string | null
+          specialization: string | null
+          updated_at: string | null
+          user_id: string
+          years_of_experience: number | null
+        }
+        Insert: {
+          clinic_address?: string | null
+          clinic_name?: string | null
+          created_at?: string | null
+          full_name: string
+          id?: string
+          is_profile_complete?: boolean | null
+          medical_license_number?: string | null
+          phone?: string | null
+          qualification?: string | null
+          specialization?: string | null
+          updated_at?: string | null
+          user_id: string
+          years_of_experience?: number | null
+        }
+        Update: {
+          clinic_address?: string | null
+          clinic_name?: string | null
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          is_profile_complete?: boolean | null
+          medical_license_number?: string | null
+          phone?: string | null
+          qualification?: string | null
+          specialization?: string | null
+          updated_at?: string | null
+          user_id?: string
+          years_of_experience?: number | null
+        }
+        Relationships: []
+      }
       follow_up_reminders: {
         Row: {
           consultation_id: string

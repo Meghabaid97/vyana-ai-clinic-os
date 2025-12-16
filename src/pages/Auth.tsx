@@ -51,14 +51,26 @@ const Auth = () => {
     if (roles && roles.length > 0) {
       const role = roles[0].role;
       if (role === "doctor" || role === "admin") {
-        navigate("/doctor-dashboard");
+        // Check if doctor has completed profile
+        const { data: profile } = await supabase
+          .from("doctor_profiles")
+          .select("is_profile_complete")
+          .eq("user_id", userId)
+          .maybeSingle();
+        
+        if (!profile || !profile.is_profile_complete) {
+          navigate("/doctor-profile-setup");
+        } else {
+          navigate("/doctor-dashboard");
+        }
       } else if (role === "patient") {
         navigate("/patient-dashboard");
       } else {
-        navigate("/doctor-dashboard");
+        navigate("/doctor-profile-setup");
       }
     } else {
-      navigate("/doctor-dashboard");
+      // No role found - could be Google sign-in, need to ask for role
+      navigate("/doctor-profile-setup");
     }
   };
 
@@ -83,27 +95,34 @@ const Auth = () => {
 
         // If user created successfully and we have a user ID
         if (data.user) {
-          // For patients, create the patient profile and add role
-          if (userRole === "patient") {
-            // First update the role (replace the default 'doctor' role)
-            await supabase
-              .from("user_roles")
-              .update({ role: "patient" })
-              .eq("user_id", data.user.id);
+          // Insert the role directly (no trigger auto-creates it now)
+          const { error: roleError } = await supabase
+            .from("user_roles")
+            .insert({ user_id: data.user.id, role: userRole });
+          
+          if (roleError) {
+            console.error("Role insert error:", roleError);
+          }
 
-            // Create patient profile
-            await supabase.from("patients").insert({
+          // For patients, create the patient profile
+          if (userRole === "patient") {
+            const { error: patientError } = await supabase.from("patients").insert({
               user_id: data.user.id,
               name: name,
               phone: phone || null,
               national_health_id: healthId || null,
             });
+            if (patientError) {
+              console.error("Patient profile error:", patientError);
+            }
           }
         }
 
         toast({
           title: "Account created!",
-          description: "You can now sign in with your credentials.",
+          description: userRole === "doctor" 
+            ? "Please complete your profile to get started." 
+            : "You can now sign in with your credentials.",
         });
         setIsSignUp(false);
       } else {
