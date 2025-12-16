@@ -53,6 +53,80 @@ export type Database = {
         }
         Relationships: []
       }
+      follow_up_reminders: {
+        Row: {
+          consultation_id: string
+          created_at: string
+          doctor_id: string
+          id: string
+          is_sent: boolean | null
+          patient_phone: string
+          reminder_date: string
+          reminder_message: string
+        }
+        Insert: {
+          consultation_id: string
+          created_at?: string
+          doctor_id: string
+          id?: string
+          is_sent?: boolean | null
+          patient_phone: string
+          reminder_date: string
+          reminder_message: string
+        }
+        Update: {
+          consultation_id?: string
+          created_at?: string
+          doctor_id?: string
+          id?: string
+          is_sent?: boolean | null
+          patient_phone?: string
+          reminder_date?: string
+          reminder_message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_reminders_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: false
+            referencedRelation: "consultations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          age: number | null
+          created_at: string
+          id: string
+          name: string
+          national_health_id: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          national_health_id?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          national_health_id?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -85,7 +159,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "doctor" | "admin"
+      app_role: "doctor" | "admin" | "patient"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -213,7 +287,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["doctor", "admin"],
+      app_role: ["doctor", "admin", "patient"],
     },
   },
 } as const

@@ -14,3 +14,6 @@ verify_jwt = true
 
 [functions.generate-prescription]
 verify_jwt = true
+
+[functions.check-drug-interactions]
+verify_jwt = true

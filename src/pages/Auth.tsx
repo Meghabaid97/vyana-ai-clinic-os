@@ -5,35 +5,61 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome } from "lucide-react";
+import { Mail, Lock, Chrome, Stethoscope, User } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+type UserRole = "doctor" | "patient";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>("doctor");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/consultations");
+        redirectBasedOnRole(session.user.id);
       }
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/consultations");
+        setTimeout(() => {
+          redirectBasedOnRole(session.user.id);
+        }, 0);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const redirectBasedOnRole = async (userId: string) => {
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    if (roles && roles.length > 0) {
+      const role = roles[0].role;
+      if (role === "doctor" || role === "admin") {
+        navigate("/consultations");
+      } else if (role === "patient") {
+        navigate("/patient-dashboard");
+      } else {
+        navigate("/consultations");
+      }
+    } else {
+      navigate("/consultations");
+    }
+  };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,18 +67,43 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/consultations`,
+            emailRedirectTo: `${window.location.origin}/auth`,
+            data: {
+              role: userRole,
+              name: name,
+            },
           },
         });
         if (error) throw error;
+
+        // If user created successfully and we have a user ID
+        if (data.user) {
+          // For patients, create the patient profile and add role
+          if (userRole === "patient") {
+            // First update the role (replace the default 'doctor' role)
+            await supabase
+              .from("user_roles")
+              .update({ role: "patient" })
+              .eq("user_id", data.user.id);
+
+            // Create patient profile
+            await supabase.from("patients").insert({
+              user_id: data.user.id,
+              name: name,
+              phone: phone || null,
+            });
+          }
+        }
+
         toast({
           title: "Account created!",
           description: "You can now sign in with your credentials.",
         });
+        setIsSignUp(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -76,7 +127,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/consultations`,
+          redirectTo: `${window.location.origin}/auth`,
         },
       });
       if (error) throw error;
@@ -100,7 +151,55 @@ const Auth = () => {
         </div>
 
         <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 shadow-glow">
+          {/* Role Selection */}
+          <Tabs value={userRole} onValueChange={(v) => setUserRole(v as UserRole)} className="mb-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="doctor" className="flex items-center gap-2">
+                <Stethoscope className="h-4 w-4" />
+                Doctor
+              </TabsTrigger>
+              <TabsTrigger value="patient" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Patient
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
+            {isSignUp && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Full Name
+                  </Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Dr. John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="bg-background/50"
+                  />
+                </div>
+
+                {userRole === "patient" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone (for reminders)</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+91 98765 43210"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="bg-background/50"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
@@ -140,7 +239,7 @@ const Auth = () => {
               className="w-full"
               disabled={loading}
             >
-              {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+              {loading ? "Loading..." : isSignUp ? `Sign Up as ${userRole === "doctor" ? "Doctor" : "Patient"}` : "Sign In"}
             </Button>
           </form>
 
