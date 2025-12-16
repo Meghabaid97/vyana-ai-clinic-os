@@ -1,6 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Leaf } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
 
@@ -23,18 +23,18 @@ const PatientHeader = ({
   };
 
   return (
-    <div className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
-      <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
+    <header className="glass sticky top-0 z-50">
+      <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           {/* Vyana AI Logo - Home */}
           <Link
             to="/patient-dashboard"
             className="flex items-center gap-2.5 group"
           >
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">
-              <span className="text-sm font-bold text-white">V</span>
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-105 transition-all">
+              <span className="text-lg font-bold text-primary-foreground">V</span>
             </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-gradient">
               Vyana AI
             </span>
           </Link>
@@ -52,27 +52,26 @@ const PatientHeader = ({
         </div>
         
         <div className="flex items-center gap-3">
-          {/* Eco indicator */}
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            <Leaf className="h-3.5 w-3.5 text-emerald-600" />
-            <span className="text-xs font-medium text-emerald-600">100% Digital</span>
+          {/* Digital indicator */}
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full glass">
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-sm font-medium text-primary">100% Digital</span>
           </div>
           <NotificationBell />
           <Button 
-            variant="default" 
+            variant="outline" 
             size="sm" 
             onClick={() => navigate("/patient-profile")} 
-            className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600"
+            className="glass border-border/50 hover:border-primary/50"
           >
             Profile
           </Button>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
+            <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 

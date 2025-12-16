@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
@@ -10,15 +9,15 @@ import {
   LogOut,
   Users,
   CalendarCheck,
-  FileText,
   Plus,
   Clock,
   TrendingUp,
   Activity,
   FolderOpen,
-  Leaf,
-  TreePine,
   Sparkles,
+  ArrowRight,
+  Zap,
+  FileText,
 } from "lucide-react";
 
 const DoctorDashboard = () => {
@@ -46,7 +45,6 @@ const DoctorDashboard = () => {
         return;
       }
 
-      // Check if user is a doctor
       const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
@@ -57,7 +55,6 @@ const DoctorDashboard = () => {
         return;
       }
 
-      // Fetch doctor profile name
       const { data: profile } = await supabase
         .from("doctor_profiles")
         .select("full_name")
@@ -66,20 +63,17 @@ const DoctorDashboard = () => {
 
       setDoctorName(profile?.full_name || session.user.email?.split("@")[0] || "Doctor");
 
-      // Load consultations
       const { data: consultations } = await supabase
         .from("consultations")
         .select("patient_national_health_id, created_at")
         .eq("doctor_id", session.user.id);
 
-      // Load pending appointments
       const { data: appointments } = await supabase
         .from("appointments")
         .select("id")
         .eq("doctor_id", session.user.id)
         .eq("status", "pending");
 
-      // Load shared health records count
       const { data: sharedRecords } = await supabase
         .from("health_records")
         .select("id")
@@ -119,7 +113,10 @@ const DoctorDashboard = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
+          <Loader2 className="h-12 w-12 animate-spin text-primary relative" />
+        </div>
       </div>
     );
   }
@@ -127,207 +124,198 @@ const DoctorDashboard = () => {
   const quickActions = [
     {
       title: "New Consultation",
-      description: "Start a new patient consultation",
+      description: "Start recording",
       icon: Plus,
-      color: "bg-emerald-500",
-      hoverColor: "hover:bg-emerald-600",
+      gradient: "from-emerald-500 to-teal-400",
       onClick: () => navigate("/consultation"),
+      primary: true,
     },
     {
       title: "My Patients",
-      description: `${stats.totalPatients} patients • ${stats.totalConsultations} records`,
+      description: `${stats.totalPatients} patients`,
       icon: Users,
-      color: "bg-blue-500",
-      hoverColor: "hover:bg-blue-600",
+      gradient: "from-blue-500 to-cyan-400",
       onClick: () => navigate("/consultations"),
+      badge: stats.totalConsultations,
     },
     {
       title: "Appointments",
-      description: stats.pendingAppointments > 0 
-        ? `${stats.pendingAppointments} pending requests` 
-        : "Manage appointments",
+      description: stats.pendingAppointments > 0 ? `${stats.pendingAppointments} pending` : "Manage schedule",
       icon: CalendarCheck,
-      color: "bg-orange-500",
-      hoverColor: "hover:bg-orange-600",
+      gradient: "from-amber-500 to-orange-400",
       onClick: () => navigate("/doctor-appointments"),
       badge: stats.pendingAppointments > 0 ? stats.pendingAppointments : undefined,
     },
     {
       title: "Shared Records",
-      description: stats.sharedRecords > 0
-        ? `${stats.sharedRecords} patient files`
-        : "View shared files",
+      description: `${stats.sharedRecords} files`,
       icon: FolderOpen,
-      color: "bg-teal-500",
-      hoverColor: "hover:bg-teal-600",
+      gradient: "from-violet-500 to-purple-400",
       onClick: () => navigate("/shared-records"),
       badge: stats.sharedRecords > 0 ? stats.sharedRecords : undefined,
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
+      </div>
+
       {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            {/* Vyana AI Logo - Home */}
-            <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-md">
-                <span className="text-sm font-bold text-primary-foreground">V</span>
-              </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Vyana AI
-              </span>
+      <header className="glass sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25">
+              <span className="text-lg font-bold text-primary-foreground">V</span>
             </div>
-            
-            <div className="h-6 w-px bg-border" />
-            
             <div>
-              <h1 className="text-lg font-semibold text-foreground">Welcome, Dr. {doctorName}</h1>
+              <span className="text-xl font-bold text-gradient">Vyana AI</span>
               <p className="text-xs text-muted-foreground">Clinical Dashboard</p>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
-            {/* Eco indicator */}
-            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <Leaf className="h-3.5 w-3.5 text-emerald-600" />
-              <span className="text-xs font-medium text-emerald-600">
-                {stats.totalConsultations > 0 ? `${stats.totalConsultations * 3} pages saved` : "100% Digital"}
-              </span>
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full glass">
+              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-sm font-medium text-primary">100% Digital</span>
             </div>
             <NotificationBell />
-            <Button variant="default" size="sm" onClick={() => navigate("/doctor-profile-setup")}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate("/doctor-profile-setup")}
+              className="glass border-border/50"
+            >
               Profile
             </Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
-        {/* Eco Impact Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500/10 via-green-500/10 to-teal-500/10 border border-emerald-500/20 p-5">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-500/20 to-transparent rounded-full -mr-10 -mt-10" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-500/20 to-transparent rounded-full -ml-8 -mb-8" />
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg">
-                <TreePine className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  Join the Green Healthcare Revolution!
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {stats.totalConsultations > 0 
-                    ? `Your ${stats.totalConsultations} digital consultations saved ~${stats.totalConsultations * 5} sheets of paper` 
-                    : "Start your digital consultations and help save trees"}
-                </p>
-              </div>
-            </div>
-            <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-              <Leaf className="h-4 w-4 text-emerald-600" />
-              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Eco-Warrior</span>
-            </div>
+      <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        {/* Hero Section */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <span className="text-sm font-medium text-primary uppercase tracking-wider">Good to see you</span>
           </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-3">
+            Dr. <span className="text-gradient">{doctorName}</span>
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            {stats.totalConsultations > 0 
+              ? `${stats.totalConsultations} consultations completed • ${stats.totalConsultations * 3} pages saved digitally`
+              : "Ready to start your first digital consultation?"}
+          </p>
         </div>
 
-        {/* Stats Row - Enhanced */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-5 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent border-blue-500/20 hover:shadow-lg hover:shadow-blue-500/10 transition-all group">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">{stats.totalPatients}</p>
-                <p className="text-sm text-muted-foreground">Total Patients</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-5 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/10 transition-all group">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
-                <FileText className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">{stats.totalConsultations}</p>
-                <p className="text-sm text-muted-foreground">Consultations</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-5 bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-transparent border-orange-500/20 hover:shadow-lg hover:shadow-orange-500/10 transition-all group">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform">
-                <Clock className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">{stats.pendingAppointments}</p>
-                <p className="text-sm text-muted-foreground">Pending</p>
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          {[
+            { label: "Total Patients", value: stats.totalPatients, icon: Users, color: "blue" },
+            { label: "Consultations", value: stats.totalConsultations, icon: FileText, color: "emerald" },
+            { label: "Pending", value: stats.pendingAppointments, icon: Clock, color: "amber" },
+            { label: "This Month", value: stats.thisMonthConsultations, icon: TrendingUp, color: "violet" },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="glass glass-hover rounded-2xl p-5 group cursor-default"
+            >
+              <div className="flex items-center gap-4">
+                <div className={`h-12 w-12 rounded-xl bg-${stat.color}-500/20 flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <stat.icon className={`h-6 w-6 text-${stat.color}-400`} />
+                </div>
+                <div>
+                  <p className="text-3xl font-bold">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                </div>
               </div>
             </div>
-          </Card>
-          <Card className="p-5 bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent border-purple-500/20 hover:shadow-lg hover:shadow-purple-500/10 transition-all group">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">{stats.thisMonthConsultations}</p>
-                <p className="text-sm text-muted-foreground">This Month</p>
-              </div>
-            </div>
-          </Card>
+          ))}
         </div>
 
-        {/* Quick Actions - Enhanced */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+        {/* Quick Actions */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-6">
             <Activity className="h-5 w-5 text-primary" />
-            Quick Actions
-          </h2>
+            <h2 className="text-xl font-bold">Quick Actions</h2>
+          </div>
+          
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {quickActions.map((action) => (
               <button
                 key={action.title}
                 onClick={action.onClick}
-                className="group relative flex flex-col items-center p-6 rounded-2xl bg-card border border-border/50 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-2"
+                className={`group relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 ${
+                  action.primary ? "col-span-2 md:col-span-1" : ""
+                }`}
               >
-                {action.badge && (
-                  <span className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold flex items-center justify-center shadow-lg animate-bounce">
-                    {action.badge}
-                  </span>
-                )}
-                <div className={`h-16 w-16 rounded-2xl ${action.color} flex items-center justify-center mb-4 shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                  <action.icon className="h-8 w-8 text-white" />
+                {/* Background */}
+                <div className="absolute inset-0 bg-card rounded-2xl" />
+                <div className={`absolute inset-0 bg-gradient-to-br ${action.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                
+                {/* Glow border on hover */}
+                <div className={`absolute -inset-px bg-gradient-to-br ${action.gradient} rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm`} />
+                <div className="absolute inset-[1px] bg-card rounded-2xl" />
+
+                <div className="relative z-10">
+                  {action.badge && (
+                    <span className={`absolute -top-1 -right-1 h-6 w-6 rounded-full bg-gradient-to-br ${action.gradient} text-white text-xs font-bold flex items-center justify-center`}>
+                      {action.badge > 99 ? "99+" : action.badge}
+                    </span>
+                  )}
+
+                  <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all`}>
+                    <action.icon className="h-7 w-7 text-white" />
+                  </div>
+
+                  <h3 className="font-bold text-lg mb-1">{action.title}</h3>
+                  <p className="text-sm text-muted-foreground">{action.description}</p>
+
+                  <div className="flex items-center gap-1 mt-3 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-all">
+                    <span>Open</span>
+                    <ArrowRight className="h-3 w-3" />
+                  </div>
                 </div>
-                <h3 className="font-semibold text-foreground mb-1 text-center">{action.title}</h3>
-                <p className="text-xs text-muted-foreground text-center line-clamp-2">{action.description}</p>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Recent Activity Prompt */}
+        {/* Empty State */}
         {stats.totalConsultations === 0 && (
-          <Card className="p-8 text-center bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-            <Activity className="h-12 w-12 mx-auto text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Ready to start?</h3>
-            <p className="text-muted-foreground mb-4">
-              Create your first consultation to begin building patient records
+          <div className="glass rounded-3xl p-10 text-center">
+            <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto mb-6 shadow-xl animate-float">
+              <Zap className="h-10 w-10 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold mb-3">Ready to get started?</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Create your first digital consultation and experience the future of healthcare documentation.
             </p>
-            <Button onClick={() => navigate("/consultation")} size="lg">
+            <Button 
+              onClick={() => navigate("/consultation")} 
+              size="lg"
+              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
+            >
               <Plus className="mr-2 h-5 w-5" />
               New Consultation
             </Button>
-          </Card>
+          </div>
         )}
+
+        {/* Footer */}
+        <div className="mt-12 text-center">
+          <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            Vyana AI • The future of clinical documentation
+          </p>
+        </div>
       </div>
     </div>
   );
