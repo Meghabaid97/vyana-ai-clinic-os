@@ -5,15 +5,13 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import PatientHeader from "@/components/PatientHeader";
-import StarRating from "@/components/StarRating";
+import ConsultationRating from "@/components/ConsultationRating";
 import { formatDoctorName } from "@/lib/validation";
 import {
   Loader2,
   Calendar,
   FileText,
-  Pill,
   ArrowLeft,
-  Building2,
   ChevronDown,
   ChevronUp,
   Stethoscope,
@@ -52,6 +50,18 @@ interface DoctorProfile {
   clinic_name: string | null;
 }
 
+interface DoctorRating {
+  doctor_id: string;
+  avgRating: number;
+  totalRatings: number;
+}
+
+interface ConsultationRatingData {
+  consultation_id: string;
+  rating: number;
+  review: string | null;
+}
+
 interface DoctorGroup {
   doctor_id: string;
   doctorName: string;
@@ -61,11 +71,16 @@ interface DoctorGroup {
   consultations: Consultation[];
   firstVisit: string;
   lastVisit: string;
+  avgRating: number;
+  totalRatings: number;
 }
 
 const PatientMedicalHistory = () => {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [doctorProfiles, setDoctorProfiles] = useState<Map<string, DoctorProfile>>(new Map());
+  const [doctorRatings, setDoctorRatings] = useState<Map<string, DoctorRating>>(new Map());
+  const [myRatings, setMyRatings] = useState<Map<string, ConsultationRatingData>>(new Map());
+  const [patientId, setPatientId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
   const [expandedDoctors, setExpandedDoctors] = useState<Set<string>>(new Set());
@@ -85,6 +100,7 @@ const PatientMedicalHistory = () => {
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       const doctorProfile = doctorProfiles.get(doctor_id);
+      const ratingData = doctorRatings.get(doctor_id);
       return {
         doctor_id,
         doctorName: doctorProfile?.full_name || "Healthcare Provider",
@@ -94,9 +110,11 @@ const PatientMedicalHistory = () => {
         consultations: sorted,
         firstVisit: sorted[sorted.length - 1].created_at,
         lastVisit: sorted[0].created_at,
+        avgRating: ratingData?.avgRating || 0,
+        totalRatings: ratingData?.totalRatings || 0,
       };
     }).sort((a, b) => new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime());
-  }, [consultations, doctorProfiles]);
+  }, [consultations, doctorProfiles, doctorRatings]);
 
   useEffect(() => {
     loadData();
@@ -116,6 +134,13 @@ const PatientMedicalHistory = () => {
         .eq("user_id", session.user.id)
         .single();
 
+      if (!patientData) {
+        setIsLoading(false);
+        return;
+      }
+
+      setPatientId(patientData.id);
+
       if (patientData?.national_health_id) {
         const { data: consultationsData } = await supabase
           .from("consultations")
@@ -128,6 +153,8 @@ const PatientMedicalHistory = () => {
         // Fetch doctor profiles for all consultations
         if (consultationsData && consultationsData.length > 0) {
           const doctorIds = [...new Set(consultationsData.map(c => c.doctor_id))];
+          
+          // Fetch profiles
           const { data: profiles } = await supabase
             .from("doctor_profiles")
             .select("user_id, full_name, qualification, specialization, clinic_name")
@@ -137,6 +164,51 @@ const PatientMedicalHistory = () => {
             const profileMap = new Map<string, DoctorProfile>();
             profiles.forEach(p => profileMap.set(p.user_id, p));
             setDoctorProfiles(profileMap);
+          }
+
+          // Fetch aggregate ratings for doctors
+          const { data: ratingsData } = await supabase
+            .from("doctor_ratings")
+            .select("doctor_id, rating")
+            .in("doctor_id", doctorIds);
+
+          if (ratingsData) {
+            const ratingMap = new Map<string, DoctorRating>();
+            const grouped = ratingsData.reduce((acc, r) => {
+              if (!acc[r.doctor_id]) {
+                acc[r.doctor_id] = [];
+              }
+              acc[r.doctor_id].push(r.rating);
+              return acc;
+            }, {} as Record<string, number[]>);
+
+            Object.entries(grouped).forEach(([doctorId, ratings]) => {
+              const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+              ratingMap.set(doctorId, {
+                doctor_id: doctorId,
+                avgRating: Math.round(avg * 10) / 10,
+                totalRatings: ratings.length,
+              });
+            });
+            setDoctorRatings(ratingMap);
+          }
+
+          // Fetch my ratings for consultations
+          const { data: myRatingsData } = await supabase
+            .from("doctor_ratings")
+            .select("appointment_id, rating, review")
+            .eq("patient_id", patientData.id);
+
+          if (myRatingsData) {
+            const myRatingMap = new Map<string, ConsultationRatingData>();
+            myRatingsData.forEach(r => {
+              myRatingMap.set(r.appointment_id, {
+                consultation_id: r.appointment_id,
+                rating: r.rating,
+                review: r.review,
+              });
+            });
+            setMyRatings(myRatingMap);
           }
         }
       }
@@ -266,9 +338,20 @@ const PatientMedicalHistory = () => {
                               <Stethoscope className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                              <h3 className="font-semibold">
-                                {formatDoctorName(group.doctorName, group.doctorQualification)}
-                              </h3>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold">
+                                  {formatDoctorName(group.doctorName, group.doctorQualification)}
+                                </h3>
+                                {/* Aggregate Rating Badge */}
+                                {group.totalRatings > 0 && (
+                                  <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
+                                    <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                                    <span className="text-xs font-medium text-yellow-700 dark:text-yellow-400">
+                                      {group.avgRating} ({group.totalRatings})
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 {group.doctorSpecialization && (
                                   <Badge variant="secondary" className="text-xs">
@@ -307,15 +390,18 @@ const PatientMedicalHistory = () => {
                           {group.consultations.map((consultation) => {
                             const fhirData = parseFHIRData(consultation.fhir_data);
                             const diagnoses = extractDiagnosis(fhirData);
+                            const existingRating = myRatings.get(consultation.id);
 
                             return (
                               <Card
                                 key={consultation.id}
-                                className="p-4 bg-background cursor-pointer hover:bg-muted/50 transition-colors"
-                                onClick={() => setSelectedConsultation(consultation)}
+                                className="p-4 bg-background"
                               >
                                 <div className="flex items-start justify-between">
-                                  <div>
+                                  <div 
+                                    className="flex-1 cursor-pointer"
+                                    onClick={() => setSelectedConsultation(consultation)}
+                                  >
                                     <div className="flex items-center gap-2">
                                       <Calendar className="h-4 w-4 text-muted-foreground" />
                                       <span className="font-medium">{formatFullDate(consultation.created_at)}</span>
@@ -339,8 +425,21 @@ const PatientMedicalHistory = () => {
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <StarRating rating={0} size="sm" readonly />
-                                    <Button variant="outline" size="sm">
+                                    {patientId && (
+                                      <ConsultationRating
+                                        consultationId={consultation.id}
+                                        doctorId={consultation.doctor_id}
+                                        patientId={patientId}
+                                        existingRating={existingRating?.rating}
+                                        existingReview={existingRating?.review || undefined}
+                                        onRatingSubmit={loadData}
+                                      />
+                                    )}
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={() => setSelectedConsultation(consultation)}
+                                    >
                                       <FileText className="h-4 w-4 mr-1" />
                                       Details
                                     </Button>
