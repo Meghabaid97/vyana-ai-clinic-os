@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { jsPDF } from "jspdf";
+import { downloadPrescriptionPdf } from "@/lib/prescriptionPdf";
 
 interface Consultation {
   id: string;
@@ -98,12 +99,23 @@ interface DrugInteractionResult {
   disclaimer: string;
 }
 
+interface DoctorProfile {
+  full_name: string;
+  qualification: string | null;
+  specialization: string | null;
+  clinic_name: string | null;
+  clinic_address: string | null;
+  phone: string | null;
+  medical_license_number: string | null;
+}
+
 const DoctorPatientView = () => {
   const { healthId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [expandedConsultations, setExpandedConsultations] = useState<Set<string>>(new Set());
+  const [doctorProfile, setDoctorProfile] = useState<DoctorProfile | null>(null);
   
   // Health Risk Analyzer
   const [showRiskDialog, setShowRiskDialog] = useState(false);
@@ -143,6 +155,17 @@ const DoctorPatientView = () => {
       if (!session) {
         navigate("/auth");
         return;
+      }
+
+      // Load doctor profile
+      const { data: profileData } = await supabase
+        .from("doctor_profiles")
+        .select("full_name, qualification, specialization, clinic_name, clinic_address, phone, medical_license_number")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      
+      if (profileData) {
+        setDoctorProfile(profileData);
       }
 
       // Load consultations
@@ -363,52 +386,48 @@ const DoctorPatientView = () => {
   const downloadPrescription = () => {
     if (!prescription || !selectedConsultationForRx) return;
 
-    const doc = new jsPDF();
-    const margin = 20;
-    let y = margin;
-
-    doc.setFontSize(18);
-    doc.text("Prescription", margin, y);
-    y += 15;
-
-    doc.setFontSize(12);
-    doc.text(`Patient: ${selectedConsultationForRx.patient_name}`, margin, y);
-    y += 8;
-    doc.text(`Date: ${formatDate(selectedConsultationForRx.created_at)}`, margin, y);
-    y += 15;
-
-    doc.setFontSize(14);
-    doc.text("Medications:", margin, y);
-    y += 8;
-    doc.setFontSize(11);
-    prescription.medications.split("\n").forEach(med => {
-      doc.text(`• ${med}`, margin + 5, y);
-      y += 6;
+    // Parse medications into structured format
+    const medLines = prescription.medications.split("\n").filter(Boolean);
+    const medications = medLines.map(med => {
+      // Try to parse medication line (format: "MedicationName - Dosage - Instructions")
+      const parts = med.split(/[-–]/).map(p => p.trim());
+      return {
+        name: parts[0] || med,
+        dosage: prescription.dosage || parts[1] || "As prescribed",
+        instruction: prescription.instructions || parts[2] || "As directed",
+        duration: prescription.duration || "As needed",
+      };
     });
 
-    y += 5;
-    doc.setFontSize(14);
-    doc.text("Instructions:", margin, y);
-    y += 8;
-    doc.setFontSize(11);
-    doc.text(prescription.instructions || "As directed", margin + 5, y);
-    y += 10;
+    // Extract diagnosis from FHIR data
+    const fhirData = parseFHIRData(selectedConsultationForRx.fhir_data);
+    const diagnoses = extractDiagnosis(fhirData);
 
-    if (prescription.duration) {
-      doc.text(`Duration: ${prescription.duration}`, margin, y);
-      y += 8;
-    }
+    const visitDate = new Date(selectedConsultationForRx.created_at).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "2-digit", 
+      year: "numeric",
+    });
 
-    if (prescription.notes) {
-      y += 5;
-      doc.setFontSize(14);
-      doc.text("Notes:", margin, y);
-      y += 8;
-      doc.setFontSize(11);
-      doc.text(prescription.notes, margin + 5, y);
-    }
-
-    doc.save(`prescription_${selectedConsultationForRx.patient_name.replace(/\s+/g, "_")}.pdf`);
+    downloadPrescriptionPdf({
+      clinicName: doctorProfile?.clinic_name || "Healthcare Clinic",
+      clinicAddress: doctorProfile?.clinic_address || "",
+      clinicPhone: doctorProfile?.phone || "",
+      clinicEmail: undefined,
+      doctorName: doctorProfile?.full_name || "Doctor",
+      doctorQualification: doctorProfile?.qualification || doctorProfile?.specialization || "Medical Professional",
+      doctorLicenseNumber: doctorProfile?.medical_license_number || undefined,
+      patientName: selectedConsultationForRx.patient_name,
+      patientAge: selectedConsultationForRx.patient_age,
+      patientGender: undefined,
+      patientPhone: undefined,
+      healthId: healthId || "",
+      visitDate: visitDate,
+      visitType: "Consultation Visit",
+      diagnosis: diagnoses.join(", ") || "As noted in consultation",
+      medications: medications,
+      advice: prescription.notes || undefined,
+    });
   };
 
   // Follow-up Reminder

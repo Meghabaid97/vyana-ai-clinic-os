@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import PatientHeader from "@/components/PatientHeader";
+import { formatDoctorName } from "@/lib/validation";
 import {
   Loader2,
   Calendar,
@@ -14,6 +15,7 @@ import {
   Building2,
   ChevronDown,
   ChevronUp,
+  Stethoscope,
 } from "lucide-react";
 import {
   Dialog,
@@ -40,8 +42,20 @@ interface Consultation {
   created_at: string;
 }
 
+interface DoctorProfile {
+  user_id: string;
+  full_name: string;
+  qualification: string | null;
+  specialization: string | null;
+  clinic_name: string | null;
+}
+
 interface DoctorGroup {
   doctor_id: string;
+  doctorName: string;
+  doctorQualification: string | null;
+  doctorSpecialization: string | null;
+  clinicName: string | null;
   consultations: Consultation[];
   firstVisit: string;
   lastVisit: string;
@@ -49,6 +63,7 @@ interface DoctorGroup {
 
 const PatientMedicalHistory = () => {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [doctorProfiles, setDoctorProfiles] = useState<Map<string, DoctorProfile>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
   const [expandedDoctors, setExpandedDoctors] = useState<Set<string>>(new Set());
@@ -67,14 +82,19 @@ const PatientMedicalHistory = () => {
       const sorted = docConsultations.sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
+      const doctorProfile = doctorProfiles.get(doctor_id);
       return {
         doctor_id,
+        doctorName: doctorProfile?.full_name || "Healthcare Provider",
+        doctorQualification: doctorProfile?.qualification || null,
+        doctorSpecialization: doctorProfile?.specialization || null,
+        clinicName: doctorProfile?.clinic_name || null,
         consultations: sorted,
         firstVisit: sorted[sorted.length - 1].created_at,
         lastVisit: sorted[0].created_at,
       };
     }).sort((a, b) => new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime());
-  }, [consultations]);
+  }, [consultations, doctorProfiles]);
 
   useEffect(() => {
     loadData();
@@ -102,6 +122,21 @@ const PatientMedicalHistory = () => {
           .order("created_at", { ascending: false });
 
         setConsultations(consultationsData || []);
+
+        // Fetch doctor profiles for all consultations
+        if (consultationsData && consultationsData.length > 0) {
+          const doctorIds = [...new Set(consultationsData.map(c => c.doctor_id))];
+          const { data: profiles } = await supabase
+            .from("doctor_profiles")
+            .select("user_id, full_name, qualification, specialization, clinic_name")
+            .in("user_id", doctorIds);
+
+          if (profiles) {
+            const profileMap = new Map<string, DoctorProfile>();
+            profiles.forEach(p => profileMap.set(p.user_id, p));
+            setDoctorProfiles(profileMap);
+          }
+        }
       }
     } catch (error: any) {
       console.error("Error loading data:", error);
@@ -226,11 +261,23 @@ const PatientMedicalHistory = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
                             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Building2 className="h-6 w-6 text-primary" />
+                              <Stethoscope className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                              <h3 className="font-semibold">Healthcare Provider</h3>
-                              <p className="text-sm text-muted-foreground">
+                              <h3 className="font-semibold">
+                                {formatDoctorName(group.doctorName, group.doctorQualification)}
+                              </h3>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                {group.doctorSpecialization && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {group.doctorSpecialization}
+                                  </Badge>
+                                )}
+                                {group.clinicName && (
+                                  <span>• {group.clinicName}</span>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">
                                 {group.consultations.length} consultation{group.consultations.length > 1 ? "s" : ""}
                               </p>
                             </div>
