@@ -209,77 +209,77 @@ const DoctorDashboard = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
-        {/* Stats Row */}
+        {/* Stats Row - Enhanced */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Users className="h-5 w-5 text-blue-500" />
+          <Card className="p-5 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent border-blue-500/20 hover:shadow-lg hover:shadow-blue-500/10 transition-all group">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
+                <Users className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.totalPatients}</p>
-                <p className="text-xs text-muted-foreground">Patients</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">{stats.totalPatients}</p>
+                <p className="text-sm text-muted-foreground">Total Patients</p>
               </div>
             </div>
           </Card>
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <FileText className="h-5 w-5 text-emerald-500" />
+          <Card className="p-5 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/10 transition-all group">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
+                <FileText className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.totalConsultations}</p>
-                <p className="text-xs text-muted-foreground">Consultations</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">{stats.totalConsultations}</p>
+                <p className="text-sm text-muted-foreground">Consultations</p>
               </div>
             </div>
           </Card>
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-orange-500" />
+          <Card className="p-5 bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-transparent border-orange-500/20 hover:shadow-lg hover:shadow-orange-500/10 transition-all group">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform">
+                <Clock className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.pendingAppointments}</p>
-                <p className="text-xs text-muted-foreground">Pending</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">{stats.pendingAppointments}</p>
+                <p className="text-sm text-muted-foreground">Pending</p>
               </div>
             </div>
           </Card>
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-purple-500" />
+          <Card className="p-5 bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent border-purple-500/20 hover:shadow-lg hover:shadow-purple-500/10 transition-all group">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
+                <TrendingUp className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.thisMonthConsultations}</p>
-                <p className="text-xs text-muted-foreground">This Month</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">{stats.thisMonthConsultations}</p>
+                <p className="text-sm text-muted-foreground">This Month</p>
               </div>
             </div>
           </Card>
         </div>
 
-        {/* Quick Actions - Big Icons */}
+        {/* Quick Actions - Enhanced */}
         <div>
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
             <Activity className="h-5 w-5 text-primary" />
             Quick Actions
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {quickActions.map((action) => (
               <button
                 key={action.title}
                 onClick={action.onClick}
-                className="group relative flex flex-col items-center p-6 rounded-2xl bg-card border border-border/50 hover:border-primary/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="group relative flex flex-col items-center p-6 rounded-2xl bg-card border border-border/50 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-2"
               >
                 {action.badge && (
-                  <span className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center animate-pulse">
+                  <span className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold flex items-center justify-center shadow-lg animate-bounce">
                     {action.badge}
                   </span>
                 )}
-                <div className={`h-16 w-16 rounded-2xl ${action.color} ${action.hoverColor} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`h-16 w-16 rounded-2xl ${action.color} flex items-center justify-center mb-4 shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
                   <action.icon className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="font-semibold text-foreground mb-1">{action.title}</h3>
-                <p className="text-xs text-muted-foreground text-center">{action.description}</p>
+                <h3 className="font-semibold text-foreground mb-1 text-center">{action.title}</h3>
+                <p className="text-xs text-muted-foreground text-center line-clamp-2">{action.description}</p>
               </button>
             ))}
           </div>
