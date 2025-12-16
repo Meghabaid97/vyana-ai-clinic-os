@@ -63,7 +63,6 @@ const Navigation = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/auth")}
-            className="hidden md:inline-flex"
           >
             Sign In
           </Button>
