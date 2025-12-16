@@ -41,36 +41,36 @@ export const getEcoMessage = (
 ): string => {
   const paperSaved = consultations * 5;
   const treesContribution = (paperSaved / 8000); // ~8000 sheets = 1 tree
-  const waterSaved = Math.round(paperSaved * 10); // ~10ml per sheet in liters
-  const co2Saved = (paperSaved * 0.005).toFixed(1); // ~5g CO2 per sheet
+  const waterSavedLiters = (paperSaved * 0.01).toFixed(1); // ~10ml per sheet = 0.01L
+  const co2SavedGrams = Math.round(paperSaved * 5); // ~5g CO2 per sheet
 
   if (consultations === 0) {
     return type === "doctor"
-      ? "🌱 Start your green healthcare journey! Each digital consultation saves 5 sheets of paper. Join the revolution!"
+      ? "🌱 Start your green healthcare journey! Each digital consultation saves 5 sheets of paper. Plant the seed of change!"
       : "🌿 Join the GREEN HEALTH REVOLUTION! Go paperless, save trees, heal the planet! 🌍";
   }
 
   if (consultations < 5) {
-    return `🌱 ${paperSaved} sheets saved = ${treesContribution.toFixed(3)} trees protected! You're a GREEN WARRIOR now! Join the revolution! 🌿`;
+    return `🌱 ${paperSaved} sheets saved = ${treesContribution.toFixed(4)} trees protected! Every sheet counts toward a greener future! 🌿`;
   }
 
   if (consultations < 10) {
-    return `🌿 AMAZING! ${paperSaved} sheets saved = ${waterSaved}L water preserved + ${co2Saved}kg CO₂ prevented! You're saving the planet! 🌍`;
+    return `🌿 ${paperSaved} sheets saved = ${treesContribution.toFixed(3)} trees + ${waterSavedLiters}L water + ${co2SavedGrams}g CO₂ prevented! Growing green! 🌍`;
   }
 
   if (consultations < 25) {
-    return `🌳 ECO-WARRIOR STATUS! ${paperSaved} sheets = ${treesContribution.toFixed(2)} trees worth! ${co2Saved}kg CO₂ stopped! Join the GREEN REVOLUTION! 💚`;
+    return `🌳 ECO-WARRIOR! ${paperSaved} sheets = ${treesContribution.toFixed(3)} trees protected + ${co2SavedGrams}g CO₂ stopped! Keep growing the forest! 💚`;
   }
 
   if (consultations < 50) {
-    return `🌲 FOREST GUARDIAN! ${paperSaved} sheets = ${treesContribution.toFixed(1)} trees saved! ${waterSaved}L water preserved! You're a PLANET HERO! 🏆`;
+    return `🌲 FOREST GUARDIAN! ${paperSaved} sheets = ${treesContribution.toFixed(2)} trees saved + ${waterSavedLiters}L water preserved! You're a PLANET HERO! 🏆`;
   }
 
   if (consultations < 100) {
-    return `🏆 GREEN CHAMPION! ${paperSaved} sheets = ${Math.ceil(treesContribution)} TREE(S) protected! ${co2Saved}kg CO₂ prevented! LEADING THE REVOLUTION! 🌍💚`;
+    return `🏆 GREEN CHAMPION! ${paperSaved} sheets = ${treesContribution.toFixed(2)} trees protected! Leading the GREEN REVOLUTION! 🌍💚`;
   }
 
-  return `🌍 PLANET HERO LEGEND! ${paperSaved}+ sheets = ${Math.ceil(treesContribution)}+ trees saved! You're LEADING the GREEN HEALTHCARE REVOLUTION! 💚🌳🏆`;
+  return `🌍 PLANET HERO! ${paperSaved}+ sheets = ${treesContribution.toFixed(1)}+ trees saved! You're LEADING the GREEN HEALTHCARE REVOLUTION! 💚🌳🏆`;
 };
 
 /**
