@@ -345,9 +345,18 @@ const PatientMedicalHistory = () => {
                                 {/* Aggregate Rating Badge */}
                                 {group.totalRatings > 0 && (
                                   <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-                                    <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                                    <span className="text-xs font-medium text-yellow-700 dark:text-yellow-400">
-                                      {group.avgRating} ({group.totalRatings})
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <Star
+                                        key={star}
+                                        className={`h-3 w-3 ${
+                                          star <= Math.round(group.avgRating)
+                                            ? "fill-yellow-500 text-yellow-500"
+                                            : "text-yellow-300 dark:text-yellow-700"
+                                        }`}
+                                      />
+                                    ))}
+                                    <span className="text-xs font-medium text-yellow-700 dark:text-yellow-400 ml-1">
+                                      ({group.totalRatings})
                                     </span>
                                   </div>
                                 )}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
+import TreeProgressIndicator from "@/components/TreeProgressIndicator";
 import { getEcoMessage } from "@/lib/formatters";
 import {
   Loader2,
@@ -206,9 +207,10 @@ const DoctorDashboard = () => {
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Dr. <span className="text-gradient">{doctorName}</span>
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground mb-6">
             {getEcoMessage(stats.totalConsultations, "doctor")}
           </p>
+          <TreeProgressIndicator consultations={stats.totalConsultations} />
         </div>
 
         {/* Stats Row */}
