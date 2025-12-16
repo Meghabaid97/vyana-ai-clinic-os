@@ -17,6 +17,8 @@ import {
   Activity,
   FolderOpen,
   Leaf,
+  TreePine,
+  Sparkles,
 } from "lucide-react";
 
 const DoctorDashboard = () => {
@@ -216,6 +218,34 @@ const DoctorDashboard = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+        {/* Eco Impact Banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500/10 via-green-500/10 to-teal-500/10 border border-emerald-500/20 p-5">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-500/20 to-transparent rounded-full -mr-10 -mt-10" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-500/20 to-transparent rounded-full -ml-8 -mb-8" />
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg">
+                <TreePine className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Join the Green Healthcare Revolution!
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {stats.totalConsultations > 0 
+                    ? `Your ${stats.totalConsultations} digital consultations saved ~${stats.totalConsultations * 5} sheets of paper` 
+                    : "Start your digital consultations and help save trees"}
+                </p>
+              </div>
+            </div>
+            <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+              <Leaf className="h-4 w-4 text-emerald-600" />
+              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Eco-Warrior</span>
+            </div>
+          </div>
+        </div>
+
         {/* Stats Row - Enhanced */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="p-5 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent border-blue-500/20 hover:shadow-lg hover:shadow-blue-500/10 transition-all group">
