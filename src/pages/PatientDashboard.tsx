@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import PatientHeader from "@/components/PatientHeader";
@@ -9,12 +8,13 @@ import {
   FileText,
   Calendar,
   FolderOpen,
-  TrendingUp,
-  Leaf,
+  Sparkles,
+  Activity,
   Heart,
   Stethoscope,
+  ArrowRight,
+  Zap,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 interface PatientProfile {
   id: string;
@@ -48,7 +48,6 @@ const PatientDashboard = () => {
         return;
       }
 
-      // Load patient profile
       const { data: patientData } = await supabase
         .from("patients")
         .select("*")
@@ -58,7 +57,6 @@ const PatientDashboard = () => {
       if (patientData) {
         setProfile(patientData);
 
-        // Load stats
         let consultationsCount = 0;
         let doctorsCount = 0;
 
@@ -106,7 +104,10 @@ const PatientDashboard = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
+          <Loader2 className="h-12 w-12 animate-spin text-primary relative" />
+        </div>
       </div>
     );
   }
@@ -116,10 +117,8 @@ const PatientDashboard = () => {
       title: "Medical History",
       description: `${stats.consultations} consultation${stats.consultations !== 1 ? "s" : ""} • ${stats.doctors} provider${stats.doctors !== 1 ? "s" : ""}`,
       icon: FileText,
-      color: "from-teal-500 to-emerald-500",
-      bgColor: "from-teal-500/10 to-emerald-500/10",
-      borderColor: "border-teal-500/30",
-      iconColor: "text-teal-600",
+      gradient: "from-emerald-500 to-teal-400",
+      glowColor: "emerald",
       path: "/patient-medical-history",
       badge: stats.consultations > 0 ? stats.consultations : undefined,
     },
@@ -127,10 +126,8 @@ const PatientDashboard = () => {
       title: "Appointments",
       description: "Book and manage appointments",
       icon: Calendar,
-      color: "from-orange-500 to-amber-500",
-      bgColor: "from-orange-500/10 to-amber-500/10",
-      borderColor: "border-orange-500/30",
-      iconColor: "text-orange-600",
+      gradient: "from-amber-500 to-orange-400",
+      glowColor: "amber",
       path: "/patient-appointments",
       badge: stats.appointments > 0 ? stats.appointments : undefined,
     },
@@ -138,131 +135,135 @@ const PatientDashboard = () => {
       title: "Health Records",
       description: "Upload & share documents",
       icon: FolderOpen,
-      color: "from-violet-500 to-purple-500",
-      bgColor: "from-violet-500/10 to-purple-500/10",
-      borderColor: "border-violet-500/30",
-      iconColor: "text-violet-600",
+      gradient: "from-violet-500 to-purple-400",
+      glowColor: "violet",
       path: "/patient-health-records",
       badge: stats.healthRecords > 0 ? stats.healthRecords : undefined,
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-teal-500/5">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/5 rounded-full blur-3xl" />
+      </div>
+
       <PatientHeader patientName={profile?.name || "Patient"} />
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* Welcome & Eco Banner */}
-        <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-500/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
-                <TrendingUp className="h-7 w-7 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-emerald-700 dark:text-emerald-400">
-                  Welcome, {profile?.name?.split(" ")[0] || "Patient"}!
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {stats.consultations > 0 
-                    ? `Your ${stats.consultations} digital records saved ~${stats.consultations * 5} sheets of paper 🌱`
-                    : "Going digital helps save trees and the environment 🌱"}
-                </p>
-              </div>
-            </div>
-            <Badge variant="outline" className="bg-emerald-500/10 border-emerald-500/30 text-emerald-600 hidden sm:flex">
-              <Leaf className="h-3 w-3 mr-1" />
-              Eco-Friendly
-            </Badge>
+      <div className="max-w-5xl mx-auto px-6 py-8 relative z-10">
+        {/* Hero Welcome Section */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-sm font-medium text-primary uppercase tracking-wider">Your Health Hub</span>
           </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-3">
+            Welcome back,{" "}
+            <span className="text-gradient">{profile?.name?.split(" ")[0] || "Patient"}</span>
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-xl">
+            {stats.consultations > 0 
+              ? `You've had ${stats.consultations} digital consultations, saving ~${stats.consultations * 5} sheets of paper 🌿`
+              : "Your digital health journey starts here. Everything you need in one place."}
+          </p>
         </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4 bg-gradient-to-br from-teal-500/10 to-transparent border-teal-500/20">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-teal-500/20 flex items-center justify-center">
-                <Stethoscope className="h-5 w-5 text-teal-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-teal-600">{stats.doctors}</p>
-                <p className="text-xs text-muted-foreground">Doctors</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-4 bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                <FileText className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-emerald-600">{stats.consultations}</p>
-                <p className="text-xs text-muted-foreground">Visits</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-4 bg-gradient-to-br from-orange-500/10 to-transparent border-orange-500/20">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
-                <Calendar className="h-5 w-5 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-orange-600">{stats.appointments}</p>
-                <p className="text-xs text-muted-foreground">Appointments</p>
+        {/* Stats Grid - Bento Style */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          {[
+            { label: "Doctors", value: stats.doctors, icon: Stethoscope, color: "from-emerald-500/20 to-emerald-500/5" },
+            { label: "Visits", value: stats.consultations, icon: Activity, color: "from-blue-500/20 to-blue-500/5" },
+            { label: "Appointments", value: stats.appointments, icon: Calendar, color: "from-amber-500/20 to-amber-500/5" },
+            { label: "Records", value: stats.healthRecords, icon: Heart, color: "from-rose-500/20 to-rose-500/5" },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className={`glass glass-hover rounded-2xl p-5 group cursor-default`}
+            >
+              <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
+              <div className="relative flex items-center gap-4">
+                <div className="h-12 w-12 rounded-xl bg-muted/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <stat.icon className="h-6 w-6 text-foreground/80" />
+                </div>
+                <div>
+                  <p className="text-3xl font-bold">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                </div>
               </div>
             </div>
-          </Card>
-          <Card className="p-4 bg-gradient-to-br from-violet-500/10 to-transparent border-violet-500/20">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
-                <Heart className="h-5 w-5 text-violet-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-violet-600">{stats.healthRecords}</p>
-                <p className="text-xs text-muted-foreground">Records</p>
-              </div>
-            </div>
-          </Card>
+          ))}
         </div>
 
-        {/* Big 3 Section Icons */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {sections.map((section) => (
+        {/* Main Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {sections.map((section, index) => (
             <button
               key={section.title}
               onClick={() => navigate(section.path)}
-              className={`group relative flex flex-col items-center p-8 rounded-2xl bg-gradient-to-br ${section.bgColor} border ${section.borderColor} hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 text-left w-full`}
+              className="group relative overflow-hidden rounded-3xl p-8 text-left transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1"
+              style={{ animationDelay: `${index * 100}ms` }}
             >
-              {section.badge && (
-                <span className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-sm font-bold flex items-center justify-center shadow-lg">
-                  {section.badge}
-                </span>
-              )}
-              <div className={`h-20 w-20 rounded-2xl bg-gradient-to-br ${section.color} flex items-center justify-center mb-5 shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                <section.icon className="h-10 w-10 text-white" />
+              {/* Card background with gradient border */}
+              <div className="absolute inset-0 bg-card rounded-3xl" />
+              <div className={`absolute inset-0 bg-gradient-to-br ${section.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+              <div className="absolute inset-[1px] bg-card rounded-3xl" />
+              
+              {/* Glow effect on hover */}
+              <div className={`absolute -inset-px bg-gradient-to-br ${section.gradient} rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm`} />
+              <div className="absolute inset-[1px] bg-card rounded-3xl" />
+
+              <div className="relative z-10">
+                {section.badge && (
+                  <span className={`absolute -top-2 -right-2 h-8 w-8 rounded-full bg-gradient-to-br ${section.gradient} text-white text-sm font-bold flex items-center justify-center shadow-lg`}>
+                    {section.badge}
+                  </span>
+                )}
+
+                <div className={`h-20 w-20 rounded-2xl bg-gradient-to-br ${section.gradient} flex items-center justify-center mb-6 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500`}>
+                  <section.icon className="h-10 w-10 text-white" />
+                </div>
+
+                <h3 className="text-2xl font-bold mb-2 group-hover:text-gradient transition-all">
+                  {section.title}
+                </h3>
+                <p className="text-muted-foreground mb-4">{section.description}</p>
+
+                <div className="flex items-center gap-2 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0">
+                  <span>Explore</span>
+                  <ArrowRight className="h-4 w-4" />
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">{section.title}</h3>
-              <p className="text-sm text-muted-foreground text-center">{section.description}</p>
             </button>
           ))}
         </div>
 
         {/* Health ID Notice */}
         {!profile?.national_health_id && (
-          <Card className="mt-8 p-6 border-amber-500/30 bg-amber-500/5">
+          <div className="glass rounded-2xl p-6 border-amber-500/30">
             <div className="flex items-start gap-4">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
-                <Heart className="h-5 w-5 text-amber-600" />
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shrink-0">
+                <Zap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-amber-700">Add Your Health ID</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Add your National Health ID in your profile to automatically link all your medical records.
+                <h3 className="font-bold text-lg mb-1">Link Your Health ID</h3>
+                <p className="text-muted-foreground">
+                  Add your National Health ID in your profile to automatically sync all your medical records.
                 </p>
               </div>
             </div>
-          </Card>
+          </div>
         )}
+
+        {/* Footer tagline */}
+        <div className="mt-12 text-center">
+          <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            Powered by Vyana AI • Your health, simplified
+          </p>
+        </div>
       </div>
     </div>
   );
