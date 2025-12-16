@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Search } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
 import HeaderLocationSelector from "./HeaderLocationSelector";
@@ -100,17 +100,6 @@ const PatientHeader = ({
             city={location.city}
             onLocationChange={handleLocationChange}
           />
-          
-          {/* Find Doctors */}
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate("/find-doctors")} 
-            className="gap-2 hidden md:flex"
-          >
-            <Search className="h-4 w-4" />
-            Find Doctors
-          </Button>
           
           {/* Digital indicator */}
           <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">

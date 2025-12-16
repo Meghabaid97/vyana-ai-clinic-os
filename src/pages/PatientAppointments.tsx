@@ -23,6 +23,7 @@ import {
   Star,
   Navigation,
   Stethoscope,
+  Search,
 } from "lucide-react";
 import {
   Dialog,
@@ -387,18 +388,24 @@ const PatientAppointments = () => {
 
         {/* Nearby Doctors */}
         <Card className="p-6 mb-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-              <Stethoscope className="h-6 w-6 text-primary" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                <Stethoscope className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold">
+                  {userLocation.city ? `Doctors near ${userLocation.city}` : "Available Doctors"}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {sortedDoctors.length} doctor{sortedDoctors.length !== 1 ? "s" : ""} available
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-semibold">
-                {userLocation.city ? `Doctors near ${userLocation.city}` : "Available Doctors"}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {sortedDoctors.length} doctor{sortedDoctors.length !== 1 ? "s" : ""} available
-              </p>
-            </div>
+            <Button variant="outline" onClick={() => navigate("/find-doctors")} className="gap-2">
+              <Search className="h-4 w-4" />
+              Search All Doctors
+            </Button>
           </div>
 
           {sortedDoctors.length === 0 ? (
