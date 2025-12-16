@@ -1,55 +1,55 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import PatientHeader from "@/components/PatientHeader";
+import DoctorHeader from "@/components/DoctorHeader";
 import {
   Loader2,
   User,
   Phone,
   Shield,
-  Save,
   Calendar,
   Activity,
   FileText,
   Heart,
+  ArrowLeft,
+  Pill,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
 
-interface PatientProfileData {
+interface Consultation {
   id: string;
-  name: string;
-  age: number | null;
-  phone: string | null;
-  national_health_id: string | null;
+  patient_name: string;
+  patient_age: number;
+  audio_transcription: string;
+  fhir_data: string;
+  created_at: string;
 }
 
-const PatientProfilePage = () => {
+const DoctorPatientView = () => {
+  const { healthId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [profile, setProfile] = useState<PatientProfileData | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    age: "",
-    phone: "",
-    national_health_id: "",
-  });
-  const [stats, setStats] = useState({
-    totalConsultations: 0,
-    totalDoctors: 0,
-    lastVisit: null as string | null,
-  });
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [expandedConsultations, setExpandedConsultations] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    loadPatientConsultations();
+  }, [healthId]);
 
-  const loadProfile = async () => {
+  const loadPatientConsultations = async () => {
+    if (!healthId) return;
+    
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -57,47 +57,20 @@ const PatientProfilePage = () => {
         return;
       }
 
-      // Load patient profile
-      const { data: patientData, error } = await supabase
-        .from("patients")
+      const { data, error } = await supabase
+        .from("consultations")
         .select("*")
-        .eq("user_id", session.user.id)
-        .single();
+        .eq("patient_national_health_id", healthId)
+        .eq("doctor_id", session.user.id)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-
-      if (patientData) {
-        setProfile(patientData);
-        setFormData({
-          name: patientData.name || "",
-          age: patientData.age?.toString() || "",
-          phone: patientData.phone || "",
-          national_health_id: patientData.national_health_id || "",
-        });
-
-        // Load consultation stats
-        if (patientData.national_health_id) {
-          const { data: consultations } = await supabase
-            .from("consultations")
-            .select("doctor_id, created_at")
-            .eq("patient_national_health_id", patientData.national_health_id)
-            .order("created_at", { ascending: false });
-
-          if (consultations) {
-            const uniqueDoctors = new Set(consultations.map(c => c.doctor_id));
-            setStats({
-              totalConsultations: consultations.length,
-              totalDoctors: uniqueDoctors.size,
-              lastVisit: consultations[0]?.created_at || null,
-            });
-          }
-        }
-      }
+      setConsultations(data || []);
     } catch (error: any) {
-      console.error("Error loading profile:", error);
+      console.error("Error loading patient:", error);
       toast({
         title: "Error",
-        description: "Failed to load your profile",
+        description: "Failed to load patient data",
         variant: "destructive",
       });
     } finally {
@@ -105,50 +78,54 @@ const PatientProfilePage = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!profile) return;
-
-    setIsSaving(true);
-    try {
-      const { error } = await supabase
-        .from("patients")
-        .update({
-          name: formData.name,
-          age: formData.age ? parseInt(formData.age) : null,
-          phone: formData.phone || null,
-          national_health_id: formData.national_health_id || null,
-        })
-        .eq("id", profile.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been saved successfully",
-      });
-
-      // Reload profile data
-      loadProfile();
-    } catch (error: any) {
-      console.error("Error saving profile:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to save profile",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
+  const toggleConsultation = (id: string) => {
+    const newExpanded = new Set(expandedConsultations);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
+    } else {
+      newExpanded.add(id);
     }
+    setExpandedConsultations(newExpanded);
+  };
+
+  const parseFHIRData = (fhirString: string) => {
+    try {
+      return JSON.parse(fhirString);
+    } catch {
+      return null;
+    }
+  };
+
+  const extractMedications = (fhirData: any): string[] => {
+    if (!fhirData?.extension) return [];
+    return fhirData.extension
+      .filter((ext: any) => ext.url?.toLowerCase().includes("medication"))
+      .map((ext: any) => ext.valueString)
+      .filter(Boolean);
+  };
+
+  const extractDiagnosis = (fhirData: any): string[] => {
+    const diagnoses: string[] = [];
+    if (fhirData?.diagnosis) {
+      diagnoses.push(...fhirData.diagnosis.map((d: any) => d.condition?.display).filter(Boolean));
+    }
+    if (fhirData?.reasonCode) {
+      diagnoses.push(...fhirData.reasonCode.map((r: any) => r.text || r.coding?.[0]?.display).filter(Boolean));
+    }
+    return diagnoses;
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     });
   };
+
+  const patientName = consultations.length > 0 ? consultations[0].patient_name : "Patient";
+  const patientAge = consultations.length > 0 ? consultations[0].patient_age : null;
 
   if (isLoading) {
     return (
@@ -160,14 +137,43 @@ const PatientProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-teal-500/5">
-      <PatientHeader
-        patientName={profile?.name || "Patient"}
-        title="My Profile"
-        subtitle="Manage your health information"
-      />
+      <DoctorHeader title="Patient Profile" subtitle={`Health ID: ${healthId}`} />
 
       <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* Stats Cards */}
+        <Button
+          variant="ghost"
+          className="mb-6"
+          onClick={() => navigate("/consultations")}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Consultations
+        </Button>
+
+        {/* Patient Info */}
+        <Card className="p-6 mb-6">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center">
+              <User className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">{patientName}</h2>
+              <div className="flex items-center gap-4 mt-1 text-muted-foreground">
+                {patientAge && (
+                  <span className="flex items-center gap-1">
+                    <Activity className="h-4 w-4" />
+                    {patientAge} years
+                  </span>
+                )}
+                <span className="flex items-center gap-1">
+                  <Shield className="h-4 w-4" />
+                  {healthId}
+                </span>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card className="p-5 bg-gradient-to-br from-teal-500/10 to-transparent border-teal-500/20">
             <div className="flex items-center gap-4">
@@ -175,8 +181,8 @@ const PatientProfilePage = () => {
                 <FileText className="h-6 w-6 text-teal-600" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-teal-600">{stats.totalConsultations}</p>
-                <p className="text-sm text-muted-foreground">Total Consultations</p>
+                <p className="text-3xl font-bold text-teal-600">{consultations.length}</p>
+                <p className="text-sm text-muted-foreground">Your Consultations</p>
               </div>
             </div>
           </Card>
@@ -184,11 +190,13 @@ const PatientProfilePage = () => {
           <Card className="p-5 bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                <Heart className="h-6 w-6 text-emerald-600" />
+                <Calendar className="h-6 w-6 text-emerald-600" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-emerald-600">{stats.totalDoctors}</p>
-                <p className="text-sm text-muted-foreground">Healthcare Providers</p>
+                <p className="text-lg font-semibold text-emerald-600">
+                  {consultations.length > 0 ? formatDate(consultations[0].created_at).split(",")[0] : "No visits"}
+                </p>
+                <p className="text-sm text-muted-foreground">Last Visit</p>
               </div>
             </div>
           </Card>
@@ -196,127 +204,103 @@ const PatientProfilePage = () => {
           <Card className="p-5 bg-gradient-to-br from-cyan-500/10 to-transparent border-cyan-500/20">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-cyan-600" />
+                <Heart className="h-6 w-6 text-cyan-600" />
               </div>
               <div>
                 <p className="text-lg font-semibold text-cyan-600">
-                  {stats.lastVisit ? formatDate(stats.lastVisit) : "No visits"}
+                  {consultations.length > 0 ? formatDate(consultations[consultations.length - 1].created_at).split(",")[0] : "N/A"}
                 </p>
-                <p className="text-sm text-muted-foreground">Last Visit</p>
+                <p className="text-sm text-muted-foreground">First Visit</p>
               </div>
             </div>
           </Card>
         </div>
 
-        {/* Profile Form */}
-        <Card className="p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center">
-              <User className="h-5 w-5 text-white" />
+        {/* Consultation History */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <FileText className="h-5 w-5 text-teal-600" />
+            Consultation History
+          </h3>
+
+          {consultations.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No consultations found for this patient</p>
             </div>
-            <div>
-              <h2 className="text-xl font-semibold">Personal Information</h2>
-              <p className="text-sm text-muted-foreground">Update your profile details</p>
+          ) : (
+            <div className="space-y-4">
+              {consultations.map((consultation) => {
+                const fhirData = parseFHIRData(consultation.fhir_data);
+                const diagnoses = extractDiagnosis(fhirData);
+                const medications = extractMedications(fhirData);
+                const isExpanded = expandedConsultations.has(consultation.id);
+
+                return (
+                  <Collapsible
+                    key={consultation.id}
+                    open={isExpanded}
+                    onOpenChange={() => toggleConsultation(consultation.id)}
+                  >
+                    <Card className="overflow-hidden bg-muted/30">
+                      <CollapsibleTrigger asChild>
+                        <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium">{formatDate(consultation.created_at)}</p>
+                              {diagnoses.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  {diagnoses.slice(0, 2).map((d, i) => (
+                                    <Badge key={i} variant="destructive" className="text-xs">
+                                      {d}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            {isExpanded ? (
+                              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                            )}
+                          </div>
+                        </div>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="px-4 pb-4 border-t pt-4 space-y-4">
+                          {medications.length > 0 && (
+                            <div>
+                              <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                                <Pill className="h-4 w-4 text-primary" />
+                                Medications
+                              </p>
+                              <div className="space-y-1">
+                                {medications.map((med, i) => (
+                                  <div key={i} className="p-2 bg-primary/10 rounded-md text-sm">
+                                    {med}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-sm font-medium mb-2">Notes</p>
+                            <div className="p-3 bg-muted rounded-lg text-sm max-h-32 overflow-y-auto">
+                              {consultation.audio_transcription}
+                            </div>
+                          </div>
+                        </div>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
+                );
+              })}
             </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  Full Name
-                </Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter your full name"
-                  required
-                  className="bg-background/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="age" className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-muted-foreground" />
-                  Age
-                </Label>
-                <Input
-                  id="age"
-                  type="number"
-                  value={formData.age}
-                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                  placeholder="Enter your age"
-                  className="bg-background/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  Phone Number
-                </Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+91 98765 43210"
-                  className="bg-background/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="health_id" className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-muted-foreground" />
-                  National Health ID (Aadhaar)
-                </Label>
-                <Input
-                  id="health_id"
-                  value={formData.national_health_id}
-                  onChange={(e) => setFormData({ ...formData, national_health_id: e.target.value.replace(/\D/g, '').slice(0, 12) })}
-                  placeholder="12-digit Aadhaar number"
-                  maxLength={12}
-                  className="bg-background/50 font-mono"
-                />
-                <p className="text-xs text-muted-foreground">
-                  This ID links your medical records across healthcare providers
-                </p>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-4 border-t">
-              <Button type="submit" disabled={isSaving} className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600">
-                {isSaving ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <Save className="h-4 w-4 mr-2" />
-                )}
-                Save Changes
-              </Button>
-            </div>
-          </form>
+          )}
         </Card>
-
-        {/* Health ID Info */}
-        {!formData.national_health_id && (
-          <Card className="mt-6 p-6 border-amber-500/30 bg-amber-500/5">
-            <div className="flex items-start gap-4">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
-                <Shield className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-amber-700">Add Your Health ID</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Adding your National Health ID (Aadhaar) will automatically link all your past and future consultations from any healthcare provider in the Vyana network.
-                </p>
-              </div>
-            </div>
-          </Card>
-        )}
       </div>
     </div>
   );
 };
 
-export default PatientProfilePage;
+export default DoctorPatientView;
