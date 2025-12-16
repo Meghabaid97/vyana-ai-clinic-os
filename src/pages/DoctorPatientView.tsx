@@ -475,6 +475,70 @@ const DoctorPatientView = () => {
     }
   };
 
+  // Export Patient Profile to PDF
+  const exportPatientProfile = () => {
+    const doc = new jsPDF();
+    const margin = 20;
+    let y = margin;
+
+    // Header
+    doc.setFontSize(20);
+    doc.text("Patient Profile", margin, y);
+    y += 15;
+
+    doc.setFontSize(12);
+    doc.text(`Name: ${patientName}`, margin, y);
+    y += 8;
+    if (patientAge) {
+      doc.text(`Age: ${patientAge} years`, margin, y);
+      y += 8;
+    }
+    doc.text(`Health ID: ${healthId}`, margin, y);
+    y += 8;
+    doc.text(`Total Consultations: ${consultations.length}`, margin, y);
+    y += 15;
+
+    // Consultation History
+    doc.setFontSize(14);
+    doc.text("Consultation History", margin, y);
+    y += 10;
+
+    consultations.forEach((consultation, index) => {
+      if (y > 260) {
+        doc.addPage();
+        y = margin;
+      }
+
+      const fhirData = parseFHIRData(consultation.fhir_data);
+      const diagnoses = extractDiagnosis(fhirData);
+      const medications = extractMedications(fhirData);
+
+      doc.setFontSize(11);
+      doc.text(`${index + 1}. ${formatDate(consultation.created_at)}`, margin, y);
+      y += 6;
+
+      if (diagnoses.length > 0) {
+        doc.setFontSize(10);
+        doc.text(`   Diagnosis: ${diagnoses.join(", ")}`, margin, y);
+        y += 5;
+      }
+
+      if (medications.length > 0) {
+        doc.text(`   Medications: ${medications.join(", ")}`, margin, y);
+        y += 5;
+      }
+
+      y += 5;
+    });
+
+    doc.save(`patient_profile_${patientName.replace(/\s+/g, "_")}.pdf`);
+    
+    toast({
+      title: "PDF Exported",
+      description: "Patient profile has been downloaded",
+    });
+  };
+
   const patientName = consultations.length > 0 ? consultations[0].patient_name : "Patient";
   const patientAge = consultations.length > 0 ? consultations[0].patient_age : null;
 
@@ -558,6 +622,14 @@ const DoctorPatientView = () => {
               >
                 <Bell className="h-4 w-4 mr-2 text-blue-500" />
                 Schedule Follow-up
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={exportPatientProfile}
+              >
+                <Download className="h-4 w-4 mr-2 text-green-500" />
+                Export PDF
               </Button>
             </div>
           </Card>

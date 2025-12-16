@@ -9,6 +9,9 @@ import Consultation from "./pages/Consultation";
 import ConsultationsList from "./pages/ConsultationsList";
 import DoctorPatientView from "./pages/DoctorPatientView";
 import PatientDashboard from "./pages/PatientDashboard";
+import PatientMedicalHistory from "./pages/PatientMedicalHistory";
+import PatientAppointments from "./pages/PatientAppointments";
+import PatientHealthRecords from "./pages/PatientHealthRecords";
 import PatientProfileEdit from "./pages/PatientProfileEdit";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorAppointments from "./pages/DoctorAppointments";
@@ -31,6 +34,9 @@ const App = () => (
           <Route path="/consultations" element={<ConsultationsList />} />
           <Route path="/patient/:healthId" element={<DoctorPatientView />} />
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
+          <Route path="/patient-medical-history" element={<PatientMedicalHistory />} />
+          <Route path="/patient-appointments" element={<PatientAppointments />} />
+          <Route path="/patient-health-records" element={<PatientHealthRecords />} />
           <Route path="/patient-profile" element={<PatientProfileEdit />} />
           <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
           <Route path="/doctor-appointments" element={<DoctorAppointments />} />
