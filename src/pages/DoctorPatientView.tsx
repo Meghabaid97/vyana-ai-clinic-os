@@ -395,9 +395,11 @@ const DoctorPatientView = () => {
       const parts = med.split(/[-–]/).map(p => p.trim());
       return {
         name: parts[0] || med,
-        dosage: prescription.dosage || parts[1] || "As prescribed",
-        instruction: prescription.instructions || parts[2] || "As directed",
+        dose: parts[1] || "As prescribed",
+        route: "Oral",
+        frequency: prescription.dosage || parts[2] || "As directed",
         duration: prescription.duration || "As needed",
+        instruction: prescription.instructions || parts[3] || "After meals",
       };
     });
 
