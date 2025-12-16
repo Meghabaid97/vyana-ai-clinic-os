@@ -82,14 +82,17 @@ const ConsultationRating = ({
   return (
     <>
       <Button
-        variant={existingRating ? "secondary" : "outline"}
+        variant="outline"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className="gap-1"
+        className={existingRating 
+          ? "gap-1 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20" 
+          : "gap-1"
+        }
       >
         {existingRating ? (
           <>
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <Star className="h-4 w-4 fill-primary text-primary" />
             {existingRating}
           </>
         ) : (
