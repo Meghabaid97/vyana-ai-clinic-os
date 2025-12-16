@@ -1,6 +1,6 @@
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Settings, Leaf, Home, ChevronRight } from "lucide-react";
+import { LogOut, Leaf, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
 
@@ -52,28 +52,20 @@ const DoctorHeader = ({
     <div className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          {/* Breadcrumb integrated */}
-          {!isHome && (
-            <div className="flex items-center gap-2 mr-2">
-              <Link
-                to="/doctor-dashboard"
-                className="h-8 w-8 rounded-lg bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
-              >
-                <Home className="h-4 w-4 text-muted-foreground" />
-              </Link>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              {currentPath.startsWith("/patient/") && (
-                <>
-                  <Link
-                    to="/consultations"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Patients
-                  </Link>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </>
-              )}
+          {/* Vyana AI Logo as Home */}
+          <Link
+            to="/doctor-dashboard"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 border border-primary/20 transition-all"
+          >
+            <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+              <span className="text-xs font-bold text-primary-foreground">V</span>
             </div>
+            <span className="text-sm font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hidden sm:inline">
+              Vyana AI
+            </span>
+          </Link>
+          {!isHome && (
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
           {icon && (
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
@@ -96,8 +88,7 @@ const DoctorHeader = ({
           <NotificationBell />
           {actions}
           {showProfile && (
-            <Button variant="ghost" size="sm" onClick={() => navigate("/doctor-profile-setup")}>
-              <Settings className="h-4 w-4 mr-2" />
+            <Button variant="default" size="sm" onClick={() => navigate("/doctor-profile-setup")}>
               Profile
             </Button>
           )}
