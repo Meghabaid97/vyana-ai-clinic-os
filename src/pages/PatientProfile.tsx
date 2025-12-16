@@ -26,7 +26,17 @@ import {
   HeartPulse,
   ShieldAlert,
   Sparkles,
+  Mic,
+  MicOff,
+  Wand2,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -150,6 +160,12 @@ const PatientProfile = () => {
     disclaimer: string;
   } | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isGeneratingPrescription, setIsGeneratingPrescription] = useState(false);
+  const [selectedConsultationForPrescription, setSelectedConsultationForPrescription] = useState<string>("");
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [prescriptionWarning, setPrescriptionWarning] = useState<string>("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -496,6 +512,171 @@ const PatientProfile = () => {
     
     setShowPrescriptionDialog(false);
     setPrescription({ medications: "", dosage: "", instructions: "", duration: "", notes: "" });
+    setPrescriptionWarning("");
+    setSelectedConsultationForPrescription("");
+  };
+
+  const autoFillFromConsultation = async () => {
+    if (!selectedConsultationForPrescription) {
+      toast({
+        title: "Select a consultation",
+        description: "Please select a consultation to auto-fill from",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const consultation = consultations.find(c => c.id === selectedConsultationForPrescription);
+    if (!consultation) return;
+
+    setIsGeneratingPrescription(true);
+    setPrescriptionWarning("");
+
+    try {
+      const response = await supabase.functions.invoke("generate-prescription", {
+        body: {
+          type: "from_consultation",
+          transcription: consultation.audio_transcription,
+          fhirData: consultation.fhir_data,
+        },
+      });
+
+      if (response.error) throw new Error(response.error.message);
+
+      const data = response.data;
+      setPrescription({
+        medications: data.medications || "",
+        dosage: data.dosage || "",
+        duration: data.duration || "",
+        instructions: data.instructions || "",
+        notes: data.notes || "",
+      });
+
+      if (data.warning) {
+        setPrescriptionWarning(data.warning);
+      }
+
+      toast({
+        title: "Auto-fill Complete",
+        description: `Prescription data extracted (${data.confidence} confidence)`,
+      });
+    } catch (error: any) {
+      console.error("Error auto-filling prescription:", error);
+      toast({
+        title: "Auto-fill Failed",
+        description: error.message || "Could not extract prescription data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPrescription(false);
+    }
+  };
+
+  const startVoiceRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        await processVoicePrescription(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      setAudioChunks([]);
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+
+      toast({
+        title: "Recording Started",
+        description: "Dictate your prescription...",
+      });
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      toast({
+        title: "Microphone Access Required",
+        description: "Please allow microphone access to use voice input",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const processVoicePrescription = async (audioBlob: Blob) => {
+    setIsGeneratingPrescription(true);
+    setPrescriptionWarning("");
+
+    try {
+      // First transcribe the audio
+      const reader = new FileReader();
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(",")[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(audioBlob);
+      });
+
+      const transcribeResponse = await supabase.functions.invoke("transcribe-audio", {
+        body: { audio: base64Audio },
+      });
+
+      if (transcribeResponse.error) throw new Error(transcribeResponse.error.message);
+
+      const transcription = transcribeResponse.data.text;
+
+      // Now generate prescription from transcription
+      const prescriptionResponse = await supabase.functions.invoke("generate-prescription", {
+        body: {
+          type: "from_audio",
+          audioTranscription: transcription,
+        },
+      });
+
+      if (prescriptionResponse.error) throw new Error(prescriptionResponse.error.message);
+
+      const data = prescriptionResponse.data;
+      setPrescription({
+        medications: data.medications || "",
+        dosage: data.dosage || "",
+        duration: data.duration || "",
+        instructions: data.instructions || "",
+        notes: data.notes || "",
+      });
+
+      if (data.warning) {
+        setPrescriptionWarning(data.warning);
+      }
+
+      toast({
+        title: "Voice Input Processed",
+        description: `Prescription extracted from your dictation (${data.confidence} confidence)`,
+      });
+    } catch (error: any) {
+      console.error("Error processing voice prescription:", error);
+      toast({
+        title: "Voice Processing Failed",
+        description: error.message || "Could not process voice input",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPrescription(false);
+    }
   };
 
   if (isLoading) {
@@ -1080,8 +1261,14 @@ const PatientProfile = () => {
       </Dialog>
 
       {/* Prescription Generator Dialog */}
-      <Dialog open={showPrescriptionDialog} onOpenChange={setShowPrescriptionDialog}>
-        <DialogContent className="max-w-lg">
+      <Dialog open={showPrescriptionDialog} onOpenChange={(open) => {
+        setShowPrescriptionDialog(open);
+        if (!open) {
+          setPrescriptionWarning("");
+          setSelectedConsultationForPrescription("");
+        }
+      }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Generate Prescription</DialogTitle>
             <DialogDescription>
@@ -1090,6 +1277,86 @@ const PatientProfile = () => {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            {/* AI Auto-fill Section */}
+            <Card className="p-4 bg-primary/5 border-primary/20">
+              <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                <Wand2 className="h-4 w-4 text-primary" />
+                AI-Assisted Generation
+              </h4>
+              
+              <div className="space-y-3">
+                {/* Auto-fill from consultation */}
+                <div className="flex gap-2">
+                  <Select
+                    value={selectedConsultationForPrescription}
+                    onValueChange={setSelectedConsultationForPrescription}
+                  >
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Select consultation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {consultations.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {new Date(c.created_at).toLocaleDateString()} - Visit
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={autoFillFromConsultation}
+                    disabled={isGeneratingPrescription || !selectedConsultationForPrescription}
+                  >
+                    {isGeneratingPrescription ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+
+                {/* Voice input */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={isRecording ? "destructive" : "outline"}
+                    size="sm"
+                    className="flex-1"
+                    onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
+                    disabled={isGeneratingPrescription}
+                  >
+                    {isRecording ? (
+                      <>
+                        <MicOff className="mr-2 h-4 w-4" />
+                        Stop Recording
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="mr-2 h-4 w-4" />
+                        Dictate Prescription
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {isGeneratingPrescription && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-2">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Processing...
+                  </p>
+                )}
+              </div>
+            </Card>
+
+            {prescriptionWarning && (
+              <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <p className="text-sm text-yellow-600 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  {prescriptionWarning}
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="medications">Medications *</Label>
               <Textarea
