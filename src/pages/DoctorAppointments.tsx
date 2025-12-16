@@ -177,7 +177,7 @@ const DoctorAppointments = () => {
       <div className="border-b bg-card">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/consultations")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/doctor-dashboard")}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
