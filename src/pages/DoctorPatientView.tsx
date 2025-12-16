@@ -27,6 +27,9 @@ import {
   Sparkles,
   Download,
   Send,
+  Mic,
+  MicOff,
+  Building2,
 } from "lucide-react";
 import {
   Collapsible,
@@ -129,6 +132,9 @@ const DoctorPatientView = () => {
   const [selectedConsultationForRx, setSelectedConsultationForRx] = useState<Consultation | null>(null);
   const [isGeneratingRx, setIsGeneratingRx] = useState(false);
   const [prescription, setPrescription] = useState<Prescription | null>(null);
+  const [isRecordingRx, setIsRecordingRx] = useState(false);
+  const [mediaRecorderRx, setMediaRecorderRx] = useState<MediaRecorder | null>(null);
+  const [audioChunksRx, setAudioChunksRx] = useState<Blob[]>([]);
   
   // Follow-up Reminder
   const [showReminderDialog, setShowReminderDialog] = useState(false);
@@ -432,6 +438,92 @@ const DoctorPatientView = () => {
       medications: medications,
       advice: prescription.notes || undefined,
     });
+  };
+
+  // Audio dictation for prescription
+  const startPrescriptionRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        stream.getTracks().forEach(track => track.stop());
+        await processPrescriptionAudio(audioBlob);
+      };
+
+      setAudioChunksRx(chunks);
+      setMediaRecorderRx(recorder);
+      recorder.start();
+      setIsRecordingRx(true);
+    } catch (error) {
+      console.error("Microphone access error:", error);
+      toast({
+        title: "Microphone Error",
+        description: "Could not access microphone",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopPrescriptionRecording = () => {
+    if (mediaRecorderRx && isRecordingRx) {
+      mediaRecorderRx.stop();
+      setIsRecordingRx(false);
+    }
+  };
+
+  const processPrescriptionAudio = async (audioBlob: Blob) => {
+    setIsGeneratingRx(true);
+    try {
+      // First transcribe the audio
+      const base64Audio = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]);
+        };
+        reader.readAsDataURL(audioBlob);
+      });
+
+      const { data: transcribeData, error: transcribeError } = await supabase.functions.invoke("transcribe-audio", {
+        body: { audio: base64Audio },
+      });
+
+      if (transcribeError) throw transcribeError;
+
+      // Then generate prescription from transcription
+      const { data, error } = await supabase.functions.invoke("generate-prescription", {
+        body: {
+          type: "from_audio",
+          audioTranscription: transcribeData.text,
+        },
+      });
+
+      if (error) throw error;
+      setPrescription(data);
+      
+      toast({
+        title: "Prescription Generated",
+        description: "Your dictation has been processed",
+      });
+    } catch (error: any) {
+      console.error("Error processing prescription audio:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process audio dictation",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingRx(false);
+    }
   };
 
   // Follow-up Reminder
@@ -913,6 +1005,45 @@ const DoctorPatientView = () => {
               AI-extracted prescription from consultation
             </DialogDescription>
           </DialogHeader>
+
+          {/* Clinic Info Banner */}
+          {doctorProfile?.clinic_name && (
+            <div className="p-3 bg-primary/5 rounded-lg border border-primary/20 flex items-center gap-3">
+              <Building2 className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-medium text-sm">{doctorProfile.clinic_name}</p>
+                {doctorProfile.clinic_address && (
+                  <p className="text-xs text-muted-foreground">{doctorProfile.clinic_address}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Audio Dictation Button */}
+          <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+            <Button
+              variant={isRecordingRx ? "destructive" : "secondary"}
+              size="sm"
+              onClick={isRecordingRx ? stopPrescriptionRecording : startPrescriptionRecording}
+              disabled={isGeneratingRx}
+              className="gap-2"
+            >
+              {isRecordingRx ? (
+                <>
+                  <MicOff className="h-4 w-4" />
+                  Stop Recording
+                </>
+              ) : (
+                <>
+                  <Mic className="h-4 w-4" />
+                  Dictate Prescription
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              {isRecordingRx ? "Recording... Speak your prescription clearly" : "Or dictate your prescription via voice"}
+            </p>
+          </div>
 
           {isGeneratingRx ? (
             <div className="flex flex-col items-center py-8">
