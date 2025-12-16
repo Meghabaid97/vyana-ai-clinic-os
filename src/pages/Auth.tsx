@@ -51,14 +51,14 @@ const Auth = () => {
     if (roles && roles.length > 0) {
       const role = roles[0].role;
       if (role === "doctor" || role === "admin") {
-        navigate("/consultations");
+        navigate("/doctor-dashboard");
       } else if (role === "patient") {
         navigate("/patient-dashboard");
       } else {
-        navigate("/consultations");
+        navigate("/doctor-dashboard");
       }
     } else {
-      navigate("/consultations");
+      navigate("/doctor-dashboard");
     }
   };
 
@@ -153,19 +153,21 @@ const Auth = () => {
         </div>
 
         <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 shadow-glow">
-          {/* Role Selection */}
-          <Tabs value={userRole} onValueChange={(v) => setUserRole(v as UserRole)} className="mb-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="doctor" className="flex items-center gap-2">
-                <Stethoscope className="h-4 w-4" />
-                Doctor
-              </TabsTrigger>
-              <TabsTrigger value="patient" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Patient
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          {/* Role Selection - Only show during sign up */}
+          {isSignUp && (
+            <Tabs value={userRole} onValueChange={(v) => setUserRole(v as UserRole)} className="mb-6">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="doctor" className="flex items-center gap-2">
+                  <Stethoscope className="h-4 w-4" />
+                  Doctor
+                </TabsTrigger>
+                <TabsTrigger value="patient" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Patient
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
 
           <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
             {isSignUp && (

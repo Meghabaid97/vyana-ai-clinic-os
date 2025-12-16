@@ -362,17 +362,17 @@ const PatientDashboard = () => {
   const pendingAppointments = appointments.filter((a) => a.status === "pending").length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-teal-500/5">
       {/* Header */}
-      <div className="border-b bg-card">
+      <div className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-5 w-5 text-primary" />
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
+              <User className="h-6 w-6 text-white" />
             </div>
             <div>
               <h1 className="text-xl font-semibold">{profile?.name || "Patient"}</h1>
-              <p className="text-sm text-muted-foreground">Patient Dashboard</p>
+              <p className="text-sm text-muted-foreground">My Health Portal</p>
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
@@ -384,32 +384,32 @@ const PatientDashboard = () => {
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Stethoscope className="h-5 w-5 text-primary" />
+              <div className="h-10 w-10 rounded-lg bg-teal-500/10 flex items-center justify-center">
+                <Stethoscope className="h-5 w-5 text-teal-500" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{doctorGroups.length}</p>
-                <p className="text-sm text-muted-foreground">Doctors Visited</p>
+                <p className="text-xs text-muted-foreground">Doctors</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
                 <Calendar className="h-5 w-5 text-green-500" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{consultations.length}</p>
-                <p className="text-sm text-muted-foreground">Total Visits</p>
+                <p className="text-xs text-muted-foreground">Visits</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
                 <Clock className="h-5 w-5 text-orange-500" />
@@ -418,19 +418,19 @@ const PatientDashboard = () => {
                 <p className="text-sm font-medium">
                   {consultations.length > 0 ? formatDate(consultations[0].created_at) : "-"}
                 </p>
-                <p className="text-sm text-muted-foreground">Last Visit</p>
+                <p className="text-xs text-muted-foreground">Last Visit</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
                 <Activity className="h-5 w-5 text-blue-500" />
               </div>
               <div>
                 <p className="text-sm font-medium truncate">{profile?.national_health_id || "Not set"}</p>
-                <p className="text-sm text-muted-foreground">Health ID</p>
+                <p className="text-xs text-muted-foreground">Health ID</p>
               </div>
             </div>
           </Card>
