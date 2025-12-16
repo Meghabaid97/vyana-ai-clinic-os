@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          created_at: string
+          doctor_id: string
+          doctor_notes: string | null
+          id: string
+          patient_id: string
+          patient_phone: string
+          reason: string | null
+          requested_date: string
+          requested_time_slot: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          doctor_id: string
+          doctor_notes?: string | null
+          id?: string
+          patient_id: string
+          patient_phone: string
+          reason?: string | null
+          requested_date: string
+          requested_time_slot: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          doctor_id?: string
+          doctor_notes?: string | null
+          id?: string
+          patient_id?: string
+          patient_phone?: string
+          reason?: string | null
+          requested_date?: string
+          requested_time_slot?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultations: {
         Row: {
           audio_transcription: string

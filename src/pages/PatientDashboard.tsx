@@ -2,6 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -17,6 +20,10 @@ import {
   ChevronUp,
   Building2,
   Stethoscope,
+  CalendarPlus,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
 } from "lucide-react";
 import {
   Dialog,
@@ -24,12 +31,22 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Consultation {
   id: string;
@@ -43,6 +60,7 @@ interface Consultation {
 }
 
 interface PatientProfile {
+  id: string;
   name: string;
   age: number | null;
   phone: string | null;
@@ -56,13 +74,41 @@ interface DoctorGroup {
   lastVisit: string;
 }
 
+interface Appointment {
+  id: string;
+  doctor_id: string;
+  requested_date: string;
+  requested_time_slot: string;
+  reason: string | null;
+  status: string;
+  doctor_notes: string | null;
+  patient_phone: string;
+  created_at: string;
+}
+
+const TIME_SLOTS = [
+  "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+  "12:00 PM", "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM",
+  "04:30 PM", "05:00 PM", "05:30 PM"
+];
+
 const PatientDashboard = () => {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
   const [expandedDoctors, setExpandedDoctors] = useState<Set<string>>(new Set());
   const [expandedConsultations, setExpandedConsultations] = useState<Set<string>>(new Set());
+  
+  // Appointment booking state
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
+  const [appointmentDate, setAppointmentDate] = useState("");
+  const [appointmentTime, setAppointmentTime] = useState("");
+  const [appointmentReason, setAppointmentReason] = useState("");
+  const [isBooking, setIsBooking] = useState(false);
+  
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -109,6 +155,7 @@ const PatientDashboard = () => {
 
       if (patientData) {
         setProfile({
+          id: patientData.id,
           name: patientData.name,
           age: patientData.age,
           phone: patientData.phone,
@@ -129,6 +176,14 @@ const PatientDashboard = () => {
             setConsultations(consultationsData || []);
           }
         }
+
+        // Load patient appointments
+        const { data: appointmentsData } = await supabase
+          .from("appointments")
+          .select("*")
+          .order("requested_date", { ascending: false });
+
+        setAppointments(appointmentsData || []);
       }
     } catch (error: any) {
       console.error("Error loading patient data:", error);
@@ -142,9 +197,68 @@ const PatientDashboard = () => {
     }
   };
 
+  const bookAppointment = async () => {
+    if (!profile?.id || !selectedDoctorId || !appointmentDate || !appointmentTime) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsBooking(true);
+    try {
+      const { error } = await supabase
+        .from("appointments")
+        .insert({
+          patient_id: profile.id,
+          doctor_id: selectedDoctorId,
+          requested_date: appointmentDate,
+          requested_time_slot: appointmentTime,
+          reason: appointmentReason || null,
+          patient_phone: profile.phone || "",
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Appointment Requested",
+        description: "Your appointment request has been sent to the doctor",
+      });
+
+      setShowBookingDialog(false);
+      setSelectedDoctorId(null);
+      setAppointmentDate("");
+      setAppointmentTime("");
+      setAppointmentReason("");
+
+      // Reload appointments
+      const { data: appointmentsData } = await supabase
+        .from("appointments")
+        .select("*")
+        .order("requested_date", { ascending: false });
+      setAppointments(appointmentsData || []);
+    } catch (error: any) {
+      console.error("Error booking appointment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to book appointment",
+        variant: "destructive",
+      });
+    } finally {
+      setIsBooking(false);
+    }
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
+  };
+
+  const openBookingDialog = (doctorId: string) => {
+    setSelectedDoctorId(doctorId);
+    setShowBookingDialog(true);
   };
 
   const toggleDoctorExpanded = (doctorId: string) => {
@@ -211,6 +325,28 @@ const PatientDashboard = () => {
     });
   };
 
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; icon: React.ReactNode }> = {
+      pending: { variant: "secondary", icon: <AlertCircle className="h-3 w-3" /> },
+      approved: { variant: "default", icon: <CheckCircle className="h-3 w-3" /> },
+      rejected: { variant: "destructive", icon: <XCircle className="h-3 w-3" /> },
+      completed: { variant: "outline", icon: <CheckCircle className="h-3 w-3" /> },
+      cancelled: { variant: "outline", icon: <XCircle className="h-3 w-3" /> },
+    };
+    const config = variants[status] || variants.pending;
+    return (
+      <Badge variant={config.variant} className="gap-1">
+        {config.icon}
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
+
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -218,6 +354,8 @@ const PatientDashboard = () => {
       </div>
     );
   }
+
+  const pendingAppointments = appointments.filter((a) => a.status === "pending").length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -294,143 +432,221 @@ const PatientDashboard = () => {
           </Card>
         </div>
 
-        {/* Consultations Grouped by Doctor */}
-        <h2 className="text-xl font-semibold mb-4">Your Medical History</h2>
-        <p className="text-muted-foreground mb-6">Consultations grouped by healthcare provider</p>
+        {/* Tabs */}
+        <Tabs defaultValue="history" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="history">Medical History</TabsTrigger>
+            <TabsTrigger value="appointments" className="relative">
+              Appointments
+              {pendingAppointments > 0 && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
+                  {pendingAppointments}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-        {doctorGroups.length === 0 ? (
-          <Card className="p-8 text-center">
-            <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No consultations yet</h3>
-            <p className="text-muted-foreground">
-              Your consultation history will appear here after your first visit.
-            </p>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {doctorGroups.map((group) => (
-              <Card key={group.doctor_id} className="overflow-hidden">
-                <Collapsible
-                  open={expandedDoctors.has(group.doctor_id)}
-                  onOpenChange={() => toggleDoctorExpanded(group.doctor_id)}
-                >
-                  <CollapsibleTrigger asChild>
-                    <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-primary" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold">Healthcare Provider</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {group.consultations.length} consultation{group.consultations.length > 1 ? "s" : ""}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="text-sm font-medium">Last visit: {formatDate(group.lastVisit)}</p>
-                            <p className="text-xs text-muted-foreground">
-                              First visit: {formatDate(group.firstVisit)}
-                            </p>
-                          </div>
-                          {expandedDoctors.has(group.doctor_id) ? (
-                            <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                          ) : (
-                            <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CollapsibleTrigger>
+          {/* Medical History Tab */}
+          <TabsContent value="history" className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Your Medical History</h2>
+              <p className="text-muted-foreground">Consultations grouped by healthcare provider</p>
+            </div>
 
-                  <CollapsibleContent>
-                    <div className="border-t px-4 pb-4">
-                      <div className="space-y-3 mt-4">
-                        {group.consultations.map((consultation) => {
-                          const fhirData = parseFHIRData(consultation.fhir_data);
-                          const medications = extractMedications(fhirData);
-                          const diagnoses = extractDiagnosis(fhirData);
-                          const isExpanded = expandedConsultations.has(consultation.id);
-
-                          return (
-                            <Card key={consultation.id} className="p-4 bg-muted/30">
-                              <div
-                                className="cursor-pointer"
-                                onClick={() => toggleConsultationExpanded(consultation.id)}
+            {doctorGroups.length === 0 ? (
+              <Card className="p-8 text-center">
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No consultations yet</h3>
+                <p className="text-muted-foreground">
+                  Your consultation history will appear here after your first visit.
+                </p>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {doctorGroups.map((group) => (
+                  <Card key={group.doctor_id} className="overflow-hidden">
+                    <Collapsible
+                      open={expandedDoctors.has(group.doctor_id)}
+                      onOpenChange={() => toggleDoctorExpanded(group.doctor_id)}
+                    >
+                      <CollapsibleTrigger asChild>
+                        <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                <Building2 className="h-6 w-6 text-primary" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold">Healthcare Provider</h3>
+                                <p className="text-sm text-muted-foreground">
+                                  {group.consultations.length} consultation{group.consultations.length > 1 ? "s" : ""}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openBookingDialog(group.doctor_id);
+                                }}
                               >
-                                <div className="flex items-start justify-between">
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                                      <span className="font-medium">{formatFullDate(consultation.created_at)}</span>
-                                    </div>
-                                    {diagnoses.length > 0 && (
-                                      <div className="mt-2 flex flex-wrap gap-2">
-                                        {diagnoses.slice(0, 2).map((d, i) => (
-                                          <span
-                                            key={i}
-                                            className="px-2 py-1 bg-destructive/10 text-destructive text-xs rounded-md"
-                                          >
-                                            {d}
-                                          </span>
-                                        ))}
-                                        {diagnoses.length > 2 && (
-                                          <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
-                                            +{diagnoses.length - 2} more
-                                          </span>
+                                <CalendarPlus className="h-4 w-4 mr-1" />
+                                Book
+                              </Button>
+                              <div className="text-right hidden md:block">
+                                <p className="text-sm font-medium">Last: {formatDate(group.lastVisit)}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  First: {formatDate(group.firstVisit)}
+                                </p>
+                              </div>
+                              {expandedDoctors.has(group.doctor_id) ? (
+                                <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                              ) : (
+                                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CollapsibleTrigger>
+
+                      <CollapsibleContent>
+                        <div className="border-t px-4 pb-4">
+                          <div className="space-y-3 mt-4">
+                            {group.consultations.map((consultation) => {
+                              const fhirData = parseFHIRData(consultation.fhir_data);
+                              const medications = extractMedications(fhirData);
+                              const diagnoses = extractDiagnosis(fhirData);
+                              const isExpanded = expandedConsultations.has(consultation.id);
+
+                              return (
+                                <Card key={consultation.id} className="p-4 bg-muted/30">
+                                  <div
+                                    className="cursor-pointer"
+                                    onClick={() => toggleConsultationExpanded(consultation.id)}
+                                  >
+                                    <div className="flex items-start justify-between">
+                                      <div>
+                                        <div className="flex items-center gap-2">
+                                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                                          <span className="font-medium">{formatFullDate(consultation.created_at)}</span>
+                                        </div>
+                                        {diagnoses.length > 0 && (
+                                          <div className="mt-2 flex flex-wrap gap-2">
+                                            {diagnoses.slice(0, 2).map((d, i) => (
+                                              <span
+                                                key={i}
+                                                className="px-2 py-1 bg-destructive/10 text-destructive text-xs rounded-md"
+                                              >
+                                                {d}
+                                              </span>
+                                            ))}
+                                            {diagnoses.length > 2 && (
+                                              <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
+                                                +{diagnoses.length - 2} more
+                                              </span>
+                                            )}
+                                          </div>
                                         )}
                                       </div>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedConsultation(consultation);
-                                      }}
-                                    >
-                                      <FileText className="h-4 w-4 mr-1" />
-                                      Details
-                                    </Button>
-                                    {isExpanded ? (
-                                      <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                                    ) : (
-                                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {isExpanded && medications.length > 0 && (
-                                <div className="mt-4 pt-4 border-t">
-                                  <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                                    <Pill className="h-4 w-4 text-primary" />
-                                    Prescribed Medications
-                                  </p>
-                                  <div className="space-y-1">
-                                    {medications.map((med, i) => (
-                                      <div key={i} className="p-2 bg-primary/10 rounded-md text-sm">
-                                        {med}
+                                      <div className="flex items-center gap-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedConsultation(consultation);
+                                          }}
+                                        >
+                                          <FileText className="h-4 w-4 mr-1" />
+                                          Details
+                                        </Button>
+                                        {isExpanded ? (
+                                          <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                                        ) : (
+                                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                                        )}
                                       </div>
-                                    ))}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
+
+                                  {isExpanded && medications.length > 0 && (
+                                    <div className="mt-4 pt-4 border-t">
+                                      <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                                        <Pill className="h-4 w-4 text-primary" />
+                                        Prescribed Medications
+                                      </p>
+                                      <div className="space-y-1">
+                                        {medications.map((med, i) => (
+                                          <div key={i} className="p-2 bg-primary/10 rounded-md text-sm">
+                                            {med}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </Card>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Appointments Tab */}
+          <TabsContent value="appointments" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold mb-2">Your Appointments</h2>
+                <p className="text-muted-foreground">View and manage your appointment requests</p>
+              </div>
+            </div>
+
+            {appointments.length === 0 ? (
+              <Card className="p-8 text-center">
+                <CalendarPlus className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No appointments yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Book an appointment with a doctor from your medical history.
+                </p>
               </Card>
-            ))}
-          </div>
-        )}
+            ) : (
+              <div className="space-y-4">
+                {appointments.map((appointment) => (
+                  <Card key={appointment.id} className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-primary" />
+                          <span className="font-medium">{formatDate(appointment.requested_date)}</span>
+                          <span className="text-muted-foreground">at</span>
+                          <span className="font-medium">{appointment.requested_time_slot}</span>
+                        </div>
+                        {appointment.reason && (
+                          <p className="text-sm text-muted-foreground">
+                            Reason: {appointment.reason}
+                          </p>
+                        )}
+                        {appointment.doctor_notes && appointment.status !== "pending" && (
+                          <p className="text-sm bg-muted p-2 rounded">
+                            Doctor's note: {appointment.doctor_notes}
+                          </p>
+                        )}
+                      </div>
+                      {getStatusBadge(appointment.status)}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Consultation Detail Dialog */}
@@ -489,6 +705,72 @@ const PatientDashboard = () => {
               })()}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Booking Dialog */}
+      <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Book Appointment</DialogTitle>
+            <DialogDescription>
+              Request an appointment with this healthcare provider
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="date">Preferred Date</Label>
+              <Input
+                id="date"
+                type="date"
+                value={appointmentDate}
+                onChange={(e) => setAppointmentDate(e.target.value)}
+                min={getTodayDate()}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="time">Preferred Time</Label>
+              <Select value={appointmentTime} onValueChange={setAppointmentTime}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select a time slot" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIME_SLOTS.map((slot) => (
+                    <SelectItem key={slot} value={slot}>
+                      {slot}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="reason">Reason for Visit (optional)</Label>
+              <Textarea
+                id="reason"
+                value={appointmentReason}
+                onChange={(e) => setAppointmentReason(e.target.value)}
+                placeholder="Describe your symptoms or reason for the visit..."
+                className="mt-1"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBookingDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={bookAppointment} 
+              disabled={isBooking || !appointmentDate || !appointmentTime}
+            >
+              {isBooking && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Request Appointment
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -339,6 +339,9 @@ const ConsultationsList = () => {
             </p>
           </div>
           <div className="flex gap-4">
+            <Button onClick={() => navigate("/doctor-appointments")} variant="outline">
+              Appointments
+            </Button>
             <Button onClick={() => navigate("/consultation")} size="lg">
               <Plus className="mr-2 h-5 w-5" />
               New Consultation
