@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Search, User, Calendar, FileText } from "lucide-react";
+import { Loader2, Plus, Search, User, Calendar, FileText, Clock } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -30,6 +30,7 @@ interface Consultation {
   audio_transcription: string;
   fhir_data: string;
   created_at: string;
+  updated_at: string;
 }
 
 interface FHIRData {
@@ -144,6 +145,25 @@ const ConsultationsList = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const calculateAvgTimePerVisit = () => {
+    if (consultations.length === 0) return null;
+    
+    const durations = consultations.map((c) => {
+      const created = new Date(c.created_at).getTime();
+      const updated = new Date(c.updated_at).getTime();
+      return updated - created;
+    });
+    
+    const avgMs = durations.reduce((a, b) => a + b, 0) / durations.length;
+    const avgMinutes = Math.round(avgMs / 60000);
+    
+    if (avgMinutes < 1) return "< 1 min";
+    if (avgMinutes < 60) return `${avgMinutes} min`;
+    const hours = Math.floor(avgMinutes / 60);
+    const mins = avgMinutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+
   useEffect(() => {
     checkAuthAndLoadConsultations();
   }, []);
@@ -229,6 +249,49 @@ const ConsultationsList = () => {
             </Button>
           </div>
         </div>
+        {consultations.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Clock className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Avg. Time per Visit</p>
+                  <p className="text-2xl font-bold">{calculateAvgTimePerVisit()}</p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <User className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Consultations</p>
+                  <p className="text-2xl font-bold">{consultations.length}</p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Calendar className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">This Month</p>
+                  <p className="text-2xl font-bold">
+                    {consultations.filter((c) => {
+                      const created = new Date(c.created_at);
+                      const now = new Date();
+                      return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+                    }).length}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
 
         <Card className="p-6">
           <div className="flex items-center gap-4 mb-6">
