@@ -1,6 +1,6 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Leaf, Home } from "lucide-react";
+import { LogOut, User, Leaf, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
 
@@ -28,18 +28,23 @@ const PatientHeader = ({
     <div className="border-b bg-gradient-to-r from-teal-500/10 via-background to-emerald-500/10 sticky top-0 z-10 backdrop-blur-sm">
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
+          {/* Vyana AI Logo as Home */}
+          <Link
+            to="/patient-dashboard"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-teal-500/10 to-emerald-500/10 hover:from-teal-500/20 hover:to-emerald-500/20 border border-teal-500/20 transition-all"
+          >
+            <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center">
+              <span className="text-xs font-bold text-white">V</span>
+            </div>
+            <span className="text-sm font-semibold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent hidden sm:inline">
+              Vyana AI
+            </span>
+          </Link>
           {!isOnDashboard && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/patient-dashboard")}
-              className="h-10 w-10 rounded-xl hover:bg-teal-500/10"
-            >
-              <Home className="h-5 w-5 text-teal-600" />
-            </Button>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/25">
-            <User className="h-6 w-6 text-white" />
+          <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/25">
+            <User className="h-5 w-5 text-white" />
           </div>
           <div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
@@ -55,7 +60,7 @@ const PatientHeader = ({
             <span className="text-xs font-medium text-emerald-600">100% Digital</span>
           </div>
           <NotificationBell />
-          <Button variant="default" size="sm" onClick={() => navigate("/patient-profile")}>
+          <Button variant="default" size="sm" onClick={() => navigate("/patient-profile")} className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600">
             Profile
           </Button>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
