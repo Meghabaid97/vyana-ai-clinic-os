@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
+import HeaderLocationSelector from "@/components/HeaderLocationSelector";
 import TreeProgressIndicator from "@/components/TreeProgressIndicator";
 import { getEcoMessage } from "@/lib/formatters";
 import {
@@ -19,6 +20,7 @@ import {
   Sparkles,
   ArrowRight,
   FileText,
+  Leaf,
 } from "lucide-react";
 
 const DoctorDashboard = () => {
@@ -30,6 +32,10 @@ const DoctorDashboard = () => {
     sharedRecords: 0,
   });
   const [doctorName, setDoctorName] = useState("");
+  const [location, setLocation] = useState<{ pincode: string | null; city: string | null }>({
+    pincode: null,
+    city: null,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -58,11 +64,14 @@ const DoctorDashboard = () => {
 
       const { data: profile } = await supabase
         .from("doctor_profiles")
-        .select("full_name")
+        .select("full_name, pincode, city")
         .eq("user_id", session.user.id)
         .single();
 
       setDoctorName(profile?.full_name || session.user.email?.split("@")[0] || "Doctor");
+      if (profile) {
+        setLocation({ pincode: profile.pincode, city: profile.city });
+      }
 
       const { data: consultations } = await supabase
         .from("consultations")
@@ -109,6 +118,23 @@ const DoctorDashboard = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
+  };
+
+  const handleLocationChange = async (newLocation: { pincode: string; city: string; latitude?: number; longitude?: number }) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    await supabase
+      .from("doctor_profiles")
+      .update({
+        pincode: newLocation.pincode,
+        city: newLocation.city,
+        latitude: newLocation.latitude || null,
+        longitude: newLocation.longitude || null,
+      })
+      .eq("user_id", session.user.id);
+
+    setLocation({ pincode: newLocation.pincode, city: newLocation.city });
   };
 
   if (isLoading) {
@@ -178,9 +204,14 @@ const DoctorDashboard = () => {
           </div>
           
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-medium text-primary">100% Digital</span>
+            <HeaderLocationSelector
+              pincode={location.pincode}
+              city={location.city}
+              onLocationChange={handleLocationChange}
+            />
+            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <Leaf className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="text-xs font-medium text-emerald-600">100% Digital</span>
             </div>
             <NotificationBell />
             <Button 
