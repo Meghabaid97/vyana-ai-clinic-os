@@ -50,6 +50,8 @@ const App = () => (
           <Route path="/shared-records" element={<SharedHealthRecords />} />
           <Route path="/doctor-profile-setup" element={<DoctorProfileSetup />} />
           <Route path="/patient-profile-page" element={<PatientProfilePage />} />
+          <Route path="/emergency-contacts" element={<EmergencyContacts />} />
+          <Route path="/emergency-access/:token" element={<EmergencyAccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
