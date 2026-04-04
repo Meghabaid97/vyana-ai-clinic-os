@@ -14,6 +14,7 @@ import {
   ArrowRight,
   Activity,
   Upload,
+  Shield,
 } from "lucide-react";
 
 interface PatientProfile {
