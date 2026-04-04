@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Mail, Linkedin, ArrowRight, Heart } from "lucide-react";
+import { Mail, Linkedin, ArrowRight } from "lucide-react";
 import { tLanding } from "@/lib/i18n-landing";
 
 const Contact = () => {
@@ -13,67 +13,52 @@ const Contact = () => {
   }, []);
 
   return (
-    <section id="contact" className="py-24 border-t border-border">
-      <div className="container mx-auto px-6">
-        <div className="surface-warm max-w-4xl mx-auto rounded-[2rem] px-8 py-12 text-center space-y-8 lg:px-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-2 text-sm text-primary shadow-card">
-            <Heart className="h-4 w-4 fill-current" />
-            <span>Vyana</span>
-          </div>
-
-          <h2 className="text-4xl lg:text-5xl font-bold">
-            {tLanding("landing.contactTitle")} <span className="text-gradient-warm">{tLanding("landing.contactHighlight")}</span>
+    <section id="contact" className="py-20 bg-muted/40">
+      <div className="max-w-[980px] mx-auto px-6">
+        <div className="max-w-[600px] mx-auto text-center space-y-5">
+          <h2 className="text-3xl font-bold text-foreground">
+            {tLanding("landing.contactTitle")}{" "}
+            <span className="text-primary">{tLanding("landing.contactHighlight")}</span>
           </h2>
 
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-muted-foreground text-[15px] leading-relaxed">
             {tLanding("landing.contactText")}
           </p>
 
-          <div className="flex flex-col items-center gap-6 pt-8">
+          <div className="flex flex-col items-center gap-5 pt-4">
             <Button
-              variant="gradient"
               size="lg"
-              className="group text-base px-8 py-6 rounded-full"
+              className="group h-10 px-6 text-sm rounded-md"
               onClick={() => (window.location.href = "mailto:mbaid@wharton.upenn.edu")}
             >
               {tLanding("landing.getAccess")}
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </Button>
 
-            <div className="flex flex-col sm:flex-row items-center gap-6 text-muted-foreground">
-              <a
-                href="mailto:mbaid@wharton.upenn.edu"
-                className="flex items-center gap-2 hover:text-primary transition-colors"
-              >
-                <Mail className="h-5 w-5" />
-                <span>mbaid@wharton.upenn.edu</span>
+            <div className="flex flex-col sm:flex-row items-center gap-4 text-sm text-muted-foreground">
+              <a href="mailto:mbaid@wharton.upenn.edu" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
+                <Mail className="h-4 w-4" />
+                mbaid@wharton.upenn.edu
               </a>
-
-              <span className="hidden sm:inline text-border">•</span>
-
+              <span className="hidden sm:inline text-border">·</span>
               <a
                 href="https://www.linkedin.com/in/megha-baid-461912174/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:text-primary transition-colors"
+                className="flex items-center gap-1.5 hover:text-foreground transition-colors"
               >
-                <Linkedin className="h-5 w-5" />
-                <span>{tLanding("landing.connectLinkedin")}</span>
+                <Linkedin className="h-4 w-4" />
+                {tLanding("landing.connectLinkedin")}
               </a>
             </div>
           </div>
         </div>
       </div>
 
-      <footer className="mt-24 pt-8 border-t border-border">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Heart className="h-4 w-4 text-primary fill-current" />
-              <span className="text-xl font-bold text-gradient-warm">Vyana</span>
-            </div>
-            <p>© 2025 Vyana. {tLanding("landing.footer")}</p>
-          </div>
+      <footer className="max-w-[980px] mx-auto px-6 mt-16 pt-6 border-t border-border">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground">Vyana</span>
+          <p>© 2025 Vyana. {tLanding("landing.footer")}</p>
         </div>
       </footer>
     </section>
