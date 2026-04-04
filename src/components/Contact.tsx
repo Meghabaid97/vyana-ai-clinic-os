@@ -57,9 +57,9 @@ const Contact = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <div className="text-2xl font-bold text-gradient">
-              Vyana AI
+              Vyana
             </div>
-            <p>© 2025 Vyana AI. Building the future of healthcare technology.</p>
+            <p>© 2025 Vyana. Building the future of healthcare technology.</p>
           </div>
         </div>
       </footer>

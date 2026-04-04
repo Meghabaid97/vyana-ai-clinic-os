@@ -28,7 +28,7 @@ const translations: Record<Language, Record<string, string>> = {
     "common.noData": "No data available",
 
     // Auth
-    "auth.welcome": "Welcome to Vyana AI",
+    "auth.welcome": "Welcome to Vyana",
     "auth.signIn": "Sign in to continue",
     "auth.signUp": "Create your account",
     "auth.email": "Email",
@@ -116,7 +116,7 @@ const translations: Record<Language, Record<string, string>> = {
     "common.all": "सभी",
     "common.noData": "कोई डेटा उपलब्ध नहीं",
 
-    "auth.welcome": "Vyana AI में आपका स्वागत है",
+    "auth.welcome": "Vyana में आपका स्वागत है",
     "auth.signIn": "जारी रखने के लिए साइन इन करें",
     "auth.signUp": "अपना खाता बनाएं",
     "auth.email": "ईमेल",
@@ -200,7 +200,7 @@ const translations: Record<Language, Record<string, string>> = {
     "common.all": "அனைத்தும்",
     "common.noData": "தரவு இல்லை",
 
-    "auth.welcome": "Vyana AI-க்கு வரவேற்கிறோம்",
+    "auth.welcome": "Vyana-க்கு வரவேற்கிறோம்",
     "auth.signIn": "தொடர உள்நுழையவும்",
     "auth.signUp": "கணக்கை உருவாக்கவும்",
     "auth.email": "மின்னஞ்சல்",
@@ -284,7 +284,7 @@ const translations: Record<Language, Record<string, string>> = {
     "common.all": "అన్నీ",
     "common.noData": "డేటా అందుబాటులో లేదు",
 
-    "auth.welcome": "Vyana AI కి స్వాగతం",
+    "auth.welcome": "Vyana కి స్వాగతం",
     "auth.signIn": "కొనసాగించడానికి సైన్ ఇన్ చేయండి",
     "auth.signUp": "మీ ఖాతాను సృష్టించండి",
     "auth.email": "ఇమెయిల్",
@@ -368,7 +368,7 @@ const translations: Record<Language, Record<string, string>> = {
     "common.all": "সব",
     "common.noData": "কোনো তথ্য উপলব্ধ নেই",
 
-    "auth.welcome": "Vyana AI-তে স্বাগতম",
+    "auth.welcome": "Vyana-তে স্বাগতম",
     "auth.signIn": "চালিয়ে যেতে সাইন ইন করুন",
     "auth.signUp": "আপনার অ্যাকাউন্ট তৈরি করুন",
     "auth.email": "ইমেল",
