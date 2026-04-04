@@ -9,7 +9,7 @@ const HealthTrends = () => {
   const [records, setRecords] = useState<any[]>([]);
   const [consultationCount, setConsultationCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
 
   useEffect(() => { loadTrends(); }, []);
 

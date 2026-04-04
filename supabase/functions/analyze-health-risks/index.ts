@@ -26,7 +26,6 @@ serve(async (req) => {
   }
 
   try {
-    // Auth check
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -39,7 +38,6 @@ serve(async (req) => {
       });
     }
 
-    // Rate limit
     try {
       await checkRateLimit(user.id, 'analyze-health-risks', 50);
     } catch (e) {
@@ -54,24 +52,39 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { patientName, patientAge, diagnoses, medications, symptoms } = await req.json();
+    const body = await req.json();
+    const { records, patientName, patientAge } = body;
 
-    const prompt = `You are a medical AI assistant. Analyze the following patient's medical history and provide health risk indicators.
+    // Build context from health record summaries
+    let healthContext = "";
+    if (records && records.length > 0) {
+      const summaries = records
+        .filter((r: any) => r.ai_summary && !r.ai_summary.includes("I am sorry") && !r.ai_summary.includes("cannot access"))
+        .map((r: any) => `Document: ${r.file_name}\nSummary: ${r.ai_summary}`)
+        .join("\n\n");
+      healthContext = summaries || "No analyzable health record summaries available.";
+    } else {
+      healthContext = "No health records uploaded.";
+    }
 
-Patient: ${patientName}, Age: ${patientAge}
+    const prompt = `You are a medical AI assistant. Analyze the following patient's health records and provide a comprehensive health summary with risk indicators.
 
-Medical History:
-- Past Diagnoses: ${diagnoses?.length > 0 ? diagnoses.join(", ") : "None recorded"}
-- Current/Past Medications: ${medications?.length > 0 ? medications.join(", ") : "None recorded"}
-- Reported Symptoms: ${symptoms?.length > 0 ? symptoms.join(", ") : "None recorded"}
+Patient: ${patientName || "Unknown"}, Age: ${patientAge || "Unknown"}
 
-Provide up to 3 potential health risk indicators with risk levels and reasoning.
+Health Records & Summaries:
+${healthContext}
+
+Based on all available health data, provide:
+1. A clear, personalized health summary (2-3 paragraphs) covering key findings from the records
+2. Up to 3 potential health risk indicators with risk levels
+3. Actionable recommendations
 
 Respond in JSON format:
 {
+  "summary": "A comprehensive 2-3 paragraph health summary covering key findings, trends, and overall health status based on the records...",
   "risks": [{ "condition": "...", "level": "low|medium|high", "reasoning": "..." }],
   "recommendations": ["..."],
-  "disclaimer": "..."
+  "disclaimer": "This is AI-generated analysis and not a substitute for professional medical advice."
 }`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -83,7 +96,7 @@ Respond in JSON format:
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a medical AI assistant that analyzes patient history for potential health risks." },
+          { role: "system", content: "You are a medical AI assistant that analyzes patient health records for insights and risks. Always respond with valid JSON." },
           { role: "user", content: prompt }
         ],
       }),
@@ -113,7 +126,8 @@ Respond in JSON format:
       analysis = JSON.parse(jsonStr.trim());
     } catch {
       analysis = {
-        risks: [{ condition: "Unable to analyze", level: "low", reasoning: "Insufficient data." }],
+        summary: content || "Unable to generate summary.",
+        risks: [{ condition: "Unable to parse structured analysis", level: "low", reasoning: "Raw analysis was generated but could not be structured." }],
         recommendations: ["Continue regular health checkups"],
         disclaimer: "Please consult a healthcare professional."
       };
