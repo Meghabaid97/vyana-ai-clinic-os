@@ -240,8 +240,8 @@ const PatientDashboard = () => {
                 onClick={() => navigate("/patient-health-records")}
                 className="group flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
                 style={{
-                  background: "linear-gradient(135deg, hsl(200 50% 95%) 0%, hsl(152 25% 94%) 100%)",
-                  color: "hsl(200 50% 35%)",
+                  background: "linear-gradient(135deg, hsl(12 70% 95%) 0%, hsl(35 80% 94%) 100%)",
+                  color: "hsl(12 70% 40%)",
                 }}
               >
                 <Upload className="h-5 w-5 opacity-70 group-hover:opacity-100 transition-opacity" />
