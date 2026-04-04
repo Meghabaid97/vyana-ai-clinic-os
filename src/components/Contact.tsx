@@ -1,21 +1,30 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Mail, Linkedin, ArrowRight, Heart } from "lucide-react";
+import { tLanding } from "@/lib/i18n-landing";
 
 const Contact = () => {
+  const [, setLangTick] = useState(0);
+
+  useEffect(() => {
+    const handler = () => setLangTick((t) => t + 1);
+    window.addEventListener("vyana-lang-change", handler);
+    return () => window.removeEventListener("vyana-lang-change", handler);
+  }, []);
+
   return (
     <section id="contact" className="py-24">
       <div className="container mx-auto px-6">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="text-4xl lg:text-5xl font-bold">
-            Help us build{" "}
+            {tLanding("landing.contactTitle")}{" "}
             <span className="text-gradient-warm">
-              what should have always existed
+              {tLanding("landing.contactHighlight")}
             </span>
           </h2>
 
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            We're looking for early patients, forward-thinking doctors, and anyone 
-            who's ever sat in a hospital corridor wishing they had better records.
+            {tLanding("landing.contactText")}
           </p>
 
           <div className="flex flex-col items-center gap-6 pt-8">
@@ -25,7 +34,7 @@ const Contact = () => {
               className="group text-base px-8 py-6 rounded-full"
               onClick={() => window.location.href = "mailto:mbaid@wharton.upenn.edu"}
             >
-              Get Early Access
+              {tLanding("landing.getAccess")}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
 
@@ -47,7 +56,7 @@ const Contact = () => {
                 className="flex items-center gap-2 hover:text-primary transition-colors"
               >
                 <Linkedin className="h-5 w-5" />
-                <span>Connect on LinkedIn</span>
+                <span>{tLanding("landing.connectLinkedin")}</span>
               </a>
             </div>
           </div>
@@ -61,7 +70,7 @@ const Contact = () => {
               <Heart className="h-4 w-4 text-primary" />
               <span className="text-xl font-bold text-gradient-warm">Vyana</span>
             </div>
-            <p>© 2025 Vyana. Every patient deserves a doctor who knows their story.</p>
+            <p>© 2025 Vyana. {tLanding("landing.footer")}</p>
           </div>
         </div>
       </footer>

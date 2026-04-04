@@ -1,60 +1,40 @@
+import { useState, useEffect } from "react";
 import { FileText, TrendingUp, Share2, Shield, Clock, Heart } from "lucide-react";
+import { tLanding } from "@/lib/i18n-landing";
 
-const features = [
-  {
-    icon: FileText,
-    title: "Upload anything",
-    description: "Prescriptions, lab reports, discharge summaries — photo or PDF. We extract the data so you never have to explain it again.",
-    color: "primary",
-  },
-  {
-    icon: TrendingUp,
-    title: "Track what matters",
-    description: "HbA1c, blood pressure, cholesterol — tracked over time. We flag when something changes so you can act early.",
-    color: "secondary",
-  },
-  {
-    icon: Clock,
-    title: "30-second summary",
-    description: "One screen shows a doctor your complete history. Active conditions, medications, allergies, recent visits — all in one place.",
-    color: "accent",
-  },
-  {
-    icon: Share2,
-    title: "Share with any doctor",
-    description: "Generate a secure link valid for 24 hours. No app needed on their end. Just a clean summary that saves lives.",
-    color: "primary",
-  },
-  {
-    icon: Shield,
-    title: "Your data, your control",
-    description: "ABHA-linked, ABDM compliant. You decide which doctor sees what. Consent is granular and always revocable.",
-    color: "secondary",
-  },
-  {
-    icon: Heart,
-    title: "Built for Indian families",
-    description: "Multilingual. Works on any phone. Designed for the daughter tracking her father's medications, the son rushing to the ER.",
-    color: "primary",
-  },
+const featureKeys = [
+  { icon: FileText, titleKey: "landing.f1Title", descKey: "landing.f1Desc", color: "primary" },
+  { icon: TrendingUp, titleKey: "landing.f2Title", descKey: "landing.f2Desc", color: "secondary" },
+  { icon: Clock, titleKey: "landing.f3Title", descKey: "landing.f3Desc", color: "accent" },
+  { icon: Share2, titleKey: "landing.f4Title", descKey: "landing.f4Desc", color: "primary" },
+  { icon: Shield, titleKey: "landing.f5Title", descKey: "landing.f5Desc", color: "secondary" },
+  { icon: Heart, titleKey: "landing.f6Title", descKey: "landing.f6Desc", color: "primary" },
 ];
 
 const Features = () => {
+  const [, setLangTick] = useState(0);
+
+  useEffect(() => {
+    const handler = () => setLangTick((t) => t + 1);
+    window.addEventListener("vyana-lang-change", handler);
+    return () => window.removeEventListener("vyana-lang-change", handler);
+  }, []);
+
   return (
     <section id="features" className="py-24">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-4xl lg:text-5xl font-bold">
-            Not features.{" "}
-            <span className="text-gradient-warm">Promises.</span>
+            {tLanding("landing.featuresTitle")}{" "}
+            <span className="text-gradient-warm">{tLanding("landing.featuresHighlight")}</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            What Vyana does for you and your family.
+            {tLanding("landing.featuresSub")}
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {features.map((feature, index) => {
+          {featureKeys.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <div
@@ -64,9 +44,9 @@ const Features = () => {
                 <div className={`w-12 h-12 rounded-xl bg-${feature.color}/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                   <Icon className={`w-6 h-6 text-${feature.color}`} />
                 </div>
-                <h3 className="text-lg font-semibold mb-3">{feature.title}</h3>
+                <h3 className="text-lg font-semibold mb-3">{tLanding(feature.titleKey)}</h3>
                 <p className="text-muted-foreground leading-relaxed text-[15px]">
-                  {feature.description}
+                  {tLanding(feature.descKey)}
                 </p>
               </div>
             );
