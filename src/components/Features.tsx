@@ -20,34 +20,27 @@ const Features = () => {
   }, []);
 
   return (
-    <section id="features" className="py-20 border-t border-border bg-muted/35">
-      <div className="max-w-[1100px] mx-auto px-6">
-        <div className="max-w-2xl mb-12">
-          <h2 className="text-[32px] font-bold tracking-tight text-foreground mb-3">
-            {tLanding("landing.featuresTitle")} <span className="text-primary">{tLanding("landing.featuresHighlight")}</span>
+    <section id="features" className="py-16 bg-muted/40">
+      <div className="max-w-[980px] mx-auto px-6">
+        <div className="max-w-[540px] mb-10">
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            {tLanding("landing.featuresTitle")}{" "}
+            <span className="text-primary">{tLanding("landing.featuresHighlight")}</span>
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-[15px]">
             {tLanding("landing.featuresSub")}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featureKeys.map((feature, index) => (
-            <div
-              key={index}
-              className="surface-warm rounded-[1.5rem] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-soft"
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary/10 text-xl">
-                  {feature.emoji}
-                </span>
-                <span className="text-[12px] font-medium text-muted-foreground">0{index + 1}</span>
-              </div>
-              <h3 className="text-[15px] font-semibold text-foreground mb-2">
-                {tLanding(feature.titleKey)}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {featureKeys.map((f, i) => (
+            <div key={i} className="rounded-lg border border-border bg-background p-5 hover:border-primary/30 transition-colors">
+              <span className="text-lg mb-2.5 block">{f.emoji}</span>
+              <h3 className="text-sm font-semibold text-foreground mb-1">
+                {tLanding(f.titleKey)}
               </h3>
-              <p className="text-muted-foreground text-[14px] leading-relaxed">
-                {tLanding(feature.descKey)}
+              <p className="text-muted-foreground text-[13px] leading-relaxed">
+                {tLanding(f.descKey)}
               </p>
             </div>
           ))}
