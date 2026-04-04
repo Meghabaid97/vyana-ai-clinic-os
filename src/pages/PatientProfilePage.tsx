@@ -191,7 +191,7 @@ const PatientProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-background">
       <PatientHeader patientName={profile?.name || "Patient"} title={t("patient.dashboard")} />
 
       <div className="max-w-6xl mx-auto px-6 py-8">
