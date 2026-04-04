@@ -47,10 +47,10 @@ const Navigation = () => {
             Features
           </button>
           <button
-            onClick={() => scrollToSection("mission")}
+            onClick={() => navigate("/why-vyana")}
             className="text-foreground/70 hover:text-foreground transition-colors"
           >
-            Mission
+            Our Story
           </button>
           <button
             onClick={() => scrollToSection("contact")}
