@@ -269,7 +269,7 @@ const PatientDashboard = () => {
                     >
                       <div
                         className="h-3 w-3 rounded-full z-10 shadow-sm"
-                        style={{ background: "hsl(200 65% 38%)" }}
+                        style={{ background: "hsl(12 70% 55%)" }}
                       />
                       <span
                         className="mt-2 text-xs whitespace-nowrap"
