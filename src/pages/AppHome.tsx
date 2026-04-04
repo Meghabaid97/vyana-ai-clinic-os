@@ -182,10 +182,10 @@ const AppHome = () => {
         </div>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { icon: Heart, label: "Blood Pressure", value: "—" },
-            { icon: Droplets, label: "Blood Sugar", value: "—" },
-            { icon: Activity, label: "Cholesterol", value: "—" },
-            { icon: TrendingUp, label: "Weight", value: "—" },
+            { icon: Heart, label: "Blood Pressure", value: homeVitals?.bp_systolic != null && homeVitals?.bp_diastolic != null ? `${fmtVital(homeVitals.bp_systolic)}/${fmtVital(homeVitals.bp_diastolic)}` : (vitalsLoading ? "..." : "—") },
+            { icon: Droplets, label: "Blood Sugar", value: vitalsLoading ? "..." : fmtVital(homeVitals?.fasting_blood_sugar) },
+            { icon: Activity, label: "Cholesterol", value: vitalsLoading ? "..." : fmtVital(homeVitals?.total_cholesterol) },
+            { icon: TrendingUp, label: "Weight", value: vitalsLoading ? "..." : fmtVital(homeVitals?.weight) },
           ].map((v, i) => (
             <button
               key={i}
