@@ -444,6 +444,7 @@ export type Database = {
           age: number | null
           city: string | null
           created_at: string
+          date_of_birth: string | null
           id: string
           latitude: number | null
           longitude: number | null
@@ -453,11 +454,13 @@ export type Database = {
           pincode: string | null
           updated_at: string
           user_id: string
+          weight: number | null
         }
         Insert: {
           age?: number | null
           city?: string | null
           created_at?: string
+          date_of_birth?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
@@ -467,11 +470,13 @@ export type Database = {
           pincode?: string | null
           updated_at?: string
           user_id: string
+          weight?: number | null
         }
         Update: {
           age?: number | null
           city?: string | null
           created_at?: string
+          date_of_birth?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
@@ -481,6 +486,7 @@ export type Database = {
           pincode?: string | null
           updated_at?: string
           user_id?: string
+          weight?: number | null
         }
         Relationships: []
       }
