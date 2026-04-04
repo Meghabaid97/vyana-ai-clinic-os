@@ -3,13 +3,16 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Splash from "./pages/Splash";
 import Index from "./pages/Index";
 import WhyVyana from "./pages/WhyVyana";
 import Auth from "./pages/Auth";
+import AppShell from "./components/AppShell";
+import AppHome from "./pages/AppHome";
+import HealthTrends from "./pages/HealthTrends";
 import Consultation from "./pages/Consultation";
 import ConsultationsList from "./pages/ConsultationsList";
 import DoctorPatientView from "./pages/DoctorPatientView";
-import PatientDashboard from "./pages/PatientDashboard";
 import PatientMedicalHistory from "./pages/PatientMedicalHistory";
 import PatientAppointments from "./pages/PatientAppointments";
 import PatientHealthRecords from "./pages/PatientHealthRecords";
@@ -33,26 +36,37 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          {/* Public */}
+          <Route path="/" element={<Splash />} />
+          <Route path="/landing" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/why-vyana" element={<WhyVyana />} />
+
+          {/* Patient app with bottom tabs */}
+          <Route path="/app" element={<AppShell />}>
+            <Route index element={<AppHome />} />
+            <Route path="trends" element={<HealthTrends />} />
+            <Route path="records" element={<PatientHealthRecords />} />
+            <Route path="appointments" element={<PatientAppointments />} />
+            <Route path="profile" element={<PatientProfileEdit />} />
+          </Route>
+
+          {/* Patient standalone pages */}
           <Route path="/consultation" element={<Consultation />} />
           <Route path="/consultations" element={<ConsultationsList />} />
-          <Route path="/patient-view/:patientId" element={<DoctorPatientView />} />
-          <Route path="/patient-dashboard" element={<PatientDashboard />} />
           <Route path="/patient-medical-history" element={<PatientMedicalHistory />} />
-          <Route path="/patient-appointments" element={<PatientAppointments />} />
-          <Route path="/patient-health-records" element={<PatientHealthRecords />} />
-          <Route path="/patient-profile" element={<PatientProfileEdit />} />
           <Route path="/find-doctors" element={<FindDoctors />} />
-          <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-          <Route path="/doctor-appointments" element={<DoctorAppointments />} />
-          <Route path="/shared-records" element={<SharedHealthRecords />} />
-          <Route path="/doctor-profile-setup" element={<DoctorProfileSetup />} />
           <Route path="/patient-profile-page" element={<PatientProfilePage />} />
           <Route path="/emergency-contacts" element={<EmergencyContacts />} />
           <Route path="/emergency-access/:token" element={<EmergencyAccess />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+          {/* Doctor */}
+          <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+          <Route path="/doctor-appointments" element={<DoctorAppointments />} />
+          <Route path="/doctor-profile-setup" element={<DoctorProfileSetup />} />
+          <Route path="/patient-view/:patientId" element={<DoctorPatientView />} />
+          <Route path="/shared-records" element={<SharedHealthRecords />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
