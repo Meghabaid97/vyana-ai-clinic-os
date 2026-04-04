@@ -7,33 +7,42 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function checkRateLimit(userId: string, functionName: string, maxPerHour = 100) {
+  const adminClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+  const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+  const { data } = await adminClient
+    .from('api_usage')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('function_name', functionName)
+    .gte('created_at', oneHourAgo);
+
+  if (data && data.length >= maxPerHour) {
+    throw new Error('RATE_LIMITED');
+  }
+
+  await adminClient.from('api_usage').insert({ user_id: userId, function_name: functionName });
+}
+
 function validateInput(data: any) {
-  // Validate patient name (1-200 chars, letters, spaces, hyphens, apostrophes)
   if (!data.patientName || typeof data.patientName !== 'string' ||
       data.patientName.length < 1 || data.patientName.length > 200 ||
       !/^[a-zA-Z\s\-']+$/.test(data.patientName)) {
     throw new Error('Invalid patient name');
   }
-
-  // Validate age (0-150)
   const age = parseInt(data.patientAge);
-  if (isNaN(age) || age < 0 || age > 150) {
-    throw new Error('Invalid patient age');
-  }
-
-  // Validate national health ID (5-50 chars, alphanumeric and hyphens)
+  if (isNaN(age) || age < 0 || age > 150) throw new Error('Invalid patient age');
   if (!data.patientNationalId || typeof data.patientNationalId !== 'string' ||
       data.patientNationalId.length < 5 || data.patientNationalId.length > 50 ||
       !/^[a-zA-Z0-9\-]+$/.test(data.patientNationalId)) {
     throw new Error('Invalid national health ID');
   }
-
-  // Validate transcription length (max 50000 chars)
-  if (!data.transcription || typeof data.transcription !== 'string' ||
-      data.transcription.length > 50000) {
+  if (!data.transcription || typeof data.transcription !== 'string' || data.transcription.length > 50000) {
     throw new Error('Invalid or too long transcription');
   }
-
   return {
     patientName: data.patientName.trim(),
     patientAge: age,
@@ -43,11 +52,7 @@ function validateInput(data: any) {
 }
 
 function sanitizeForPrompt(text: string): string {
-  // Remove potential prompt manipulation patterns and limit length
-  return text
-    .replace(/\n\n+/g, '\n')
-    .replace(/^(ignore|forget|system|assistant|user):/gim, '')
-    .slice(0, 10000);
+  return text.replace(/\n\n+/g, '\n').replace(/^(ignore|forget|system|assistant|user):/gim, '').slice(0, 10000);
 }
 
 serve(async (req) => {
@@ -56,7 +61,6 @@ serve(async (req) => {
   }
 
   try {
-    // Authenticate user
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -65,43 +69,41 @@ serve(async (req) => {
 
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     if (authError || !user) {
-      console.error('Authentication failed:', authError?.message);
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    // Verify doctor role
     const { data: roleData } = await supabaseClient
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'doctor')
-      .single();
-
+      .from('user_roles').select('role').eq('user_id', user.id).eq('role', 'doctor').single();
     if (!roleData) {
-      console.error('User lacks doctor role:', user.id);
       return new Response(JSON.stringify({ error: 'Requires doctor role' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
+    }
+
+    // Rate limit: 100 conversions per hour
+    try {
+      await checkRateLimit(user.id, 'convert-to-fhir', 100);
+    } catch (e) {
+      if (e instanceof Error && e.message === 'RATE_LIMITED') {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
+          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      throw e;
     }
 
     const rawData = await req.json();
-    
-    // Validate and sanitize input
     const validatedData = validateInput(rawData);
     const sanitizedTranscription = sanitizeForPrompt(validatedData.transcription);
 
     console.log('Converting to FHIR format for user:', user.id);
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
-    }
+    if (!OPENAI_API_KEY) throw new Error('OpenAI API key not configured');
 
-    const prompt = `Convert the following medical consultation transcript into FHIR R4 format. Create a proper FHIR Encounter resource with the patient information and clinical notes.
+    const prompt = `Convert the following medical consultation transcript into FHIR R4 format.
 
 Patient Information:
 - Name: ${validatedData.patientName}
@@ -111,54 +113,7 @@ Patient Information:
 Consultation Transcript:
 ${sanitizedTranscription}
 
-Please return ONLY valid FHIR R4 JSON format for an Encounter resource. Include structured extensions for any vitals (blood pressure, temperature, heart rate), medications, symptoms, and clinical observations mentioned in the transcript. Use the following structure:
-
-{
-  "resourceType": "Encounter",
-  "status": "finished",
-  "class": { "code": "AMB" },
-  "subject": {
-    "display": "${validatedData.patientName}"
-  },
-  "period": {
-    "start": "${new Date().toISOString()}"
-  },
-  "diagnosis": [
-    {
-      "condition": {
-        "display": "Primary diagnosis from transcript"
-      }
-    }
-  ],
-  "extension": [
-    {
-      "url": "http://example.org/fhir/vital/blood_pressure",
-      "valueString": "120/80 mmHg"
-    },
-    {
-      "url": "http://example.org/fhir/vital/temperature",
-      "valueString": "98.6°F"
-    },
-    {
-      "url": "http://example.org/fhir/vital/heart_rate",
-      "valueString": "72 bpm"
-    },
-    {
-      "url": "http://example.org/fhir/medication",
-      "valueString": "Medication name and dosage"
-    },
-    {
-      "url": "http://example.org/fhir/symptom",
-      "valueString": "Symptom description"
-    },
-    {
-      "url": "http://example.org/fhir/note",
-      "valueString": "Additional clinical notes"
-    }
-  ]
-}
-
-Extract all relevant medical information from the transcript and structure it using the extensions array. Return ONLY the JSON without any markdown formatting.`;
+Return ONLY valid FHIR R4 JSON for an Encounter resource with extensions for vitals, medications, symptoms, and clinical observations. No markdown formatting.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -169,14 +124,8 @@ Extract all relevant medical information from the transcript and structure it us
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          {
-            role: 'system',
-            content: 'You are a medical data specialist that converts clinical notes into FHIR R4 format. Always return valid JSON in FHIR R4 Encounter resource format.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
+          { role: 'system', content: 'You are a medical data specialist that converts clinical notes into FHIR R4 format. Always return valid JSON.' },
+          { role: 'user', content: prompt },
         ],
         temperature: 0.3,
       }),
@@ -189,25 +138,15 @@ Extract all relevant medical information from the transcript and structure it us
 
     const result = await response.json();
     let fhirData = result.choices[0].message.content;
-
-    // Remove markdown code blocks if present
     fhirData = fhirData.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
 
-    console.log('FHIR conversion successful for user:', user.id);
-
-    return new Response(
-      JSON.stringify({ fhir: fhirData }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return new Response(JSON.stringify({ fhir: fhirData }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   } catch (error: any) {
     console.error('FHIR conversion error:', error.message);
-    return new Response(
-      JSON.stringify({ error: error.message || 'Processing failed' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message || 'Processing failed' }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 });
