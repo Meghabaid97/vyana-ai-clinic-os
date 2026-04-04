@@ -229,6 +229,92 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_access_logs: {
+        Row: {
+          accessed_at: string
+          emergency_contact_id: string
+          id: string
+          ip_address: string | null
+          patient_id: string
+        }
+        Insert: {
+          accessed_at?: string
+          emergency_contact_id: string
+          id?: string
+          ip_address?: string | null
+          patient_id: string
+        }
+        Update: {
+          accessed_at?: string
+          emergency_contact_id?: string
+          id?: string
+          ip_address?: string | null
+          patient_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_access_logs_emergency_contact_id_fkey"
+            columns: ["emergency_contact_id"]
+            isOneToOne: false
+            referencedRelation: "emergency_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergency_access_logs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emergency_contacts: {
+        Row: {
+          access_token: string | null
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          id: string
+          is_active: boolean
+          patient_id: string
+          relationship: string
+          updated_at: string
+        }
+        Insert: {
+          access_token?: string | null
+          contact_email?: string | null
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          patient_id: string
+          relationship: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string | null
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          patient_id?: string
+          relationship?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_contacts_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follow_up_reminders: {
         Row: {
           consultation_id: string

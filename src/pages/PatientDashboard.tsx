@@ -14,6 +14,7 @@ import {
   ArrowRight,
   Activity,
   Upload,
+  Shield,
 } from "lucide-react";
 
 interface PatientProfile {
@@ -156,6 +157,14 @@ const PatientDashboard = () => {
       gradient: "from-primary to-secondary",
       bgGradient: "from-primary/10 via-secondary/5 to-transparent",
       path: "/patient-profile-page",
+    },
+    {
+      title: "Emergency Access",
+      description: "Family safety net for emergencies",
+      icon: Shield,
+      gradient: "from-secondary to-accent",
+      bgGradient: "from-secondary/10 via-accent/5 to-transparent",
+      path: "/emergency-contacts",
     },
   ];
 
