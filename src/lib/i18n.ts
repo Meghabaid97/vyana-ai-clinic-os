@@ -298,7 +298,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.hasAccount": "ఇప్పటికే ఖాతా ఉందా? సైన్ ఇన్ చేయండి",
     "auth.doctor": "వైద్యుడు",
     "auth.patient": "రోగి",
-    "auth.healthId": "జాతీయ ఆరోగ్య ID (ఆధార్)",
+    "auth.healthId": "ABHA హెల్త్ ID",
     "auth.healthIdHelp": "మీ సంప్రదింపులు మరియు వైద్య రికార్డులను లింక్ చేయడానికి",
     "auth.otpSignIn": "OTP తో సైన్ ఇన్ చేయండి",
     "auth.emailOtp": "ఇమెయిల్ OTP",
