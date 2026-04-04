@@ -508,6 +508,54 @@ export type Database = {
         }
         Relationships: []
       }
+      vital_history: {
+        Row: {
+          confidence: string
+          created_at: string
+          health_record_id: string
+          id: string
+          patient_id: string
+          recorded_at: string
+          source_file_name: string
+          vitals: Json
+        }
+        Insert: {
+          confidence?: string
+          created_at?: string
+          health_record_id: string
+          id?: string
+          patient_id: string
+          recorded_at?: string
+          source_file_name: string
+          vitals?: Json
+        }
+        Update: {
+          confidence?: string
+          created_at?: string
+          health_record_id?: string
+          id?: string
+          patient_id?: string
+          recorded_at?: string
+          source_file_name?: string
+          vitals?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vital_history_health_record_id_fkey"
+            columns: ["health_record_id"]
+            isOneToOne: false
+            referencedRelation: "health_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vital_history_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
