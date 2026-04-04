@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import PatientHeader from "@/components/PatientHeader";
-import TreeProgressIndicator from "@/components/TreeProgressIndicator";
-import { getEcoMessage } from "@/lib/formatters";
 import {
   Loader2,
   FileText,
@@ -15,6 +13,7 @@ import {
   Stethoscope,
   ArrowRight,
   Activity,
+  Upload,
 } from "lucide-react";
 
 interface PatientProfile {
@@ -33,6 +32,7 @@ const PatientDashboard = () => {
     healthRecords: 0,
     doctors: 0,
   });
+  const [recordDates, setRecordDates] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -80,8 +80,14 @@ const PatientDashboard = () => {
 
         const { data: recordsData } = await supabase
           .from("health_records")
-          .select("id")
-          .eq("patient_id", patientData.id);
+          .select("id, uploaded_at")
+          .eq("patient_id", patientData.id)
+          .order("uploaded_at", { ascending: true });
+
+        const dates = (recordsData || []).map(r =>
+          new Date(r.uploaded_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+        );
+        setRecordDates(dates);
 
         setStats({
           consultations: consultationsCount,
@@ -112,6 +118,8 @@ const PatientDashboard = () => {
       </div>
     );
   }
+
+  const totalRecords = stats.healthRecords + stats.consultations;
 
   const sections = [
     {
@@ -163,18 +171,137 @@ const PatientDashboard = () => {
 
       <div className="max-w-5xl mx-auto px-6 py-10 relative z-10">
         {/* Hero Welcome */}
-        <div className="mb-12 animate-fade-in">
+        <div className="mb-8 animate-fade-in">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="h-5 w-5 text-primary" />
             <span className="text-sm font-semibold text-primary uppercase tracking-wider">Your Health Dashboard</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-2">
             Welcome back,{" "}
             <span className="text-gradient">{profile?.name?.split(" ")[0] || "Patient"}</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            {getEcoMessage(stats.consultations, "patient")}
-          </p>
+        </div>
+
+        {/* ── Your Health Story Card ── */}
+        <div
+          className="rounded-3xl px-8 py-10 md:px-12 md:py-12 mb-12 animate-fade-in"
+          style={{
+            background: "linear-gradient(168deg, hsl(40 40% 98%) 0%, hsl(30 25% 96%) 100%)",
+            boxShadow: "0 4px 24px -4px hsl(220 20% 70% / 0.12)",
+          }}
+        >
+          {/* Headline */}
+          <h2
+            className="text-2xl md:text-3xl font-bold leading-snug mb-6"
+            style={{ color: "hsl(220 40% 18%)" }}
+          >
+            Your health story. Always with you.
+            <br />
+            <span className="font-medium italic" style={{ color: "hsl(220 25% 40%)" }}>
+              Apni sehat, apne haath.
+            </span>
+          </h2>
+
+          {/* Body copy */}
+          <div
+            className="space-y-5 text-base md:text-lg leading-relaxed max-w-2xl"
+            style={{ color: "hsl(220 10% 42%)" }}
+          >
+            <p>
+              Somewhere in India, a family rushes to a hospital
+              with no records, no history, nothing — and has to
+              explain everything in five minutes to a doctor
+              they've never met.
+            </p>
+            <p className="font-medium" style={{ color: "hsl(220 18% 32%)" }}>
+              Vyana exists so that never happens to you.
+            </p>
+            <p>
+              Every prescription you upload, every lab report,
+              every doctor visit — we hold it. Quietly. Securely.
+              So when you need it most, it's there.
+            </p>
+          </div>
+
+          {/* Timeline or first-record prompt */}
+          <div className="mt-10">
+            {totalRecords === 0 ? (
+              /* ── Zero records: gentle upload prompt ── */
+              <button
+                onClick={() => navigate("/patient-health-records")}
+                className="group flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
+                style={{
+                  background: "linear-gradient(135deg, hsl(217 70% 95%) 0%, hsl(190 60% 94%) 100%)",
+                  color: "hsl(217 60% 42%)",
+                }}
+              >
+                <Upload className="h-5 w-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                <span className="font-medium text-base">
+                  Upload your first record. Start your story.
+                </span>
+              </button>
+            ) : (
+              /* ── Has records: horizontal dot timeline ── */
+              <div className="space-y-4">
+                {/* Timeline */}
+                <div className="relative flex items-center gap-0 overflow-x-auto pb-2 scrollbar-hide">
+                  {/* The line */}
+                  <div
+                    className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2"
+                    style={{ background: "hsl(217 60% 85%)" }}
+                  />
+
+                  {/* Dots */}
+                  {recordDates.map((date, i) => (
+                    <div
+                      key={i}
+                      className="relative flex flex-col items-center shrink-0"
+                      style={{ minWidth: "56px" }}
+                    >
+                      <div
+                        className="h-3 w-3 rounded-full z-10 shadow-sm"
+                        style={{ background: "hsl(217 91% 50%)" }}
+                      />
+                      <span
+                        className="mt-2 text-xs whitespace-nowrap"
+                        style={{ color: "hsl(220 10% 55%)" }}
+                      >
+                        {date}
+                      </span>
+                    </div>
+                  ))}
+
+                  {/* "Today" dot */}
+                  <div
+                    className="relative flex flex-col items-center shrink-0"
+                    style={{ minWidth: "56px" }}
+                  >
+                    <div
+                      className="h-4 w-4 rounded-full z-10"
+                      style={{
+                        background: "hsl(217 91% 50%)",
+                        boxShadow: "0 0 0 4px hsl(217 91% 50% / 0.2)",
+                      }}
+                    />
+                    <span
+                      className="mt-2 text-xs font-semibold whitespace-nowrap"
+                      style={{ color: "hsl(217 60% 42%)" }}
+                    >
+                      Today
+                    </span>
+                  </div>
+                </div>
+
+                {/* Count line */}
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "hsl(220 18% 40%)" }}
+                >
+                  {totalRecords} record{totalRecords !== 1 ? "s" : ""} held. Your story is growing.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Stats Row */}
@@ -204,7 +331,7 @@ const PatientDashboard = () => {
         </div>
 
         {/* Main Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {sections.map((section, index) => (
             <button
               key={section.title}
@@ -212,7 +339,6 @@ const PatientDashboard = () => {
               className="group relative overflow-hidden rounded-3xl bg-card border border-border/50 p-8 text-left shadow-card hover:shadow-glow hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 animate-fade-in"
               style={{ animationDelay: `${(index + 4) * 100}ms` }}
             >
-              {/* Background gradient on hover */}
               <div className={`absolute inset-0 bg-gradient-to-br ${section.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
               
               <div className="relative z-10">
@@ -257,13 +383,8 @@ const PatientDashboard = () => {
           </div>
         )}
 
-        {/* Tree Progress */}
-        <div className="mt-12">
-          <TreeProgressIndicator consultations={stats.consultations} />
-        </div>
-
         {/* Footer */}
-        <div className="mt-8 text-center">
+        <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">
             Powered by <span className="text-gradient font-semibold">Vyana AI</span> • Your health, simplified
           </p>
