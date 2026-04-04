@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
-import { FileText, TrendingUp, Share2, Shield, Clock, Heart } from "lucide-react";
 import { tLanding } from "@/lib/i18n-landing";
 
 const featureKeys = [
-  { icon: FileText, titleKey: "landing.f1Title", descKey: "landing.f1Desc", color: "primary" },
-  { icon: TrendingUp, titleKey: "landing.f2Title", descKey: "landing.f2Desc", color: "secondary" },
-  { icon: Clock, titleKey: "landing.f3Title", descKey: "landing.f3Desc", color: "accent" },
-  { icon: Share2, titleKey: "landing.f4Title", descKey: "landing.f4Desc", color: "primary" },
-  { icon: Shield, titleKey: "landing.f5Title", descKey: "landing.f5Desc", color: "secondary" },
-  { icon: Heart, titleKey: "landing.f6Title", descKey: "landing.f6Desc", color: "primary" },
+  { emoji: "📄", titleKey: "landing.f1Title", descKey: "landing.f1Desc" },
+  { emoji: "📈", titleKey: "landing.f2Title", descKey: "landing.f2Desc" },
+  { emoji: "⚡", titleKey: "landing.f3Title", descKey: "landing.f3Desc" },
+  { emoji: "🔗", titleKey: "landing.f4Title", descKey: "landing.f4Desc" },
+  { emoji: "🔒", titleKey: "landing.f5Title", descKey: "landing.f5Desc" },
+  { emoji: "🇮🇳", titleKey: "landing.f6Title", descKey: "landing.f6Desc" },
 ];
 
 const Features = () => {
@@ -21,36 +20,33 @@ const Features = () => {
   }, []);
 
   return (
-    <section id="features" className="py-24">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl lg:text-5xl font-bold">
+    <section id="features" className="py-20 border-t border-border">
+      <div className="max-w-[1100px] mx-auto px-6">
+        <div className="max-w-2xl mb-12">
+          <h2 className="text-[32px] font-bold tracking-tight text-foreground mb-3">
             {tLanding("landing.featuresTitle")}{" "}
-            <span className="text-gradient-warm">{tLanding("landing.featuresHighlight")}</span>
+            <span className="text-primary">{tLanding("landing.featuresHighlight")}</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg">
             {tLanding("landing.featuresSub")}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {featureKeys.map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <div
-                key={index}
-                className="group p-8 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-warm transition-all duration-300"
-              >
-                <div className={`w-12 h-12 rounded-xl bg-${feature.color}/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                  <Icon className={`w-6 h-6 text-${feature.color}`} />
-                </div>
-                <h3 className="text-lg font-semibold mb-3">{tLanding(feature.titleKey)}</h3>
-                <p className="text-muted-foreground leading-relaxed text-[15px]">
-                  {tLanding(feature.descKey)}
-                </p>
-              </div>
-            );
-          })}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {featureKeys.map((feature, index) => (
+            <div
+              key={index}
+              className="p-6 rounded-lg border border-border hover:border-muted-foreground/20 transition-colors duration-200"
+            >
+              <span className="text-xl mb-3 block">{feature.emoji}</span>
+              <h3 className="text-[15px] font-semibold text-foreground mb-2">
+                {tLanding(feature.titleKey)}
+              </h3>
+              <p className="text-muted-foreground text-[14px] leading-relaxed">
+                {tLanding(feature.descKey)}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

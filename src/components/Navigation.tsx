@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSelector from "./LanguageSelector";
-import { Heart } from "lucide-react";
 import { tLanding } from "@/lib/i18n-landing";
 
 const Navigation = () => {
@@ -28,37 +27,34 @@ const Navigation = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-background/95 backdrop-blur-md shadow-sm" : "bg-transparent"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
+        isScrolled ? "bg-background/95 backdrop-blur-sm border-b border-border" : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Heart className="h-5 w-5 text-primary" />
-          <span className="text-2xl font-bold text-gradient-warm">Vyana</span>
-        </div>
+      <div className="max-w-[1100px] mx-auto px-6 py-3 flex items-center justify-between">
+        <span className="text-xl font-semibold tracking-tight text-foreground">Vyana</span>
 
-        <div className="hidden md:flex items-center gap-8">
-          <button onClick={() => scrollToSection("about")} className="text-foreground/70 hover:text-foreground transition-colors">
+        <div className="hidden md:flex items-center gap-6 text-[15px]">
+          <button onClick={() => scrollToSection("about")} className="text-muted-foreground hover:text-foreground transition-colors">
             {tLanding("nav.about")}
           </button>
-          <button onClick={() => scrollToSection("features")} className="text-foreground/70 hover:text-foreground transition-colors">
+          <button onClick={() => scrollToSection("features")} className="text-muted-foreground hover:text-foreground transition-colors">
             {tLanding("nav.features")}
           </button>
-          <button onClick={() => navigate("/why-vyana")} className="text-foreground/70 hover:text-foreground transition-colors">
+          <button onClick={() => navigate("/why-vyana")} className="text-muted-foreground hover:text-foreground transition-colors">
             {tLanding("nav.ourStory")}
           </button>
-          <button onClick={() => scrollToSection("contact")} className="text-foreground/70 hover:text-foreground transition-colors">
+          <button onClick={() => scrollToSection("contact")} className="text-muted-foreground hover:text-foreground transition-colors">
             {tLanding("nav.contact")}
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <LanguageSelector />
-          <Button variant="outline" onClick={() => navigate("/auth")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="text-muted-foreground text-[14px]">
             {tLanding("nav.signIn")}
           </Button>
-          <Button variant="gradient" onClick={() => scrollToSection("contact")}>
+          <Button size="sm" onClick={() => scrollToSection("contact")} className="text-[14px] rounded-lg">
             {tLanding("nav.getStarted")}
           </Button>
         </div>
