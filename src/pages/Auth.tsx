@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, Stethoscope, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound } from "lucide-react";
+import { Mail, Lock, Chrome, Stethoscope, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { validatePassword, validateEmail, validateHealthId } from "@/lib/validation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
