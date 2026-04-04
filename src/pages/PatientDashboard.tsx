@@ -277,10 +277,10 @@ const PatientDashboard = () => {
                     style={{ minWidth: "56px" }}
                   >
                     <div
-                      className="h-4 w-4 rounded-full z-10 ring-4"
+                      className="h-4 w-4 rounded-full z-10"
                       style={{
                         background: "hsl(217 91% 50%)",
-                        ringColor: "hsl(217 91% 50% / 0.2)",
+                        boxShadow: "0 0 0 4px hsl(217 91% 50% / 0.2)",
                       }}
                     />
                     <span
