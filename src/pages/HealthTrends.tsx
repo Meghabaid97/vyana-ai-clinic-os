@@ -9,7 +9,7 @@ const HealthTrends = () => {
   const [records, setRecords] = useState<any[]>([]);
   const [consultationCount, setConsultationCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
 
   useEffect(() => { loadTrends(); }, []);
 
@@ -32,14 +32,21 @@ const HealthTrends = () => {
   const runAnalysis = async () => {
     setIsAnalyzing(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: patient } = await supabase.from("patients").select("name, age").eq("user_id", session.user.id).maybeSingle();
       const { data, error } = await supabase.functions.invoke("analyze-health-risks", {
-        body: { records: records.map(r => ({ file_name: r.file_name, ai_summary: r.ai_summary })) },
+        body: {
+          records: records.map(r => ({ file_name: r.file_name, ai_summary: r.ai_summary })),
+          patientName: patient?.name,
+          patientAge: patient?.age,
+        },
       });
       if (error) throw error;
-      setAiSummary(data?.summary || data?.analysis || "No insights available yet. Upload more records for a comprehensive analysis.");
+      setAnalysisResult(data);
     } catch (err) {
       console.error("Analysis error:", err);
-      setAiSummary("Unable to analyze right now. Please try again later.");
+      setAnalysisResult({ summary: "Unable to analyze right now. Please try again later." });
     } finally { setIsAnalyzing(false); }
   };
 
@@ -154,9 +161,39 @@ const HealthTrends = () => {
             </div>
           </div>
 
-          {aiSummary ? (
-            <div className="rounded-lg bg-card border border-border p-4 mt-3">
-              <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">{aiSummary}</p>
+          {analysisResult ? (
+            <div className="rounded-lg bg-card border border-border p-4 mt-3 space-y-3">
+              {analysisResult.summary && (
+                <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">{analysisResult.summary}</p>
+              )}
+              {analysisResult.risks?.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Risk Indicators</p>
+                  {analysisResult.risks.map((risk: any, i: number) => (
+                    <div key={i} className="rounded-lg bg-muted/50 p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`inline-block h-2 w-2 rounded-full ${risk.level === 'high' ? 'bg-destructive' : risk.level === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}`} />
+                        <span className="text-[13px] font-medium text-foreground">{risk.condition}</span>
+                        <span className={`text-[10px] uppercase font-bold ml-auto ${risk.level === 'high' ? 'text-destructive' : risk.level === 'medium' ? 'text-yellow-600' : 'text-green-600'}`}>{risk.level}</span>
+                      </div>
+                      <p className="text-[12px] text-muted-foreground">{risk.reasoning}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {analysisResult.recommendations?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Recommendations</p>
+                  <ul className="space-y-1">
+                    {analysisResult.recommendations.map((rec: string, i: number) => (
+                      <li key={i} className="text-[12px] text-foreground flex gap-2"><ArrowRight className="h-3 w-3 text-primary mt-0.5 shrink-0" />{rec}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {analysisResult.disclaimer && (
+                <p className="text-[10px] text-muted-foreground italic border-t border-border pt-2">{analysisResult.disclaimer}</p>
+              )}
             </div>
           ) : null}
 
@@ -168,7 +205,7 @@ const HealthTrends = () => {
             {isAnalyzing ? (
               <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing...</>
             ) : (
-              <><Sparkles className="h-4 w-4" /> {aiSummary ? "Re-analyze" : "Analyze My Health"}</>
+              <><Sparkles className="h-4 w-4" /> {analysisResult ? "Re-analyze" : "Analyze My Health"}</>
             )}
           </button>
 
