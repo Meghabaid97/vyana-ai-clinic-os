@@ -55,7 +55,6 @@ serve(async (req) => {
     const body = await req.json();
     const { records, patientName, patientAge } = body;
 
-    // Build context from health record summaries
     let healthContext = "";
     if (records && records.length > 0) {
       const summaries = records
@@ -67,25 +66,100 @@ serve(async (req) => {
       healthContext = "No health records uploaded.";
     }
 
-    const prompt = `You are a medical AI assistant. Analyze the following patient's health records and provide a comprehensive health summary with risk indicators.
+    // Use tool calling for structured extraction
+    const systemPrompt = `You are a STRICT clinical data extraction assistant. You MUST follow these rules absolutely:
+
+1. ONLY report values, conditions, and findings that are EXPLICITLY stated in the provided health records.
+2. NEVER infer, predict, or speculate about conditions not directly mentioned in the records.
+3. NEVER diagnose conditions like dysplasia, cancer, or any serious condition unless the record EXPLICITLY states it.
+4. If a vital value is not found in any record, you MUST return null for that value — do NOT estimate or guess.
+5. For the summary, ONLY describe what the records actually contain. Do NOT add speculative assessments.
+6. For risks, ONLY flag risks that are directly supported by abnormal values found in the records.
+7. If records are insufficient for analysis, say so honestly rather than making things up.
+
+This is a healthcare application. Patient safety depends on your accuracy. Hallucinated diagnoses can cause real harm.`;
+
+    const userPrompt = `Extract all clinical data from this patient's health records. Only extract values that are EXPLICITLY written in the records.
 
 Patient: ${patientName || "Unknown"}, Age: ${patientAge || "Unknown"}
 
 Health Records & Summaries:
 ${healthContext}
 
-Based on all available health data, provide:
-1. A clear, personalized health summary (2-3 paragraphs) covering key findings from the records
-2. Up to 3 potential health risk indicators with risk levels
-3. Actionable recommendations
+Extract every vital/lab value you can find. Return null for any value not explicitly present in the records. Do NOT guess or estimate missing values.`;
 
-Respond in JSON format:
-{
-  "summary": "A comprehensive 2-3 paragraph health summary covering key findings, trends, and overall health status based on the records...",
-  "risks": [{ "condition": "...", "level": "low|medium|high", "reasoning": "..." }],
-  "recommendations": ["..."],
-  "disclaimer": "This is AI-generated analysis and not a substitute for professional medical advice."
-}`;
+    const tools = [{
+      type: "function",
+      function: {
+        name: "report_health_analysis",
+        description: "Report extracted vital values and health analysis from medical records. Only include values explicitly found in records.",
+        parameters: {
+          type: "object",
+          properties: {
+            vitals: {
+              type: "object",
+              description: "Extracted vital/lab values. Use null for any value not found in records.",
+              properties: {
+                bp_systolic: { type: ["number", "null"], description: "Systolic BP in mmHg" },
+                bp_diastolic: { type: ["number", "null"], description: "Diastolic BP in mmHg" },
+                heart_rate: { type: ["number", "null"], description: "Heart rate in bpm" },
+                total_cholesterol: { type: ["number", "null"], description: "Total cholesterol mg/dL" },
+                hdl: { type: ["number", "null"], description: "HDL cholesterol mg/dL" },
+                ldl: { type: ["number", "null"], description: "LDL cholesterol mg/dL" },
+                triglycerides: { type: ["number", "null"], description: "Triglycerides mg/dL" },
+                fasting_blood_sugar: { type: ["number", "null"], description: "Fasting blood sugar mg/dL" },
+                hba1c: { type: ["number", "null"], description: "HbA1c %" },
+                post_prandial_glucose: { type: ["number", "null"], description: "Post-prandial glucose mg/dL" },
+                weight: { type: ["number", "null"], description: "Weight in kg" },
+                bmi: { type: ["number", "null"], description: "BMI kg/m²" },
+                hemoglobin: { type: ["number", "null"], description: "Hemoglobin g/dL" },
+                wbc: { type: ["number", "null"], description: "WBC count /μL" },
+                platelet_count: { type: ["number", "null"], description: "Platelet count /μL" },
+                rbc: { type: ["number", "null"], description: "RBC count M/μL" },
+                esr: { type: ["number", "null"], description: "ESR mm/hr" },
+                creatinine: { type: ["number", "null"], description: "Creatinine mg/dL" },
+                bun: { type: ["number", "null"], description: "BUN mg/dL" },
+                uric_acid: { type: ["number", "null"], description: "Uric acid mg/dL" },
+                sgot: { type: ["number", "null"], description: "SGOT/AST U/L" },
+                sgpt: { type: ["number", "null"], description: "SGPT/ALT U/L" },
+                bilirubin: { type: ["number", "null"], description: "Total bilirubin mg/dL" },
+                albumin: { type: ["number", "null"], description: "Albumin g/dL" },
+                tsh: { type: ["number", "null"], description: "TSH mIU/L" },
+                t3: { type: ["number", "null"], description: "T3 ng/dL" },
+                t4: { type: ["number", "null"], description: "T4 μg/dL" },
+                vitamin_d: { type: ["number", "null"], description: "Vitamin D ng/mL" },
+                vitamin_b12: { type: ["number", "null"], description: "Vitamin B12 pg/mL" },
+                calcium: { type: ["number", "null"], description: "Calcium mg/dL" },
+                iron: { type: ["number", "null"], description: "Iron μg/dL" },
+                ferritin: { type: ["number", "null"], description: "Ferritin ng/mL" },
+                folate: { type: ["number", "null"], description: "Folate ng/mL" },
+              },
+              required: ["bp_systolic", "bp_diastolic", "heart_rate", "total_cholesterol", "hdl", "ldl", "triglycerides", "fasting_blood_sugar", "hba1c", "post_prandial_glucose", "weight", "bmi", "hemoglobin", "wbc", "platelet_count", "rbc", "esr", "creatinine", "bun", "uric_acid", "sgot", "sgpt", "bilirubin", "albumin", "tsh", "t3", "t4", "vitamin_d", "vitamin_b12", "calcium", "iron", "ferritin", "folate"],
+            },
+            summary: { type: "string", description: "2-3 paragraph factual summary of what the records contain. No speculation." },
+            risks: {
+              type: "array",
+              description: "Only risks directly supported by abnormal values in the records.",
+              items: {
+                type: "object",
+                properties: {
+                  condition: { type: "string" },
+                  level: { type: "string", enum: ["low", "medium", "high"] },
+                  reasoning: { type: "string", description: "Must cite specific values from the records." },
+                },
+                required: ["condition", "level", "reasoning"],
+              },
+            },
+            recommendations: {
+              type: "array",
+              items: { type: "string" },
+              description: "Actionable recommendations based only on findings in the records.",
+            },
+          },
+          required: ["vitals", "summary", "risks", "recommendations"],
+        },
+      },
+    }];
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -96,9 +170,11 @@ Respond in JSON format:
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a medical AI assistant that analyzes patient health records for insights and risks. Always respond with valid JSON." },
-          { role: "user", content: prompt }
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
         ],
+        tools,
+        tool_choice: { type: "function", function: { name: "report_health_analysis" } },
       }),
     });
 
@@ -113,25 +189,36 @@ Respond in JSON format:
           status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      const errText = await response.text();
+      console.error("AI gateway error:", response.status, errText);
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
+    
     let analysis;
     try {
-      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/```\s*([\s\S]*?)\s*```/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : content;
-      analysis = JSON.parse(jsonStr.trim());
+      const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+      if (toolCall?.function?.arguments) {
+        analysis = JSON.parse(toolCall.function.arguments);
+      } else {
+        // Fallback: try parsing content as JSON
+        const content = data.choices?.[0]?.message?.content || "";
+        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/```\s*([\s\S]*?)\s*```/);
+        const jsonStr = jsonMatch ? jsonMatch[1] : content;
+        analysis = JSON.parse(jsonStr.trim());
+      }
     } catch {
       analysis = {
-        summary: content || "Unable to generate summary.",
-        risks: [{ condition: "Unable to parse structured analysis", level: "low", reasoning: "Raw analysis was generated but could not be structured." }],
-        recommendations: ["Continue regular health checkups"],
-        disclaimer: "Please consult a healthcare professional."
+        vitals: {},
+        summary: "Unable to extract structured data from records. Please ensure records contain readable text.",
+        risks: [],
+        recommendations: ["Upload clearer health records for better analysis"],
       };
     }
+
+    // Add disclaimer
+    analysis.disclaimer = "This analysis is based only on values found in your uploaded records. It is not a substitute for professional medical advice.";
 
     return new Response(JSON.stringify(analysis), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
