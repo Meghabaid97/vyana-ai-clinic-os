@@ -382,7 +382,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.hasAccount": "ইতিমধ্যে অ্যাকাউন্ট আছে? সাইন ইন করুন",
     "auth.doctor": "ডাক্তার",
     "auth.patient": "রোগী",
-    "auth.healthId": "জাতীয় স্বাস্থ্য ID (আধার)",
+    "auth.healthId": "ABHA হেলথ ID",
     "auth.healthIdHelp": "আপনার পরামর্শ এবং মেডিকেল রেকর্ড লিঙ্ক করতে",
     "auth.otpSignIn": "OTP দিয়ে সাইন ইন করুন",
     "auth.emailOtp": "ইমেল OTP",
