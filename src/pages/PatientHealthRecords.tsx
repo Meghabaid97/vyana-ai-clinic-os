@@ -104,7 +104,7 @@ const PatientHealthRecords = () => {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => navigate("/patient-dashboard")}
+          onClick={() => navigate("/app")}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Dashboard
