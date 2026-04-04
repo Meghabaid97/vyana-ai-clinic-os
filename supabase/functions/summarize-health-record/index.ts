@@ -139,7 +139,7 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages,
         tools,
         tool_choice: { type: "function", function: { name: "extract_medical_document" } }
