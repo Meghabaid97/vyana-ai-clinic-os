@@ -100,6 +100,7 @@ const DoctorHeader = ({
         </div>
         
         <div className="flex items-center gap-3">
+          <LanguageSelector />
           {/* Location Selector */}
           <HeaderLocationSelector
             pincode={location.pincode}
