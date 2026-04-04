@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Heart } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { tLanding } from "@/lib/i18n-landing";
 
@@ -20,58 +20,50 @@ const Hero = () => {
   };
 
   return (
-    <section className="min-h-screen flex items-center pt-20 pb-16 relative overflow-hidden">
-      <div className="absolute top-20 -right-40 w-[500px] h-[500px] bg-primary/8 rounded-full blur-3xl" />
-      <div className="absolute bottom-10 -left-40 w-[400px] h-[400px] bg-secondary/8 rounded-full blur-3xl" />
-
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-4xl mx-auto text-center space-y-10 animate-fade-in-slow">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
-            <Heart className="h-4 w-4" />
+    <section className="min-h-[85vh] flex items-center pt-16 pb-12">
+      <div className="max-w-[1100px] mx-auto px-6 w-full">
+        <div className="max-w-2xl space-y-6 animate-fade-in-slow">
+          <p className="text-muted-foreground text-[15px] tracking-wide">
             {tLanding("landing.badge")}
-          </div>
+          </p>
 
-          <h1 className="text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
+          <h1 className="text-[42px] lg:text-[56px] font-bold leading-[1.1] tracking-tight text-foreground">
             {tLanding("landing.headline1")}{" "}
-            <br className="hidden md:block" />
             <span className="text-gradient-warm">
               {tLanding("landing.headline2")}
             </span>
           </h1>
 
-          <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground leading-relaxed max-w-xl">
             {tLanding("landing.subtext")}{" "}
-            <span className="text-foreground font-semibold">
+            <span className="text-foreground font-medium">
               {tLanding("landing.subtextBold")}
             </span>
           </p>
 
-          <div className="flex flex-wrap justify-center gap-4 pt-4">
+          <div className="flex items-center gap-3 pt-2">
             <Button
-              variant="gradient"
               size="lg"
               onClick={scrollToContact}
-              className="group text-base px-8 py-6 rounded-full"
+              className="group rounded-lg text-[15px] px-5"
             >
               {tLanding("landing.cta")}
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
 
             <Button
-              variant="outline"
+              variant="ghost"
               size="lg"
               onClick={() => navigate("/why-vyana")}
-              className="text-base px-8 py-6 rounded-full"
+              className="text-[15px] text-muted-foreground hover:text-foreground px-5"
             >
               {tLanding("landing.whyCta")}
             </Button>
           </div>
 
-          <div className="pt-8">
-            <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
-              {tLanding("landing.stat")}
-            </p>
-          </div>
+          <p className="text-[13px] text-muted-foreground/70 pt-4 max-w-md">
+            {tLanding("landing.stat")}
+          </p>
         </div>
       </div>
     </section>
