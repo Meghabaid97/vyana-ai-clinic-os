@@ -53,7 +53,6 @@ const Splash = () => {
           <h1 className="text-5xl font-bold tracking-tight text-foreground">
             V<span className="text-primary drop-shadow-[0_0_24px_hsl(12,76%,61%,0.5)]">yana</span>
           </h1>
-          </h1>
 
           <p className="text-lg text-foreground font-medium leading-snug">
             Your health story.
