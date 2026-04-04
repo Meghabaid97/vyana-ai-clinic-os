@@ -249,14 +249,14 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gradient mb-2">{t("auth.welcome")}</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{t("auth.welcome")}</h1>
           <p className="text-muted-foreground">{isSignUp ? t("auth.signUp") : t("auth.signIn")}</p>
         </div>
 
-        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 shadow-glow">
+        <div className="bg-card border border-border rounded-lg p-8">
           {/* Language Selector */}
           <div className="flex justify-end mb-4">
             <LanguageSelector />

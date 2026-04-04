@@ -153,13 +153,13 @@ const PatientProfilePage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-teal-500/5">
+    <div className="min-h-screen bg-background">
       <PatientHeader
         patientName={profile?.name || "Patient"}
         title="My Profile"
@@ -169,37 +169,37 @@ const PatientProfilePage = () => {
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="p-5 bg-gradient-to-br from-teal-500/10 to-transparent border-teal-500/20">
+          <Card className="p-5 border border-border">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-teal-500/20 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-teal-600" />
+              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <FileText className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-teal-600">{stats.totalConsultations}</p>
+                <p className="text-3xl font-bold text-foreground">{stats.totalConsultations}</p>
                 <p className="text-sm text-muted-foreground">Total Consultations</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-5 bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20">
+          <Card className="p-5 border border-border">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                <Heart className="h-6 w-6 text-emerald-600" />
+              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Heart className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-emerald-600">{stats.totalDoctors}</p>
+                <p className="text-3xl font-bold text-foreground">{stats.totalDoctors}</p>
                 <p className="text-sm text-muted-foreground">Healthcare Providers</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-5 bg-gradient-to-br from-cyan-500/10 to-transparent border-cyan-500/20">
+          <Card className="p-5 border border-border">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-cyan-600" />
+              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-lg font-semibold text-cyan-600">
+                <p className="text-lg font-semibold text-foreground">
                   {stats.lastVisit ? formatDate(stats.lastVisit) : "No visits"}
                 </p>
                 <p className="text-sm text-muted-foreground">Last Visit</p>
@@ -211,8 +211,8 @@ const PatientProfilePage = () => {
         {/* Profile Form */}
         <Card className="p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center">
-              <User className="h-5 w-5 text-white" />
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <User className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h2 className="text-xl font-semibold">Personal Information</h2>
@@ -286,7 +286,7 @@ const PatientProfilePage = () => {
             </div>
 
             <div className="flex justify-end pt-4 border-t">
-              <Button type="submit" disabled={isSaving} className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600">
+              <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : (
@@ -300,13 +300,13 @@ const PatientProfilePage = () => {
 
         {/* Health ID Info */}
         {!formData.national_health_id && (
-          <Card className="mt-6 p-6 border-amber-500/30 bg-amber-500/5">
+          <Card className="mt-6 p-6 border-primary/20 bg-primary/5">
             <div className="flex items-start gap-4">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
-                <Shield className="h-5 w-5 text-amber-600" />
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Shield className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-amber-700">Add Your Health ID</h3>
+                <h3 className="font-semibold text-foreground">Add Your Health ID</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   Adding your ABHA Health ID will automatically link all your past and future consultations from any healthcare provider in the Vyana network.
                 </p>
