@@ -1,15 +1,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface PrescriptionRequest {
-  type: "from_consultation" | "from_audio";
-  transcription?: string;
-  fhirData?: string;
-  audioTranscription?: string;
+async function checkRateLimit(userId: string, functionName: string, maxPerHour = 100) {
+  const adminClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+  const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+  const { data } = await adminClient
+    .from('api_usage').select('id')
+    .eq('user_id', userId).eq('function_name', functionName)
+    .gte('created_at', oneHourAgo);
+  if (data && data.length >= maxPerHour) throw new Error('RATE_LIMITED');
+  await adminClient.from('api_usage').insert({ user_id: userId, function_name: functionName });
 }
 
 serve(async (req) => {
@@ -18,61 +26,50 @@ serve(async (req) => {
   }
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    // Auth check
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    );
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
-    const { type, transcription, fhirData, audioTranscription }: PrescriptionRequest = await req.json();
+    // Rate limit
+    try {
+      await checkRateLimit(user.id, 'generate-prescription', 100);
+    } catch (e) {
+      if (e instanceof Error && e.message === 'RATE_LIMITED') {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
+          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      throw e;
+    }
 
-    console.log("Generating prescription from:", type);
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const { type, transcription, fhirData, audioTranscription } = await req.json();
 
     let prompt = "";
-
     if (type === "from_consultation") {
-      prompt = `You are a medical AI assistant. Analyze the following consultation data and extract prescription information.
+      prompt = `Analyze the following consultation and extract prescription information.
 
-Consultation Transcription:
-${transcription || "Not available"}
+Transcription: ${transcription || "Not available"}
+FHIR Data: ${fhirData || "Not available"}
 
-FHIR Data:
-${fhirData || "Not available"}
+Respond in JSON: { "medications": "...", "dosage": "...", "duration": "...", "instructions": "...", "notes": "...", "confidence": "high|medium|low", "warning": "..." }`;
+    } else {
+      prompt = `Parse this doctor's dictation into a structured prescription.
 
-Extract and structure the prescription data including:
-1. Medications mentioned (with dosages if stated)
-2. Dosage instructions
-3. Duration of treatment
-4. Special instructions for the patient
-5. Any additional notes
+Dictation: ${audioTranscription}
 
-Respond in this exact JSON format:
-{
-  "medications": "List of medications, one per line",
-  "dosage": "Dosage instructions",
-  "duration": "Treatment duration",
-  "instructions": "Instructions for the patient",
-  "notes": "Additional notes",
-  "confidence": "high|medium|low",
-  "warning": "Any warnings or missing information"
-}`;
-    } else if (type === "from_audio") {
-      prompt = `You are a medical AI assistant. A doctor has dictated a prescription. Parse the following transcription and structure it properly.
-
-Doctor's dictation:
-${audioTranscription}
-
-Extract and structure the prescription data. If the doctor mentions specific medications, dosages, or instructions, include them.
-
-Respond in this exact JSON format:
-{
-  "medications": "List of medications, one per line",
-  "dosage": "Dosage instructions",
-  "duration": "Treatment duration",
-  "instructions": "Instructions for the patient",
-  "notes": "Additional notes",
-  "confidence": "high|medium|low",
-  "warning": "Any warnings or unclear parts"
-}`;
+Respond in JSON: { "medications": "...", "dosage": "...", "duration": "...", "instructions": "...", "notes": "...", "confidence": "high|medium|low", "warning": "..." }`;
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -84,20 +81,16 @@ Respond in this exact JSON format:
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a medical AI assistant that helps doctors generate prescriptions from consultation data or voice dictation. Extract medications, dosages, and instructions accurately." },
+          { role: "system", content: "You are a medical AI assistant that helps generate prescriptions from consultation data." },
           { role: "user", content: prompt }
         ],
       }),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       throw new Error(`AI gateway error: ${response.status}`);
@@ -106,23 +99,15 @@ Respond in this exact JSON format:
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
-    console.log("AI response:", content);
-
     let prescription;
     try {
       const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/```\s*([\s\S]*?)\s*```/);
       const jsonStr = jsonMatch ? jsonMatch[1] : content;
       prescription = JSON.parse(jsonStr.trim());
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
+    } catch {
       prescription = {
-        medications: "",
-        dosage: "",
-        duration: "",
-        instructions: "",
-        notes: "",
-        confidence: "low",
-        warning: "Could not parse prescription data. Please enter manually."
+        medications: "", dosage: "", duration: "", instructions: "", notes: "",
+        confidence: "low", warning: "Could not parse. Please enter manually."
       };
     }
 
@@ -133,10 +118,7 @@ Respond in this exact JSON format:
     console.error("Error in generate-prescription:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
