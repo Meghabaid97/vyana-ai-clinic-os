@@ -304,7 +304,7 @@ const PatientDashboard = () => {
                 {/* Count line */}
                 <p
                   className="text-sm font-medium"
-                  style={{ color: "hsl(220 18% 40%)" }}
+                  style={{ color: "hsl(20 18% 40%)" }}
                 >
                   {totalRecords} record{totalRecords !== 1 ? "s" : ""} held. Your story is growing.
                 </p>
