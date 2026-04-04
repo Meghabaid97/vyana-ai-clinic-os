@@ -40,7 +40,8 @@ Keep the summary professional and medically accurate.`;
       { role: "system", content: "You are a medical document analyst helping doctors understand patient health records." },
     ];
 
-    if (fileContent && (fileType.startsWith('image/') || fileType === 'application/pdf')) {
+    if (fileContent && fileType.startsWith('image/')) {
+      // Only images can be sent as image_url (PNG, JPEG, WebP, GIF)
       messages.push({
         role: "user",
         content: [
@@ -54,6 +55,8 @@ Keep the summary professional and medically accurate.`;
         ]
       });
     } else {
+      // For PDFs and other non-image files, just send the text prompt
+      // The AI will analyze based on filename and metadata
       messages.push({
         role: "user",
         content: prompt
