@@ -205,7 +205,7 @@ const HealthTrends = () => {
             {isAnalyzing ? (
               <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing...</>
             ) : (
-              <><Sparkles className="h-4 w-4" /> {aiSummary ? "Re-analyze" : "Analyze My Health"}</>
+              <><Sparkles className="h-4 w-4" /> {analysisResult ? "Re-analyze" : "Analyze My Health"}</>
             )}
           </button>
 
