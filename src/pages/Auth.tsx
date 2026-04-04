@@ -25,6 +25,8 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [healthId, setHealthId] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [weight, setWeight] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>("doctor");
