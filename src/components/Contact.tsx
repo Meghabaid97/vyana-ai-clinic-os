@@ -13,14 +13,16 @@ const Contact = () => {
   }, []);
 
   return (
-    <section id="contact" className="py-24">
+    <section id="contact" className="py-24 border-t border-border">
       <div className="container mx-auto px-6">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
+        <div className="surface-warm max-w-4xl mx-auto rounded-[2rem] px-8 py-12 text-center space-y-8 lg:px-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-2 text-sm text-primary shadow-card">
+            <Heart className="h-4 w-4 fill-current" />
+            <span>Vyana</span>
+          </div>
+
           <h2 className="text-4xl lg:text-5xl font-bold">
-            {tLanding("landing.contactTitle")}{" "}
-            <span className="text-gradient-warm">
-              {tLanding("landing.contactHighlight")}
-            </span>
+            {tLanding("landing.contactTitle")} <span className="text-gradient-warm">{tLanding("landing.contactHighlight")}</span>
           </h2>
 
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
@@ -32,7 +34,7 @@ const Contact = () => {
               variant="gradient"
               size="lg"
               className="group text-base px-8 py-6 rounded-full"
-              onClick={() => window.location.href = "mailto:mbaid@wharton.upenn.edu"}
+              onClick={() => (window.location.href = "mailto:mbaid@wharton.upenn.edu")}
             >
               {tLanding("landing.getAccess")}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -67,7 +69,7 @@ const Contact = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <Heart className="h-4 w-4 text-primary" />
+              <Heart className="h-4 w-4 text-primary fill-current" />
               <span className="text-xl font-bold text-gradient-warm">Vyana</span>
             </div>
             <p>© 2025 Vyana. {tLanding("landing.footer")}</p>
