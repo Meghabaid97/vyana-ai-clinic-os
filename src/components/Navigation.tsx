@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import LanguageSelector from "./LanguageSelector";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -59,7 +60,8 @@ const Navigation = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <LanguageSelector />
           <Button
             variant="outline"
             onClick={() => navigate("/auth")}

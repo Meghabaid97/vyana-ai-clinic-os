@@ -18,6 +18,7 @@ import DoctorAppointments from "./pages/DoctorAppointments";
 import SharedHealthRecords from "./pages/SharedHealthRecords";
 import DoctorProfileSetup from "./pages/DoctorProfileSetup";
 import FindDoctors from "./pages/FindDoctors";
+import PatientProfilePage from "./pages/PatientProfilePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/doctor-appointments" element={<DoctorAppointments />} />
           <Route path="/shared-records" element={<SharedHealthRecords />} />
           <Route path="/doctor-profile-setup" element={<DoctorProfileSetup />} />
+          <Route path="/patient-profile-page" element={<PatientProfilePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -141,6 +141,14 @@ const PatientDashboard = () => {
       path: "/patient-health-records",
       badge: stats.healthRecords > 0 ? stats.healthRecords : undefined,
     },
+    {
+      title: "My Health Profile",
+      description: "Trends, summary & tools",
+      icon: Activity,
+      gradient: "from-primary to-secondary",
+      bgGradient: "from-primary/10 via-secondary/5 to-transparent",
+      path: "/patient-profile-page",
+    },
   ];
 
   return (
