@@ -6,10 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 const tabs = [
   { id: "home", label: "Home", icon: Home, path: "/app" },
+  { id: "story", label: "Our Story", icon: BookOpen, path: "/app/story" },
   { id: "trends", label: "Trends", icon: TrendingUp, path: "/app/trends" },
   { id: "records", label: "Records", icon: FolderOpen, path: "/app/records" },
   { id: "appointments", label: "Appts", icon: Calendar, path: "/app/appointments" },
-  { id: "story", label: "Our Story", icon: BookOpen, path: "/app/story" },
   { id: "profile", label: "Profile", icon: User, path: "/app/profile" },
 ];
 
@@ -66,7 +66,7 @@ const AppShell = () => {
                 )}
               >
                 <tab.icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
-                <span className="text-[10px] font-medium">{tab.label}</span>
+                <span className="text-[9px] font-medium">{tab.label}</span>
               </button>
             );
           })}
