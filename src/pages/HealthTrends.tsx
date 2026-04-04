@@ -161,9 +161,39 @@ const HealthTrends = () => {
             </div>
           </div>
 
-          {aiSummary ? (
-            <div className="rounded-lg bg-card border border-border p-4 mt-3">
-              <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">{aiSummary}</p>
+          {analysisResult ? (
+            <div className="rounded-lg bg-card border border-border p-4 mt-3 space-y-3">
+              {analysisResult.summary && (
+                <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">{analysisResult.summary}</p>
+              )}
+              {analysisResult.risks?.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Risk Indicators</p>
+                  {analysisResult.risks.map((risk: any, i: number) => (
+                    <div key={i} className="rounded-lg bg-muted/50 p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`inline-block h-2 w-2 rounded-full ${risk.level === 'high' ? 'bg-destructive' : risk.level === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}`} />
+                        <span className="text-[13px] font-medium text-foreground">{risk.condition}</span>
+                        <span className={`text-[10px] uppercase font-bold ml-auto ${risk.level === 'high' ? 'text-destructive' : risk.level === 'medium' ? 'text-yellow-600' : 'text-green-600'}`}>{risk.level}</span>
+                      </div>
+                      <p className="text-[12px] text-muted-foreground">{risk.reasoning}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {analysisResult.recommendations?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Recommendations</p>
+                  <ul className="space-y-1">
+                    {analysisResult.recommendations.map((rec: string, i: number) => (
+                      <li key={i} className="text-[12px] text-foreground flex gap-2"><ArrowRight className="h-3 w-3 text-primary mt-0.5 shrink-0" />{rec}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {analysisResult.disclaimer && (
+                <p className="text-[10px] text-muted-foreground italic border-t border-border pt-2">{analysisResult.disclaimer}</p>
+              )}
             </div>
           ) : null}
 
