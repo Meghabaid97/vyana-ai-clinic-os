@@ -5,6 +5,7 @@ import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
 import HeaderLocationSelector from "./HeaderLocationSelector";
+import LanguageSelector from "./LanguageSelector";
 
 interface PatientHeaderProps {
   patientName: string;
