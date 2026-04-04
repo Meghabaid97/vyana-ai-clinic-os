@@ -136,6 +136,16 @@ Extract every vital/lab value you can find. Return null for any value not explic
               },
               required: ["bp_systolic", "bp_diastolic", "heart_rate", "total_cholesterol", "hdl", "ldl", "triglycerides", "fasting_blood_sugar", "hba1c", "post_prandial_glucose", "weight", "bmi", "hemoglobin", "wbc", "platelet_count", "rbc", "esr", "creatinine", "bun", "uric_acid", "sgot", "sgpt", "bilirubin", "albumin", "tsh", "t3", "t4", "vitamin_d", "vitamin_b12", "calcium", "iron", "ferritin", "folate"],
             },
+            vital_sources: {
+              type: "object",
+              description: "For each vital key that has a non-null value, provide the source citation - exact text from the document where this value was found.",
+              additionalProperties: { type: "string" },
+            },
+            confidence: {
+              type: "string",
+              enum: ["high", "medium", "low"],
+              description: "Overall confidence in the extraction: high = clear typed lab report, medium = handwritten or partial, low = poor quality or ambiguous.",
+            },
             summary: { type: "string", description: "2-3 paragraph factual summary of what the records contain. No speculation." },
             risks: {
               type: "array",
@@ -156,7 +166,7 @@ Extract every vital/lab value you can find. Return null for any value not explic
               description: "Actionable recommendations based only on findings in the records.",
             },
           },
-          required: ["vitals", "summary", "risks", "recommendations"],
+          required: ["vitals", "vital_sources", "confidence", "summary", "risks", "recommendations"],
         },
       },
     }];
