@@ -183,22 +183,16 @@ const DoctorDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
-      {/* Decorative background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -right-32 w-96 h-96 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 -left-32 w-96 h-96 bg-gradient-to-br from-secondary/20 to-primary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "3s" }} />
-      </div>
-
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-background/80 backdrop-blur-xl border-b border-border/50 sticky top-0 z-50">
+      <header className="bg-background border-b border-border sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-soft">
-              <span className="text-lg font-bold text-white">V</span>
+            <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
+              <span className="text-sm font-bold text-primary">V</span>
             </div>
             <div>
-              <span className="text-xl font-bold text-gradient">Vyana</span>
+              <span className="text-lg font-bold text-foreground">Vyana</span>
               <p className="text-xs text-muted-foreground">Clinical Dashboard</p>
             </div>
           </div>
@@ -224,15 +218,12 @@ const DoctorDashboard = () => {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-6 py-10 relative z-10">
+      <div className="max-w-6xl mx-auto px-6 py-8 relative z-10">
         {/* Hero Section */}
-        <div className="mb-12 animate-fade-in">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <span className="text-sm font-semibold text-primary uppercase tracking-wider">Welcome Back</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Dr. <span className="text-gradient">{doctorName}</span>
+        <div className="mb-8 animate-fade-in">
+          <p className="text-sm text-muted-foreground mb-1">Clinical Dashboard</p>
+          <h1 className="text-3xl font-bold mb-2">
+            Dr. {doctorName}
           </h1>
           <p className="text-lg text-muted-foreground">
             {getEcoMessage(stats.totalConsultations, "doctor")}
@@ -240,7 +231,7 @@ const DoctorDashboard = () => {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: "Total Patients", value: stats.totalPatients, icon: Users, gradient: "from-primary/20 to-primary/10" },
             { label: "Consultations", value: stats.totalConsultations, icon: FileText, gradient: "from-accent/20 to-accent/10" },
@@ -249,12 +240,12 @@ const DoctorDashboard = () => {
           ].map((stat, i) => (
             <div
               key={stat.label}
-              className="group bg-card rounded-2xl p-5 shadow-card border border-border/50 hover:shadow-soft hover:border-primary/20 transition-all duration-300 hover:-translate-y-1 animate-fade-in"
-              style={{ animationDelay: `${i * 100}ms` }}
+              className="bg-card rounded-lg p-4 border border-border hover:border-primary/20 transition-colors animate-fade-in"
+              style={{ animationDelay: `${i * 50}ms` }}
             >
               <div className="flex items-center gap-4">
-                <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <stat.icon className="h-6 w-6 text-primary" />
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <stat.icon className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <p className="text-3xl font-bold text-foreground">{stat.value}</p>
@@ -272,26 +263,23 @@ const DoctorDashboard = () => {
             <h2 className="text-xl font-bold">Quick Actions</h2>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {quickActions.map((action, i) => (
               <button
                 key={action.title}
                 onClick={action.onClick}
-                className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 p-6 text-left shadow-card hover:shadow-glow hover:border-primary/30 transition-all duration-300 hover:-translate-y-2 animate-fade-in"
-                style={{ animationDelay: `${(i + 4) * 100}ms` }}
+                className="group relative rounded-lg bg-card border border-border p-5 text-left hover:border-primary/30 transition-colors animate-fade-in"
+                style={{ animationDelay: `${(i + 4) * 50}ms` }}
               >
-                {/* Hover gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${action.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
-
-                <div className="relative z-10">
+                <div>
                   {action.badge && (
-                    <span className={`absolute -top-1 -right-1 h-6 w-6 rounded-full bg-gradient-to-br ${action.gradient} text-white text-xs font-bold flex items-center justify-center shadow-lg`}>
+                    <span className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
                       {action.badge > 99 ? "99+" : action.badge}
                     </span>
                   )}
 
-                  <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-4 shadow-soft group-hover:scale-110 group-hover:shadow-glow transition-all`}>
-                    <action.icon className="h-7 w-7 text-white" />
+                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <action.icon className="h-6 w-6 text-primary" />
                   </div>
 
                   <h3 className="font-bold text-lg mb-1">{action.title}</h3>
@@ -309,9 +297,9 @@ const DoctorDashboard = () => {
 
         {/* Empty State */}
         {stats.totalConsultations === 0 && (
-          <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 rounded-3xl p-10 text-center border border-primary/20 animate-fade-in">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mx-auto mb-6 shadow-glow">
-              <Sparkles className="h-8 w-8 text-white" />
+          <div className="rounded-lg p-8 text-center border border-border bg-muted/30 animate-fade-in">
+            <div className="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <Sparkles className="h-7 w-7 text-primary" />
             </div>
             <h3 className="text-2xl font-bold mb-3">Ready to get started?</h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -320,7 +308,6 @@ const DoctorDashboard = () => {
             <Button 
               onClick={() => navigate("/consultation")} 
               size="lg"
-              variant="gradient"
             >
               <Plus className="mr-2 h-5 w-5" />
               New Consultation
@@ -336,7 +323,7 @@ const DoctorDashboard = () => {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            Powered by <span className="text-gradient font-semibold">Vyana</span> • The future of clinical documentation
+            <span className="font-semibold text-foreground">Vyana</span> · The future of clinical documentation
           </p>
         </div>
       </div>

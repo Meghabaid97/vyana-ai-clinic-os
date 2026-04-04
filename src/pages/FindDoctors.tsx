@@ -268,7 +268,7 @@ const FindDoctors = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-teal-500/5">
+    <div className="min-h-screen bg-background">
       <PatientHeader patientName="Patient" title="Find Doctors" subtitle="Search nearby healthcare providers" />
 
       <div className="max-w-5xl mx-auto px-6 py-8">

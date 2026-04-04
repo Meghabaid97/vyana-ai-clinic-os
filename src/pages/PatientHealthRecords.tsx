@@ -97,7 +97,7 @@ const PatientHealthRecords = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-violet-500/5">
+    <div className="min-h-screen bg-background">
       <PatientHeader patientName="Patient" title="Health Records" subtitle="Upload and manage your medical documents" />
 
       <div className="max-w-4xl mx-auto px-6 py-8">
@@ -112,8 +112,8 @@ const PatientHealthRecords = () => {
 
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-xl bg-violet-500/20 flex items-center justify-center">
-              <FolderOpen className="h-6 w-6 text-violet-600" />
+            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <FolderOpen className="h-6 w-6 text-primary" />
             </div>
             <div>
               <h2 className="text-xl font-semibold">Your Health Records</h2>
