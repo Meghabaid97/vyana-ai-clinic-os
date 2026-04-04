@@ -202,7 +202,7 @@ const PatientDashboard = () => {
           {/* Headline */}
           <h2
             className="text-2xl md:text-3xl font-bold leading-snug mb-6"
-            style={{ color: "hsl(220 40% 18%)" }}
+            style={{ color: "hsl(20 25% 18%)" }}
           >
             Your health story. Always with you.
             <br />
