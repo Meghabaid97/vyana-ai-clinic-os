@@ -115,7 +115,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
       if (uploadError) throw uploadError;
 
-      const { error: dbError } = await supabase
+      const { data: insertedRecord, error: dbError } = await supabase
         .from("health_records")
         .insert({
           patient_id: patientId,
@@ -134,7 +134,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         description: "Your health record has been uploaded successfully",
       });
 
-      loadRecords();
+      await loadRecords();
+      await summarizeRecord(insertedRecord as HealthRecord);
 
       if (fileInputRef.current) {
         fileInputRef.current.value = "";

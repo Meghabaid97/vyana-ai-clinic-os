@@ -56,51 +56,81 @@ serve(async (req) => {
 
     console.log('Summarizing health record:', fileName, fileType);
 
-    const prompt = `You are a medical document analyzer. Analyze this health record document thoroughly and provide a detailed summary.
+    const systemPrompt = `You are a STRICT healthcare document extraction assistant.
+
+Follow these rules with zero exceptions:
+1. Only state facts explicitly visible in the document.
+2. Never infer, predict, speculate, or add medical interpretation beyond the document.
+3. If a diagnosis, condition, medication, or value is not clearly present, return an empty array or null instead of guessing.
+4. Do not add recommendations unless they are explicitly written in the document.
+5. If the document is non-diagnostic (for example pathology specimen notes without broad vitals), say that clearly.
+6. This is healthcare: hallucinations are unacceptable.
+
+Return the result by calling the tool.`;
+
+    const userPrompt = `Extract a factual summary from this medical document.
 
 Document: ${fileName}
 
-Please extract and provide:
-1. **Document Type**: What type of medical document is this (lab report, prescription, discharge summary, imaging report, etc.)?
-2. **Key Findings**: All medical findings, test results with values and reference ranges
-3. **Diagnoses**: Any diagnoses mentioned
-4. **Medications**: Any medications prescribed or mentioned with dosages
-5. **Vital Signs / Lab Values**: Extract ALL numerical values (BP, blood sugar, cholesterol, hemoglobin, creatinine, TSH, etc.)
-6. **Recommendations**: Any medical recommendations or follow-ups
-7. **Important Notes**: Any critical or abnormal findings
+Need these fields:
+- documentType
+- findings: only explicitly stated findings
+- diagnoses: only explicitly written diagnoses
+- medications: only explicitly listed medications or dosages
+- vitals: only numerical measurements explicitly written in the document
+- recommendations: only explicitly written follow-up or recommendations
+- notes: any other explicit notes needed for context
+- confidence: high, medium, or low based on readability only
 
-Be thorough - extract every piece of medical data from the document. Keep the summary professional and medically accurate.`;
+Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
 
     const messages: any[] = [
-      { role: "system", content: "You are a medical document analyst. Extract ALL medical data, test values, and clinical findings from health records. Be thorough and precise with numerical values." },
+      { role: "system", content: systemPrompt },
     ];
 
-    // For both images AND PDFs, send as inline content to Gemini vision
     if (fileContent && (fileType.startsWith('image/') || fileType === 'application/pdf')) {
-      const contentParts: any[] = [
-        { type: "text", text: prompt },
-      ];
-
-      if (fileType.startsWith('image/')) {
-        // Image: send as image_url (already base64 data URL)
-        contentParts.push({
-          type: "image_url",
-          image_url: { url: fileContent }
-        });
-      } else if (fileType === 'application/pdf') {
-        // PDF: send as image_url with base64 data URL
-        // fileContent is a base64 data URL like "data:application/pdf;base64,..."
-        contentParts.push({
-          type: "image_url",
-          image_url: { url: fileContent }
-        });
-      }
-
+      const contentParts: any[] = [{ type: "text", text: userPrompt }];
+      contentParts.push({ type: "image_url", image_url: { url: fileContent } });
       messages.push({ role: "user", content: contentParts });
     } else {
-      // Fallback for other file types
-      messages.push({ role: "user", content: prompt });
+      messages.push({ role: "user", content: userPrompt });
     }
+
+    const tools = [{
+      type: "function",
+      function: {
+        name: "extract_medical_document",
+        description: "Extract only explicit information from a healthcare document.",
+        parameters: {
+          type: "object",
+          properties: {
+            documentType: { type: "string" },
+            findings: { type: "array", items: { type: "string" } },
+            diagnoses: { type: "array", items: { type: "string" } },
+            medications: { type: "array", items: { type: "string" } },
+            vitals: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  value: { type: "string" },
+                  unit: { type: "string" },
+                  referenceRange: { type: "string" }
+                },
+                required: ["name", "value", "unit", "referenceRange"],
+                additionalProperties: false
+              }
+            },
+            recommendations: { type: "array", items: { type: "string" } },
+            notes: { type: "array", items: { type: "string" } },
+            confidence: { type: "string", enum: ["high", "medium", "low"] }
+          },
+          required: ["documentType", "findings", "diagnoses", "medications", "vitals", "recommendations", "notes", "confidence"],
+          additionalProperties: false
+        }
+      }
+    }];
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -108,7 +138,12 @@ Be thorough - extract every piece of medical data from the document. Keep the su
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ model: "google/gemini-2.5-flash", messages }),
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages,
+        tools,
+        tool_choice: { type: "function", function: { name: "extract_medical_document" } }
+      }),
     });
 
     if (!response.ok) {
@@ -128,8 +163,23 @@ Be thorough - extract every piece of medical data from the document. Keep the su
     }
 
     const data = await response.json();
-    const summary = data.choices?.[0]?.message?.content;
-    if (!summary) throw new Error('No summary generated');
+    const toolArgs = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+    if (!toolArgs) throw new Error('No structured summary generated');
+
+    const extracted = JSON.parse(toolArgs);
+    const sections = [
+      `Document Type: ${extracted.documentType || 'Unknown'}`,
+      extracted.findings?.length ? `Key Findings:\n${extracted.findings.map((item: string) => `- ${item}`).join('\n')}` : null,
+      extracted.diagnoses?.length ? `Diagnoses:\n${extracted.diagnoses.map((item: string) => `- ${item}`).join('\n')}` : null,
+      extracted.medications?.length ? `Medications:\n${extracted.medications.map((item: string) => `- ${item}`).join('\n')}` : null,
+      extracted.vitals?.length ? `Vitals / Lab Values:\n${extracted.vitals.map((item: { name: string; value: string; unit: string; referenceRange: string }) => `- ${item.name}: ${item.value}${item.unit ? ` ${item.unit}` : ''}${item.referenceRange ? ` (Ref: ${item.referenceRange})` : ''}`).join('\n')}` : null,
+      extracted.recommendations?.length ? `Recommendations in Document:\n${extracted.recommendations.map((item: string) => `- ${item}`).join('\n')}` : null,
+      extracted.notes?.length ? `Notes:\n${extracted.notes.map((item: string) => `- ${item}`).join('\n')}` : null,
+      `Confidence: ${extracted.confidence || 'low'}`,
+      `Safety Note: This summary contains only information explicitly extracted from the uploaded document.`
+    ].filter(Boolean);
+
+    const summary = sections.join('\n\n');
 
     return new Response(JSON.stringify({ summary }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
