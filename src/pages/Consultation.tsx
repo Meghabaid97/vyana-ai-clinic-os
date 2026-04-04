@@ -63,7 +63,7 @@ const Consultation = () => {
   const [audioQuality, setAudioQuality] = useState<"good" | "low" | "high" | "silent">("silent");
   const [recordingDuration, setRecordingDuration] = useState(0);
   
-  // Aadhaar verification state
+  // ABHA verification state
   const [isVerifyingAbha, setIsVerifyingAbha] = useState(false);
   const [abhaVerified, setAbhaVerified] = useState<boolean | null>(null);
   const [abhaData, setAbhaData] = useState<AbhaVerificationResult["data"] | null>(null);
