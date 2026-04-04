@@ -248,7 +248,7 @@ const PatientDashboard = () => {
                   {/* The line */}
                   <div
                     className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2"
-                    style={{ background: "hsl(217 60% 85%)" }}
+                    style={{ background: "hsl(200 40% 85%)" }}
                   />
 
                   {/* Dots */}
