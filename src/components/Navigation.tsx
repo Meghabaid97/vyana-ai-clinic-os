@@ -60,7 +60,8 @@ const Navigation = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <LanguageSelector />
           <Button
             variant="outline"
             onClick={() => navigate("/auth")}
