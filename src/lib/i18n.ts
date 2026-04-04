@@ -214,7 +214,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.hasAccount": "ஏற்கனவே கணக்கு உள்ளதா? உள்நுழையவும்",
     "auth.doctor": "மருத்துவர்",
     "auth.patient": "நோயாளி",
-    "auth.healthId": "தேசிய சுகாதார ID (ஆதார்)",
+    "auth.healthId": "ABHA ஹெல்த் ID",
     "auth.healthIdHelp": "உங்கள் ஆலோசனைகள் மற்றும் மருத்துவ பதிவுகளை இணைக்க",
     "auth.otpSignIn": "OTP மூலம் உள்நுழை",
     "auth.emailOtp": "மின்னஞ்சல் OTP",
