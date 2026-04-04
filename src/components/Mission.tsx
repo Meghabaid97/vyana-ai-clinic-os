@@ -41,10 +41,10 @@ const Mission = () => {
             </div>
             <div className="p-8 rounded-2xl bg-card border border-accent/15 hover:border-accent/30 transition-all shadow-card hover:shadow-warm">
               <div className="text-4xl font-bold text-gradient mb-3">
-                100%
+                1
               </div>
               <p className="text-muted-foreground font-medium">
-                Your data, your control
+                Screen for a doctor to see everything
               </p>
             </div>
           </div>
