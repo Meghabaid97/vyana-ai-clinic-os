@@ -288,8 +288,8 @@ const PatientDashboard = () => {
                     <div
                       className="h-4 w-4 rounded-full z-10"
                       style={{
-                        background: "hsl(200 65% 38%)",
-                        boxShadow: "0 0 0 4px hsl(200 65% 38% / 0.2)",
+                        background: "hsl(12 70% 55%)",
+                        boxShadow: "0 0 0 4px hsl(12 70% 55% / 0.2)",
                       }}
                     />
                     <span
