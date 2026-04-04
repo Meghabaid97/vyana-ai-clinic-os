@@ -176,7 +176,15 @@ const Auth = () => {
         if (data.user) {
           await supabase.from("user_roles").insert({ user_id: data.user.id, role: userRole });
           if (userRole === "patient") {
-            await supabase.from("patients").insert({ user_id: data.user.id, name, phone: phone || null, national_health_id: healthId || null });
+            await supabase.from("patients").insert({
+              user_id: data.user.id,
+              name,
+              phone: phone || null,
+              national_health_id: healthId || null,
+              date_of_birth: dateOfBirth || null,
+              weight: weight ? parseFloat(weight) : null,
+              age: dateOfBirth ? Math.floor((Date.now() - new Date(dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null,
+            });
           }
         }
         toast({ title: "Account created!", description: userRole === "doctor" ? "Please complete your profile." : "You can now sign in." });
