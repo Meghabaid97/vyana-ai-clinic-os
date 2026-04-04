@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
@@ -11,18 +11,23 @@ const Hero = () => {
   };
 
   return (
-    <section className="min-h-screen flex items-center pt-20 pb-16">
-      <div className="container mx-auto px-6">
-        <div className="max-w-4xl mx-auto text-center space-y-10 animate-fade-in">
-          {/* The emotional hook */}
-          <p className="text-lg text-secondary font-medium tracking-wide uppercase">
+    <section className="min-h-screen flex items-center pt-20 pb-16 relative overflow-hidden">
+      {/* Warm decorative blobs */}
+      <div className="absolute top-20 -right-40 w-[500px] h-[500px] bg-primary/8 rounded-full blur-3xl" />
+      <div className="absolute bottom-10 -left-40 w-[400px] h-[400px] bg-secondary/8 rounded-full blur-3xl" />
+
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-4xl mx-auto text-center space-y-10 animate-fade-in-slow">
+          {/* Warm emotional hook */}
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
+            <Heart className="h-4 w-4" />
             Born from loss. Built with purpose.
-          </p>
+          </div>
 
           <h1 className="text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
             Your health story.{" "}
             <br className="hidden md:block" />
-            <span className="text-gradient">
+            <span className="text-gradient-warm">
               Always with you.
             </span>
           </h1>
@@ -31,7 +36,7 @@ const Hero = () => {
             In India, every new doctor starts from zero. No records, no history, 
             no context. Families explain everything in five minutes to someone 
             who's never met them before.{" "}
-            <span className="text-foreground font-medium">
+            <span className="text-foreground font-semibold">
               Vyana exists so that never happens again.
             </span>
           </p>
@@ -41,7 +46,7 @@ const Hero = () => {
               variant="gradient"
               size="lg"
               onClick={scrollToContact}
-              className="group text-base px-8 py-6"
+              className="group text-base px-8 py-6 rounded-full"
             >
               Start Your Health Story
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -51,15 +56,15 @@ const Hero = () => {
               variant="outline"
               size="lg"
               onClick={() => navigate("/why-vyana")}
-              className="text-base px-8 py-6"
+              className="text-base px-8 py-6 rounded-full"
             >
               Why We Built This
             </Button>
           </div>
 
-          {/* Quiet stat — not flashy, just true */}
-          <div className="pt-8 flex flex-col items-center gap-2">
-            <p className="text-sm text-muted-foreground">
+          {/* Quiet stat */}
+          <div className="pt-8">
+            <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
               Every year, Indian families spend ₹4,000+ on repeated medical tests 
               because no one tracks the longitudinal picture.
             </p>

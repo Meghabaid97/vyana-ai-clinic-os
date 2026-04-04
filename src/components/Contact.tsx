@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Mail, Linkedin, ArrowRight } from "lucide-react";
+import { Mail, Linkedin, ArrowRight, Heart } from "lucide-react";
 
 const Contact = () => {
   return (
@@ -8,12 +8,12 @@ const Contact = () => {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="text-4xl lg:text-5xl font-bold">
             Help us build{" "}
-            <span className="text-gradient">
+            <span className="text-gradient-warm">
               what should have always existed
             </span>
           </h2>
 
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             We're looking for early patients, forward-thinking doctors, and anyone 
             who's ever sat in a hospital corridor wishing they had better records.
           </p>
@@ -22,7 +22,7 @@ const Contact = () => {
             <Button
               variant="gradient"
               size="lg"
-              className="group text-base px-8 py-6"
+              className="group text-base px-8 py-6 rounded-full"
               onClick={() => window.location.href = "mailto:mbaid@wharton.upenn.edu"}
             >
               Get Early Access
@@ -57,8 +57,9 @@ const Contact = () => {
       <footer className="mt-24 pt-8 border-t border-border">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="text-2xl font-bold text-gradient">
-              Vyana
+            <div className="flex items-center gap-2">
+              <Heart className="h-4 w-4 text-primary" />
+              <span className="text-xl font-bold text-gradient-warm">Vyana</span>
             </div>
             <p>© 2025 Vyana. Every patient deserves a doctor who knows their story.</p>
           </div>

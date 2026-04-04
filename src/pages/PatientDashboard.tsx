@@ -187,7 +187,7 @@ const PatientDashboard = () => {
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-2">
             Welcome back,{" "}
-            <span className="text-gradient">{profile?.name?.split(" ")[0] || "Patient"}</span>
+            <span className="text-gradient-warm">{profile?.name?.split(" ")[0] || "Patient"}</span>
           </h1>
         </div>
 
@@ -195,18 +195,18 @@ const PatientDashboard = () => {
         <div
           className="rounded-3xl px-8 py-10 md:px-12 md:py-12 mb-12 animate-fade-in"
           style={{
-            background: "linear-gradient(168deg, hsl(40 40% 98%) 0%, hsl(30 25% 96%) 100%)",
-            boxShadow: "0 4px 24px -4px hsl(220 20% 70% / 0.12)",
+            background: "linear-gradient(168deg, hsl(30 40% 98%) 0%, hsl(25 30% 96%) 100%)",
+            boxShadow: "0 4px 24px -4px hsl(12 70% 55% / 0.1)",
           }}
         >
           {/* Headline */}
           <h2
             className="text-2xl md:text-3xl font-bold leading-snug mb-6"
-            style={{ color: "hsl(220 40% 18%)" }}
+            style={{ color: "hsl(20 25% 18%)" }}
           >
             Your health story. Always with you.
             <br />
-            <span className="font-medium italic" style={{ color: "hsl(220 25% 40%)" }}>
+            <span className="font-medium italic" style={{ color: "hsl(20 15% 42%)" }}>
               Apni sehat, apne haath.
             </span>
           </h2>
@@ -214,7 +214,7 @@ const PatientDashboard = () => {
           {/* Body copy */}
           <div
             className="space-y-5 text-base md:text-lg leading-relaxed max-w-2xl"
-            style={{ color: "hsl(220 10% 42%)" }}
+            style={{ color: "hsl(20 10% 42%)" }}
           >
             <p>
               Somewhere in India, a family rushes to a hospital
@@ -222,7 +222,7 @@ const PatientDashboard = () => {
               explain everything in five minutes to a doctor
               they've never met.
             </p>
-            <p className="font-medium" style={{ color: "hsl(220 18% 32%)" }}>
+            <p className="font-medium" style={{ color: "hsl(20 18% 32%)" }}>
               Vyana exists so that never happens to you.
             </p>
             <p>
@@ -240,8 +240,8 @@ const PatientDashboard = () => {
                 onClick={() => navigate("/patient-health-records")}
                 className="group flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
                 style={{
-                  background: "linear-gradient(135deg, hsl(200 50% 95%) 0%, hsl(152 25% 94%) 100%)",
-                  color: "hsl(200 50% 35%)",
+                  background: "linear-gradient(135deg, hsl(12 70% 95%) 0%, hsl(35 80% 94%) 100%)",
+                  color: "hsl(12 70% 40%)",
                 }}
               >
                 <Upload className="h-5 w-5 opacity-70 group-hover:opacity-100 transition-opacity" />
@@ -257,7 +257,7 @@ const PatientDashboard = () => {
                   {/* The line */}
                   <div
                     className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2"
-                    style={{ background: "hsl(200 40% 85%)" }}
+                    style={{ background: "hsl(12 60% 85%)" }}
                   />
 
                   {/* Dots */}
@@ -269,11 +269,11 @@ const PatientDashboard = () => {
                     >
                       <div
                         className="h-3 w-3 rounded-full z-10 shadow-sm"
-                        style={{ background: "hsl(200 65% 38%)" }}
+                        style={{ background: "hsl(12 70% 55%)" }}
                       />
                       <span
                         className="mt-2 text-xs whitespace-nowrap"
-                        style={{ color: "hsl(220 10% 55%)" }}
+                        style={{ color: "hsl(20 10% 55%)" }}
                       >
                         {date}
                       </span>
@@ -288,13 +288,13 @@ const PatientDashboard = () => {
                     <div
                       className="h-4 w-4 rounded-full z-10"
                       style={{
-                        background: "hsl(200 65% 38%)",
-                        boxShadow: "0 0 0 4px hsl(200 65% 38% / 0.2)",
+                        background: "hsl(12 70% 55%)",
+                        boxShadow: "0 0 0 4px hsl(12 70% 55% / 0.2)",
                       }}
                     />
                     <span
                       className="mt-2 text-xs font-semibold whitespace-nowrap"
-                      style={{ color: "hsl(200 50% 35%)" }}
+                      style={{ color: "hsl(12 70% 40%)" }}
                     >
                       Today
                     </span>
@@ -304,7 +304,7 @@ const PatientDashboard = () => {
                 {/* Count line */}
                 <p
                   className="text-sm font-medium"
-                  style={{ color: "hsl(220 18% 40%)" }}
+                  style={{ color: "hsl(20 18% 40%)" }}
                 >
                   {totalRecords} record{totalRecords !== 1 ? "s" : ""} held. Your story is growing.
                 </p>
