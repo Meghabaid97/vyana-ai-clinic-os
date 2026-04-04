@@ -343,7 +343,7 @@ const PatientAppointments = () => {
         <div className="flex items-center justify-between mb-6">
           <Button
             variant="ghost"
-            onClick={() => navigate("/patient-dashboard")}
+            onClick={() => navigate("/app")}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard

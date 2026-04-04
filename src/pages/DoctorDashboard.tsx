@@ -58,7 +58,7 @@ const DoctorDashboard = () => {
         .eq("user_id", session.user.id);
 
       if (!roles || roles.length === 0 || (roles[0].role !== "doctor" && roles[0].role !== "admin")) {
-        navigate("/patient-dashboard");
+        navigate("/app");
         return;
       }
 

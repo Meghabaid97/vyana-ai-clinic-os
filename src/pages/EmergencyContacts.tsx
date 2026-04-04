@@ -74,7 +74,7 @@ const EmergencyContacts = () => {
         .eq("user_id", session.user.id)
         .single();
 
-      if (!patient) { navigate("/patient-dashboard"); return; }
+      if (!patient) { navigate("/app"); return; }
       setPatientId(patient.id);
       setPatientName(patient.name);
 

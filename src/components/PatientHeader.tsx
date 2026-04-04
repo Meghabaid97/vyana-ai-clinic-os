@@ -39,7 +39,7 @@ const PatientHeader = ({ patientName, title, subtitle }: PatientHeaderProps) => 
     <header className="bg-background border-b border-border sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-6 h-12 flex items-center justify-between">
         <div className="flex items-center gap-5">
-          <Link to="/patient-dashboard" className="font-semibold text-foreground">Vyana</Link>
+          <Link to="/app" className="font-semibold text-foreground">Vyana</Link>
           {title && (
             <>
               <span className="text-border">/</span>

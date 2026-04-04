@@ -107,7 +107,7 @@ const DoctorProfileSetup = () => {
       .eq("user_id", session.user.id);
 
     if (!roles || roles.length === 0 || roles[0].role !== "doctor") {
-      navigate("/patient-dashboard");
+      navigate("/app");
       return;
     }
 
