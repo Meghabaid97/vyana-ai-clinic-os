@@ -275,8 +275,8 @@ const PatientProfilePage = () => {
                   id="health_id"
                   value={formData.national_health_id}
                   onChange={(e) => setFormData({ ...formData, national_health_id: e.target.value.replace(/\D/g, '').slice(0, 12) })}
-                  placeholder="12-digit Aadhaar number"
-                  maxLength={12}
+                  placeholder="14-digit ABHA Health ID"
+                  maxLength={14}
                   className="bg-background/50 font-mono"
                 />
                 <p className="text-xs text-muted-foreground">

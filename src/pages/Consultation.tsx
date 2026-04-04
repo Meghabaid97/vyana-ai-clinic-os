@@ -36,13 +36,13 @@ const LANGUAGES = [
   { code: "ur", label: "Urdu (اردو)", mixed: false },
 ];
 
-interface AadhaarVerificationResult {
+interface AbhaVerificationResult {
   verified: boolean;
   data?: {
     name: string;
     age: number;
     gender: string;
-    maskedAadhaar: string;
+    maskedAbha: string;
     verificationTimestamp: string;
   };
   error?: string;
@@ -64,9 +64,9 @@ const Consultation = () => {
   const [recordingDuration, setRecordingDuration] = useState(0);
   
   // Aadhaar verification state
-  const [isVerifyingAadhaar, setIsVerifyingAadhaar] = useState(false);
-  const [aadhaarVerified, setAadhaarVerified] = useState<boolean | null>(null);
-  const [aadhaarData, setAadhaarData] = useState<AadhaarVerificationResult["data"] | null>(null);
+  const [isVerifyingAbha, setIsVerifyingAbha] = useState(false);
+  const [abhaVerified, setAbhaVerified] = useState<boolean | null>(null);
+  const [abhaData, setAbhaData] = useState<AbhaVerificationResult["data"] | null>(null);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -87,63 +87,63 @@ const Consultation = () => {
     checkAuth();
   }, [navigate]);
 
-  // Reset Aadhaar verification when national ID changes
+  // Reset ABHA verification when national ID changes
   useEffect(() => {
-    setAadhaarVerified(null);
-    setAadhaarData(null);
+    setAbhaVerified(null);
+    setAbhaData(null);
   }, [patientNationalId]);
 
-  const verifyAadhaar = async () => {
-    if (!patientNationalId || patientNationalId.length !== 12) {
+  const verifyAbha = async () => {
+    if (!patientNationalId || patientNationalId.length !== 14) {
       toast({
-        title: "Invalid Aadhaar",
-        description: "Please enter a valid 12-digit Aadhaar number",
+        title: "Invalid ABHA ID",
+        description: "Please enter a valid 14-digit ABHA Health ID",
         variant: "destructive",
       });
       return;
     }
 
-    setIsVerifyingAadhaar(true);
+    setIsVerifyingAbha(true);
     try {
-      const { data, error } = await supabase.functions.invoke<AadhaarVerificationResult>(
+      const { data, error } = await supabase.functions.invoke<AbhaVerificationResult>(
         "verify-aadhaar",
-        { body: { aadhaarNumber: patientNationalId } }
+        { body: { abhaNumber: patientNationalId } }
       );
 
       if (error) throw error;
 
       if (data?.verified) {
-        setAadhaarVerified(true);
-        setAadhaarData(data.data);
+        setAbhaVerified(true);
+        setAbhaData(data.data);
         
-        // Auto-fill patient details from Aadhaar
+        // Auto-fill patient details from ABHA
         if (data.data) {
           setPatientName(data.data.name);
           setPatientAge(data.data.age.toString());
         }
         
         toast({
-          title: "Aadhaar Verified",
+          title: "ABHA Verified",
           description: data.message || "Patient identity verified successfully",
         });
       } else {
-        setAadhaarVerified(false);
+        setAbhaVerified(false);
         toast({
           title: "Verification Failed",
-          description: data?.message || data?.error || "Could not verify Aadhaar",
+          description: data?.message || data?.error || "Could not verify ABHA ID",
           variant: "destructive",
         });
       }
     } catch (error: any) {
-      console.error("Aadhaar verification error:", error);
-      setAadhaarVerified(false);
+      console.error("ABHA verification error:", error);
+      setAbhaVerified(false);
       toast({
         title: "Verification Error",
-        description: error.message || "Failed to verify Aadhaar",
+        description: error.message || "Failed to verify ABHA ID",
         variant: "destructive",
       });
     } finally {
-      setIsVerifyingAadhaar(false);
+      setIsVerifyingAbha(false);
     }
   };
 
@@ -313,8 +313,8 @@ const Consultation = () => {
         setLanguage("");
         setTranscription("");
         setFhirData("");
-        setAadhaarVerified(null);
-        setAadhaarData(null);
+        setAbhaVerified(null);
+        setAbhaData(null);
       };
     } catch (error: any) {
       console.error("Error processing audio:", error);
@@ -329,7 +329,7 @@ const Consultation = () => {
   };
 
 
-  const canStartRecording = patientName && patientAge && patientNationalId && aadhaarVerified === true;
+  const canStartRecording = patientName && patientAge && patientNationalId && abhaVerified === true;
 
   return (
     <div className="min-h-screen bg-background">
@@ -348,7 +348,7 @@ const Consultation = () => {
 
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
-            {/* Aadhaar Verification Section */}
+            {/* ABHA Verification Section */}
             <div className="space-y-2">
               <Label htmlFor="patientNationalId" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
@@ -359,21 +359,21 @@ const Consultation = () => {
                   id="patientNationalId"
                   value={patientNationalId}
                   onChange={(e) => setPatientNationalId(e.target.value.replace(/\D/g, '').slice(0, 12))}
-                  placeholder="Enter 12-digit Aadhaar number"
-                  disabled={isProcessing || isVerifyingAadhaar}
-                  maxLength={12}
-                  className={aadhaarVerified === true ? "border-green-500" : aadhaarVerified === false ? "border-red-500" : ""}
+                  placeholder="Enter 14-digit ABHA Health ID"
+                  disabled={isProcessing || isVerifyingAbha}
+                  maxLength={14}
+                  className={abhaVerified === true ? "border-green-500" : abhaVerified === false ? "border-red-500" : ""}
                 />
                 <Button
-                  onClick={verifyAadhaar}
-                  disabled={isProcessing || isVerifyingAadhaar || patientNationalId.length !== 12}
-                  variant={aadhaarVerified === true ? "outline" : "default"}
+                  onClick={verifyAbha}
+                  disabled={isProcessing || isVerifyingAbha || patientNationalId.length !== 14}
+                  variant={abhaVerified === true ? "outline" : "default"}
                 >
-                  {isVerifyingAadhaar ? (
+                  {isVerifyingAbha ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : aadhaarVerified === true ? (
+                  ) : abhaVerified === true ? (
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  ) : aadhaarVerified === false ? (
+                  ) : abhaVerified === false ? (
                     <XCircle className="h-4 w-4 text-red-500" />
                   ) : (
                     "Verify"
@@ -382,21 +382,21 @@ const Consultation = () => {
               </div>
               
               {/* Verification Status */}
-              {aadhaarVerified === true && aadhaarData && (
+              {abhaVerified === true && abhaData && (
                 <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm">
                   <div className="flex items-center gap-2 text-green-600 font-medium mb-1">
                     <CheckCircle2 className="h-4 w-4" />
-                    Aadhaar Verified
+                    ABHA Verified
                   </div>
                   <div className="text-muted-foreground space-y-1">
-                    <p>Name: {aadhaarData.name}</p>
-                    <p>Age: {aadhaarData.age} | Gender: {aadhaarData.gender}</p>
-                    <p>Masked Aadhaar: {aadhaarData.maskedAadhaar}</p>
+                    <p>Name: {abhaData.name}</p>
+                    <p>Age: {abhaData.age} | Gender: {abhaData.gender}</p>
+                    <p>ABHA ID: {abhaData.maskedAbha}</p>
                   </div>
                 </div>
               )}
               
-              {aadhaarVerified === false && (
+              {abhaVerified === false && (
                 <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm">
                   <div className="flex items-center gap-2 text-red-600 font-medium">
                     <XCircle className="h-4 w-4" />
@@ -416,7 +416,7 @@ const Consultation = () => {
                 value={patientName}
                 onChange={(e) => setPatientName(e.target.value)}
                 placeholder="Enter patient name"
-                disabled={isProcessing || (aadhaarVerified === true)}
+                disabled={isProcessing || (abhaVerified === true)}
               />
             </div>
 
@@ -428,7 +428,7 @@ const Consultation = () => {
                 value={patientAge}
                 onChange={(e) => setPatientAge(e.target.value)}
                 placeholder="Enter patient age"
-                disabled={isProcessing || (aadhaarVerified === true)}
+                disabled={isProcessing || (abhaVerified === true)}
               />
             </div>
 
@@ -476,9 +476,9 @@ const Consultation = () => {
                   <Mic className="mr-2 h-5 w-5" />
                   Start Recording
                 </Button>
-                {!aadhaarVerified && patientNationalId.length === 12 && (
+                {!abhaVerified && patientNationalId.length === 12 && (
                   <p className="text-sm text-muted-foreground">
-                    Please verify Aadhaar before recording
+                    Please verify ABHA ID before recording
                   </p>
                 )}
               </>
