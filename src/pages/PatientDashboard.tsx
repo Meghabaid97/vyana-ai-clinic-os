@@ -187,7 +187,7 @@ const PatientDashboard = () => {
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-2">
             Welcome back,{" "}
-            <span className="text-gradient">{profile?.name?.split(" ")[0] || "Patient"}</span>
+            <span className="text-gradient-warm">{profile?.name?.split(" ")[0] || "Patient"}</span>
           </h1>
         </div>
 
