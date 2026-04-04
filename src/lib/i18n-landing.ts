@@ -10,7 +10,7 @@ const landingTranslations: Record<Language, Record<string, string>> = {
     "landing.subtextBold": "Vyana exists so that never happens again.",
     "landing.cta": "Start Your Health Story",
     "landing.whyCta": "Why We Built This",
-    "landing.stat": "Every year, Indian families spend ₹4,000+ on repeated medical tests because no one tracks the longitudinal picture.",
+    "landing.stat": "Every year, Indian families spend ₹10,000+ on repeated medical tests because no one tracks the longitudinal picture.",
 
     "landing.problemTitle": "The problem is",
     "landing.problemHighlight": "personal",
@@ -74,7 +74,7 @@ const landingTranslations: Record<Language, Record<string, string>> = {
     "landing.subtextBold": "Vyana इसलिए बना है ताकि ऐसा फिर कभी न हो।",
     "landing.cta": "अपनी स्वास्थ्य कहानी शुरू करें",
     "landing.whyCta": "हमने यह क्यों बनाया",
-    "landing.stat": "हर साल, भारतीय परिवार दोहराई गई जांचों पर ₹4,000+ खर्च करते हैं क्योंकि कोई दीर्घकालिक तस्वीर नहीं देखता।",
+    "landing.stat": "हर साल, भारतीय परिवार दोहराई गई जांचों पर ₹10,000+ खर्च करते हैं क्योंकि कोई दीर्घकालिक तस्वीर नहीं देखता।",
 
     "landing.problemTitle": "समस्या है",
     "landing.problemHighlight": "निजी",
@@ -138,7 +138,7 @@ const landingTranslations: Record<Language, Record<string, string>> = {
     "landing.subtextBold": "இனி அது நடக்கக்கூடாது என்பதற்காக Vyana உருவாக்கப்பட்டது.",
     "landing.cta": "உங்கள் சுகாதார கதையை ஆரம்பியுங்கள்",
     "landing.whyCta": "நாங்கள் ஏன் இதை உருவாக்கினோம்",
-    "landing.stat": "ஒவ்வொரு ஆண்டும், இந்தியக் குடும்பங்கள் மீண்டும் மீண்டும் செய்யப்படும் மருத்துவ பரிசோதனைகளுக்கு ₹4,000+ செலவிடுகின்றன.",
+    "landing.stat": "ஒவ்வொரு ஆண்டும், இந்தியக் குடும்பங்கள் மீண்டும் மீண்டும் செய்யப்படும் மருத்துவ பரிசோதனைகளுக்கு ₹10,000+ செலவிடுகின்றன.",
 
     "landing.problemTitle": "பிரச்சனை",
     "landing.problemHighlight": "தனிப்பட்டது",
@@ -202,7 +202,7 @@ const landingTranslations: Record<Language, Record<string, string>> = {
     "landing.subtextBold": "ఇది మళ్ళీ జరగకూడదని Vyana ఉనికిలో ఉంది.",
     "landing.cta": "మీ ఆరోగ్య కథ ప్రారంభించండి",
     "landing.whyCta": "మేము దీన్ని ఎందుకు నిర్మించాము",
-    "landing.stat": "ప్రతి సంవత్సరం, భారతీయ కుటుంబాలు పునరావృత వైద్య పరీక్షలపై ₹4,000+ ఖర్చు చేస్తాయి.",
+    "landing.stat": "ప్రతి సంవత్సరం, భారతీయ కుటుంబాలు పునరావృత వైద్య పరీక్షలపై ₹10,000+ ఖర్చు చేస్తాయి.",
 
     "landing.problemTitle": "సమస్య",
     "landing.problemHighlight": "వ్యక్తిగతమైనది",
@@ -266,7 +266,7 @@ const landingTranslations: Record<Language, Record<string, string>> = {
     "landing.subtextBold": "Vyana এই কারণে তৈরি হয়েছে যাতে এটি আর কখনো না ঘটে।",
     "landing.cta": "আপনার স্বাস্থ্য গল্প শুরু করুন",
     "landing.whyCta": "আমরা কেন এটি তৈরি করেছি",
-    "landing.stat": "প্রতি বছর, ভারতীয় পরিবারগুলি পুনরাবৃত্ত চিকিৎসা পরীক্ষায় ₹4,000+ খরচ করে।",
+    "landing.stat": "প্রতি বছর, ভারতীয় পরিবারগুলি পুনরাবৃত্ত চিকিৎসা পরীক্ষায় ₹10,000+ খরচ করে।",
 
     "landing.problemTitle": "সমস্যাটি",
     "landing.problemHighlight": "ব্যক্তিগত",
