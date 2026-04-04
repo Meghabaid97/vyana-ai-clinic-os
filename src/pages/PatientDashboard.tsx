@@ -195,8 +195,8 @@ const PatientDashboard = () => {
         <div
           className="rounded-3xl px-8 py-10 md:px-12 md:py-12 mb-12 animate-fade-in"
           style={{
-            background: "linear-gradient(168deg, hsl(40 40% 98%) 0%, hsl(30 25% 96%) 100%)",
-            boxShadow: "0 4px 24px -4px hsl(220 20% 70% / 0.12)",
+            background: "linear-gradient(168deg, hsl(30 40% 98%) 0%, hsl(25 30% 96%) 100%)",
+            boxShadow: "0 4px 24px -4px hsl(12 70% 55% / 0.1)",
           }}
         >
           {/* Headline */}
