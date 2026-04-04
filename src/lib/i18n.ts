@@ -130,7 +130,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.hasAccount": "पहले से खाता है? साइन इन करें",
     "auth.doctor": "डॉक्टर",
     "auth.patient": "मरीज़",
-    "auth.healthId": "राष्ट्रीय स्वास्थ्य ID (आधार)",
+    "auth.healthId": "ABHA हेल्थ ID",
     "auth.healthIdHelp": "आपकी परामर्श और मेडिकल रिकॉर्ड जोड़ने के लिए",
     "auth.otpSignIn": "OTP से साइन इन करें",
     "auth.emailOtp": "ईमेल OTP",
