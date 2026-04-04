@@ -352,7 +352,7 @@ const Consultation = () => {
             <div className="space-y-2">
               <Label htmlFor="patientNationalId" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
-                National Health ID (Aadhaar)
+                ABHA Health ID
               </Label>
               <div className="flex gap-2">
                 <Input

@@ -269,7 +269,7 @@ const PatientProfilePage = () => {
               <div className="space-y-2">
                 <Label htmlFor="health_id" className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-muted-foreground" />
-                  National Health ID (Aadhaar)
+                  ABHA Health ID
                 </Label>
                 <Input
                   id="health_id"
@@ -308,7 +308,7 @@ const PatientProfilePage = () => {
               <div>
                 <h3 className="font-semibold text-amber-700">Add Your Health ID</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Adding your National Health ID (Aadhaar) will automatically link all your past and future consultations from any healthcare provider in the Vyana network.
+                  Adding your ABHA Health ID will automatically link all your past and future consultations from any healthcare provider in the Vyana network.
                 </p>
               </div>
             </div>
