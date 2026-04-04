@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, Stethoscope, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound } from "lucide-react";
+import { Mail, Lock, Chrome, Stethoscope, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { validatePassword, validateEmail, validateHealthId } from "@/lib/validation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -25,6 +25,8 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [healthId, setHealthId] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [weight, setWeight] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>("doctor");
@@ -174,7 +176,15 @@ const Auth = () => {
         if (data.user) {
           await supabase.from("user_roles").insert({ user_id: data.user.id, role: userRole });
           if (userRole === "patient") {
-            await supabase.from("patients").insert({ user_id: data.user.id, name, phone: phone || null, national_health_id: healthId || null });
+            await supabase.from("patients").insert({
+              user_id: data.user.id,
+              name,
+              phone: phone || null,
+              national_health_id: healthId || null,
+              date_of_birth: dateOfBirth || null,
+              weight: weight ? parseFloat(weight) : null,
+              age: dateOfBirth ? Math.floor((Date.now() - new Date(dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null,
+            });
           }
         }
         toast({ title: "Account created!", description: userRole === "doctor" ? "Please complete your profile." : "You can now sign in." });
@@ -333,6 +343,20 @@ const Auth = () => {
                       <div className="space-y-2">
                         <Label htmlFor="phone">{t("auth.phone")}</Label>
                         <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="bg-background/50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="dob" className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Date of Birth
+                        </Label>
+                        <Input id="dob" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} className="bg-background/50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="weight" className="flex items-center gap-2">
+                          <Weight className="w-4 h-4" />
+                          Weight (kg)
+                        </Label>
+                        <Input id="weight" type="number" placeholder="e.g. 65" value={weight} onChange={(e) => setWeight(e.target.value)} min="1" max="300" className="bg-background/50" />
                       </div>
                     </>
                   )}

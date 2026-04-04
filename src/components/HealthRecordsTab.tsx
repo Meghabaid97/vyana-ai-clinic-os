@@ -163,7 +163,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       }
 
       let fileContent = urlData.signedUrl;
-      if (record.file_type.startsWith("image/")) {
+      // For both images and PDFs, fetch and convert to base64 data URL
+      if (record.file_type.startsWith("image/") || record.file_type === "application/pdf") {
         const response = await fetch(urlData.signedUrl);
         const blob = await response.blob();
         const base64 = await new Promise<string>((resolve) => {

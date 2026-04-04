@@ -1,0 +1,2 @@
+ALTER TABLE public.patients ADD COLUMN IF NOT EXISTS weight NUMERIC NULL;
+ALTER TABLE public.patients ADD COLUMN IF NOT EXISTS date_of_birth DATE NULL;

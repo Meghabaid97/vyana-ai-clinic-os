@@ -26,7 +26,6 @@ serve(async (req) => {
   }
 
   try {
-    // Auth check
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -39,7 +38,6 @@ serve(async (req) => {
       });
     }
 
-    // Rate limit
     try {
       await checkRateLimit(user.id, 'summarize-health-record', 50);
     } catch (e) {
@@ -58,36 +56,49 @@ serve(async (req) => {
 
     console.log('Summarizing health record:', fileName, fileType);
 
-    const prompt = `You are a medical document analyzer. Analyze this health record and provide a concise summary.
+    const prompt = `You are a medical document analyzer. Analyze this health record document thoroughly and provide a detailed summary.
 
 Document: ${fileName}
-File Type: ${fileType}
 
-Please provide:
-1. **Document Type**: What type of medical document is this?
-2. **Key Findings**: Main medical findings or test results
+Please extract and provide:
+1. **Document Type**: What type of medical document is this (lab report, prescription, discharge summary, imaging report, etc.)?
+2. **Key Findings**: All medical findings, test results with values and reference ranges
 3. **Diagnoses**: Any diagnoses mentioned
-4. **Medications**: Any medications prescribed or mentioned
-5. **Recommendations**: Any medical recommendations or follow-ups
-6. **Important Notes**: Any critical information
+4. **Medications**: Any medications prescribed or mentioned with dosages
+5. **Vital Signs / Lab Values**: Extract ALL numerical values (BP, blood sugar, cholesterol, hemoglobin, creatinine, TSH, etc.)
+6. **Recommendations**: Any medical recommendations or follow-ups
+7. **Important Notes**: Any critical or abnormal findings
 
-Keep the summary professional and medically accurate.`;
+Be thorough - extract every piece of medical data from the document. Keep the summary professional and medically accurate.`;
 
     const messages: any[] = [
-      { role: "system", content: "You are a medical document analyst helping doctors understand patient health records." },
+      { role: "system", content: "You are a medical document analyst. Extract ALL medical data, test values, and clinical findings from health records. Be thorough and precise with numerical values." },
     ];
 
-    if (fileContent && fileType.startsWith('image/')) {
-      // Only images can be sent as image_url (PNG, JPEG, WebP, GIF)
-      messages.push({
-        role: "user",
-        content: [
-          { type: "text", text: prompt },
-          { type: "image_url", image_url: { url: fileContent } }
-        ]
-      });
+    // For both images AND PDFs, send as inline content to Gemini vision
+    if (fileContent && (fileType.startsWith('image/') || fileType === 'application/pdf')) {
+      const contentParts: any[] = [
+        { type: "text", text: prompt },
+      ];
+
+      if (fileType.startsWith('image/')) {
+        // Image: send as image_url (already base64 data URL)
+        contentParts.push({
+          type: "image_url",
+          image_url: { url: fileContent }
+        });
+      } else if (fileType === 'application/pdf') {
+        // PDF: send as image_url with base64 data URL
+        // fileContent is a base64 data URL like "data:application/pdf;base64,..."
+        contentParts.push({
+          type: "image_url",
+          image_url: { url: fileContent }
+        });
+      }
+
+      messages.push({ role: "user", content: contentParts });
     } else {
-      // For PDFs and other non-image files, just send the text prompt
+      // Fallback for other file types
       messages.push({ role: "user", content: prompt });
     }
 
