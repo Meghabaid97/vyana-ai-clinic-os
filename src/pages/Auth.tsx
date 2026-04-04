@@ -115,7 +115,7 @@ const Auth = () => {
         if (!profile || !profile.is_profile_complete) navigate("/doctor-profile-setup");
         else navigate("/doctor-dashboard");
       } else if (role === "patient") {
-        navigate("/patient-dashboard");
+        navigate("/app");
       } else navigate("/doctor-profile-setup");
     } else navigate("/doctor-profile-setup");
   };
