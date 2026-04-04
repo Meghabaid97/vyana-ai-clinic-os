@@ -214,7 +214,7 @@ const PatientDashboard = () => {
           {/* Body copy */}
           <div
             className="space-y-5 text-base md:text-lg leading-relaxed max-w-2xl"
-            style={{ color: "hsl(220 10% 42%)" }}
+            style={{ color: "hsl(20 10% 42%)" }}
           >
             <p>
               Somewhere in India, a family rushes to a hospital
