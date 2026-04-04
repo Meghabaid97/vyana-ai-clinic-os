@@ -175,20 +175,24 @@ const PatientDashboard = () => {
 
       <div className="max-w-5xl mx-auto px-6 py-10 relative z-10">
         {/* Hero Welcome */}
-        <div className="mb-8 animate-fade-in">
-          <p className="text-sm text-muted-foreground mb-1">Your Health Dashboard</p>
-          <h1 className="text-3xl font-bold">
-            Welcome back, {profile?.name?.split(" ")[0] || "Patient"}
+        <div className="mb-6 animate-fade-in">
+          <p className="text-sm text-primary font-medium mb-2">
+            {profile?.name?.split(" ")[0] || "Patient"}'s health story
+          </p>
+          <h1 className="text-3xl lg:text-4xl font-bold leading-[1.1] tracking-[-0.02em] text-foreground">
+            Your health story.{" "}
+            <span className="text-primary">Always with you.</span>
           </h1>
+          <p className="text-muted-foreground text-[15px] leading-relaxed max-w-[520px] mt-4">
+            Somewhere in India, a family rushes to a hospital with nothing. No records, no history, no context. Five minutes to explain a lifetime to a stranger.{" "}
+            <span className="text-foreground">That will never be you.</span>
+          </p>
         </div>
 
-        {/* Your Health Story Card */}
-        <div className="rounded-lg border border-border p-6 md:p-8 mb-10 animate-fade-in bg-muted/30">
-          <h2 className="text-xl font-semibold mb-4 text-foreground">
-            Your health story. Always with you.
-          </h2>
+        {/* Health Story Card */}
+        <div className="rounded-lg border border-border p-6 md:p-8 mb-10 animate-fade-in">
           <p className="text-muted-foreground text-[15px] leading-relaxed max-w-xl mb-6">
-            Every prescription, lab report, and doctor visit you add builds a complete picture of your health. So the next time a doctor needs your history, it takes 30 seconds instead of 30 minutes.
+            Every prescription you upload, every lab report, every doctor visit builds your complete health picture. Quietly. Securely. So when you need it most, it is there.
           </p>
           <div>
             {totalRecords === 0 ? (
@@ -219,16 +223,16 @@ const PatientDashboard = () => {
                   </div>
                 </div>
 
-                <p className="text-sm font-medium text-muted-foreground">
-                  {totalRecords} record{totalRecords !== 1 ? "s" : ""} held. Your story is growing.
+                <p className="text-sm text-muted-foreground">
+                  {totalRecords} record{totalRecords !== 1 ? "s" : ""} held. <span className="text-foreground font-medium">Your story is growing.</span>
                 </p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: "Doctors", value: stats.doctors, icon: Stethoscope, color: "primary" },
             { label: "Visits", value: stats.consultations, icon: Activity, color: "accent" },
@@ -253,7 +257,13 @@ const PatientDashboard = () => {
           ))}
         </div>
 
-        {/* Main Action Cards */}
+        {/* Not features. Promises. */}
+        <div className="mb-4">
+          <h2 className="text-xl font-bold text-foreground">
+            Not features. <span className="text-primary">Your safety net.</span>
+          </h2>
+          <p className="text-muted-foreground text-[13px] mt-1">Everything your family needs, in one place.</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
           {sections.map((section, index) => (
             <button
@@ -291,9 +301,9 @@ const PatientDashboard = () => {
                 <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Link Your Health ID</h3>
+                <h3 className="font-semibold mb-1">One step to connect everything</h3>
                 <p className="text-muted-foreground">
-                  Add your ABHA Health ID in your profile to automatically sync all your medical records.
+                  Add your ABHA Health ID and every past and future consultation across any provider links automatically. Your records follow you, not the other way around.
                 </p>
               </div>
             </div>
@@ -303,7 +313,7 @@ const PatientDashboard = () => {
         {/* Footer */}
         <div className="mt-12 text-center">
           <p className="text-xs text-muted-foreground">
-            <span className="font-semibold text-foreground">Vyana</span> · Every patient deserves a doctor who knows their story.
+            <span className="font-semibold text-foreground">Vyana</span> · Every patient deserves a doctor who already knows their story.
           </p>
         </div>
       </div>
