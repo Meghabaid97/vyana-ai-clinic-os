@@ -7,14 +7,14 @@ const WhyVyana = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
+      {/* Nav */}
       <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <button onClick={() => navigate("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
-            <span className="text-2xl font-bold text-gradient">Vyana</span>
+            <span className="text-2xl font-bold text-gradient-warm">Vyana</span>
           </button>
-          <Button variant="gradient" onClick={() => { const el = document.getElementById("contact"); if (el) el.scrollIntoView({ behavior: "smooth" }); else navigate("/"); }}>
+          <Button variant="gradient" className="rounded-full" onClick={() => { const el = document.getElementById("contact"); if (el) el.scrollIntoView({ behavior: "smooth" }); else navigate("/"); }}>
             Get Early Access
           </Button>
         </div>
@@ -22,19 +22,20 @@ const WhyVyana = () => {
 
       <article className="container mx-auto px-6 py-16 max-w-3xl">
         {/* Title */}
-        <header className="text-center mb-16 space-y-6">
-          <p className="text-secondary font-medium tracking-wide uppercase text-sm">
+        <header className="text-center mb-16 space-y-6 animate-fade-in-slow">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
+            <Heart className="h-4 w-4" />
             The story behind Vyana
-          </p>
+          </div>
           <h1 className="text-4xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
             Why this{" "}
             <span className="text-gradient-warm">matters</span>
           </h1>
         </header>
 
-        {/* The story — written like a letter */}
+        {/* The story */}
         <div className="prose prose-lg max-w-none space-y-8">
-          <section className="space-y-6">
+          <section className="space-y-6 animate-fade-in-slow" style={{ animationDelay: "0.2s" }}>
             <h2 className="text-2xl font-bold text-foreground border-b border-border pb-4">
               Tirupur, 2005
             </h2>
@@ -49,12 +50,12 @@ const WhyVyana = () => {
               to a doctor who had no records, no history, no context. The family was 
               kept outside the operation theater. The doctors said everything was fine.
             </p>
-            <p className="text-foreground leading-[1.9] text-[17px] font-medium">
+            <p className="text-foreground leading-[1.9] text-[17px] font-semibold">
               It wasn't. We lost both of them.
             </p>
           </section>
 
-          <section className="space-y-6">
+          <section className="space-y-6 animate-fade-in-slow" style={{ animationDelay: "0.4s" }}>
             <h2 className="text-2xl font-bold text-foreground border-b border-border pb-4">
               COVID, 2020
             </h2>
@@ -75,7 +76,7 @@ const WhyVyana = () => {
             </p>
           </section>
 
-          <section className="space-y-6">
+          <section className="space-y-6 animate-fade-in-slow" style={{ animationDelay: "0.6s" }}>
             <h2 className="text-2xl font-bold text-foreground border-b border-border pb-4">
               The everyday version
             </h2>
@@ -95,14 +96,14 @@ const WhyVyana = () => {
           </section>
 
           {/* The turn */}
-          <div className="my-16 py-12 px-8 rounded-2xl border border-secondary/20 bg-secondary/5">
+          <div className="my-16 py-12 px-8 rounded-2xl bg-primary/5 border border-primary/15 animate-fade-in-slow" style={{ animationDelay: "0.8s" }}>
             <div className="flex items-start gap-4">
-              <Heart className="h-8 w-8 text-secondary mt-1 flex-shrink-0" />
+              <Heart className="h-8 w-8 text-primary mt-1 flex-shrink-0" />
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold text-foreground">
                   What this means for Vyana
                 </h2>
-                <p className="text-foreground leading-[1.9] text-[17px]">
+                <p className="text-foreground leading-[1.9] text-[17px] font-semibold">
                   Vyana is not a market opportunity I identified. It's a problem I lived.
                 </p>
                 <p className="text-muted-foreground leading-[1.9] text-[17px]">
@@ -118,7 +119,7 @@ const WhyVyana = () => {
                   It's what would have stopped my father's doctors from ordering 
                   repeat tests he'd already done.
                 </p>
-                <p className="text-foreground leading-[1.9] text-[17px] font-medium">
+                <p className="text-foreground leading-[1.9] text-[17px] font-semibold">
                   The product is personal in a way that most founders' products are not.
                 </p>
               </div>
@@ -153,14 +154,14 @@ const WhyVyana = () => {
 
         {/* CTA */}
         <div className="mt-20 text-center space-y-6">
-          <p className="text-xl text-foreground font-medium">
+          <p className="text-xl text-foreground font-semibold">
             Every patient deserves a doctor who knows their story.
           </p>
           <div className="flex justify-center gap-4">
             <Button
               variant="gradient"
               size="lg"
-              className="group text-base px-8 py-6"
+              className="group text-base px-8 py-6 rounded-full"
               onClick={() => window.location.href = "mailto:mbaid@wharton.upenn.edu"}
             >
               Partner with us
@@ -169,7 +170,7 @@ const WhyVyana = () => {
             <Button
               variant="outline"
               size="lg"
-              className="text-base px-8 py-6"
+              className="text-base px-8 py-6 rounded-full"
               onClick={() => navigate("/auth")}
             >
               Try Vyana
@@ -179,7 +180,7 @@ const WhyVyana = () => {
 
         <footer className="mt-20 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            © 2025 Vyana. Every patient deserves a doctor who knows their story.
+            © 2025 <span className="text-gradient-warm font-semibold">Vyana</span>. Every patient deserves a doctor who knows their story.
           </p>
         </footer>
       </article>
