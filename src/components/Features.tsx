@@ -1,35 +1,35 @@
-import { Stethoscope, Languages, Zap, Calendar, Lock, FileText } from "lucide-react";
+import { FileText, TrendingUp, Share2, Shield, Clock, Heart } from "lucide-react";
 
 const features = [
   {
-    icon: Stethoscope,
-    title: "AI Medical Scribe",
-    description: "Converts speech into accurate, structured visit notes and prescriptions.",
-  },
-  {
-    icon: Languages,
-    title: "Multilingual Support",
-    description: "Works in English, Hindi, and regional Indian languages.",
-  },
-  {
     icon: FileText,
-    title: "FHIR-Ready Data",
-    description: "Notes are generated in global standard format for easy sharing across hospital systems.",
+    title: "Upload anything",
+    description: "Prescriptions, lab reports, discharge summaries — photo or PDF. We extract the data automatically.",
   },
   {
-    icon: Calendar,
-    title: "Smart Follow-ups",
-    description: "Automates scheduling and WhatsApp reminders for better continuity of care.",
+    icon: TrendingUp,
+    title: "Track what matters",
+    description: "HbA1c, blood pressure, cholesterol — tracked over time. We flag when something changes.",
   },
   {
-    icon: Lock,
-    title: "Privacy Built-In",
-    description: "Identifiable data stays with clinics; de-identified records power better analytics and research.",
+    icon: Clock,
+    title: "30-second summary",
+    description: "One screen shows a doctor your complete history. Active conditions, medications, allergies, recent visits.",
   },
   {
-    icon: Zap,
-    title: "Real-Time Processing",
-    description: "Instant documentation generation during patient consultations.",
+    icon: Share2,
+    title: "Share with any doctor",
+    description: "Generate a secure link valid for 24 hours. No app needed on their end. Just a clean summary.",
+  },
+  {
+    icon: Shield,
+    title: "Your data, your control",
+    description: "ABHA-linked, ABDM compliant. You decide which doctor sees what. Consent is granular and revocable.",
+  },
+  {
+    icon: Heart,
+    title: "Built for Indian families",
+    description: "Multilingual. Works on any phone. Designed for the daughter tracking her father's medications, the son rushing to the ER.",
   },
 ];
 
@@ -37,15 +37,13 @@ const Features = () => {
   return (
     <section id="features" className="py-24">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-            Powerful Features for{" "}
-            <span className="text-gradient">
-              Modern Healthcare
-            </span>
+        <div className="text-center mb-16 space-y-4">
+          <h2 className="text-4xl lg:text-5xl font-bold">
+            What Vyana{" "}
+            <span className="text-gradient">does for you</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to streamline clinic operations and improve patient care
+            Not features. Promises.
           </p>
         </div>
 
@@ -55,13 +53,13 @@ const Features = () => {
             return (
               <div
                 key={index}
-                className="group p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-soft transition-all duration-300 hover:-translate-y-2"
+                className="group p-8 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-soft transition-all duration-300"
               >
-                <div className="w-14 h-14 rounded-xl gradient-hero flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-glow transition-all duration-300">
-                  <Icon className="w-7 h-7 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-colors">
+                  <Icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <h3 className="text-lg font-semibold mb-3">{feature.title}</h3>
+                <p className="text-muted-foreground leading-relaxed text-[15px]">
                   {feature.description}
                 </p>
               </div>

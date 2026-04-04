@@ -231,8 +231,8 @@ const PatientDashboard = () => {
                 onClick={() => navigate("/patient-health-records")}
                 className="group flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
                 style={{
-                  background: "linear-gradient(135deg, hsl(217 70% 95%) 0%, hsl(190 60% 94%) 100%)",
-                  color: "hsl(217 60% 42%)",
+                  background: "linear-gradient(135deg, hsl(200 50% 95%) 0%, hsl(152 25% 94%) 100%)",
+                  color: "hsl(200 50% 35%)",
                 }}
               >
                 <Upload className="h-5 w-5 opacity-70 group-hover:opacity-100 transition-opacity" />
@@ -248,7 +248,7 @@ const PatientDashboard = () => {
                   {/* The line */}
                   <div
                     className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2"
-                    style={{ background: "hsl(217 60% 85%)" }}
+                    style={{ background: "hsl(200 40% 85%)" }}
                   />
 
                   {/* Dots */}
@@ -260,7 +260,7 @@ const PatientDashboard = () => {
                     >
                       <div
                         className="h-3 w-3 rounded-full z-10 shadow-sm"
-                        style={{ background: "hsl(217 91% 50%)" }}
+                        style={{ background: "hsl(200 65% 38%)" }}
                       />
                       <span
                         className="mt-2 text-xs whitespace-nowrap"
@@ -279,13 +279,13 @@ const PatientDashboard = () => {
                     <div
                       className="h-4 w-4 rounded-full z-10"
                       style={{
-                        background: "hsl(217 91% 50%)",
-                        boxShadow: "0 0 0 4px hsl(217 91% 50% / 0.2)",
+                        background: "hsl(200 65% 38%)",
+                        boxShadow: "0 0 0 4px hsl(200 65% 38% / 0.2)",
                       }}
                     />
                     <span
                       className="mt-2 text-xs font-semibold whitespace-nowrap"
-                      style={{ color: "hsl(217 60% 42%)" }}
+                      style={{ color: "hsl(200 50% 35%)" }}
                     >
                       Today
                     </span>
@@ -386,7 +386,7 @@ const PatientDashboard = () => {
         {/* Footer */}
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">
-            Powered by <span className="text-gradient font-semibold">Vyana</span> • Your health, simplified
+            <span className="text-gradient font-semibold">Vyana</span> • Every patient deserves a doctor who knows their story.
           </p>
         </div>
       </div>
