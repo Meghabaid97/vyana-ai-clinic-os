@@ -32,14 +32,21 @@ const HealthTrends = () => {
   const runAnalysis = async () => {
     setIsAnalyzing(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: patient } = await supabase.from("patients").select("name, age").eq("user_id", session.user.id).maybeSingle();
       const { data, error } = await supabase.functions.invoke("analyze-health-risks", {
-        body: { records: records.map(r => ({ file_name: r.file_name, ai_summary: r.ai_summary })) },
+        body: {
+          records: records.map(r => ({ file_name: r.file_name, ai_summary: r.ai_summary })),
+          patientName: patient?.name,
+          patientAge: patient?.age,
+        },
       });
       if (error) throw error;
-      setAiSummary(data?.summary || data?.analysis || "No insights available yet. Upload more records for a comprehensive analysis.");
+      setAnalysisResult(data);
     } catch (err) {
       console.error("Analysis error:", err);
-      setAiSummary("Unable to analyze right now. Please try again later.");
+      setAnalysisResult({ summary: "Unable to analyze right now. Please try again later." });
     } finally { setIsAnalyzing(false); }
   };
 
