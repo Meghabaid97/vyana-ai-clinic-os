@@ -49,7 +49,7 @@ const Splash = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Brand hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-        <div className="animate-fade-in space-y-6 max-w-sm">
+        <div className="animate-fade-in space-y-5 max-w-sm">
           <h1 className="text-5xl font-bold tracking-tight text-foreground">
             V<span className="text-primary">yana</span>
           </h1>
@@ -58,10 +58,6 @@ const Splash = () => {
             Your health story.
             <br />
             <span className="text-primary">Always with you.</span>
-          </p>
-
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Every prescription, every lab report, every doctor visit. One place. So when you need it most, it is there.
           </p>
         </div>
       </div>
