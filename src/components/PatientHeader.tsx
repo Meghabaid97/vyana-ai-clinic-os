@@ -103,11 +103,6 @@ const PatientHeader = ({
             onLocationChange={handleLocationChange}
           />
           
-          {/* Digital indicator */}
-          <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-sm font-medium text-primary">100% Digital</span>
-          </div>
           <NotificationBell />
           <Button 
             variant="outline" 

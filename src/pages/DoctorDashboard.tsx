@@ -209,10 +209,6 @@ const DoctorDashboard = () => {
               city={location.city}
               onLocationChange={handleLocationChange}
             />
-            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <Leaf className="h-3.5 w-3.5 text-emerald-600" />
-              <span className="text-xs font-medium text-emerald-600">100% Digital</span>
-            </div>
             <NotificationBell />
             <Button 
               variant="outline" 
