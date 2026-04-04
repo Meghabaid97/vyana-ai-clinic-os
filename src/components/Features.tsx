@@ -20,12 +20,11 @@ const Features = () => {
   }, []);
 
   return (
-    <section id="features" className="py-20 border-t border-border">
+    <section id="features" className="py-20 border-t border-border bg-muted/35">
       <div className="max-w-[1100px] mx-auto px-6">
         <div className="max-w-2xl mb-12">
           <h2 className="text-[32px] font-bold tracking-tight text-foreground mb-3">
-            {tLanding("landing.featuresTitle")}{" "}
-            <span className="text-primary">{tLanding("landing.featuresHighlight")}</span>
+            {tLanding("landing.featuresTitle")} <span className="text-primary">{tLanding("landing.featuresHighlight")}</span>
           </h2>
           <p className="text-muted-foreground text-lg">
             {tLanding("landing.featuresSub")}
@@ -36,9 +35,14 @@ const Features = () => {
           {featureKeys.map((feature, index) => (
             <div
               key={index}
-              className="p-6 rounded-lg border border-border hover:border-muted-foreground/20 transition-colors duration-200"
+              className="surface-warm rounded-[1.5rem] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-soft"
             >
-              <span className="text-xl mb-3 block">{feature.emoji}</span>
+              <div className="mb-4 flex items-center justify-between">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary/10 text-xl">
+                  {feature.emoji}
+                </span>
+                <span className="text-[12px] font-medium text-muted-foreground">0{index + 1}</span>
+              </div>
               <h3 className="text-[15px] font-semibold text-foreground mb-2">
                 {tLanding(feature.titleKey)}
               </h3>

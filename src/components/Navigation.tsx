@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSelector from "./LanguageSelector";
 import { tLanding } from "@/lib/i18n-landing";
@@ -28,11 +29,20 @@ const Navigation = () => {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-        isScrolled ? "bg-background/95 backdrop-blur-sm border-b border-border" : "bg-transparent"
+        isScrolled ? "bg-background/90 backdrop-blur-xl border-b border-border/80 shadow-card" : "bg-transparent"
       }`}
     >
-      <div className="max-w-[1100px] mx-auto px-6 py-3 flex items-center justify-between">
-        <span className="text-xl font-semibold tracking-tight text-foreground">Vyana</span>
+      <div className="max-w-[1100px] mx-auto px-6 py-3 flex items-center justify-between gap-4">
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-3 text-left"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl gradient-primary shadow-soft">
+            <Heart className="h-4 w-4 fill-current text-primary-foreground" />
+          </span>
+          <span className="text-xl font-semibold tracking-tight text-gradient-warm">Vyana</span>
+        </button>
 
         <div className="hidden md:flex items-center gap-6 text-[15px]">
           <button onClick={() => scrollToSection("about")} className="text-muted-foreground hover:text-foreground transition-colors">
@@ -54,7 +64,7 @@ const Navigation = () => {
           <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="text-muted-foreground text-[14px]">
             {tLanding("nav.signIn")}
           </Button>
-          <Button size="sm" onClick={() => scrollToSection("contact")} className="text-[14px] rounded-lg">
+          <Button variant="gradient" size="sm" onClick={() => scrollToSection("contact")} className="text-[14px] rounded-full px-4">
             {tLanding("nav.getStarted")}
           </Button>
         </div>

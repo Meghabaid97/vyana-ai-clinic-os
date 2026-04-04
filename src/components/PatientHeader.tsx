@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { Heart, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
 import HeaderLocationSelector from "./HeaderLocationSelector";
@@ -69,20 +69,18 @@ const PatientHeader = ({
     <header className="bg-background/80 backdrop-blur-xl border-b border-border/50 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          {/* Vyana Logo - Home */}
           <Link
             to="/patient-dashboard"
             className="flex items-center gap-2.5 group"
           >
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-soft group-hover:shadow-glow group-hover:scale-105 transition-all">
-              <span className="text-lg font-bold text-white">V</span>
+            <div className="h-10 w-10 rounded-xl gradient-primary flex items-center justify-center shadow-soft group-hover:shadow-glow group-hover:scale-105 transition-all">
+              <Heart className="h-4 w-4 text-primary-foreground fill-current" />
             </div>
-            <span className="text-xl font-bold text-gradient">
+            <span className="text-xl font-bold text-gradient-warm">
               Vyana
             </span>
           </Link>
-          
-          {/* Page Title */}
+
           {title && (
             <>
               <div className="h-6 w-px bg-border" />
@@ -93,21 +91,20 @@ const PatientHeader = ({
             </>
           )}
         </div>
-        
+
         <div className="flex items-center gap-3">
           <LanguageSelector />
-          {/* Location Selector */}
           <HeaderLocationSelector
             pincode={location.pincode}
             city={location.city}
             onLocationChange={handleLocationChange}
           />
-          
+
           <NotificationBell />
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate("/patient-profile")} 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/patient-profile")}
           >
             Profile
           </Button>
