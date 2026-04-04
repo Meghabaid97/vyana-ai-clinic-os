@@ -20,6 +20,8 @@ import SharedHealthRecords from "./pages/SharedHealthRecords";
 import DoctorProfileSetup from "./pages/DoctorProfileSetup";
 import FindDoctors from "./pages/FindDoctors";
 import PatientProfilePage from "./pages/PatientProfilePage";
+import EmergencyContacts from "./pages/EmergencyContacts";
+import EmergencyAccess from "./pages/EmergencyAccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
