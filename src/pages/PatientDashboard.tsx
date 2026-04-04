@@ -206,7 +206,7 @@ const PatientDashboard = () => {
           >
             Your health story. Always with you.
             <br />
-            <span className="font-medium italic" style={{ color: "hsl(220 25% 40%)" }}>
+            <span className="font-medium italic" style={{ color: "hsl(20 15% 42%)" }}>
               Apni sehat, apne haath.
             </span>
           </h2>
