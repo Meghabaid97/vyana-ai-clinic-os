@@ -376,7 +376,7 @@ const PatientDashboard = () => {
               <div>
                 <h3 className="font-bold text-lg mb-1">Link Your Health ID</h3>
                 <p className="text-muted-foreground">
-                  Add your National Health ID in your profile to automatically sync all your medical records.
+                  Add your ABHA Health ID in your profile to automatically sync all your medical records.
                 </p>
               </div>
             </div>

@@ -43,10 +43,10 @@ export const validateEmail = (email: string): boolean => {
 };
 
 /**
- * Validates Aadhaar/Health ID format (12 digits)
+ * Validates ABHA Health ID format (14 digits)
  */
 export const validateHealthId = (healthId: string): boolean => {
-  return /^\d{12}$/.test(healthId);
+  return /^\d{14}$/.test(healthId);
 };
 
 /**

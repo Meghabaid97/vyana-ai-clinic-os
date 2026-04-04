@@ -154,7 +154,7 @@ const Auth = () => {
       const pv = validatePassword(password);
       if (!pv.isValid) { setPasswordErrors(pv.errors); toast({ title: "Weak Password", description: "Please meet all password requirements", variant: "destructive" }); return; }
       if (userRole === "patient" && healthId) {
-        if (!validateHealthId(healthId)) { setHealthIdError("Health ID must be exactly 12 digits"); return; }
+        if (!validateHealthId(healthId)) { setHealthIdError("Health ID must be exactly 14 digits"); return; }
         if (await checkHealthIdExists(healthId)) {
           setHealthIdError("This Health ID is already registered.");
           toast({ title: "Health ID Already Registered", description: "An account with this Health ID already exists.", variant: "destructive" });
@@ -323,7 +323,7 @@ const Auth = () => {
                           <Shield className="w-4 h-4" />
                           {t("auth.healthId")}
                         </Label>
-                        <Input id="healthId" type="text" placeholder="Enter 12-digit Aadhaar number" value={healthId} onChange={(e) => handleHealthIdChange(e.target.value)} maxLength={12} required className={`bg-background/50 ${healthIdError ? "border-destructive" : ""}`} />
+                        <Input id="healthId" type="text" placeholder="Enter 14-digit ABHA Health ID" value={healthId} onChange={(e) => handleHealthIdChange(e.target.value)} maxLength={14} required className={`bg-background/50 ${healthIdError ? "border-destructive" : ""}`} />
                         {healthIdError ? (
                           <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{healthIdError}</p>
                         ) : (
