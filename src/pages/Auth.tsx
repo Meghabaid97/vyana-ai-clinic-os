@@ -344,6 +344,20 @@ const Auth = () => {
                         <Label htmlFor="phone">{t("auth.phone")}</Label>
                         <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="bg-background/50" />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="dob" className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Date of Birth
+                        </Label>
+                        <Input id="dob" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} className="bg-background/50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="weight" className="flex items-center gap-2">
+                          <Weight className="w-4 h-4" />
+                          Weight (kg)
+                        </Label>
+                        <Input id="weight" type="number" placeholder="e.g. 65" value={weight} onChange={(e) => setWeight(e.target.value)} min="1" max="300" className="bg-background/50" />
+                      </div>
                     </>
                   )}
                 </>
