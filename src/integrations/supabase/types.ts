@@ -403,6 +403,63 @@ export type Database = {
           },
         ]
       }
+      medication_reminders: {
+        Row: {
+          created_at: string
+          dosage: string | null
+          frequency: string
+          id: string
+          is_active: boolean
+          medication_name: string
+          notes: string | null
+          patient_id: string
+          source_record_id: string | null
+          time_slots: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dosage?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          medication_name: string
+          notes?: string | null
+          patient_id: string
+          source_record_id?: string | null
+          time_slots?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dosage?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          medication_name?: string
+          notes?: string | null
+          patient_id?: string
+          source_record_id?: string | null
+          time_slots?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medication_reminders_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_reminders_source_record_id_fkey"
+            columns: ["source_record_id"]
+            isOneToOne: false
+            referencedRelation: "health_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -489,6 +546,47 @@ export type Database = {
           weight?: number | null
         }
         Relationships: []
+      }
+      shared_record_links: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          is_used: boolean
+          patient_id: string
+          recipient_email: string | null
+          recipient_name: string | null
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_used?: boolean
+          patient_id: string
+          recipient_email?: string | null
+          recipient_name?: string | null
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_used?: boolean
+          patient_id?: string
+          recipient_email?: string | null
+          recipient_name?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_record_links_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
