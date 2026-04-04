@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight, Upload, FileText, TrendingUp, Zap, Link2, Shield, Calendar,
-  Heart, Droplets, Activity,
+  Heart, Droplets, Activity, Loader2,
 } from "lucide-react";
 
 interface PatientProfile {
@@ -13,11 +13,21 @@ interface PatientProfile {
   national_health_id: string | null;
 }
 
+interface HomeVitals {
+  bp_systolic: number | null;
+  bp_diastolic: number | null;
+  fasting_blood_sugar: number | null;
+  total_cholesterol: number | null;
+  weight: number | null;
+}
+
 const AppHome = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [stats, setStats] = useState({ consultations: 0, appointments: 0, healthRecords: 0, doctors: 0 });
   const [recordDates, setRecordDates] = useState<string[]>([]);
+  const [homeVitals, setHomeVitals] = useState<HomeVitals | null>(null);
+  const [vitalsLoading, setVitalsLoading] = useState(false);
 
   useEffect(() => { loadData(); }, []);
 
@@ -35,14 +45,40 @@ const AppHome = () => {
     }
 
     const { data: a } = await supabase.from("appointments").select("id").eq("patient_id", p.id);
-    const { data: r } = await supabase.from("health_records").select("id, uploaded_at").eq("patient_id", p.id).order("uploaded_at", { ascending: true });
+    const { data: r } = await supabase.from("health_records").select("id, uploaded_at, ai_summary, file_name").eq("patient_id", p.id).order("uploaded_at", { ascending: true });
 
     setRecordDates((r || []).map(x => new Date(x.uploaded_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })));
     setStats({ consultations: consultationsCount, appointments: a?.length || 0, healthRecords: r?.length || 0, doctors: doctorsCount });
+
+    // Auto-analyze latest record for home vitals
+    if (r && r.length > 0) {
+      const latest = r[r.length - 1];
+      if (latest.ai_summary) {
+        setVitalsLoading(true);
+        try {
+          const { data: analysis } = await supabase.functions.invoke("analyze-health-risks", {
+            body: {
+              records: [{ file_name: latest.file_name, ai_summary: latest.ai_summary }],
+              patientName: p.name,
+              patientAge: p.age,
+            },
+          });
+          if (analysis?.vitals) {
+            setHomeVitals(analysis.vitals);
+          }
+        } catch (err) {
+          console.error("Home vitals analysis error:", err);
+        } finally {
+          setVitalsLoading(false);
+        }
+      }
+    }
   };
 
   const firstName = profile?.name?.split(" ")[0] || "there";
   const totalRecords = stats.healthRecords + stats.consultations;
+
+  const fmtVital = (val: number | null | undefined) => (val != null ? String(Math.round(val)) : "—");
 
   return (
     <div className="animate-fade-in">
