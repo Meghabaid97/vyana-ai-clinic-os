@@ -29,8 +29,9 @@ const Navigation = () => {
       }`}
     >
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="text-2xl font-bold text-gradient">
-          Vyana
+        <div className="flex items-center gap-2">
+          <Heart className="h-5 w-5 text-primary" />
+          <span className="text-2xl font-bold text-gradient-warm">Vyana</span>
         </div>
         
         <div className="hidden md:flex items-center gap-8">
