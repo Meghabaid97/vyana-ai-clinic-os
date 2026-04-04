@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   TrendingUp, Activity, Heart, Droplets, Thermometer, Eye,
@@ -8,6 +8,16 @@ import {
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
 
+type HealthRecord = {
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  ai_summary: string | null;
+  uploaded_at: string;
+  updated_at?: string;
+};
+
 interface AnalysisResult {
   vitals?: VitalsMap;
   summary?: string;
@@ -16,46 +26,159 @@ interface AnalysisResult {
   disclaimer?: string;
 }
 
+const hasStrictStructuredSummary = (summary: string | null | undefined) => {
+  if (!summary) return false;
+  return summary.includes("Safety Note:") && summary.includes("Confidence:") && summary.includes("Document Type:");
+};
+
 const HealthTrends = () => {
-  const [records, setRecords] = useState<any[]>([]);
+  const [records, setRecords] = useState<HealthRecord[]>([]);
   const [consultationCount, setConsultationCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const autoProcessedRecordRef = useRef<string | null>(null);
 
-  useEffect(() => { loadTrends(); }, []);
+  useEffect(() => {
+    void loadTrends();
+  }, []);
+
+  useEffect(() => {
+    if (!records.length) {
+      setAnalysisResult(null);
+      return;
+    }
+
+    const latestRecord = records[0];
+    const marker = `${latestRecord.id}:${latestRecord.updated_at ?? latestRecord.uploaded_at}`;
+    if (autoProcessedRecordRef.current === marker) return;
+    autoProcessedRecordRef.current = marker;
+
+    void autoAnalyzeLatestRecord(latestRecord);
+  }, [records]);
 
   const loadTrends = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    const { data: patient } = await supabase.from("patients").select("id, national_health_id").eq("user_id", session.user.id).maybeSingle();
+
+    const { data: patient } = await supabase
+      .from("patients")
+      .select("id, national_health_id")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
     if (!patient) return;
-    const { data: r } = await supabase.from("health_records").select("*").eq("patient_id", patient.id).order("uploaded_at", { ascending: false });
-    setRecords(r || []);
+
+    const { data: r } = await supabase
+      .from("health_records")
+      .select("id, file_name, file_path, file_type, ai_summary, uploaded_at, updated_at")
+      .eq("patient_id", patient.id)
+      .order("uploaded_at", { ascending: false });
+
+    setRecords((r || []) as HealthRecord[]);
+
     if (patient.national_health_id) {
-      const { data: c } = await supabase.from("consultations").select("id").eq("patient_national_health_id", patient.national_health_id);
+      const { data: c } = await supabase
+        .from("consultations")
+        .select("id")
+        .eq("patient_national_health_id", patient.national_health_id);
       setConsultationCount(c?.length || 0);
     }
   };
 
-  const runAnalysis = async () => {
+  const toDataUrl = async (signedUrl: string) => {
+    const response = await fetch(signedUrl);
+    const blob = await response.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error("Could not read latest report"));
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const refreshLatestRecordSummary = async (record: HealthRecord) => {
+    if (hasStrictStructuredSummary(record.ai_summary)) return record;
+
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+      .from("health-records")
+      .createSignedUrl(record.file_path, 60);
+
+    if (signedUrlError || !signedUrlData?.signedUrl) {
+      throw new Error("Could not access latest report");
+    }
+
+    const fileContent = await toDataUrl(signedUrlData.signedUrl);
+
+    const { data, error } = await supabase.functions.invoke("summarize-health-record", {
+      body: {
+        fileName: record.file_name,
+        fileType: record.file_type,
+        fileContent,
+      },
+    });
+
+    if (error || !data?.summary) {
+      throw new Error(error?.message || "Could not summarize latest report safely");
+    }
+
+    const { error: updateError } = await supabase
+      .from("health_records")
+      .update({ ai_summary: data.summary })
+      .eq("id", record.id);
+
+    if (updateError) {
+      throw new Error(updateError.message || "Could not save latest report summary");
+    }
+
+    const updatedRecord = { ...record, ai_summary: data.summary };
+    setRecords((prev) => prev.map((item) => (item.id === record.id ? updatedRecord : item)));
+    return updatedRecord;
+  };
+
+  const autoAnalyzeLatestRecord = async (latestRecord: HealthRecord) => {
     setIsAnalyzing(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const { data: patient } = await supabase.from("patients").select("name, age").eq("user_id", session.user.id).maybeSingle();
+
+      const { data: patient } = await supabase
+        .from("patients")
+        .select("name, age")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      const safeLatestRecord = await refreshLatestRecordSummary(latestRecord);
+
       const { data, error } = await supabase.functions.invoke("analyze-health-risks", {
         body: {
-          records: records.map(r => ({ file_name: r.file_name, ai_summary: r.ai_summary })),
+          records: [{
+            file_name: safeLatestRecord.file_name,
+            ai_summary: safeLatestRecord.ai_summary,
+          }],
           patientName: patient?.name,
           patientAge: patient?.age,
         },
       });
+
       if (error) throw error;
       setAnalysisResult(data);
     } catch (err) {
-      console.error("Analysis error:", err);
-      setAnalysisResult({ summary: "Unable to analyze right now. Please try again later." });
-    } finally { setIsAnalyzing(false); }
+      console.error("Automatic analysis error:", err);
+      setAnalysisResult({
+        summary: "We couldn’t safely extract structured values from the latest report yet. Please try again in a moment.",
+        vitals: {},
+        risks: [],
+        recommendations: [],
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const runAnalysis = async () => {
+    if (!records.length) return;
+    autoProcessedRecordRef.current = null;
+    await autoAnalyzeLatestRecord(records[0]);
   };
 
   const v = analysisResult?.vitals || {};
@@ -96,7 +219,7 @@ const HealthTrends = () => {
         { icon: Zap, label: "Fasting Blood Sugar", value: fmt(v.fasting_blood_sugar), unit: "mg/dL", range: "70–100", status: getStatus(v.fasting_blood_sugar, 70, 100) },
         { icon: Zap, label: "HbA1c", value: fmt(v.hba1c, 1), unit: "%", range: "4.0–5.6", status: getStatus(v.hba1c, 4.0, 5.6) },
         { icon: Zap, label: "Post-Prandial Glucose", value: fmt(v.post_prandial_glucose), unit: "mg/dL", range: "<140", status: getStatus(v.post_prandial_glucose, 0, 140) },
-        { icon: TrendingUp, label: "Weight", value: fmt(v.weight, 1), unit: "kg", range: "BMI 18.5–24.9", status: "none" as const },
+        { icon: TrendingUp, label: "Weight", value: fmt(v.weight, 1), unit: "kg", range: "Patient record / report", status: "none" as const },
         { icon: TrendingUp, label: "BMI", value: fmt(v.bmi, 1), unit: "kg/m²", range: "18.5–24.9", status: getStatus(v.bmi, 18.5, 24.9) },
       ],
     },
@@ -148,11 +271,10 @@ const HealthTrends = () => {
       <section className="px-5 pt-8 pb-4">
         <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">Health Trends</h1>
         <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-          The slow changes matter most. We track them so nothing slips through.
+          Your latest report is analyzed automatically and mapped into major vitals.
         </p>
       </section>
 
-      {/* Summary strip */}
       <section className="px-5 pb-5">
         <div className="flex gap-2">
           <div className="flex-1 rounded-xl border border-border bg-card p-3 text-center">
@@ -164,13 +286,12 @@ const HealthTrends = () => {
             <p className="text-[10px] text-muted-foreground">Visits</p>
           </div>
           <div className="flex-1 rounded-xl border border-border bg-card p-3 text-center">
-            <p className="text-xl font-bold text-primary">Active</p>
-            <p className="text-[10px] text-muted-foreground">Status</p>
+            <p className="text-xl font-bold text-primary">{isAnalyzing ? "Syncing" : "Ready"}</p>
+            <p className="text-[10px] text-muted-foreground">Analyzer</p>
           </div>
         </div>
       </section>
 
-      {/* AI Health Analyzer */}
       <section className="px-5 pb-6">
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
           <div className="flex items-start gap-3 mb-3">
@@ -180,10 +301,16 @@ const HealthTrends = () => {
             <div>
               <h2 className="text-[15px] font-bold text-foreground">AI Health Analyzer</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Extracts values from your records & gives insights
+                Automatically refreshes the latest report, then extracts structured values safely.
               </p>
             </div>
           </div>
+
+          {isAnalyzing && (
+            <div className="rounded-lg bg-card border border-border p-4 mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" /> Refreshing latest report and filling Trends...
+            </div>
+          )}
 
           {analysisResult ? (
             <div className="rounded-lg bg-card border border-border p-4 mt-3 space-y-3">
@@ -227,21 +354,20 @@ const HealthTrends = () => {
             className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50"
           >
             {isAnalyzing ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing...</>
+              <><Loader2 className="h-4 w-4 animate-spin" /> Syncing latest report...</>
             ) : (
-              <><Sparkles className="h-4 w-4" /> {analysisResult ? "Re-analyze" : "Analyze My Health"}</>
+              <><Sparkles className="h-4 w-4" /> Refresh latest report</>
             )}
           </button>
 
           {records.length === 0 && (
             <p className="text-[11px] text-muted-foreground mt-2 text-center">
-              Upload health records first to get AI-powered insights
+              Upload a health record and Trends will populate automatically.
             </p>
           )}
         </div>
       </section>
 
-      {/* Vital categories */}
       {vitalCategories.map((category, ci) => (
         <section key={ci} className="px-5 pb-6">
           <h2 className="text-[15px] font-bold text-foreground mb-3">{category.title}</h2>
@@ -265,10 +391,9 @@ const HealthTrends = () => {
         </section>
       ))}
 
-      {/* Recent uploads */}
       {records.length > 0 && (
         <section className="px-5 pb-8">
-          <h2 className="text-[15px] font-bold text-foreground mb-3">Recent uploads</h2>
+          <h2 className="text-[15px] font-bold text-foreground mb-3">Latest uploads</h2>
           <div className="space-y-2">
             {records.slice(0, 5).map((rec) => (
               <div key={rec.id} className="rounded-xl border border-border bg-card p-3 flex items-center justify-between">
