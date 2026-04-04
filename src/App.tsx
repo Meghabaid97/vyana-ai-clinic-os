@@ -25,6 +25,10 @@ import FindDoctors from "./pages/FindDoctors";
 import PatientProfilePage from "./pages/PatientProfilePage";
 import EmergencyContacts from "./pages/EmergencyContacts";
 import EmergencyAccess from "./pages/EmergencyAccess";
+import PatientTimeline from "./pages/PatientTimeline";
+import Vaccinations from "./pages/Vaccinations";
+import MedicationReminders from "./pages/MedicationReminders";
+import ShareRecords from "./pages/ShareRecords";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +54,10 @@ const App = () => (
             <Route path="appointments" element={<PatientAppointments />} />
             <Route path="story" element={<WhyVyana />} />
             <Route path="profile" element={<PatientProfileEdit />} />
+            <Route path="timeline" element={<PatientTimeline />} />
+            <Route path="vaccinations" element={<Vaccinations />} />
+            <Route path="medications" element={<MedicationReminders />} />
+            <Route path="share" element={<ShareRecords />} />
           </Route>
 
           {/* Patient standalone pages */}

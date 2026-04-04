@@ -213,8 +213,9 @@ const AppHome = () => {
           {[
             { icon: FileText, title: "Upload anything", desc: "Prescriptions, lab reports, summaries — extracted and organized.", path: "/app/records", badge: stats.healthRecords || undefined },
             { icon: TrendingUp, title: "Track what matters", desc: "HbA1c, BP, cholesterol tracked over time. Changes flagged early.", path: "/app/trends" },
+            { icon: Activity, title: "Your timeline", desc: "Every visit, diagnosis, and vital — connected in one view.", path: "/app/timeline" },
             { icon: Zap, title: "30-second summary", desc: "One screen. Complete history. A doctor sees everything instantly.", path: "/patient-medical-history", badge: stats.consultations || undefined },
-            { icon: Link2, title: "Share with any doctor", desc: "Secure link. 24 hours. No app needed on their end.", path: "/find-doctors", badge: stats.doctors || undefined },
+            { icon: Link2, title: "Share with any doctor", desc: "Secure link. 24 hours. No app needed on their end.", path: "/app/share", badge: stats.doctors || undefined },
             { icon: Calendar, title: "Book appointments", desc: "Find doctors near you. Book visits. Get reminders.", path: "/app/appointments", badge: stats.appointments || undefined },
             { icon: Shield, title: "Emergency access", desc: "Family safety net. Share your records instantly in emergencies.", path: "/emergency-contacts" },
           ].map((f, i) => (
