@@ -222,7 +222,7 @@ const PatientDashboard = () => {
               explain everything in five minutes to a doctor
               they've never met.
             </p>
-            <p className="font-medium" style={{ color: "hsl(220 18% 32%)" }}>
+            <p className="font-medium" style={{ color: "hsl(20 18% 32%)" }}>
               Vyana exists so that never happens to you.
             </p>
             <p>
