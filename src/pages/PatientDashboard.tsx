@@ -294,7 +294,7 @@ const PatientDashboard = () => {
                     />
                     <span
                       className="mt-2 text-xs font-semibold whitespace-nowrap"
-                      style={{ color: "hsl(200 50% 35%)" }}
+                      style={{ color: "hsl(12 70% 40%)" }}
                     >
                       Today
                     </span>
