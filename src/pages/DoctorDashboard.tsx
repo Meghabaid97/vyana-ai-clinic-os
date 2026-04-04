@@ -198,7 +198,7 @@ const DoctorDashboard = () => {
               <span className="text-lg font-bold text-white">V</span>
             </div>
             <div>
-              <span className="text-xl font-bold text-gradient">Vyana AI</span>
+              <span className="text-xl font-bold text-gradient">Vyana</span>
               <p className="text-xs text-muted-foreground">Clinical Dashboard</p>
             </div>
           </div>
@@ -340,7 +340,7 @@ const DoctorDashboard = () => {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            Powered by <span className="text-gradient font-semibold">Vyana AI</span> • The future of clinical documentation
+            Powered by <span className="text-gradient font-semibold">Vyana</span> • The future of clinical documentation
           </p>
         </div>
       </div>

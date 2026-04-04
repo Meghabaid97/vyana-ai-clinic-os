@@ -11,7 +11,7 @@ const About = () => {
           </h2>
           
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Vyana AI is transforming how clinics operate. Our platform listens to doctor–patient 
+            Vyana is transforming how clinics operate. Our platform listens to doctor–patient 
             conversations and automatically generates structured medical notes, prescriptions, and 
             discharge summaries — all in real time.
           </p>

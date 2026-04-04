@@ -74,7 +74,7 @@ const DoctorHeader = ({
     <div className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
       <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          {/* Vyana AI Logo - Home */}
+          {/* Vyana Logo - Home */}
           <Link
             to="/doctor-dashboard"
             className="flex items-center gap-2.5 group"
@@ -83,7 +83,7 @@ const DoctorHeader = ({
               <span className="text-sm font-bold text-primary-foreground">V</span>
             </div>
             <span className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Vyana AI
+              Vyana
             </span>
           </Link>
           

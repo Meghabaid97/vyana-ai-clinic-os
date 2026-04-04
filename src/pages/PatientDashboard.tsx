@@ -386,7 +386,7 @@ const PatientDashboard = () => {
         {/* Footer */}
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">
-            Powered by <span className="text-gradient font-semibold">Vyana AI</span> • Your health, simplified
+            Powered by <span className="text-gradient font-semibold">Vyana</span> • Your health, simplified
           </p>
         </div>
       </div>

@@ -23,7 +23,7 @@ const Hero = () => {
             </h1>
             
             <p className="text-xl text-muted-foreground leading-relaxed">
-              Vyana AI helps clinics automate documentation, follow-ups, and patient 
+              Vyana helps clinics automate documentation, follow-ups, and patient 
               communication — saving doctors time while improving care.
             </p>
 

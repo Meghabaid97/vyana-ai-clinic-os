@@ -284,7 +284,7 @@ export const generatePrescriptionPdf = (data: PrescriptionData): jsPDF => {
   
   doc.setFontSize(8);
   doc.setTextColor(...grayColor);
-  doc.text("Generated via Vyana AI - Digital Healthcare Platform", pageWidth / 2, 287, { align: "center" });
+  doc.text("Generated via Vyana - Digital Healthcare Platform", pageWidth / 2, 287, { align: "center" });
 
   return doc;
 };
