@@ -358,7 +358,7 @@ const Consultation = () => {
                 <Input
                   id="patientNationalId"
                   value={patientNationalId}
-                  onChange={(e) => setPatientNationalId(e.target.value.replace(/\D/g, '').slice(0, 12))}
+                  onChange={(e) => setPatientNationalId(e.target.value.replace(/\D/g, '').slice(0, 14))}
                   placeholder="Enter 14-digit ABHA Health ID"
                   disabled={isProcessing || isVerifyingAbha}
                   maxLength={14}

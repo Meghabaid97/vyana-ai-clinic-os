@@ -134,7 +134,7 @@ const Auth = () => {
   };
 
   const handleHealthIdChange = (value: string) => {
-    const cleaned = value.replace(/\D/g, '').slice(0, 12);
+    const cleaned = value.replace(/\D/g, '').slice(0, 14);
     setHealthId(cleaned);
     setHealthIdError("");
   };
