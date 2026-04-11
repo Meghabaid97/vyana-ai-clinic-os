@@ -153,8 +153,20 @@
 
 /* Safe areas for native app */
 .safe-area-top {
-  padding-top: max(env(safe-area-inset-top, 0px), 20px);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 .safe-area-bottom {
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Capacitor native shell: the WebView sits behind the status bar,
+   so we need extra space even when env() resolves to 0.
+   Capacitor injects a class or we detect it via a CSS custom property. */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .native-shell .safe-area-top {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0px);
+  }
+  .native-shell .safe-area-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0px);
+  }
 }
