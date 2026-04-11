@@ -31,4 +31,11 @@ void CapacitorApp.addListener("appUrlOpen", ({ url }) => {
   }
 });
 
+void CapacitorApp.getLaunchUrl().then((result) => {
+  const url = result?.url;
+  if (url?.startsWith("lovable://oauth-callback")) {
+    void handleOAuthCallback(url);
+  }
+});
+
 createRoot(document.getElementById("root")!).render(<App />);

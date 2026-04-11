@@ -81,24 +81,24 @@ const AppHome = () => {
   const fmtVital = (val: number | null | undefined) => (val != null ? String(Math.round(val)) : "—");
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in overflow-x-hidden pb-2">
       {/* ── Hero ── */}
-      <section className="px-5 pt-8 pb-6">
+      <section className="px-4 sm:px-5 pt-6 pb-5">
         <p className="text-xs font-medium tracking-widest uppercase text-primary mb-3">
           Welcome back, {firstName}
         </p>
-        <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">
+        <h1 className="text-[clamp(1.75rem,6vw,2.4rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-foreground text-balance">
           Your health story.{" "}
           <span className="text-primary">Always with you.</span>
         </h1>
-        <p className="text-[14px] text-muted-foreground leading-relaxed mt-3">
+        <p className="mt-3 max-w-md text-[13px] sm:text-[14px] text-muted-foreground leading-relaxed">
           Every prescription, every lab report, every doctor visit builds your complete health picture. Quietly. Securely. So when you need it most, it is there.
         </p>
       </section>
 
       {/* ── Stats ── */}
-      <section className="px-5 pb-6">
-        <div className="grid grid-cols-4 gap-2">
+      <section className="px-4 sm:px-5 pb-5">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {[
             { value: stats.doctors, label: "Doctors" },
             { value: stats.consultations, label: "Visits" },
@@ -106,15 +106,15 @@ const AppHome = () => {
             { value: stats.healthRecords, label: "Records" },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-border bg-card p-3 text-center">
-              <p className="text-xl font-bold text-foreground">{s.value}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{s.label}</p>
+              <p className="text-lg sm:text-xl font-bold text-foreground">{s.value}</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Story beats — emotional section ── */}
-      <section className="px-5 pb-6">
+      <section className="px-4 sm:px-5 pb-5">
         <h2 className="text-lg font-bold text-foreground mb-1">
           Your story so far. <span className="text-primary">Every detail matters.</span>
         </h2>
@@ -139,16 +139,16 @@ const AppHome = () => {
         {/* Timeline or upload prompt */}
         <div className="mt-4 rounded-xl p-4 border border-border bg-muted/50">
           {totalRecords === 0 ? (
-            <button onClick={() => navigate("/app/records")} className="group flex items-center gap-3 text-primary w-full">
+              <button onClick={() => navigate("/app/records")} className="group flex items-center gap-3 text-primary w-full min-w-0">
               <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <Upload className="h-4 w-4 text-primary" />
               </div>
-              <span className="font-medium text-sm text-left">Upload your first record. Your story starts here.</span>
+                <span className="min-w-0 font-medium text-sm text-left">Upload your first record. Your story starts here.</span>
               <ArrowRight className="h-4 w-4 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
           ) : (
             <div className="space-y-2">
-              <div className="relative flex items-center gap-0 overflow-x-auto pb-2">
+                <div className="relative flex items-center gap-3 overflow-x-auto pb-2">
                 <div className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 bg-border" />
                 {recordDates.map((date, i) => (
                   <div key={i} className="relative flex flex-col items-center shrink-0" style={{ minWidth: "48px" }}>
@@ -171,7 +171,7 @@ const AppHome = () => {
       </section>
 
       {/* ── Health Trends Preview ── */}
-      <section className="px-5 pb-6">
+      <section className="px-4 sm:px-5 pb-5">
         <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-lg font-bold text-foreground">
             Health trends
@@ -190,24 +190,24 @@ const AppHome = () => {
             <button
               key={i}
               onClick={() => navigate("/app/trends")}
-              className="rounded-xl border border-border bg-card p-3.5 text-left hover:border-primary/30 transition-colors"
+              className="min-w-0 rounded-xl border border-border bg-card p-3 text-left hover:border-primary/30 transition-colors"
             >
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center mb-2">
                 <v.icon className="h-4 w-4 text-primary" />
               </div>
               <p className="text-[12px] text-muted-foreground">{v.label}</p>
-              <p className="text-lg font-bold text-foreground mt-0.5">{v.value}</p>
+              <p className="mt-0.5 text-base sm:text-lg font-bold text-foreground break-words">{v.value}</p>
             </button>
           ))}
         </div>
       </section>
 
       {/* ── Promises / Features ── */}
-      <section className="px-5 pb-6">
+      <section className="px-4 sm:px-5 pb-5">
         <h2 className="text-lg font-bold text-foreground mb-1">
           Not features. <span className="text-primary">Promises.</span>
         </h2>
-        <p className="text-[13px] text-muted-foreground mb-4">Seven things we will never compromise on.</p>
+        <p className="text-[13px] text-muted-foreground mb-4">Six things we will never compromise on.</p>
 
         <div className="space-y-2.5">
           {[
@@ -216,13 +216,12 @@ const AppHome = () => {
             { icon: Activity, title: "Your timeline", desc: "Every visit, diagnosis, and vital — connected in one view.", path: "/app/timeline" },
             { icon: Zap, title: "30-second summary", desc: "One screen. Complete history. A doctor sees everything instantly.", path: "/patient-medical-history", badge: stats.consultations || undefined },
             { icon: Link2, title: "Share with any doctor", desc: "Secure link. 24 hours. No app needed on their end.", path: "/app/share", badge: stats.doctors || undefined },
-            { icon: Calendar, title: "Book appointments", desc: "Find doctors near you. Book visits. Get reminders.", path: "/app/appointments", badge: stats.appointments || undefined },
             { icon: Shield, title: "Emergency access", desc: "Family safety net. Share your records instantly in emergencies.", path: "/emergency-contacts" },
           ].map((f, i) => (
             <button
               key={i}
               onClick={() => navigate(f.path)}
-              className="group w-full rounded-xl border border-border bg-card p-4 text-left hover:border-primary/30 transition-colors flex items-center gap-3"
+              className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left hover:border-primary/30 transition-colors"
             >
               <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <f.icon className="h-5 w-5 text-primary" />
@@ -245,7 +244,7 @@ const AppHome = () => {
       </section>
 
       {/* ── Why Vyana / Our Story ── */}
-      <section className="px-5 pb-6">
+      <section className="px-4 sm:px-5 pb-5">
         <div className="rounded-xl border border-border overflow-hidden">
           <div className="bg-primary/5 p-5">
             <h2 className="text-lg font-bold text-foreground mb-2">Why Vyana?</h2>
@@ -273,7 +272,7 @@ const AppHome = () => {
 
       {/* ── ABHA prompt ── */}
       {!profile?.national_health_id && (
-        <section className="px-5 pb-6">
+        <section className="px-4 sm:px-5 pb-5">
           <div className="rounded-xl p-4 border border-primary/20 bg-primary/5">
             <h3 className="font-bold text-sm text-foreground">Connect your ABHA Health ID</h3>
             <p className="text-muted-foreground text-[13px] leading-relaxed mt-1">
@@ -284,7 +283,7 @@ const AppHome = () => {
       )}
 
       {/* ── Footer ── */}
-      <section className="px-5 pb-10 text-center">
+      <section className="px-4 sm:px-5 pb-8 text-center">
         <p className="text-xs text-muted-foreground">
           <span className="font-semibold text-foreground">Vyana</span> · Every patient deserves a doctor who knows their story.
         </p>

@@ -35,25 +35,25 @@ const AppShell = () => {
   )?.id || "home";
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
       {/* Top bar */}
-      <header className="bg-background border-b border-border sticky top-0 z-50 safe-area-top">
-        <div className="px-5 h-12 flex items-center justify-between">
+      <header className="bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm">
+        <div className="px-4 sm:px-5 h-14 flex items-center justify-between">
           <span className="text-lg font-semibold text-foreground tracking-tight">
             V<span className="text-primary">yana</span>
           </span>
-          <span className="text-sm text-muted-foreground">{patientName.split(" ")[0]}</span>
+          <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{patientName.split(" ")[0]}</span>
         </div>
       </header>
 
       {/* Content area */}
-      <main className="flex-1 overflow-y-auto pb-20">
+      <main className="flex-1 overflow-y-auto pb-24">
         <Outlet />
       </main>
 
       {/* Bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 safe-area-bottom">
-        <div className="flex items-center justify-around h-14 max-w-lg mx-auto">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/95 border-t border-border z-50 safe-area-bottom backdrop-blur-sm">
+        <div className="grid grid-cols-6 items-center h-16 max-w-lg mx-auto px-1">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -61,12 +61,12 @@ const AppShell = () => {
                 key={tab.id}
                 onClick={() => navigate(tab.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors",
+                  "flex min-w-0 flex-col items-center justify-center gap-1 h-full rounded-xl px-1 transition-colors",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
                 <tab.icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
-                <span className="text-[9px] font-medium">{tab.label}</span>
+                <span className="truncate text-[10px] font-medium leading-none">{tab.label}</span>
               </button>
             );
           })}
