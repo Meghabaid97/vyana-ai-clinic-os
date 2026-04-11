@@ -83,21 +83,21 @@ const AppHome = () => {
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2">
       {/* ── Hero ── */}
-      <section className="px-4 sm:px-5 pt-6 pb-5">
+      <section className="px-4 sm:px-5 pt-4 sm:pt-6 pb-4 sm:pb-5">
         <p className="text-xs font-medium tracking-widest uppercase text-primary mb-3">
           Welcome back, {firstName}
         </p>
-        <h1 className="text-[clamp(1.75rem,6vw,2.4rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-foreground text-balance">
+        <h1 className="text-[clamp(1.45rem,7vw,2.25rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-foreground">
           Your health story.{" "}
-          <span className="text-primary">Always with you.</span>
+          <span className="block text-primary">Always with you.</span>
         </h1>
-        <p className="mt-3 max-w-md text-[13px] sm:text-[14px] text-muted-foreground leading-relaxed">
+        <p className="mt-2.5 max-w-[32ch] text-[13px] sm:text-[14px] text-muted-foreground leading-relaxed">
           Every prescription, every lab report, every doctor visit builds your complete health picture. Quietly. Securely. So when you need it most, it is there.
         </p>
       </section>
 
       {/* ── Stats ── */}
-      <section className="px-4 sm:px-5 pb-5">
+      <section className="px-4 sm:px-5 pb-4 sm:pb-5">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {[
             { value: stats.doctors, label: "Doctors" },
@@ -105,7 +105,7 @@ const AppHome = () => {
             { value: stats.appointments, label: "Appts" },
             { value: stats.healthRecords, label: "Records" },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-border bg-card p-3 text-center">
+            <div key={s.label} className="rounded-xl border border-border bg-card p-2.5 sm:p-3 text-center">
               <p className="text-lg sm:text-xl font-bold text-foreground">{s.value}</p>
               <p className="mt-0.5 text-[11px] text-muted-foreground">{s.label}</p>
             </div>
@@ -114,21 +114,22 @@ const AppHome = () => {
       </section>
 
       {/* ── Story beats — emotional section ── */}
-      <section className="px-4 sm:px-5 pb-5">
-        <h2 className="text-lg font-bold text-foreground mb-1">
-          Your story so far. <span className="text-primary">Every detail matters.</span>
+      <section className="px-4 sm:px-5 pb-4 sm:pb-5">
+        <h2 className="mb-1 text-lg font-bold text-foreground leading-tight">
+          <span className="block sm:inline">Your story so far.</span>{" "}
+          <span className="block sm:inline text-primary">Every detail matters.</span>
         </h2>
         <p className="text-[13px] text-muted-foreground mb-4 leading-relaxed">
           What happens when the system forgets and families pay the price. Your records make sure that never happens.
         </p>
 
-        <div className="space-y-3">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 sm:mx-0 sm:block sm:space-y-3 sm:overflow-visible sm:px-0">
           {[
             { emoji: "🏥", title: "Five minutes. A lifetime of history.", text: "A family rushes to the ER. They get five minutes to explain decades of medical history. No records. No context. Just fear." },
             { emoji: "📋", title: "75 pages. Zero continuity.", text: "Scattered reports in thick folders. Every new doctor orders fresh tests. The clock resets. The bill climbs. Nothing connects." },
             { emoji: "⏰", title: "Caught too late.", text: "Nobody tracks the slow changes. Conditions worsen quietly. By the time they are caught, prevention is off the table." },
           ].map((beat, i) => (
-            <div key={i} className="rounded-xl border border-border p-4 hover:bg-muted/50 transition-colors">
+            <div key={i} className="min-w-[84%] snap-start rounded-xl border border-border p-4 transition-colors sm:min-w-0 hover:bg-muted/50">
               <span className="text-lg mb-1.5 block">{beat.emoji}</span>
               <h3 className="text-[14px] font-semibold text-foreground mb-1">{beat.title}</h3>
               <p className="text-muted-foreground text-[13px] leading-relaxed">{beat.text}</p>
@@ -171,7 +172,7 @@ const AppHome = () => {
       </section>
 
       {/* ── Health Trends Preview ── */}
-      <section className="px-4 sm:px-5 pb-5">
+      <section className="px-4 sm:px-5 pb-4 sm:pb-5">
         <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-lg font-bold text-foreground">
             Health trends
@@ -180,7 +181,7 @@ const AppHome = () => {
             View all <ArrowRight className="h-3 w-3" />
           </button>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2">
           {[
             { icon: Heart, label: "Blood Pressure", value: homeVitals?.bp_systolic != null && homeVitals?.bp_diastolic != null ? `${fmtVital(homeVitals.bp_systolic)}/${fmtVital(homeVitals.bp_diastolic)}` : (vitalsLoading ? "..." : "—") },
             { icon: Droplets, label: "Blood Sugar", value: vitalsLoading ? "..." : fmtVital(homeVitals?.fasting_blood_sugar) },
@@ -203,7 +204,7 @@ const AppHome = () => {
       </section>
 
       {/* ── Promises / Features ── */}
-      <section className="px-4 sm:px-5 pb-5">
+      <section className="px-4 sm:px-5 pb-4 sm:pb-5">
         <h2 className="text-lg font-bold text-foreground mb-1">
           Not features. <span className="text-primary">Promises.</span>
         </h2>
@@ -221,7 +222,7 @@ const AppHome = () => {
             <button
               key={i}
               onClick={() => navigate(f.path)}
-              className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left hover:border-primary/30 transition-colors"
+              className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 sm:p-4 text-left hover:border-primary/30 transition-colors"
             >
               <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <f.icon className="h-5 w-5 text-primary" />
