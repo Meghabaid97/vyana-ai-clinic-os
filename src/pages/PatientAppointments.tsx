@@ -322,6 +322,7 @@ const PatientAppointments = () => {
 
   const pendingCount = appointments.filter(a => a.status === "pending").length;
   const upcomingCount = appointments.filter(a => a.status === "approved" && new Date(a.requested_date) >= new Date()).length;
+  const hasLocation = Boolean(userLocation.city || userLocation.pincode);
 
   if (isLoading) {
     return (
@@ -332,61 +333,83 @@ const PatientAppointments = () => {
   }
 
   return (
-    <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-4">
-      {/* Page title + actions */}
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Calendar className="h-5 w-5 text-primary" />
+    <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-5">
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Calendar className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-lg font-bold text-foreground leading-tight">Appointments</h1>
+              <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                Book, track, and manage your visits without leaving the app.
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h1 className="text-lg font-bold text-foreground leading-tight">Appointments</h1>
-            <p className="text-[13px] text-muted-foreground truncate">Book &amp; manage visits</p>
-          </div>
+          <Button
+            size="icon"
+            onClick={() => setShowBookingDialog(true)}
+            className="h-10 w-10 shrink-0 rounded-xl"
+            aria-label="Book appointment"
+          >
+            <CalendarPlus className="h-4 w-4" />
+          </Button>
         </div>
-        <Button size="sm" onClick={() => setShowBookingDialog(true)} className="shrink-0 gap-1.5 rounded-xl">
-          <CalendarPlus className="h-4 w-4" />
-          <span className="hidden min-[400px]:inline">Book</span>
-        </Button>
-      </div>
 
-      {/* Quick stats */}
-      <div className="grid grid-cols-2 gap-2 mb-5">
-        <div className="rounded-xl border border-border bg-card p-3 flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <Clock className="h-4 w-4 text-primary" />
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="rounded-xl border border-border bg-background p-3 flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Clock className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-foreground leading-none">{pendingCount}</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">Pending</p>
+            </div>
           </div>
-          <div>
-            <p className="text-lg font-bold text-foreground leading-none">{pendingCount}</p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">Pending</p>
+          <div className="rounded-xl border border-border bg-background p-3 flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <CheckCircle className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-foreground leading-none">{upcomingCount}</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">Upcoming</p>
+            </div>
           </div>
         </div>
-        <div className="rounded-xl border border-border bg-card p-3 flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <CheckCircle className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <p className="text-lg font-bold text-foreground leading-none">{upcomingCount}</p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">Upcoming</p>
-          </div>
-        </div>
-      </div>
+      </section>
 
-      {/* Nearby Doctors — compact horizontal scroll */}
-      <section className="mb-5">
-        <div className="flex items-baseline justify-between mb-2.5">
-          <h2 className="text-[15px] font-bold text-foreground">
-            {userLocation.city ? `Doctors near ${userLocation.city}` : "Available Doctors"}
-          </h2>
-          <button onClick={() => setShowLocationDialog(true)} className="text-xs text-primary font-medium flex items-center gap-1">
-            <MapPin className="h-3 w-3" /> {userLocation.city || "Set location"}
-          </button>
+      <section className="space-y-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-[15px] font-bold text-foreground">Available Doctors</h2>
+          <Button
+            variant={hasLocation ? "outline" : "secondary"}
+            size="sm"
+            onClick={() => setShowLocationDialog(true)}
+            className="h-8 rounded-full px-3 text-xs"
+          >
+            <MapPin className="mr-1 h-3.5 w-3.5" />
+            <span className="max-w-[7.5rem] truncate">{userLocation.city || userLocation.pincode || "Set location"}</span>
+          </Button>
         </div>
 
         {sortedDoctors.length === 0 ? (
-          <div className="rounded-xl border border-border p-6 text-center">
-            <Stethoscope className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">No doctors available yet</p>
+          <div className="rounded-2xl border border-border bg-card p-5 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+              <Stethoscope className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="text-base font-semibold text-foreground">
+              {hasLocation ? "No doctors found nearby yet" : "Set your location to see nearby doctors"}
+            </h3>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              {hasLocation
+                ? "Try another area or check back later when more doctors are available."
+                : "Add your city or pincode first so we can show the most relevant doctors for you."}
+            </p>
+            <Button onClick={() => setShowLocationDialog(true)} variant="outline" className="mt-4 w-full rounded-xl">
+              <MapPin className="mr-2 h-4 w-4" />
+              {hasLocation ? "Change location" : "Set location"}
+            </Button>
           </div>
         ) : (
           <div className="-mx-4 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-2 sm:overflow-visible sm:px-0">
@@ -394,7 +417,7 @@ const PatientAppointments = () => {
               <button
                 key={doctor.user_id}
                 onClick={() => { setSelectedDoctorId(doctor.user_id); setShowBookingDialog(true); }}
-                className="min-w-[75%] snap-start rounded-xl border border-border bg-card p-3.5 text-left hover:border-primary/30 transition-colors sm:min-w-0"
+                className="min-w-[82%] snap-start rounded-2xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/30 sm:min-w-0"
               >
                 <div className="flex items-start justify-between gap-2 mb-1.5">
                   <div className="min-w-0">
@@ -407,7 +430,7 @@ const PatientAppointments = () => {
                     </span>
                   )}
                 </div>
-                <div className="space-y-0.5 text-[12px] text-muted-foreground">
+                <div className="space-y-1 text-[12px] text-muted-foreground">
                   {doctor.clinic_name && <p className="flex items-center gap-1.5 truncate"><MapPin className="h-3 w-3 shrink-0" />{doctor.clinic_name}{doctor.city && `, ${doctor.city}`}</p>}
                   {doctor.distance !== undefined && (
                     <p className="flex items-center gap-1.5 text-primary"><Navigation className="h-3 w-3 shrink-0" />{doctor.distance < 1 ? `${Math.round(doctor.distance * 1000)}m` : `${doctor.distance.toFixed(1)} km`}</p>
@@ -419,28 +442,40 @@ const PatientAppointments = () => {
         )}
       </section>
 
-      {/* Appointments list */}
-      <section>
-        <h2 className="text-[15px] font-bold text-foreground mb-2.5">
+      <section className="space-y-2.5">
+        <h2 className="text-[15px] font-bold text-foreground">
           Your Appointments
           {appointments.length > 0 && <span className="ml-1.5 text-[12px] font-normal text-muted-foreground">({appointments.length})</span>}
         </h2>
 
         {appointments.length === 0 ? (
-          <div className="rounded-xl border border-border p-8 text-center">
-            <CalendarPlus className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm font-medium text-foreground mb-1">No appointments yet</p>
-            <p className="text-[13px] text-muted-foreground mb-3">Book your first visit with a doctor.</p>
-            <Button size="sm" onClick={() => setShowBookingDialog(true)} className="rounded-xl">
-              <CalendarPlus className="h-4 w-4 mr-1.5" /> Book Appointment
-            </Button>
+          <div className="rounded-2xl border border-border bg-card p-5 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+              <CalendarPlus className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="text-base font-semibold text-foreground">No appointments yet</h3>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              Book your first visit and track approvals, upcoming times, and doctor notes here.
+            </p>
+            <div className="mt-4 grid gap-2">
+              <Button onClick={() => setShowBookingDialog(true)} className="w-full rounded-xl" disabled={!sortedDoctors.length}>
+                <CalendarPlus className="mr-2 h-4 w-4" />
+                Book appointment
+              </Button>
+              {!hasLocation && (
+                <Button variant="outline" onClick={() => setShowLocationDialog(true)} className="w-full rounded-xl">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  Add location first
+                </Button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="space-y-2">
             {appointments.map((appointment) => {
               const doctor = doctors.find(d => d.user_id === appointment.doctor_id);
               return (
-                <div key={appointment.id} className="rounded-xl border border-border bg-card p-3.5">
+                <div key={appointment.id} className="rounded-2xl border border-border bg-card p-3.5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 space-y-1">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px]">
@@ -455,7 +490,7 @@ const PatientAppointments = () => {
                       )}
                       {appointment.reason && <p className="text-[12px] text-muted-foreground truncate">{appointment.reason}</p>}
                       {appointment.doctor_notes && appointment.status !== "pending" && (
-                        <p className="text-[12px] bg-muted/50 rounded-lg p-2 mt-1">Note: {appointment.doctor_notes}</p>
+                        <p className="mt-1 rounded-lg bg-muted/50 p-2 text-[12px]">Note: {appointment.doctor_notes}</p>
                       )}
                     </div>
                     <div className="shrink-0">{getStatusBadge(appointment.status)}</div>
@@ -466,6 +501,29 @@ const PatientAppointments = () => {
           </div>
         )}
       </section>
+
+      {appointments.length === 0 && (
+        <section className="rounded-2xl border border-border bg-card p-4">
+          <h3 className="text-sm font-semibold text-foreground">How booking works</h3>
+          <div className="mt-3 space-y-3">
+            {[
+              { icon: MapPin, title: "Set your location", copy: "We show doctors nearest to your city or pincode." },
+              { icon: CalendarPlus, title: "Request a slot", copy: "Pick a doctor, date, and time that works for you." },
+              { icon: CheckCircle, title: "Track updates", copy: "See approvals, upcoming visits, and notes in one place." },
+            ].map((step) => (
+              <div key={step.title} className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <step.icon className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{step.title}</p>
+                  <p className="text-xs leading-relaxed text-muted-foreground">{step.copy}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Location Dialog */}
       <Dialog open={showLocationDialog} onOpenChange={setShowLocationDialog}>
