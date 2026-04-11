@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Home, TrendingUp, FolderOpen, Calendar, User, BookOpen } from "lucide-react";
+import { Home, TrendingUp, FolderOpen, Calendar, User, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
 const tabs = [
   { id: "home", label: "Home", icon: Home, path: "/app" },
-  { id: "story", label: "Our Story", icon: BookOpen, path: "/app/story" },
+  { id: "vaccines", label: "Vaccines", icon: Shield, path: "/app/vaccinations" },
   { id: "trends", label: "Trends", icon: TrendingUp, path: "/app/trends" },
   { id: "records", label: "Records", icon: FolderOpen, path: "/app/records" },
   { id: "appointments", label: "Appts", icon: Calendar, path: "/app/appointments" },
