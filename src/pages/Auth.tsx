@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -18,8 +18,45 @@ type UserRole = "doctor" | "patient";
 type AuthMode = "password" | "otp";
 type OtpMethod = "email" | "phone";
 
+type PendingSignupDraft = {
+  role?: UserRole;
+  name?: string;
+  phone?: string;
+  healthId?: string;
+  dateOfBirth?: string;
+  weight?: string;
+};
+
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 60; // seconds
+const SIGNUP_DRAFT_KEY = "vyana-signup-draft";
+
+const getStoredSignupDraft = (): PendingSignupDraft | null => {
+  try {
+    const stored = localStorage.getItem(SIGNUP_DRAFT_KEY);
+    return stored ? (JSON.parse(stored) as PendingSignupDraft) : null;
+  } catch {
+    return null;
+  }
+};
+
+const setStoredSignupDraft = (draft: PendingSignupDraft | null) => {
+  if (!draft) {
+    localStorage.removeItem(SIGNUP_DRAFT_KEY);
+    return;
+  }
+
+  localStorage.setItem(SIGNUP_DRAFT_KEY, JSON.stringify(draft));
+};
+
+const calculateAge = (dateOfBirth?: string | null) => {
+  if (!dateOfBirth) return null;
+
+  const dob = new Date(dateOfBirth);
+  if (Number.isNaN(dob.getTime())) return null;
+
+  return Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+};
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -50,7 +87,122 @@ const Auth = () => {
   
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { lang } = useLanguage();
+  useLanguage();
+
+  const buildSignupDraft = useCallback(
+    (): PendingSignupDraft => ({
+      role: userRole,
+      name: name.trim() || undefined,
+      phone: phone.trim() || undefined,
+      healthId: healthId || undefined,
+      dateOfBirth: dateOfBirth || undefined,
+      weight: weight || undefined,
+    }),
+    [userRole, name, phone, healthId, dateOfBirth, weight],
+  );
+
+  const redirectBasedOnRole = useCallback(async (userId: string, fallbackRole?: UserRole | "admin" | null) => {
+    const { data: roles, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    if (error) throw error;
+
+    const role = roles?.[0]?.role ?? fallbackRole;
+
+    if (role === "doctor" || role === "admin") {
+      const { data: profile } = await supabase
+        .from("doctor_profiles")
+        .select("is_profile_complete")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (!profile || !profile.is_profile_complete) navigate("/doctor-profile-setup");
+      else navigate("/doctor-dashboard");
+      return;
+    }
+
+    if (role === "patient") {
+      navigate("/app");
+      return;
+    }
+
+    toast({
+      title: "Account setup incomplete",
+      description: "Please choose whether you're signing up as a doctor or patient and try again.",
+      variant: "destructive",
+    });
+  }, [navigate, toast]);
+
+  const ensureAccountSetup = useCallback(async (userId: string, metadata?: Record<string, any>) => {
+    const signupDraft = getStoredSignupDraft();
+    const fallbackRole = metadata?.role ?? signupDraft?.role ?? null;
+
+    const { data: existingRole, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (roleError) throw roleError;
+
+    const resolvedRole = (existingRole?.role ?? fallbackRole) as UserRole | "admin" | null;
+
+    if (!existingRole && resolvedRole && resolvedRole !== "admin") {
+      const { error: insertRoleError } = await supabase
+        .from("user_roles")
+        .insert({ user_id: userId, role: resolvedRole });
+
+      if (insertRoleError && insertRoleError.code !== "23505") throw insertRoleError;
+    }
+
+    if (resolvedRole === "patient") {
+      const { data: existingPatient, error: patientLookupError } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (patientLookupError) throw patientLookupError;
+
+      if (!existingPatient) {
+        const patientName = signupDraft?.name ?? metadata?.name ?? metadata?.full_name ?? metadata?.display_name ?? metadata?.email?.split("@")[0] ?? "Patient";
+        const patientWeight = signupDraft?.weight ? parseFloat(signupDraft.weight) : null;
+
+        const { error: insertPatientError } = await supabase.from("patients").insert({
+          user_id: userId,
+          name: patientName,
+          phone: signupDraft?.phone ?? null,
+          national_health_id: signupDraft?.healthId ?? null,
+          date_of_birth: signupDraft?.dateOfBirth ?? null,
+          weight: Number.isFinite(patientWeight) ? patientWeight : null,
+          age: calculateAge(signupDraft?.dateOfBirth),
+        });
+
+        if (insertPatientError) throw insertPatientError;
+      }
+    }
+
+    if (resolvedRole) {
+      setStoredSignupDraft(null);
+    }
+
+    return resolvedRole;
+  }, []);
+
+  const handleAuthenticatedUser = useCallback(async (userId: string, metadata?: Record<string, any>) => {
+    try {
+      const role = await ensureAccountSetup(userId, metadata);
+      await redirectBasedOnRole(userId, role);
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error?.message ?? "We couldn't finish signing you in.",
+        variant: "destructive",
+      });
+    }
+  }, [ensureAccountSetup, redirectBasedOnRole, toast]);
 
   // Load attempts from sessionStorage
   useEffect(() => {
@@ -88,14 +240,25 @@ const Auth = () => {
   }, [lockoutEnd]);
 
   useEffect(() => {
+    let isMounted = true;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) redirectBasedOnRole(session.user.id);
+      if (!isMounted || !session) return;
+      void handleAuthenticatedUser(session.user.id, session.user.user_metadata);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) setTimeout(() => redirectBasedOnRole(session.user.id), 0);
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted || !session) return;
+      window.setTimeout(() => {
+        void handleAuthenticatedUser(session.user.id, session.user.user_metadata);
+      }, 0);
     });
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [handleAuthenticatedUser]);
 
   const recordAttempt = () => {
     const newAttempts = attempts + 1;
@@ -109,20 +272,6 @@ const Auth = () => {
   };
 
   const isLockedOut = lockoutEnd !== null && Date.now() < lockoutEnd;
-
-  const redirectBasedOnRole = async (userId: string) => {
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-    if (roles && roles.length > 0) {
-      const role = roles[0].role;
-      if (role === "doctor" || role === "admin") {
-        const { data: profile } = await supabase.from("doctor_profiles").select("is_profile_complete").eq("user_id", userId).maybeSingle();
-        if (!profile || !profile.is_profile_complete) navigate("/doctor-profile-setup");
-        else navigate("/doctor-dashboard");
-      } else if (role === "patient") {
-        navigate("/app");
-      } else navigate("/doctor-profile-setup");
-    } else navigate("/doctor-profile-setup");
-  };
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -170,26 +319,35 @@ const Auth = () => {
     setLoading(true);
     try {
       if (isSignUp) {
+        const signupDraft = buildSignupDraft();
+        setStoredSignupDraft(signupDraft);
+
         const { data, error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: `${window.location.origin}/auth`, data: { role: userRole, name } },
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth`,
+            data: {
+              role: signupDraft.role,
+              name: signupDraft.name,
+              phone: signupDraft.phone,
+              healthId: signupDraft.healthId,
+              dateOfBirth: signupDraft.dateOfBirth,
+              weight: signupDraft.weight,
+            },
+          },
         });
         if (error) throw error;
-        if (data.user) {
-          await supabase.from("user_roles").insert({ user_id: data.user.id, role: userRole });
-          if (userRole === "patient") {
-            await supabase.from("patients").insert({
-              user_id: data.user.id,
-              name,
-              phone: phone || null,
-              national_health_id: healthId || null,
-              date_of_birth: dateOfBirth || null,
-              weight: weight ? parseFloat(weight) : null,
-              age: dateOfBirth ? Math.floor((Date.now() - new Date(dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null,
-            });
-          }
+        if (data.session && data.user) {
+          await handleAuthenticatedUser(data.user.id, data.user.user_metadata);
         }
-        toast({ title: "Account created!", description: userRole === "doctor" ? "Please complete your profile." : "You can now sign in." });
+        toast({
+          title: "Account created!",
+          description: data.session
+            ? userRole === "doctor"
+              ? "Please complete your profile."
+              : "You're signed in now."
+            : "Check your email, verify your account, then sign in.",
+        });
         setIsSignUp(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -253,6 +411,10 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
+      if (isSignUp) {
+        setStoredSignupDraft(buildSignupDraft());
+      }
+
       const isNativeApp = Capacitor.isNativePlatform();
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: isNativeApp ? "lovable://oauth-callback" : window.location.origin,
