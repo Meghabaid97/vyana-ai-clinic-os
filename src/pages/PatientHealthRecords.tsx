@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, FolderOpen, Upload } from "lucide-react";
+import { Loader2, FolderOpen, Upload, ChevronRight, Shield } from "lucide-react";
 import HealthRecordsTab from "@/components/HealthRecordsTab";
 
 interface PatientProfile {
@@ -76,29 +77,64 @@ const PatientHealthRecords = () => {
   }
 
   return (
-    <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-4">
-      {/* Page title */}
-      <div className="flex items-center gap-3 mb-5">
-        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <FolderOpen className="h-5 w-5 text-primary" />
+    <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+            <FolderOpen className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-lg font-bold text-foreground leading-tight">Health Records</h1>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+              {profile
+                ? "Upload, summarize, and share your medical documents securely."
+                : "Finish your health profile to unlock uploads, summaries, and doctor sharing."}
+            </p>
+          </div>
         </div>
-        <div className="min-w-0">
-          <h1 className="text-lg font-bold text-foreground leading-tight">Health Records</h1>
-          <p className="text-[13px] text-muted-foreground">Upload and manage your documents</p>
-        </div>
-      </div>
+      </section>
 
-      {/* Records content */}
       {profile && userId ? (
         <HealthRecordsTab patientId={profile.id} userId={userId} doctors={doctors} />
       ) : (
-        <div className="rounded-xl border border-border p-8 text-center">
-          <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-          <p className="text-sm text-muted-foreground">Complete your profile to start uploading records.</p>
-        </div>
+        <>
+          <section className="rounded-2xl border border-border bg-card p-5">
+            <div className="flex flex-col gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+                <Upload className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Complete your profile first</h2>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  Add your essential health details once, then come back here to upload prescriptions, reports, and scans.
+                </p>
+              </div>
+              <Button onClick={() => navigate("/app/profile")} className="w-full justify-between rounded-xl">
+                Complete profile
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+
+          <section className="space-y-2">
+            {[
+              "Keep prescriptions and lab reports in one place",
+              "Generate quick AI summaries for easier review",
+              "Share selected records only when you choose",
+            ].map((item) => (
+              <div key={item} className="flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3">
+                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Shield className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <p className="text-sm text-foreground">{item}</p>
+              </div>
+            ))}
+          </section>
+        </>
       )}
     </div>
   );
 };
 
 export default PatientHealthRecords;
+
