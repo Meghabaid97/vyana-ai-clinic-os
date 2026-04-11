@@ -32,7 +32,7 @@ const handleOAuthCallback = async (url: string) => {
     if (accessToken && refreshToken) {
       await supabase.auth.setSession({
         access_token: accessToken,
-        refresh_token: refresh_token,
+        refresh_token: refreshToken,
       });
       window.location.replace("/app");
     }
