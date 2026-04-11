@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useNavigate } from "react-router-dom";
@@ -252,7 +253,7 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
-      const isNativeApp = /Capacitor|iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isNativeApp = Capacitor.isNativePlatform();
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: isNativeApp ? "lovable://oauth-callback" : window.location.origin,
       });
