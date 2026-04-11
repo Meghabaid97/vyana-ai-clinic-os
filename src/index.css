@@ -159,14 +159,13 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Capacitor native shell: the WebView sits behind the status bar,
-   so we need extra space even when env() resolves to 0.
-   Capacitor injects a class or we detect it via a CSS custom property. */
-@supports (padding-top: env(safe-area-inset-top)) {
-  .native-shell .safe-area-top {
-    padding-top: calc(env(safe-area-inset-top, 0px) + 0px);
-  }
-  .native-shell .safe-area-bottom {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0px);
-  }
+/* Native Capacitor app: guaranteed minimum clearance for status bar + home indicator.
+   The .capacitor class is added to <html> at runtime by main.tsx */
+html.capacitor .safe-area-top {
+  padding-top: calc(env(safe-area-inset-top, 44px) + 0px);
+  /* 44px is iPhone notch fallback if env() returns 0 */
+  min-height: 44px;
+}
+html.capacitor .safe-area-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom, 34px) + 0px);
 }
