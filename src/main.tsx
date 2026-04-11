@@ -1,8 +1,13 @@
 import { createRoot } from "react-dom/client";
 import { App as CapacitorApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 import App from "./App.tsx";
 import { supabase } from "@/integrations/supabase/client";
 import "./index.css";
+
+if (Capacitor.isNativePlatform()) {
+  document.documentElement.classList.add("capacitor");
+}
 
 const handleOAuthCallback = async (url: string) => {
   try {

@@ -34,7 +34,7 @@ const Splash = () => {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center safe-area-top safe-area-bottom">
         <div className="animate-fade-in space-y-3 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">
             V<span className="text-primary">yana</span>
@@ -46,7 +46,7 @@ const Splash = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
       {/* Brand hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
         <div className="animate-fade-in space-y-5 max-w-sm">

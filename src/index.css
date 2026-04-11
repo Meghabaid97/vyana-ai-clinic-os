@@ -153,8 +153,19 @@
 
 /* Safe areas for native app */
 .safe-area-top {
-  padding-top: max(env(safe-area-inset-top, 0px), 20px);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 .safe-area-bottom {
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Native Capacitor app: guaranteed minimum clearance for status bar + home indicator.
+   The .capacitor class is added to <html> at runtime by main.tsx */
+html.capacitor .safe-area-top {
+  padding-top: calc(env(safe-area-inset-top, 44px) + 0px);
+  /* 44px is iPhone notch fallback if env() returns 0 */
+  min-height: 44px;
+}
+html.capacitor .safe-area-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom, 34px) + 0px);
 }
