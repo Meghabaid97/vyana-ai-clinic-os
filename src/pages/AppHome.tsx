@@ -207,7 +207,7 @@ const AppHome = () => {
         <h2 className="text-lg font-bold text-foreground mb-1">
           Not features. <span className="text-primary">Promises.</span>
         </h2>
-        <p className="text-[13px] text-muted-foreground mb-4">Six things we will never compromise on.</p>
+        <p className="text-[13px] text-muted-foreground mb-4">Seven things we will never compromise on.</p>
 
         <div className="space-y-2.5">
           {[
