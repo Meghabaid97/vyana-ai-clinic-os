@@ -9,6 +9,17 @@ if (Capacitor.isNativePlatform()) {
   document.documentElement.classList.add("capacitor");
 }
 
+const OAUTH_CALLBACK_HOST = "oauth-callback";
+
+const isOAuthCallbackUrl = (url: string) => {
+  try {
+    const parsedUrl = new URL(url);
+    return parsedUrl.protocol === "lovable:" && parsedUrl.host === OAUTH_CALLBACK_HOST;
+  } catch {
+    return false;
+  }
+};
+
 const handleOAuthCallback = async (url: string) => {
   try {
     const parsedUrl = new URL(url);
@@ -21,8 +32,9 @@ const handleOAuthCallback = async (url: string) => {
     if (accessToken && refreshToken) {
       await supabase.auth.setSession({
         access_token: accessToken,
-        refresh_token: refreshToken,
+        refresh_token: refresh_token,
       });
+      window.location.replace("/app");
     }
   } catch (error) {
     console.error("Failed to handle OAuth callback", error);
@@ -30,17 +42,14 @@ const handleOAuthCallback = async (url: string) => {
 };
 
 void CapacitorApp.addListener("appUrlOpen", ({ url }) => {
-  if (!url) return;
-  if (url.startsWith("lovable://oauth-callback")) {
-    void handleOAuthCallback(url);
-  }
+  if (!url || !isOAuthCallbackUrl(url)) return;
+  void handleOAuthCallback(url);
 });
 
 void CapacitorApp.getLaunchUrl().then((result) => {
   const url = result?.url;
-  if (url?.startsWith("lovable://oauth-callback")) {
-    void handleOAuthCallback(url);
-  }
+  if (!url || !isOAuthCallbackUrl(url)) return;
+  void handleOAuthCallback(url);
 });
 
 createRoot(document.getElementById("root")!).render(<App />);
