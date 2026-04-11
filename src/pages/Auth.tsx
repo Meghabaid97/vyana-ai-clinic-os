@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -134,7 +135,7 @@ const Auth = () => {
   };
 
   const handleHealthIdChange = (value: string) => {
-    const cleaned = value.replace(/\D/g, '').slice(0, 12);
+    const cleaned = value.replace(/\D/g, '').slice(0, 14);
     setHealthId(cleaned);
     setHealthIdError("");
   };
@@ -251,8 +252,16 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth` } });
-      if (error) throw error;
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        throw result.error;
+      }
+      if (result.redirected) {
+        return;
+      }
+      // Session is set — redirect will happen via onAuthStateChange
     } catch (error: any) {
       toast({ title: "Authentication Error", description: error.message, variant: "destructive" });
     }
