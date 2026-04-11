@@ -1,15 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import PatientHeader from "@/components/PatientHeader";
-import {
-  Loader2,
-  ArrowLeft,
-  FolderOpen,
-} from "lucide-react";
+import { Loader2, FolderOpen, Upload } from "lucide-react";
 import HealthRecordsTab from "@/components/HealthRecordsTab";
 
 interface PatientProfile {
@@ -38,13 +31,9 @@ const PatientHealthRecords = () => {
   const loadData = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/auth");
-        return;
-      }
+      if (!session) { navigate("/auth"); return; }
       setUserId(session.user.id);
 
-      // Load patient profile
       const { data: patientData } = await supabase
         .from("patients")
         .select("*")
@@ -54,7 +43,6 @@ const PatientHealthRecords = () => {
       if (patientData) {
         setProfile(patientData);
 
-        // Get doctors from consultations
         if (patientData.national_health_id) {
           const { data: consultationsData } = await supabase
             .from("consultations")
@@ -65,24 +53,15 @@ const PatientHealthRecords = () => {
           if (consultationsData) {
             const doctorMap = new Map<string, string>();
             consultationsData.forEach(c => {
-              if (!doctorMap.has(c.doctor_id)) {
-                doctorMap.set(c.doctor_id, c.created_at);
-              }
+              if (!doctorMap.has(c.doctor_id)) doctorMap.set(c.doctor_id, c.created_at);
             });
-            setDoctors(Array.from(doctorMap.entries()).map(([doctor_id, lastVisit]) => ({
-              doctor_id,
-              lastVisit,
-            })));
+            setDoctors(Array.from(doctorMap.entries()).map(([doctor_id, lastVisit]) => ({ doctor_id, lastVisit })));
           }
         }
       }
     } catch (error: any) {
       console.error("Error loading data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load health records",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to load health records", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -90,48 +69,34 @@ const PatientHealthRecords = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <PatientHeader patientName="Patient" title="Health Records" subtitle="Upload and manage your medical documents" />
-
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <Button
-          variant="ghost"
-          className="mb-6"
-          onClick={() => navigate("/app")}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
-        </Button>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <FolderOpen className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold">Your Health Records</h2>
-              <p className="text-sm text-muted-foreground">
-                Upload prescriptions, lab reports, and medical documents
-              </p>
-            </div>
-          </div>
-
-          {profile && userId && (
-            <HealthRecordsTab
-              patientId={profile.id}
-              userId={userId}
-              doctors={doctors}
-            />
-          )}
-        </Card>
+    <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-4">
+      {/* Page title */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+          <FolderOpen className="h-5 w-5 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold text-foreground leading-tight">Health Records</h1>
+          <p className="text-[13px] text-muted-foreground">Upload and manage your documents</p>
+        </div>
       </div>
+
+      {/* Records content */}
+      {profile && userId ? (
+        <HealthRecordsTab patientId={profile.id} userId={userId} doctors={doctors} />
+      ) : (
+        <div className="rounded-xl border border-border p-8 text-center">
+          <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+          <p className="text-sm text-muted-foreground">Complete your profile to start uploading records.</p>
+        </div>
+      )}
     </div>
   );
 };

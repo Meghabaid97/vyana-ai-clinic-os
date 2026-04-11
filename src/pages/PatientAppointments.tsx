@@ -1,19 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import PatientHeader from "@/components/PatientHeader";
 import LocationSelector from "@/components/LocationSelector";
 import { calculateDistance } from "@/lib/formatters";
 import {
   Loader2,
   Calendar,
-  ArrowLeft,
   CalendarPlus,
   CheckCircle,
   XCircle,
@@ -23,7 +20,6 @@ import {
   Star,
   Navigation,
   Stethoscope,
-  Search,
 } from "lucide-react";
 import {
   Dialog,
@@ -336,205 +332,140 @@ const PatientAppointments = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
-      <PatientHeader patientName={profile?.name || "Patient"} title="Appointments" subtitle="Book and manage your appointments" />
-
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/app")}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => setShowLocationDialog(true)}>
-              <MapPin className="h-4 w-4 mr-2" />
-              {userLocation.city || "Set Location"}
-            </Button>
-            <Button onClick={() => setShowBookingDialog(true)}>
-              <CalendarPlus className="h-4 w-4 mr-2" />
-              Book Appointment
-            </Button>
+    <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-4">
+      {/* Page title + actions */}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Calendar className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-lg font-bold text-foreground leading-tight">Appointments</h1>
+            <p className="text-[13px] text-muted-foreground truncate">Book &amp; manage visits</p>
           </div>
         </div>
+        <Button size="sm" onClick={() => setShowBookingDialog(true)} className="shrink-0 gap-1.5 rounded-xl">
+          <CalendarPlus className="h-4 w-4" />
+          <span className="hidden min-[400px]:inline">Book</span>
+        </Button>
+      </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <Card className="p-4 bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/20">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-amber-600">{pendingCount}</p>
-                <p className="text-xs text-muted-foreground">Pending</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-4 bg-gradient-to-br from-green-500/10 to-transparent border-green-500/20">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-green-500/20 flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-green-600">{upcomingCount}</p>
-                <p className="text-xs text-muted-foreground">Upcoming</p>
-              </div>
-            </div>
-          </Card>
+      {/* Quick stats */}
+      <div className="grid grid-cols-2 gap-2 mb-5">
+        <div className="rounded-xl border border-border bg-card p-3 flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <Clock className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-foreground leading-none">{pendingCount}</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">Pending</p>
+          </div>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-3 flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <CheckCircle className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-foreground leading-none">{upcomingCount}</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">Upcoming</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Nearby Doctors — compact horizontal scroll */}
+      <section className="mb-5">
+        <div className="flex items-baseline justify-between mb-2.5">
+          <h2 className="text-[15px] font-bold text-foreground">
+            {userLocation.city ? `Doctors near ${userLocation.city}` : "Available Doctors"}
+          </h2>
+          <button onClick={() => setShowLocationDialog(true)} className="text-xs text-primary font-medium flex items-center gap-1">
+            <MapPin className="h-3 w-3" /> {userLocation.city || "Set location"}
+          </button>
         </div>
 
-        {/* Nearby Doctors */}
-        <Card className="p-6 mb-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                <Stethoscope className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold">
-                  {userLocation.city ? `Doctors near ${userLocation.city}` : "Available Doctors"}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {sortedDoctors.length} doctor{sortedDoctors.length !== 1 ? "s" : ""} available
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" onClick={() => navigate("/find-doctors")} className="gap-2">
-              <Search className="h-4 w-4" />
-              Search All Doctors
+        {sortedDoctors.length === 0 ? (
+          <div className="rounded-xl border border-border p-6 text-center">
+            <Stethoscope className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">No doctors available yet</p>
+          </div>
+        ) : (
+          <div className="-mx-4 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-2 sm:overflow-visible sm:px-0">
+            {sortedDoctors.slice(0, 6).map((doctor) => (
+              <button
+                key={doctor.user_id}
+                onClick={() => { setSelectedDoctorId(doctor.user_id); setShowBookingDialog(true); }}
+                className="min-w-[75%] snap-start rounded-xl border border-border bg-card p-3.5 text-left hover:border-primary/30 transition-colors sm:min-w-0"
+              >
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="min-w-0">
+                    <h3 className="text-[14px] font-semibold text-foreground truncate">Dr. {doctor.full_name}</h3>
+                    {doctor.specialization && <p className="text-[12px] text-muted-foreground truncate">{doctor.specialization}</p>}
+                  </div>
+                  {doctor.avgRating !== undefined && (
+                    <span className="shrink-0 flex items-center gap-0.5 text-[12px] font-medium text-primary">
+                      <Star className="h-3 w-3 fill-primary" /> {doctor.avgRating.toFixed(1)}
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-0.5 text-[12px] text-muted-foreground">
+                  {doctor.clinic_name && <p className="flex items-center gap-1.5 truncate"><MapPin className="h-3 w-3 shrink-0" />{doctor.clinic_name}{doctor.city && `, ${doctor.city}`}</p>}
+                  {doctor.distance !== undefined && (
+                    <p className="flex items-center gap-1.5 text-primary"><Navigation className="h-3 w-3 shrink-0" />{doctor.distance < 1 ? `${Math.round(doctor.distance * 1000)}m` : `${doctor.distance.toFixed(1)} km`}</p>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Appointments list */}
+      <section>
+        <h2 className="text-[15px] font-bold text-foreground mb-2.5">
+          Your Appointments
+          {appointments.length > 0 && <span className="ml-1.5 text-[12px] font-normal text-muted-foreground">({appointments.length})</span>}
+        </h2>
+
+        {appointments.length === 0 ? (
+          <div className="rounded-xl border border-border p-8 text-center">
+            <CalendarPlus className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+            <p className="text-sm font-medium text-foreground mb-1">No appointments yet</p>
+            <p className="text-[13px] text-muted-foreground mb-3">Book your first visit with a doctor.</p>
+            <Button size="sm" onClick={() => setShowBookingDialog(true)} className="rounded-xl">
+              <CalendarPlus className="h-4 w-4 mr-1.5" /> Book Appointment
             </Button>
           </div>
-
-          {sortedDoctors.length === 0 ? (
-            <div className="p-8 text-center">
-              <Stethoscope className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No doctors available</h3>
-              <p className="text-muted-foreground">
-                Check back later or adjust your location
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {sortedDoctors.slice(0, 6).map((doctor) => (
-                <Card 
-                  key={doctor.user_id} 
-                  className="p-4 hover:shadow-soft hover:border-primary/30 transition-all cursor-pointer"
-                  onClick={() => {
-                    setSelectedDoctorId(doctor.user_id);
-                    setShowBookingDialog(true);
-                  }}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold">Dr. {doctor.full_name}</h3>
-                      {doctor.specialization && (
-                        <p className="text-sm text-muted-foreground">{doctor.specialization}</p>
+        ) : (
+          <div className="space-y-2">
+            {appointments.map((appointment) => {
+              const doctor = doctors.find(d => d.user_id === appointment.doctor_id);
+              return (
+                <div key={appointment.id} className="rounded-xl border border-border bg-card p-3.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px]">
+                        <span className="font-semibold text-foreground">{formatDate(appointment.requested_date)}</span>
+                        <span className="text-muted-foreground">·</span>
+                        <span className="text-foreground">{appointment.requested_time_slot}</span>
+                      </div>
+                      {doctor && (
+                        <p className="text-[12px] text-muted-foreground truncate">
+                          Dr. {doctor.full_name}{doctor.specialization && ` · ${doctor.specialization}`}
+                        </p>
+                      )}
+                      {appointment.reason && <p className="text-[12px] text-muted-foreground truncate">{appointment.reason}</p>}
+                      {appointment.doctor_notes && appointment.status !== "pending" && (
+                        <p className="text-[12px] bg-muted/50 rounded-lg p-2 mt-1">Note: {appointment.doctor_notes}</p>
                       )}
                     </div>
-                    {doctor.avgRating !== undefined && (
-                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10">
-                        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                        <span className="text-sm font-medium text-amber-600">
-                          {doctor.avgRating.toFixed(1)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          ({doctor.totalRatings})
-                        </span>
-                      </div>
-                    )}
+                    <div className="shrink-0">{getStatusBadge(appointment.status)}</div>
                   </div>
-                  
-                  <div className="space-y-1.5 text-sm text-muted-foreground">
-                    {doctor.clinic_name && (
-                      <p className="flex items-center gap-2">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {doctor.clinic_name}
-                        {doctor.city && `, ${doctor.city}`}
-                      </p>
-                    )}
-                    {doctor.distance !== undefined && (
-                      <p className="flex items-center gap-2 text-primary">
-                        <Navigation className="h-3.5 w-3.5" />
-                        {doctor.distance < 1 
-                          ? `${Math.round(doctor.distance * 1000)}m away`
-                          : `${doctor.distance.toFixed(1)} km away`}
-                      </p>
-                    )}
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </Card>
-
-        {/* Appointments List */}
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-xl bg-accent/20 flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-accent" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold">Your Appointments</h2>
-              <p className="text-sm text-muted-foreground">
-                {appointments.length} total appointment{appointments.length !== 1 ? "s" : ""}
-              </p>
-            </div>
+                </div>
+              );
+            })}
           </div>
-
-          {appointments.length === 0 ? (
-            <div className="p-8 text-center">
-              <CalendarPlus className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No appointments yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Book your first appointment with a healthcare provider.
-              </p>
-              <Button onClick={() => setShowBookingDialog(true)}>
-                <CalendarPlus className="h-4 w-4 mr-2" />
-                Book Appointment
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {appointments.map((appointment) => {
-                const doctor = doctors.find(d => d.user_id === appointment.doctor_id);
-                return (
-                  <Card key={appointment.id} className="p-4 bg-muted/30">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-primary" />
-                          <span className="font-medium">{formatDate(appointment.requested_date)}</span>
-                          <span className="text-muted-foreground">at</span>
-                          <span className="font-medium">{appointment.requested_time_slot}</span>
-                        </div>
-                        {doctor && (
-                          <p className="text-sm text-muted-foreground">
-                            Dr. {doctor.full_name} {doctor.specialization && `• ${doctor.specialization}`}
-                          </p>
-                        )}
-                        {appointment.reason && (
-                          <p className="text-sm text-muted-foreground">
-                            Reason: {appointment.reason}
-                          </p>
-                        )}
-                        {appointment.doctor_notes && appointment.status !== "pending" && (
-                          <p className="text-sm bg-muted p-2 rounded">
-                            Doctor&apos;s note: {appointment.doctor_notes}
-                          </p>
-                        )}
-                      </div>
-                      {getStatusBadge(appointment.status)}
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </Card>
-      </div>
+        )}
+      </section>
 
       {/* Location Dialog */}
       <Dialog open={showLocationDialog} onOpenChange={setShowLocationDialog}>
