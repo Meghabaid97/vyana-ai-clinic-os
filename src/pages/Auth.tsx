@@ -252,8 +252,9 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
+      const isNativeApp = /Capacitor|iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: isNativeApp ? "lovable://oauth-callback" : window.location.origin,
       });
       if (result.error) {
         throw result.error;
@@ -261,7 +262,6 @@ const Auth = () => {
       if (result.redirected) {
         return;
       }
-      // Session is set — redirect will happen via onAuthStateChange
     } catch (error: any) {
       toast({ title: "Authentication Error", description: error.message, variant: "destructive" });
     }
