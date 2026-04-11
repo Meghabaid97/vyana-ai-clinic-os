@@ -417,7 +417,7 @@ const Auth = () => {
 
       const isNativeApp = Capacitor.isNativePlatform();
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: isNativeApp ? "lovable://oauth-callback" : window.location.origin,
+        redirect_uri: isNativeApp ? "lovable://oauth-callback/" : window.location.origin,
       });
       if (result.error) {
         throw result.error;
