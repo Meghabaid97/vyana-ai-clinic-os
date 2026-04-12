@@ -63,25 +63,26 @@ const Splash = () => {
       </div>
 
       {/* Bottom CTAs */}
-      <div className="px-6 pb-10 pt-4 space-y-3 animate-fade-in" style={{ animationDelay: "200ms" }}>
-        <Button
-          onClick={() => navigate("/auth")}
-          className="w-full h-12 text-base rounded-xl group"
-        >
-          Get Started
-          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/auth")}
-          className="w-full h-12 text-base text-muted-foreground"
-        >
-          I already have an account
-        </Button>
-
-        <p className="text-center text-xs text-muted-foreground pt-2">
-          Every patient deserves a doctor who knows their story.
-        </p>
+      <div className="px-5 pb-8 pt-4 animate-fade-in" style={{ animationDelay: "200ms" }}>
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <Button
+            onClick={() => navigate("/auth")}
+            className="w-full h-12 text-base rounded-xl group"
+          >
+            Get Started
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/auth")}
+            className="w-full h-11 text-base text-muted-foreground"
+          >
+            I already have an account
+          </Button>
+          <p className="text-center text-[11px] text-muted-foreground pt-1">
+            Every patient deserves a doctor who knows their story.
+          </p>
+        </div>
       </div>
     </div>
   );
