@@ -47,13 +47,12 @@ const Splash = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
-      {/* Brand hero */}
-      <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-        <div className="animate-fade-in space-y-5 max-w-sm">
+      {/* Brand hero — pushed down ~40% for visual balance */}
+      <div className="flex-1 flex flex-col items-center justify-end pb-12 px-8 text-center">
+        <div className="animate-fade-in space-y-4 max-w-sm">
           <h1 className="text-5xl font-bold tracking-tight text-foreground">
             V<span className="text-primary">yana</span>
           </h1>
-
           <p className="text-lg text-foreground font-medium leading-snug">
             Your health story.
             <br />
@@ -62,8 +61,8 @@ const Splash = () => {
         </div>
       </div>
 
-      {/* Bottom CTAs */}
-      <div className="px-5 pb-8 pt-4 animate-fade-in" style={{ animationDelay: "200ms" }}>
+      {/* Bottom CTAs — takes remaining space, aligned to bottom */}
+      <div className="flex-1 flex flex-col justify-end px-5 pb-8 animate-fade-in" style={{ animationDelay: "200ms" }}>
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <Button
             onClick={() => navigate("/auth")}
