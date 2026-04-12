@@ -32,47 +32,47 @@ const Splash = () => {
 
   return (
     <div className="min-h-[100dvh] bg-background flex flex-col safe-area-top safe-area-bottom">
-      {/* Top spacer — pushes brand to optical center */}
-      <div className="flex-[1.1]" />
+      {/* Top spacer */}
+      <div className="flex-[1.2]" />
 
       {/* Brand block */}
       <div className="px-6 text-center">
-        <h1 className="text-[clamp(4rem,18vw,5.25rem)] font-bold tracking-tight text-foreground leading-none">
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground leading-none">
           V<span className="text-primary">yana</span>
         </h1>
-        <p className="mt-6 text-[clamp(1.6rem,6vw,2.2rem)] font-semibold leading-tight text-foreground">
+        <p className="mt-4 text-lg sm:text-xl font-semibold leading-snug text-foreground">
           Your health story.
           <br />
           <span className="text-primary">Always with you.</span>
         </p>
       </div>
 
-      {/* Bottom spacer — pushes buttons down */}
-      <div className="flex-[1.6]" />
+      {/* Bottom spacer */}
+      <div className="flex-[1.8]" />
 
-      {/* CTA block anchored near bottom */}
+      {/* CTA block */}
       <div
         className="px-6 pb-10 transition-opacity duration-300"
         style={{ opacity: checking ? 0 : 1, pointerEvents: checking ? "none" : "auto" }}
       >
-        <div className="mx-auto w-full max-w-sm">
+        <div className="mx-auto w-full max-w-xs">
           <Button
             onClick={() => navigate("/auth")}
-            className="w-full h-14 rounded-full text-lg font-medium group"
+            className="w-full h-12 rounded-full text-base font-medium group"
           >
             Get Started
-            <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
 
           <Button
             variant="ghost"
             onClick={() => navigate("/auth")}
-            className="mt-4 w-full h-11 text-base font-normal text-muted-foreground"
+            className="mt-3 w-full h-10 text-sm font-normal text-muted-foreground"
           >
             I already have an account
           </Button>
 
-          <p className="pt-8 text-center text-sm text-muted-foreground">
+          <p className="pt-6 text-center text-xs text-muted-foreground">
             Every patient deserves a doctor who knows their story.
           </p>
         </div>
