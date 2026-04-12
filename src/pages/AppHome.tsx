@@ -83,17 +83,19 @@ const AppHome = () => {
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2">
       {/* ── Hero ── */}
-      <section className="px-4 sm:px-5 pt-4 sm:pt-6 pb-4 sm:pb-5">
-        <p className="text-xs font-medium tracking-widest uppercase text-primary mb-3">
-          Welcome back, {firstName}
-        </p>
-        <h1 className="text-[clamp(1.45rem,7vw,2.25rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-foreground">
-          Your health story.{" "}
-          <span className="block text-primary">Always with you.</span>
-        </h1>
-        <p className="mt-2.5 max-w-[32ch] text-[13px] sm:text-[14px] text-muted-foreground leading-relaxed">
-          Every prescription, every lab report, every doctor visit builds your complete health picture. Quietly. Securely. So when you need it most, it is there.
-        </p>
+      <section className="px-4 sm:px-5 pt-8 sm:pt-8 pb-5 sm:pb-6">
+        <div className="max-w-sm">
+          <p className="text-xs font-medium tracking-widest uppercase text-primary mb-4">
+            Welcome back, {firstName}
+          </p>
+          <h1 className="text-[clamp(1.8rem,8vw,2.4rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-foreground">
+            Your health story.{' '}
+            <span className="block text-primary">Always with you.</span>
+          </h1>
+          <p className="mt-3 max-w-[30ch] text-[14px] sm:text-[14px] text-muted-foreground leading-relaxed">
+            Every prescription, every lab report, every doctor visit builds your complete health picture. Quietly. Securely. So when you need it most, it is there.
+          </p>
+        </div>
       </section>
 
       {/* ── Stats ── */}
