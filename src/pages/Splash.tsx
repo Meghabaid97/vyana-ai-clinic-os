@@ -10,10 +10,7 @@ const Splash = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         const { data: roleData } = await supabase
           .from("user_roles")
@@ -30,51 +27,52 @@ const Splash = () => {
         setChecking(false);
       }
     };
-
-    const timeoutId = window.setTimeout(checkSession, 800);
-    return () => window.clearTimeout(timeoutId);
+    setTimeout(checkSession, 800);
   }, [navigate]);
 
   return (
     <div className="min-h-[100dvh] bg-background flex flex-col safe-area-top safe-area-bottom">
-      <div className="flex-[1.18]" />
+      {/* Top spacer */}
+      <div className="flex-[1.2]" />
 
+      {/* Brand block */}
       <div className="px-6 text-center">
-        <h1 className="text-[clamp(3.25rem,14vw,4.5rem)] font-bold tracking-[-0.06em] text-foreground leading-[0.92]">
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground leading-none">
           V<span className="text-primary">yana</span>
         </h1>
-
-        <p className="mx-auto mt-5 max-w-[11ch] text-[clamp(1.7rem,7vw,2.35rem)] font-semibold tracking-[-0.04em] text-foreground leading-[1.04]">
+        <p className="mt-4 text-lg sm:text-xl font-semibold leading-snug text-foreground">
           Your health story.
           <br />
           <span className="text-primary">Always with you.</span>
         </p>
       </div>
 
-      <div className="flex-[1.7]" />
+      {/* Bottom spacer */}
+      <div className="flex-[1.8]" />
 
+      {/* CTA block */}
       <div
         className="px-6 pb-10 transition-opacity duration-300"
         style={{ opacity: checking ? 0 : 1, pointerEvents: checking ? "none" : "auto" }}
       >
-        <div className="mx-auto w-full max-w-[20.5rem] text-center">
+        <div className="mx-auto w-full max-w-xs">
           <Button
             onClick={() => navigate("/auth")}
-            className="h-14 w-full rounded-full text-[1.1rem] font-medium tracking-[-0.02em] group"
+            className="w-full h-12 rounded-full text-base font-medium group"
           >
             Get Started
-            <ArrowRight className="ml-1.5 h-4.5 w-4.5 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
 
           <Button
             variant="ghost"
             onClick={() => navigate("/auth")}
-            className="mt-4 h-10 w-full text-[1rem] font-normal text-muted-foreground"
+            className="mt-3 w-full h-10 text-sm font-normal text-muted-foreground"
           >
             I already have an account
           </Button>
 
-          <p className="mx-auto pt-8 max-w-[18ch] text-sm leading-relaxed text-muted-foreground">
+          <p className="pt-6 text-center text-xs text-muted-foreground">
             Every patient deserves a doctor who knows their story.
           </p>
         </div>
