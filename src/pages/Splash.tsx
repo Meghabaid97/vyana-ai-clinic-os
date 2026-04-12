@@ -27,17 +27,18 @@ const Splash = () => {
         setChecking(false);
       }
     };
-    setTimeout(checkSession, 800);
+
+    const timeoutId = window.setTimeout(checkSession, 800);
+
+    return () => window.clearTimeout(timeoutId);
   }, [navigate]);
 
   return (
     <div className="min-h-screen min-h-[100svh] bg-background">
-      <div className="mx-auto flex min-h-screen min-h-[100svh] w-full max-w-sm flex-col safe-area-top safe-area-bottom px-6">
-        <div className="flex-[1.75]" />
-
-        <div className="shrink-0 text-center">
+      <div className="relative mx-auto min-h-screen min-h-[100svh] w-full max-w-sm safe-area-top safe-area-bottom px-6">
+        <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 text-center">
           <h1 className="text-[2.8rem] font-bold tracking-[-0.06em] text-foreground leading-none sm:text-5xl">
-          V<span className="text-primary">yana</span>
+            V<span className="text-primary">yana</span>
           </h1>
           <p className="mt-5 text-[0.95rem] font-semibold leading-tight text-foreground sm:text-xl">
             Your health story.
@@ -46,10 +47,8 @@ const Splash = () => {
           </p>
         </div>
 
-        <div className="flex-[1.15]" />
-
         <div
-          className="shrink-0 pb-8 transition-opacity duration-200"
+          className="absolute inset-x-6 bottom-0 pb-8 transition-opacity duration-200"
           style={{ opacity: checking ? 0 : 1, pointerEvents: checking ? "none" : "auto" }}
         >
           <div className="mx-auto w-full max-w-xs text-center">
