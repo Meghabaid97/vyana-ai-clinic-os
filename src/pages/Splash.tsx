@@ -34,17 +34,19 @@ const Splash = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen min-h-[100svh] bg-background">
-      <div className="relative mx-auto min-h-screen min-h-[100svh] w-full max-w-sm safe-area-top safe-area-bottom px-6">
-        <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 text-center">
-          <h1 className="text-[2.8rem] font-bold tracking-[-0.06em] text-foreground leading-none sm:text-5xl">
+    <div className="min-h-[100svh] bg-background">
+      <div className="relative mx-auto box-border h-[100svh] w-full max-w-sm safe-area-top safe-area-bottom px-6">
+        <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
+          <div className="w-full max-w-xs">
+            <h1 className="text-[2.8rem] font-bold leading-none tracking-[-0.06em] text-foreground sm:text-5xl">
             V<span className="text-primary">yana</span>
-          </h1>
-          <p className="mt-5 text-[0.95rem] font-semibold leading-tight text-foreground sm:text-xl">
-            Your health story.
-            <br />
-            <span className="text-primary">Always with you.</span>
-          </p>
+            </h1>
+            <p className="mt-5 text-[0.95rem] font-semibold leading-tight text-foreground sm:text-xl">
+              Your health story.
+              <br />
+              <span className="text-primary">Always with you.</span>
+            </p>
+          </div>
         </div>
 
         <div
