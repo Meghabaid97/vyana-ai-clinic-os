@@ -31,50 +31,48 @@ const Splash = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-[100dvh] bg-background flex flex-col safe-area-top safe-area-bottom">
-      {/* Top spacer */}
-      <div className="flex-[1.2]" />
+    <div className="min-h-screen min-h-[100svh] bg-background">
+      <div className="mx-auto flex min-h-screen min-h-[100svh] w-full max-w-sm flex-col safe-area-top safe-area-bottom px-6">
+        <div className="flex-[1.75]" />
 
-      {/* Brand block */}
-      <div className="px-6 text-center">
-        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground leading-none">
+        <div className="shrink-0 text-center">
+          <h1 className="text-[2.8rem] font-bold tracking-[-0.06em] text-foreground leading-none sm:text-5xl">
           V<span className="text-primary">yana</span>
-        </h1>
-        <p className="mt-4 text-lg sm:text-xl font-semibold leading-snug text-foreground">
-          Your health story.
-          <br />
-          <span className="text-primary">Always with you.</span>
-        </p>
-      </div>
-
-      {/* Bottom spacer */}
-      <div className="flex-[1.8]" />
-
-      {/* CTA block */}
-      <div
-        className="px-6 pb-10 transition-opacity duration-300"
-        style={{ opacity: checking ? 0 : 1, pointerEvents: checking ? "none" : "auto" }}
-      >
-        <div className="mx-auto w-full max-w-xs">
-          <Button
-            onClick={() => navigate("/auth")}
-            className="w-full h-12 rounded-full text-base font-medium group"
-          >
-            Get Started
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/auth")}
-            className="mt-3 w-full h-10 text-sm font-normal text-muted-foreground"
-          >
-            I already have an account
-          </Button>
-
-          <p className="pt-6 text-center text-xs text-muted-foreground">
-            Every patient deserves a doctor who knows their story.
+          </h1>
+          <p className="mt-5 text-[0.95rem] font-semibold leading-tight text-foreground sm:text-xl">
+            Your health story.
+            <br />
+            <span className="text-primary">Always with you.</span>
           </p>
+        </div>
+
+        <div className="flex-[1.15]" />
+
+        <div
+          className="shrink-0 pb-8 transition-opacity duration-200"
+          style={{ opacity: checking ? 0 : 1, pointerEvents: checking ? "none" : "auto" }}
+        >
+          <div className="mx-auto w-full max-w-xs text-center">
+            <Button
+              onClick={() => navigate("/auth")}
+              className="h-11 w-full rounded-full px-5 text-lg font-medium group"
+            >
+              Get Started
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/auth")}
+              className="mt-4 h-9 w-full text-[0.95rem] font-normal text-muted-foreground"
+            >
+              I already have an account
+            </Button>
+
+            <p className="pt-8 text-center text-[0.8rem] leading-relaxed text-muted-foreground">
+              Every patient deserves a doctor who knows their story.
+            </p>
+          </div>
         </div>
       </div>
     </div>
