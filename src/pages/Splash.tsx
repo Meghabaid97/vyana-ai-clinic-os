@@ -34,12 +34,18 @@ const Splash = () => {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center safe-area-top safe-area-bottom">
-        <div className="animate-fade-in space-y-3 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            V<span className="text-primary">yana</span>
-          </h1>
-          <p className="text-sm text-muted-foreground">Your health story. Always with you.</p>
+      <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center -translate-y-8 animate-fade-in">
+            <h1 className="text-[clamp(4rem,18vw,5.25rem)] font-bold tracking-tight text-foreground">
+              V<span className="text-primary">yana</span>
+            </h1>
+            <p className="mt-5 text-[clamp(2rem,8vw,2.75rem)] font-semibold leading-tight text-foreground">
+              Your health story.
+              <br />
+              <span className="text-primary">Always with you.</span>
+            </p>
+          </div>
         </div>
       </div>
     );
