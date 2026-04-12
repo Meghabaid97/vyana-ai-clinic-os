@@ -47,23 +47,26 @@ const Splash = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
-      {/* Brand hero */}
-      <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-        <div className="animate-fade-in space-y-5 max-w-sm">
-          <h1 className="text-5xl font-bold tracking-tight text-foreground">
-            V<span className="text-primary">yana</span>
-          </h1>
+      {/* Spacer top — 30% */}
+      <div className="h-[30vh]" />
 
-          <p className="text-lg text-foreground font-medium leading-snug">
-            Your health story.
-            <br />
-            <span className="text-primary">Always with you.</span>
-          </p>
-        </div>
+      {/* Brand */}
+      <div className="animate-fade-in text-center px-8">
+        <h1 className="text-5xl font-bold tracking-tight text-foreground">
+          V<span className="text-primary">yana</span>
+        </h1>
+        <p className="text-lg text-foreground font-medium leading-snug mt-4">
+          Your health story.
+          <br />
+          <span className="text-primary">Always with you.</span>
+        </p>
       </div>
 
+      {/* Flexible spacer */}
+      <div className="flex-1 min-h-8" />
+
       {/* Bottom CTAs */}
-      <div className="px-5 pb-8 pt-4 animate-fade-in" style={{ animationDelay: "200ms" }}>
+      <div className="px-5 pb-8 animate-fade-in" style={{ animationDelay: "200ms" }}>
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <Button
             onClick={() => navigate("/auth")}
