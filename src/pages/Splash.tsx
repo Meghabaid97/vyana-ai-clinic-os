@@ -32,41 +32,30 @@ const Splash = () => {
     setTimeout(checkSession, 800);
   }, [navigate]);
 
-  if (checking) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
-        <div className="flex-1 flex items-center justify-center px-6">
-          <div className="text-center -translate-y-8 animate-fade-in">
-            <h1 className="text-[clamp(4rem,18vw,5.25rem)] font-bold tracking-tight text-foreground">
-              V<span className="text-primary">yana</span>
-            </h1>
-            <p className="mt-5 text-[clamp(2rem,8vw,2.75rem)] font-semibold leading-tight text-foreground">
-              Your health story.
-              <br />
-              <span className="text-primary">Always with you.</span>
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const brandContent = (
+    <div className="w-full max-w-sm text-center -translate-y-8 animate-fade-in">
+      <h1 className="text-[clamp(4rem,18vw,5.25rem)] font-bold tracking-tight text-foreground">
+        V<span className="text-primary">yana</span>
+      </h1>
+      <p className="mt-5 text-[clamp(2rem,8vw,2.75rem)] font-semibold leading-tight text-foreground">
+        Your health story.
+        <br />
+        <span className="text-primary">Always with you.</span>
+      </p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
       <div className="flex-1 flex items-center justify-center px-6">
-        <div className="w-full max-w-sm text-center -translate-y-8 animate-fade-in">
-          <h1 className="text-[clamp(4rem,18vw,5.25rem)] font-bold tracking-tight text-foreground">
-            V<span className="text-primary">yana</span>
-          </h1>
-          <p className="mt-5 text-[clamp(2rem,8vw,2.75rem)] font-semibold leading-tight text-foreground">
-            Your health story.
-            <br />
-            <span className="text-primary">Always with you.</span>
-          </p>
-        </div>
+        {brandContent}
       </div>
 
-      <div className="px-6 pb-10 animate-fade-in" style={{ animationDelay: "160ms" }}>
+      <div
+        className="px-6 pb-10 animate-fade-in"
+        style={{ animationDelay: "160ms", visibility: checking ? "hidden" : "visible" }}
+        aria-hidden={checking}
+      >
         <div className="mx-auto w-full max-w-sm">
           <Button
             onClick={() => navigate("/auth")}
