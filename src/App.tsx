@@ -31,6 +31,7 @@ import Vaccinations from "./pages/Vaccinations";
 import MedicationReminders from "./pages/MedicationReminders";
 import PrescriptionInterpreter from "./pages/PrescriptionInterpreter";
 import ShareRecords from "./pages/ShareRecords";
+import Legal from "./pages/Legal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/landing" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/why-vyana" element={<WhyVyana />} />
+          <Route path="/legal" element={<Legal />} />
 
           {/* Patient app with bottom tabs */}
           <Route path="/app" element={<AppShell />}>
