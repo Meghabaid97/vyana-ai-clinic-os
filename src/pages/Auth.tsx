@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -593,18 +593,24 @@ const Auth = () => {
                             <p className="text-[11px] text-muted-foreground mt-0.5">Required to proceed</p>
                           </div>
                         </div>
-                        <button type="button" onClick={() => setShowConsent(!showConsent)} className="text-xs text-primary hover:underline">
-                          {showConsent ? "Hide details ▲" : "Read full agreement ▼"}
-                        </button>
+                        <div className="flex gap-2 text-xs">
+                          <button type="button" onClick={() => setShowConsent(!showConsent)} className="text-primary hover:underline">
+                            {showConsent ? "Hide summary ▲" : "Quick summary ▼"}
+                          </button>
+                          <span className="text-muted-foreground">|</span>
+                          <Link to="/legal" target="_blank" className="text-primary hover:underline">Terms of Service</Link>
+                          <span className="text-muted-foreground">|</span>
+                          <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>
+                        </div>
                         {showConsent && (
                           <div className="text-xs text-muted-foreground space-y-2 max-h-48 overflow-y-auto border-t border-border pt-2">
                             <p><strong>1. Purpose:</strong> Vyana stores your health records, prescriptions, lab reports, and vital signs solely to provide you with health tracking, clinical decision support, and shareable health summaries.</p>
                             <p><strong>2. Data Stored:</strong> Personal identifiers (name, phone, ABHA ID, email), uploaded health documents, AI-generated summaries, medication reminders, and vital history.</p>
                             <p><strong>3. Your Control:</strong> You decide who sees your data. Records are only shared when you explicitly generate a shareable link or grant access to a healthcare provider.</p>
                             <p><strong>4. Not Medical Advice:</strong> Vyana is a clinical decision support tool. All AI-generated insights are for informational purposes only and do not constitute medical diagnosis, treatment, or advice. Always consult a qualified healthcare professional.</p>
-                            <p><strong>5. Data Security:</strong> Your data is encrypted at rest and in transit. We follow industry-standard security practices to protect your health information.</p>
-                            <p><strong>6. Data Retention:</strong> Your data is retained as long as your account is active. You may request deletion at any time by contacting support.</p>
-                            <p><strong>7. No Liability:</strong> Vyana, its creators, and affiliates are not liable for any medical decisions made based on information displayed in the app. You acknowledge that all health decisions should be made in consultation with qualified medical professionals.</p>
+                            <p><strong>5. Data Security:</strong> Your data is encrypted at rest and in transit. We follow industry-standard security practices (HIPAA-aligned, DPDPA compliant).</p>
+                            <p><strong>6. Data Retention:</strong> Your data is retained as long as your account is active. You may request deletion at any time.</p>
+                            <p><strong>7. No Liability:</strong> Vyana, its creators, and affiliates are not liable for any medical decisions made based on information displayed in the app.</p>
                           </div>
                         )}
                         <div className="flex items-start gap-2 pt-1">
@@ -615,8 +621,9 @@ const Auth = () => {
                             className="mt-0.5"
                           />
                           <label htmlFor="consent" className="text-xs text-foreground leading-tight cursor-pointer">
-                            I have read and agree to the Data Consent & Privacy Agreement. I understand Vyana is not a substitute for professional medical advice.
+                            I agree to the <Link to="/legal" target="_blank" className="text-primary underline">Terms of Service</Link> and <Link to="/legal#privacy" target="_blank" className="text-primary underline">Privacy Policy</Link>. I understand Vyana is not a substitute for professional medical advice.
                           </label>
+                        </div>
                         </div>
                       </div>
                     </>
