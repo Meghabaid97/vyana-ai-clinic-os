@@ -29,3 +29,9 @@ verify_jwt = true
 
 [functions.interpret-prescription]
 verify_jwt = true
+
+[functions.process-discharge]
+verify_jwt = true
+
+[functions.insurance-chat]
+verify_jwt = true
