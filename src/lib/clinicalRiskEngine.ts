@@ -314,38 +314,37 @@ export function computeKidneyRisk(vitals: VitalsMap, age: number | null, isMale:
   const recs: string[] = [];
 
   if (eGFR >= 90) {
-    stage = "G1 — Normal"; level = "low"; score = 10;
-    recs.push("Kidney function normal. Continue routine monitoring.");
+    stage = "G1: Normal"; level = "low"; score = 10;
+    recs.push("Kidney function appears normal based on this value.");
   } else if (eGFR >= 60) {
-    stage = "G2 — Mildly decreased"; level = "moderate"; score = 30;
-    recs.push("Mild kidney function decline. Monitor annually.");
-    recs.push("Control blood pressure to <130/80.");
+    stage = "G2: Mildly decreased"; level = "moderate"; score = 30;
+    recs.push("Mild change detected. Your doctor may want to monitor this annually.");
+    recs.push("Ask about blood pressure goals at your next visit.");
   } else if (eGFR >= 45) {
-    stage = "G3a — Mild-moderate decrease"; level = "moderate"; score = 50;
-    recs.push("Refer to nephrologist for co-management.");
-    recs.push("Avoid NSAIDs and nephrotoxic drugs.");
-    recs.push("Monitor electrolytes and phosphate.");
+    stage = "G3a: Mild-moderate decrease"; level = "moderate"; score = 50;
+    recs.push("Your doctor may want to involve a kidney specialist.");
+    recs.push("Discuss which medications to avoid with your doctor.");
   } else if (eGFR >= 30) {
-    stage = "G3b — Moderate-severe decrease"; level = "high"; score = 65;
-    recs.push("Active nephrology management needed.");
-    recs.push("Strict BP and glucose control.");
-    recs.push("Assess for anemia and bone disease.");
+    stage = "G3b: Moderate-severe decrease"; level = "high"; score = 65;
+    recs.push("This level typically needs active doctor involvement.");
+    recs.push("Discuss blood pressure and blood sugar targets with your doctor.");
+    recs.push("Ask about related screening (anemia, bone health).");
   } else if (eGFR >= 15) {
-    stage = "G4 — Severely decreased"; level = "very-high"; score = 80;
-    recs.push("Prepare for renal replacement therapy.");
-    recs.push("Dietary protein restriction may be needed.");
-    recs.push("Monthly monitoring recommended.");
+    stage = "G4: Severely decreased"; level = "very-high"; score = 80;
+    recs.push("Please consult your doctor about next steps for kidney care.");
+    recs.push("Your doctor may discuss dietary adjustments.");
+    recs.push("Frequent monitoring is typically recommended at this stage.");
   } else {
-    stage = "G5 — Kidney failure"; level = "very-high"; score = 95;
-    recs.push("Dialysis or transplant evaluation urgently needed.");
-    recs.push("Strict fluid and dietary management.");
+    stage = "G5: Kidney failure range"; level = "very-high"; score = 95;
+    recs.push("This value indicates a serious concern. Please see your doctor urgently.");
+    recs.push("Your doctor will discuss treatment options with you.");
   }
 
   // BUN/Creatinine ratio for pre-renal assessment
   if (bun != null && creatinine > 0) {
     const ratio = bun / creatinine;
     if (ratio > 20) {
-      recs.push(`BUN/Cr ratio elevated (${Math.round(ratio)}) — evaluate for dehydration or GI bleed.`);
+      recs.push(`BUN/Cr ratio is elevated (${Math.round(ratio)}). Mention this to your doctor.`);
     }
   }
 
