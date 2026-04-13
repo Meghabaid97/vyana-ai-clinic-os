@@ -631,6 +631,16 @@ const HealthTrends = () => {
         </div>
       </section>
 
+      {/* Clinical Risk Scores */}
+      {Object.keys(v).length > 0 && (
+        <ClinicalRiskDashboard
+          vitals={v}
+          vitalHistory={vitalHistory}
+          medications={medications}
+          age={patientAge}
+        />
+      )}
+
       {vitalCategories.map((category, ci) => (
         <section key={ci} className="px-5 pb-6">
           <h2 className="text-[15px] font-bold text-foreground mb-3">{category.title}</h2>
