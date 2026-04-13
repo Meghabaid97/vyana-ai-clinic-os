@@ -12,6 +12,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { useToast } from "@/hooks/use-toast";
+import ClinicalRiskDashboard from "@/components/ClinicalRiskDashboard";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
@@ -72,6 +73,8 @@ const HealthTrends = () => {
   const [vitalHistory, setVitalHistory] = useState<VitalHistoryEntry[]>([]);
   const [trendAnalysis, setTrendAnalysis] = useState<TrendAnalysis | null>(null);
   const [isAnalyzingTrends, setIsAnalyzingTrends] = useState(false);
+  const [medications, setMedications] = useState<Array<{ medication_name: string; dosage: string | null; frequency: string; is_active: boolean }>>([]);
+  const [patientAge, setPatientAge] = useState<number | null>(null);
   const autoProcessedRecordRef = useRef<string | null>(null);
   const { toast } = useToast();
 
@@ -99,11 +102,12 @@ const HealthTrends = () => {
 
     const { data: patient } = await supabase
       .from("patients")
-      .select("id, national_health_id")
+      .select("id, national_health_id, age")
       .eq("user_id", session.user.id)
       .maybeSingle();
 
     if (!patient) return;
+    setPatientAge(patient.age ?? null);
 
     const { data: r } = await supabase
       .from("health_records")
@@ -121,6 +125,13 @@ const HealthTrends = () => {
       .order("recorded_at", { ascending: true }) as { data: VitalHistoryEntry[] | null };
 
     setVitalHistory(vh || []);
+
+    // Load medications for risk engine
+    const { data: meds } = await supabase
+      .from("medication_reminders")
+      .select("medication_name, dosage, frequency, is_active")
+      .eq("patient_id", patient.id);
+    setMedications((meds || []) as any);
 
     if (patient.national_health_id) {
       const { data: c } = await supabase
@@ -619,6 +630,16 @@ const HealthTrends = () => {
           </button>
         </div>
       </section>
+
+      {/* Clinical Risk Scores */}
+      {Object.keys(v).length > 0 && (
+        <ClinicalRiskDashboard
+          vitals={v}
+          vitalHistory={vitalHistory}
+          medications={medications}
+          age={patientAge}
+        />
+      )}
 
       {vitalCategories.map((category, ci) => (
         <section key={ci} className="px-5 pb-6">
