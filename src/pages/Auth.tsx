@@ -624,7 +624,6 @@ const Auth = () => {
                             I agree to the <Link to="/legal" target="_blank" className="text-primary underline">Terms of Service</Link> and <Link to="/legal#privacy" target="_blank" className="text-primary underline">Privacy Policy</Link>. I understand Vyana is not a substitute for professional medical advice.
                           </label>
                         </div>
-                        </div>
                       </div>
                     </>
                   )}
