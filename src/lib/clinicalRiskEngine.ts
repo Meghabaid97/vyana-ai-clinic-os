@@ -385,58 +385,49 @@ export function computeThyroidRisk(vitals: VitalsMap): RiskScore {
 
   // Pattern detection using TSH + T3/T4
   if (tsh > 10) {
-    // Overt hypothyroidism
-    pattern = "Overt Hypothyroidism";
+    pattern = "Pattern suggests hypothyroidism";
     level = "high"; score = 75;
-    recs.push("Levothyroxine therapy strongly indicated.");
-    recs.push("Check anti-TPO antibodies to rule out Hashimoto's.");
-    recs.push("Recheck TSH in 6–8 weeks after starting treatment.");
+    recs.push("TSH is significantly elevated. Discuss thyroid management with your doctor.");
+    recs.push("Your doctor may want to check thyroid antibodies.");
+    recs.push("Follow-up testing is typically done 6-8 weeks after any changes.");
     if (t4 != null && t4 < 5.1) {
       inputs[2].status = "critical";
-      recs.push("Low T4 confirms hypothyroidism.");
+      recs.push("Low T4 supports this pattern. Share with your doctor.");
     }
   } else if (tsh > 4.0) {
-    // Subclinical hypothyroidism
-    pattern = "Subclinical Hypothyroidism";
+    pattern = "Mildly elevated TSH";
     level = "moderate"; score = 40;
-    recs.push("Repeat TSH in 6–12 weeks to confirm.");
-    recs.push("Consider treatment if TSH >10 or symptomatic.");
-    recs.push("Check anti-TPO antibodies.");
+    recs.push("TSH is slightly above range. Your doctor may want to recheck in 6-12 weeks.");
+    recs.push("Ask about thyroid antibody testing if not already done.");
   } else if (tsh < 0.1) {
-    // Overt hyperthyroidism
-    pattern = "Overt Hyperthyroidism";
+    pattern = "Pattern suggests hyperthyroidism";
     level = "very-high"; score = 85;
-    recs.push("Urgent evaluation for Graves' disease or toxic nodule.");
-    recs.push("Check thyroid uptake scan.");
-    recs.push("Consider beta-blockers for symptom control.");
-    recs.push("Monitor for thyroid storm in severe cases.");
+    recs.push("TSH is very low. Please discuss with your doctor promptly.");
+    recs.push("Your doctor will likely want further thyroid evaluation.");
+    recs.push("Mention any symptoms like rapid heartbeat, weight loss, or tremors.");
     if (t3 != null && t3 > 200) {
       inputs[1].status = "critical";
-      recs.push("Elevated T3 confirms thyrotoxicosis.");
+      recs.push("Elevated T3 adds context. Share this with your doctor.");
     }
   } else if (tsh < 0.4) {
-    // Subclinical hyperthyroidism
-    pattern = "Subclinical Hyperthyroidism";
+    pattern = "Slightly low TSH";
     level = "moderate"; score = 45;
-    recs.push("Repeat TSH in 6–12 weeks.");
-    recs.push("Evaluate for atrial fibrillation risk if age >65.");
-    recs.push("Assess bone density in postmenopausal women.");
+    recs.push("TSH is slightly below range. Recheck in 6-12 weeks may be useful.");
+    recs.push("Mention to your doctor, especially if you have heart-related concerns.");
   } else {
-    // Normal
     pattern = "Euthyroid (Normal)";
     level = "low"; score = 5;
-    recs.push("Thyroid function normal. Routine screening as indicated.");
+    recs.push("Thyroid function appears normal based on TSH.");
 
-    // Check for discordance
     if (t3 != null && (t3 > 200 || t3 < 80)) {
-      pattern = "Euthyroid with abnormal T3";
+      pattern = "Normal TSH with unusual T3";
       level = "moderate"; score = 30;
-      recs.push("Abnormal T3 with normal TSH — consider non-thyroidal illness.");
+      recs.push("T3 is outside the typical range despite normal TSH. Mention to your doctor.");
     }
     if (t4 != null && (t4 > 14.1 || t4 < 5.1)) {
-      pattern = "Euthyroid with abnormal T4";
+      pattern = "Normal TSH with unusual T4";
       level = "moderate"; score = 30;
-      recs.push("Abnormal T4 with normal TSH — check for binding protein disorders.");
+      recs.push("T4 is outside the typical range despite normal TSH. Mention to your doctor.");
     }
   }
 
