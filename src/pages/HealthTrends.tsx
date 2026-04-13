@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  TrendingUp, Activity, Heart, Droplets, Thermometer, Eye,
-  Brain, Bone, Pill, Zap, Loader2, Sparkles, ArrowRight,
-  FileText, ShieldCheck, Info,
+  TrendingUp, TrendingDown, Activity, Heart, Droplets, Thermometer, Eye,
+  Brain, Bone, Pill, Zap, Loader2, Sparkles, ArrowRight, ArrowUp, ArrowDown,
+  Minus, FileText, ShieldCheck, Info, AlertTriangle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,6 +11,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useToast } from "@/hooks/use-toast";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
