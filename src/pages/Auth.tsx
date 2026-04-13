@@ -300,6 +300,11 @@ const Auth = () => {
     return !!data;
   };
 
+  const checkPhoneExists = async (phoneNum: string): Promise<boolean> => {
+    const { data } = await supabase.from("patients").select("id").eq("phone", phoneNum).maybeSingle();
+    return !!data;
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLockedOut) {
