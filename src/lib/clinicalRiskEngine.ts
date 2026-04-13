@@ -510,25 +510,25 @@ export function detectMedicationEffects(
           if (effect.direction === "decrease") {
             if (pctChange < -5) {
               assessment = "responding";
-              detail = `${vitalKey.replace(/_/g, " ")} decreased by ${Math.abs(Math.round(pctChange))}% — medication appears effective.`;
+              detail = `${vitalKey.replace(/_/g, " ")} decreased by ${Math.abs(Math.round(pctChange))}%. This may reflect your medication working. Discuss with your doctor.`;
             } else if (pctChange > 5) {
               assessment = "not-responding";
-              detail = `${vitalKey.replace(/_/g, " ")} increased by ${Math.round(pctChange)}% despite medication — review adherence or dosage.`;
+              detail = `${vitalKey.replace(/_/g, " ")} increased by ${Math.round(pctChange)}% while on this medication. Mention this to your doctor.`;
             } else {
               assessment = "responding";
-              detail = `${vitalKey.replace(/_/g, " ")} stable — medication maintaining control.`;
+              detail = `${vitalKey.replace(/_/g, " ")} is stable. Your current approach may be helping.`;
             }
           } else if (effect.direction === "stabilize") {
             if (Math.abs(pctChange) < 15) {
               assessment = "responding";
-              detail = `${vitalKey.replace(/_/g, " ")} stable — medication maintaining levels.`;
+              detail = `${vitalKey.replace(/_/g, " ")} is stable. This may reflect your medication helping.`;
             } else {
               assessment = "not-responding";
-              detail = `${vitalKey.replace(/_/g, " ")} changed by ${Math.round(pctChange)}% — dose adjustment may be needed.`;
+              detail = `${vitalKey.replace(/_/g, " ")} changed by ${Math.round(pctChange)}%. Discuss with your doctor.`;
             }
           } else {
             assessment = pctChange > 0 ? "responding" : "not-responding";
-            detail = `${vitalKey.replace(/_/g, " ")} ${pctChange > 0 ? "increasing" : "not improving"} as expected.`;
+            detail = `${vitalKey.replace(/_/g, " ")} ${pctChange > 0 ? "moving in expected direction" : "not changing as expected"}. Mention at your next visit.`;
           }
 
           results.push({
