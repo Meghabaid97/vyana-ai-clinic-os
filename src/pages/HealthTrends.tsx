@@ -274,6 +274,49 @@ const HealthTrends = () => {
     await autoAnalyzeLatestRecord(records[0]);
   };
 
+  const runTrendAnalysis = async () => {
+    if (vitalHistory.length < 2) {
+      toast({ title: "Need more data", description: "Upload at least 2 reports for trend analysis" });
+      return;
+    }
+    setIsAnalyzingTrends(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: patient } = await supabase.from("patients").select("name, age, id").eq("user_id", session.user.id).maybeSingle();
+      const { data: meds } = await supabase.from("medication_reminders").select("*").eq("patient_id", patient?.id || "");
+
+      const { data, error } = await supabase.functions.invoke("analyze-trends", {
+        body: {
+          vitalHistory,
+          medicationReminders: meds || [],
+          patientName: patient?.name,
+          patientAge: patient?.age,
+        },
+      });
+      if (error) throw error;
+      setTrendAnalysis(data);
+    } catch (err: any) {
+      console.error("Trend analysis error:", err);
+      toast({ title: "Error", description: "Failed to analyze trends", variant: "destructive" });
+    } finally {
+      setIsAnalyzingTrends(false);
+    }
+  };
+
+  // Get trend direction for a vital key from AI analysis
+  const getVitalTrend = (key: string) => {
+    if (!trendAnalysis?.trends) return null;
+    return trendAnalysis.trends.find(t => t.vital_key === key);
+  };
+
+  const trendDirectionIcon = (direction: string) => {
+    if (direction === "increasing") return <ArrowUp className="h-3 w-3 text-destructive" />;
+    if (direction === "decreasing") return <ArrowDown className="h-3 w-3 text-blue-500" />;
+    if (direction === "stable") return <Minus className="h-3 w-3 text-green-600" />;
+    return <Activity className="h-3 w-3 text-yellow-500" />;
+  };
+
   // Use latest vital_history entry if available, fall back to live analysis
   const latestHistory = vitalHistory.length > 0 ? vitalHistory[vitalHistory.length - 1] : null;
   const v = analysisResult?.vitals || latestHistory?.vitals || {};
