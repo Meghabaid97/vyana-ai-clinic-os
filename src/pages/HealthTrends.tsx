@@ -45,6 +45,14 @@ interface VitalHistoryEntry {
   recorded_at: string;
 }
 
+interface TrendAnalysis {
+  trends: Array<{ vital_name: string; vital_key: string; direction: string; significance: string; detail: string }>;
+  correlations: Array<{ observation: string; confidence: string; supporting_data: string; medication?: string; affected_vital?: string }>;
+  risk_flags: Array<{ flag: string; severity: string; detail: string }>;
+  insights: string;
+  disclaimer?: string;
+}
+
 const hasStrictStructuredSummary = (summary: string | null | undefined) => {
   if (!summary) return false;
   return summary.includes("Safety Note:") && summary.includes("Confidence:") && summary.includes("Document Type:");
