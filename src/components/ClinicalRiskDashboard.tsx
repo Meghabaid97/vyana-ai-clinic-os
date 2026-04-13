@@ -183,10 +183,10 @@ const ClinicalRiskDashboard = ({ vitals, vitalHistory, medications, age }: Clini
         <div className="mt-6">
           <div className="flex items-center gap-2 mb-1">
             <Pill className="h-5 w-5 text-primary" />
-            <h2 className="text-[15px] font-bold text-foreground">Medication Response</h2>
+            <h2 className="text-[15px] font-bold text-foreground">Medication Tracking</h2>
           </div>
           <p className="text-[11px] text-muted-foreground mb-3">
-            Tracking whether your medications are achieving their expected effects.
+            How your lab values are changing alongside your medications. Share this with your doctor.
           </p>
           <div className="space-y-2">
             {medEffects.map((effect, i) => (
