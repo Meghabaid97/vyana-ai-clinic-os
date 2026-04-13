@@ -31,6 +31,7 @@ import Vaccinations from "./pages/Vaccinations";
 import MedicationReminders from "./pages/MedicationReminders";
 import PrescriptionInterpreter from "./pages/PrescriptionInterpreter";
 import ShareRecords from "./pages/ShareRecords";
+import RecoveryHub from "./pages/RecoveryHub";
 import Legal from "./pages/Legal";
 import NotFound from "./pages/NotFound";
 
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="prescription-reader" element={<PrescriptionInterpreter />} />
             <Route path="share" element={<ShareRecords />} />
             <Route path="briefing" element={<PatientBriefing />} />
+            <Route path="recovery" element={<RecoveryHub />} />
           </Route>
 
           {/* Patient standalone pages */}
