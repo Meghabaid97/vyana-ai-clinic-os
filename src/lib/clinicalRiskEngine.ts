@@ -1,10 +1,10 @@
 /**
- * Clinical Risk Scoring Engine
- * Rule-based detectors using real clinical parameters and thresholds.
- * Sources: ACC/AHA ASCVD guidelines, ADA diabetes standards, KDIGO CKD staging,
- *          ATA thyroid guidelines, standard clinical reference ranges.
+ * Clinical Decision Support Engine
+ * Rule-based indicators using standard clinical reference ranges.
+ * Sources: ACC/AHA, ADA, KDIGO, ATA guidelines for reference ranges only.
  *
- * DISCLAIMER: For informational purposes only. Not a substitute for clinical judgment.
+ * ⚠️ NOT a diagnostic tool. NOT medical advice. Does NOT prescribe treatments.
+ * All outputs are informational indicators to discuss with a healthcare provider.
  */
 
 type VitalsMap = Record<string, number | null>;
@@ -155,22 +155,21 @@ export function computeASCVD(
 
   if (risk < 5) {
     level = "low"; label = "Low risk (<5%)";
-    recs.push("Continue healthy lifestyle habits.");
+    recs.push("Your values are in a favorable range. Keep up healthy habits.");
   } else if (risk < 7.5) {
-    level = "moderate"; label = "Borderline (5–7.5%)";
-    recs.push("Consider lifestyle modifications: diet, exercise.");
-    recs.push("Discuss statin therapy with your doctor if additional risk factors present.");
+    level = "moderate"; label = "Borderline (5-7.5%)";
+    recs.push("Lifestyle factors like diet and exercise may help. Discuss with your doctor.");
+    recs.push("Your doctor may want to review your lipid levels at your next visit.");
   } else if (risk < 20) {
-    level = "high"; label = "Intermediate (7.5–20%)";
-    recs.push("Moderate-intensity statin therapy may be indicated.");
-    recs.push("Target LDL <100 mg/dL.");
-    recs.push("Monitor BP closely.");
+    level = "high"; label = "Intermediate (7.5-20%)";
+    recs.push("This range suggests a conversation with your doctor about heart health.");
+    recs.push("Ask about cholesterol and blood pressure goals for your profile.");
+    recs.push("Regular monitoring may be beneficial.");
   } else {
     level = "very-high"; label = "High risk (≥20%)";
-    recs.push("High-intensity statin therapy strongly recommended.");
-    recs.push("Target LDL <70 mg/dL.");
-    recs.push("Consider aspirin therapy if bleeding risk is acceptable.");
-    recs.push("Aggressive BP management to <130/80 mmHg.");
+    recs.push("This score suggests discussing cardiovascular risk reduction with your doctor soon.");
+    recs.push("Ask your doctor about cholesterol targets and blood pressure goals.");
+    recs.push("Regular follow-up and monitoring are important at this level.");
   }
 
   return {
