@@ -231,35 +231,34 @@ export function computeDiabetesRisk(vitals: VitalsMap, vitalHistory: Array<{ vit
 
   if (effectiveHbA1c < 5.7) {
     score = 10; level = "low"; label = "Normal glycemia";
-    recs.push("Maintain healthy diet and regular exercise.");
+    recs.push("Blood sugar levels are in a healthy range. Keep it up.");
   } else if (effectiveHbA1c < 6.5) {
-    score = 40; level = "moderate"; label = "Pre-diabetes";
-    recs.push("Structured lifestyle intervention (diet + 150 min/week exercise).");
-    recs.push("Consider metformin if BMI ≥35 or age <60.");
-    recs.push("Recheck HbA1c in 3–6 months.");
+    score = 40; level = "moderate"; label = "Pre-diabetes range";
+    recs.push("Your levels suggest pre-diabetes. Discuss with your doctor.");
+    recs.push("Lifestyle changes (diet + activity) can make a big difference at this stage.");
+    recs.push("Your doctor may suggest rechecking HbA1c in 3-6 months.");
   } else if (effectiveHbA1c < 8.0) {
-    score = 65; level = "high"; label = "Diabetes (managed)";
-    recs.push("Target HbA1c <7% for most adults.");
-    recs.push("Review medication regimen adherence.");
-    recs.push("Screen for complications: retinopathy, nephropathy, neuropathy.");
+    score = 65; level = "high"; label = "Elevated (managed range)";
+    recs.push("Your HbA1c is above the typical target. Discuss goals with your doctor.");
+    recs.push("Ask about screening for related conditions at your next visit.");
+    recs.push("Medication adherence is important. Talk to your doctor about your regimen.");
   } else {
-    score = 90; level = "very-high"; label = "Diabetes (poorly controlled)";
-    recs.push("Urgent medication review needed.");
-    recs.push("Consider adding insulin or GLP-1 agonist.");
-    recs.push("Screen for diabetic ketoacidosis signs.");
-    recs.push("Monthly glucose monitoring recommended.");
+    score = 90; level = "very-high"; label = "Significantly elevated";
+    recs.push("Your HbA1c is notably high. Please consult your doctor soon.");
+    recs.push("Your doctor may want to review your current treatment plan.");
+    recs.push("Frequent monitoring may be helpful at this level.");
   }
 
   if (trend === "worsening") {
     score = Math.min(score + 15, 100);
-    recs.unshift("⚠ HbA1c trending upward — medication adjustment may be needed.");
+    recs.unshift("⚠ HbA1c is trending upward. Bring this to your doctor's attention.");
   } else if (trend === "improving") {
-    recs.unshift("✓ HbA1c trending downward — current management appears effective.");
+    recs.unshift("✓ HbA1c is trending downward. Your current approach appears to be working.");
   }
 
   // Post-prandial spikes
   if (ppg != null && ppg > 200) {
-    recs.push("Post-meal glucose very high — consider mealtime insulin or acarbose.");
+    recs.push("Post-meal glucose is elevated. Your doctor may want to review mealtime management.");
   }
 
   return {
