@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, Stethoscope, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight } from "lucide-react";
+import { Mail, Lock, Chrome, Stethoscope, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight, FileCheck } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { validatePassword, validateEmail, validateHealthId } from "@/lib/validation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -67,6 +68,10 @@ const Auth = () => {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [weight, setWeight] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [showConsent, setShowConsent] = useState(false);
+  const [skipAbha, setSkipAbha] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>("doctor");
   const [emailError, setEmailError] = useState("");
@@ -90,15 +95,18 @@ const Auth = () => {
   useLanguage();
 
   const buildSignupDraft = useCallback(
-    (): PendingSignupDraft => ({
-      role: userRole,
-      name: name.trim() || undefined,
-      phone: phone.trim() || undefined,
-      healthId: healthId || undefined,
-      dateOfBirth: dateOfBirth || undefined,
-      weight: weight || undefined,
-    }),
-    [userRole, name, phone, healthId, dateOfBirth, weight],
+    (): PendingSignupDraft => {
+      const cleanPhone = phone.trim() ? (phone.startsWith("+") ? phone.trim() : `+91${phone.replace(/\D/g, '')}`) : undefined;
+      return {
+        role: userRole,
+        name: name.trim() || undefined,
+        phone: cleanPhone,
+        healthId: (healthId && !skipAbha) ? healthId : undefined,
+        dateOfBirth: dateOfBirth || undefined,
+        weight: weight || undefined,
+      };
+    },
+    [userRole, name, phone, healthId, dateOfBirth, weight, skipAbha],
   );
 
   const redirectBasedOnRole = useCallback(async (userId: string, fallbackRole?: UserRole | "admin" | null) => {
@@ -295,6 +303,11 @@ const Auth = () => {
     return !!data;
   };
 
+  const checkPhoneExists = async (phoneNum: string): Promise<boolean> => {
+    const { data } = await supabase.from("patients").select("id").eq("phone", phoneNum).maybeSingle();
+    return !!data;
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLockedOut) {
@@ -306,12 +319,29 @@ const Auth = () => {
       if (!validateEmail(email)) { setEmailError("Please enter a valid email address"); return; }
       const pv = validatePassword(password);
       if (!pv.isValid) { setPasswordErrors(pv.errors); toast({ title: "Weak Password", description: "Please meet all password requirements", variant: "destructive" }); return; }
-      if (userRole === "patient" && healthId) {
-        if (!validateHealthId(healthId)) { setHealthIdError("Health ID must be exactly 14 digits"); return; }
-        if (await checkHealthIdExists(healthId)) {
-          setHealthIdError("This Health ID is already registered.");
-          toast({ title: "Health ID Already Registered", description: "An account with this Health ID already exists.", variant: "destructive" });
+      if (userRole === "patient") {
+        if (!consentGiven) {
+          toast({ title: "Consent Required", description: "You must accept the data consent agreement to proceed.", variant: "destructive" });
           return;
+        }
+        if (!phone || phone.replace(/\D/g, '').length < 10) {
+          setPhoneError("Mobile number is required");
+          toast({ title: "Mobile Number Required", description: "Please enter your mobile number to continue.", variant: "destructive" });
+          return;
+        }
+        const cleanPhone = phone.startsWith("+") ? phone : `+91${phone.replace(/\D/g, '')}`;
+        if (await checkPhoneExists(cleanPhone)) {
+          setPhoneError("This mobile number is already registered");
+          toast({ title: "Mobile Number Already Registered", description: "An account with this number already exists. Please sign in.", variant: "destructive" });
+          return;
+        }
+        if (healthId && !skipAbha) {
+          if (!validateHealthId(healthId)) { setHealthIdError("Health ID must be exactly 14 digits"); return; }
+          if (await checkHealthIdExists(healthId)) {
+            setHealthIdError("This ABHA Health ID is already registered.");
+            toast({ title: "ABHA ID Already Registered", description: "An account with this ABHA Health ID already exists.", variant: "destructive" });
+            return;
+          }
         }
       }
     }
@@ -498,24 +528,47 @@ const Auth = () => {
                     </Label>
                     <Input id="name" type="text" placeholder="Dr. John Doe" value={name} onChange={(e) => setName(e.target.value)} required className="bg-background/50" />
                   </div>
-                  {userRole === "patient" && (
+                   {userRole === "patient" && (
                     <>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="flex items-center gap-2">
+                          <Phone className="w-4 h-4" />
+                          Mobile Number <span className="text-destructive">*</span>
+                        </Label>
+                        <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }} required className={`bg-background/50 ${phoneError ? "border-destructive" : ""}`} />
+                        {phoneError && <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{phoneError}</p>}
+                      </div>
+
+                      {/* ABHA ID - Optional */}
                       <div className="space-y-2">
                         <Label htmlFor="healthId" className="flex items-center gap-2">
                           <Shield className="w-4 h-4" />
-                          {t("auth.healthId")}
+                          {t("auth.healthId")} <span className="text-xs text-muted-foreground">(Optional)</span>
                         </Label>
-                        <Input id="healthId" type="text" placeholder="Enter 14-digit ABHA Health ID" value={healthId} onChange={(e) => handleHealthIdChange(e.target.value)} maxLength={14} required className={`bg-background/50 ${healthIdError ? "border-destructive" : ""}`} />
-                        {healthIdError ? (
-                          <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{healthIdError}</p>
+                        {!skipAbha ? (
+                          <>
+                            <Input id="healthId" type="text" placeholder="Enter 14-digit ABHA Health ID" value={healthId} onChange={(e) => handleHealthIdChange(e.target.value)} maxLength={14} className={`bg-background/50 ${healthIdError ? "border-destructive" : ""}`} />
+                            {healthIdError ? (
+                              <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{healthIdError}</p>
+                            ) : (
+                              <p className="text-xs text-muted-foreground">{t("auth.healthIdHelp")}</p>
+                            )}
+                            <button type="button" onClick={() => { setSkipAbha(true); setHealthId(""); setHealthIdError(""); }} className="text-xs text-primary hover:underline">
+                              Don't have an ABHA ID? Skip for now
+                            </button>
+                          </>
                         ) : (
-                          <p className="text-xs text-muted-foreground">{t("auth.healthIdHelp")}</p>
+                          <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-3">
+                            <p className="text-xs text-amber-800 dark:text-amber-200 font-medium">No ABHA ID? No problem.</p>
+                            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">You can register for a free ABHA Health ID at <a href="https://abha.abdm.org.in" target="_blank" rel="noopener noreferrer" className="underline font-medium">abha.abdm.org.in</a></p>
+                            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">Your mobile number will be used as your primary identifier.</p>
+                            <button type="button" onClick={() => setSkipAbha(false)} className="text-xs text-primary hover:underline mt-2">
+                              I have an ABHA ID →
+                            </button>
+                          </div>
                         )}
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">{t("auth.phone")}</Label>
-                        <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="bg-background/50" />
-                      </div>
+
                       <div className="space-y-2">
                         <Label htmlFor="dob" className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
@@ -529,6 +582,42 @@ const Auth = () => {
                           Weight (kg)
                         </Label>
                         <Input id="weight" type="number" placeholder="e.g. 65" value={weight} onChange={(e) => setWeight(e.target.value)} min="1" max="300" className="bg-background/50" />
+                      </div>
+
+                      {/* Consent Form */}
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                        <div className="flex items-start gap-2">
+                          <FileCheck className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">Data Consent & Privacy Agreement</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">Required to proceed</p>
+                          </div>
+                        </div>
+                        <button type="button" onClick={() => setShowConsent(!showConsent)} className="text-xs text-primary hover:underline">
+                          {showConsent ? "Hide details ▲" : "Read full agreement ▼"}
+                        </button>
+                        {showConsent && (
+                          <div className="text-xs text-muted-foreground space-y-2 max-h-48 overflow-y-auto border-t border-border pt-2">
+                            <p><strong>1. Purpose:</strong> Vyana stores your health records, prescriptions, lab reports, and vital signs solely to provide you with health tracking, clinical decision support, and shareable health summaries.</p>
+                            <p><strong>2. Data Stored:</strong> Personal identifiers (name, phone, ABHA ID, email), uploaded health documents, AI-generated summaries, medication reminders, and vital history.</p>
+                            <p><strong>3. Your Control:</strong> You decide who sees your data. Records are only shared when you explicitly generate a shareable link or grant access to a healthcare provider.</p>
+                            <p><strong>4. Not Medical Advice:</strong> Vyana is a clinical decision support tool. All AI-generated insights are for informational purposes only and do not constitute medical diagnosis, treatment, or advice. Always consult a qualified healthcare professional.</p>
+                            <p><strong>5. Data Security:</strong> Your data is encrypted at rest and in transit. We follow industry-standard security practices to protect your health information.</p>
+                            <p><strong>6. Data Retention:</strong> Your data is retained as long as your account is active. You may request deletion at any time by contacting support.</p>
+                            <p><strong>7. No Liability:</strong> Vyana, its creators, and affiliates are not liable for any medical decisions made based on information displayed in the app. You acknowledge that all health decisions should be made in consultation with qualified medical professionals.</p>
+                          </div>
+                        )}
+                        <div className="flex items-start gap-2 pt-1">
+                          <Checkbox 
+                            id="consent" 
+                            checked={consentGiven} 
+                            onCheckedChange={(checked) => setConsentGiven(checked === true)}
+                            className="mt-0.5"
+                          />
+                          <label htmlFor="consent" className="text-xs text-foreground leading-tight cursor-pointer">
+                            I have read and agree to the Data Consent & Privacy Agreement. I understand Vyana is not a substitute for professional medical advice.
+                          </label>
+                        </div>
                       </div>
                     </>
                   )}
