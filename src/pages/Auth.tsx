@@ -95,15 +95,18 @@ const Auth = () => {
   useLanguage();
 
   const buildSignupDraft = useCallback(
-    (): PendingSignupDraft => ({
-      role: userRole,
-      name: name.trim() || undefined,
-      phone: phone.trim() || undefined,
-      healthId: healthId || undefined,
-      dateOfBirth: dateOfBirth || undefined,
-      weight: weight || undefined,
-    }),
-    [userRole, name, phone, healthId, dateOfBirth, weight],
+    (): PendingSignupDraft => {
+      const cleanPhone = phone.trim() ? (phone.startsWith("+") ? phone.trim() : `+91${phone.replace(/\D/g, '')}`) : undefined;
+      return {
+        role: userRole,
+        name: name.trim() || undefined,
+        phone: cleanPhone,
+        healthId: (healthId && !skipAbha) ? healthId : undefined,
+        dateOfBirth: dateOfBirth || undefined,
+        weight: weight || undefined,
+      };
+    },
+    [userRole, name, phone, healthId, dateOfBirth, weight, skipAbha],
   );
 
   const redirectBasedOnRole = useCallback(async (userId: string, fallbackRole?: UserRole | "admin" | null) => {
