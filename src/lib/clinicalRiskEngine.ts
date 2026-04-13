@@ -83,9 +83,9 @@ export function computeASCVD(
       score: null,
       level: "insufficient",
       label: "Insufficient data",
-      detail: "Need age, total cholesterol, HDL, and systolic BP to calculate.",
+      detail: "Age, total cholesterol, HDL, and systolic BP are needed for this indicator.",
       inputs,
-      recommendations: ["Complete a lipid panel and blood pressure measurement."],
+      recommendations: ["Ask your doctor about a lipid panel and blood pressure check."],
     };
   }
 
@@ -202,8 +202,8 @@ export function computeDiabetesRisk(vitals: VitalsMap, vitalHistory: Array<{ vit
     return {
       id: "diabetes", title: "Diabetes Progression", category: "Metabolic",
       score: null, level: "insufficient", label: "Insufficient data",
-      detail: "Need HbA1c or fasting glucose to assess.", inputs,
-      recommendations: ["Get a fasting blood glucose and HbA1c test."],
+      detail: "HbA1c or fasting glucose is needed for this indicator.", inputs,
+      recommendations: ["Ask your doctor about a fasting blood glucose or HbA1c test."],
     };
   }
 
@@ -286,8 +286,8 @@ export function computeKidneyRisk(vitals: VitalsMap, age: number | null, isMale:
     return {
       id: "kidney", title: "Kidney Function (eGFR)", category: "Kidney",
       score: null, level: "insufficient", label: "Insufficient data",
-      detail: "Need serum creatinine and age to calculate eGFR.", inputs,
-      recommendations: ["Get a serum creatinine test."],
+      detail: "Serum creatinine and age are needed to estimate kidney function.", inputs,
+      recommendations: ["Ask your doctor about a serum creatinine test."],
     };
   }
 
@@ -373,8 +373,8 @@ export function computeThyroidRisk(vitals: VitalsMap): RiskScore {
     return {
       id: "thyroid", title: "Thyroid Pattern", category: "Thyroid",
       score: null, level: "insufficient", label: "Insufficient data",
-      detail: "Need TSH to assess thyroid function.", inputs,
-      recommendations: ["Get a TSH blood test."],
+      detail: "TSH is needed to evaluate thyroid function.", inputs,
+      recommendations: ["Ask your doctor about a TSH blood test."],
     };
   }
 
