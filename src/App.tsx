@@ -18,6 +18,7 @@ import PatientAppointments from "./pages/PatientAppointments";
 import PatientHealthRecords from "./pages/PatientHealthRecords";
 import PatientProfileEdit from "./pages/PatientProfileEdit";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import PatientBriefing from "./pages/PatientBriefing";
 import DoctorAppointments from "./pages/DoctorAppointments";
 import SharedHealthRecords from "./pages/SharedHealthRecords";
 import DoctorProfileSetup from "./pages/DoctorProfileSetup";
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="medications" element={<MedicationReminders />} />
             <Route path="prescription-reader" element={<PrescriptionInterpreter />} />
             <Route path="share" element={<ShareRecords />} />
+            <Route path="briefing" element={<PatientBriefing />} />
           </Route>
 
           {/* Patient standalone pages */}
