@@ -68,6 +68,10 @@ const Auth = () => {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [weight, setWeight] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [showConsent, setShowConsent] = useState(false);
+  const [skipAbha, setSkipAbha] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>("doctor");
   const [emailError, setEmailError] = useState("");
