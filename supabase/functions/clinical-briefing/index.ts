@@ -82,12 +82,13 @@ serve(async (req) => {
       `${m.medication_name} ${m.dosage || ""} - ${m.frequency} (${m.is_active ? "Active" : "Stopped"})`
     ).join("\n");
 
-    const systemPrompt = `You are a clinical briefing system for doctors. Generate a concise 30-second briefing.
+    const systemPrompt = `You are a clinical decision support system. Generate a concise patient summary for doctor review.
 Rules:
 - Only state facts from the provided data
-- No generic medical advice
-- No fluff — only actionable clinical information
-- Flag concerning trends or values
+- Never give medical advice, prescribe treatments, or make diagnoses
+- Frame findings as observations and patterns, not recommendations
+- Use phrases like "values suggest", "pattern consistent with", "may warrant discussion"
+- Flag concerning trends or values for the doctor to evaluate
 - Be precise with numbers and dates`;
 
     const userPrompt = `Generate a clinical briefing for this patient.

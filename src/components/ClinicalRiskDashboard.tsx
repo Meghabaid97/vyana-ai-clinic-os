@@ -88,10 +88,10 @@ const RiskCard = ({ risk }: { risk: RiskScore }) => {
             </div>
           </div>
 
-          {/* Recommendations */}
+          {/* What to discuss */}
           {risk.recommendations.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Recommendations</p>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Discuss with your doctor</p>
               <ul className="space-y-1">
                 {risk.recommendations.map((rec, i) => (
                   <li key={i} className="text-[12px] text-foreground flex gap-2 items-start">
@@ -148,10 +148,10 @@ const ClinicalRiskDashboard = ({ vitals, vitalHistory, medications, age }: Clini
     <section className="px-5 pb-6">
       <div className="flex items-center gap-2 mb-1">
         <AlertTriangle className="h-5 w-5 text-primary" />
-        <h2 className="text-[15px] font-bold text-foreground">Clinical Risk Scores</h2>
+        <h2 className="text-[15px] font-bold text-foreground">Health Indicators</h2>
       </div>
       <p className="text-[11px] text-muted-foreground mb-4">
-        Rule-based scoring using real clinical parameters. Not a diagnosis.
+        Decision support based on standard reference ranges. Not a diagnosis. Always consult your doctor.
       </p>
 
       {/* Alert banner for critical scores */}
@@ -160,10 +160,10 @@ const ClinicalRiskDashboard = ({ vitals, vitalHistory, medications, age }: Clini
           <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
           <div>
             <p className="text-[13px] font-semibold text-destructive">
-              {criticalScores.length} elevated risk{criticalScores.length > 1 ? "s" : ""} detected
+              {criticalScores.length} value{criticalScores.length > 1 ? "s" : ""} outside typical range
             </p>
             <p className="text-[11px] text-muted-foreground">
-              {criticalScores.map(s => s.title).join(", ")} — review recommendations below.
+              {criticalScores.map(s => s.title).join(", ")}. Discuss with your doctor.
             </p>
           </div>
         </div>
@@ -183,10 +183,10 @@ const ClinicalRiskDashboard = ({ vitals, vitalHistory, medications, age }: Clini
         <div className="mt-6">
           <div className="flex items-center gap-2 mb-1">
             <Pill className="h-5 w-5 text-primary" />
-            <h2 className="text-[15px] font-bold text-foreground">Medication Response</h2>
+            <h2 className="text-[15px] font-bold text-foreground">Medication Tracking</h2>
           </div>
           <p className="text-[11px] text-muted-foreground mb-3">
-            Tracking whether your medications are achieving their expected effects.
+            How your lab values are changing alongside your medications. Share this with your doctor.
           </p>
           <div className="space-y-2">
             {medEffects.map((effect, i) => (
@@ -197,7 +197,7 @@ const ClinicalRiskDashboard = ({ vitals, vitalHistory, medications, age }: Clini
       )}
 
       <p className="text-[9px] text-muted-foreground mt-4 italic">
-        ⚕️ These scores use standard clinical thresholds (ACC/AHA, ADA, KDIGO, ATA). They are informational — always consult your healthcare provider.
+        ⚕️ These indicators use standard reference ranges (ACC/AHA, ADA, KDIGO, ATA). They are for informational purposes only, not medical advice. Your doctor makes all clinical decisions.
       </p>
     </section>
   );

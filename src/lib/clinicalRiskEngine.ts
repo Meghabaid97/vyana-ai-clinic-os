@@ -1,10 +1,10 @@
 /**
- * Clinical Risk Scoring Engine
- * Rule-based detectors using real clinical parameters and thresholds.
- * Sources: ACC/AHA ASCVD guidelines, ADA diabetes standards, KDIGO CKD staging,
- *          ATA thyroid guidelines, standard clinical reference ranges.
+ * Clinical Decision Support Engine
+ * Rule-based indicators using standard clinical reference ranges.
+ * Sources: ACC/AHA, ADA, KDIGO, ATA guidelines for reference ranges only.
  *
- * DISCLAIMER: For informational purposes only. Not a substitute for clinical judgment.
+ * ⚠️ NOT a diagnostic tool. NOT medical advice. Does NOT prescribe treatments.
+ * All outputs are informational indicators to discuss with a healthcare provider.
  */
 
 type VitalsMap = Record<string, number | null>;
@@ -83,9 +83,9 @@ export function computeASCVD(
       score: null,
       level: "insufficient",
       label: "Insufficient data",
-      detail: "Need age, total cholesterol, HDL, and systolic BP to calculate.",
+      detail: "Age, total cholesterol, HDL, and systolic BP are needed for this indicator.",
       inputs,
-      recommendations: ["Complete a lipid panel and blood pressure measurement."],
+      recommendations: ["Ask your doctor about a lipid panel and blood pressure check."],
     };
   }
 
@@ -155,22 +155,21 @@ export function computeASCVD(
 
   if (risk < 5) {
     level = "low"; label = "Low risk (<5%)";
-    recs.push("Continue healthy lifestyle habits.");
+    recs.push("Your values are in a favorable range. Keep up healthy habits.");
   } else if (risk < 7.5) {
-    level = "moderate"; label = "Borderline (5–7.5%)";
-    recs.push("Consider lifestyle modifications: diet, exercise.");
-    recs.push("Discuss statin therapy with your doctor if additional risk factors present.");
+    level = "moderate"; label = "Borderline (5-7.5%)";
+    recs.push("Lifestyle factors like diet and exercise may help. Discuss with your doctor.");
+    recs.push("Your doctor may want to review your lipid levels at your next visit.");
   } else if (risk < 20) {
-    level = "high"; label = "Intermediate (7.5–20%)";
-    recs.push("Moderate-intensity statin therapy may be indicated.");
-    recs.push("Target LDL <100 mg/dL.");
-    recs.push("Monitor BP closely.");
+    level = "high"; label = "Intermediate (7.5-20%)";
+    recs.push("This range suggests a conversation with your doctor about heart health.");
+    recs.push("Ask about cholesterol and blood pressure goals for your profile.");
+    recs.push("Regular monitoring may be beneficial.");
   } else {
     level = "very-high"; label = "High risk (≥20%)";
-    recs.push("High-intensity statin therapy strongly recommended.");
-    recs.push("Target LDL <70 mg/dL.");
-    recs.push("Consider aspirin therapy if bleeding risk is acceptable.");
-    recs.push("Aggressive BP management to <130/80 mmHg.");
+    recs.push("This score suggests discussing cardiovascular risk reduction with your doctor soon.");
+    recs.push("Ask your doctor about cholesterol targets and blood pressure goals.");
+    recs.push("Regular follow-up and monitoring are important at this level.");
   }
 
   return {
@@ -203,8 +202,8 @@ export function computeDiabetesRisk(vitals: VitalsMap, vitalHistory: Array<{ vit
     return {
       id: "diabetes", title: "Diabetes Progression", category: "Metabolic",
       score: null, level: "insufficient", label: "Insufficient data",
-      detail: "Need HbA1c or fasting glucose to assess.", inputs,
-      recommendations: ["Get a fasting blood glucose and HbA1c test."],
+      detail: "HbA1c or fasting glucose is needed for this indicator.", inputs,
+      recommendations: ["Ask your doctor about a fasting blood glucose or HbA1c test."],
     };
   }
 
@@ -232,35 +231,34 @@ export function computeDiabetesRisk(vitals: VitalsMap, vitalHistory: Array<{ vit
 
   if (effectiveHbA1c < 5.7) {
     score = 10; level = "low"; label = "Normal glycemia";
-    recs.push("Maintain healthy diet and regular exercise.");
+    recs.push("Blood sugar levels are in a healthy range. Keep it up.");
   } else if (effectiveHbA1c < 6.5) {
-    score = 40; level = "moderate"; label = "Pre-diabetes";
-    recs.push("Structured lifestyle intervention (diet + 150 min/week exercise).");
-    recs.push("Consider metformin if BMI ≥35 or age <60.");
-    recs.push("Recheck HbA1c in 3–6 months.");
+    score = 40; level = "moderate"; label = "Pre-diabetes range";
+    recs.push("Your levels suggest pre-diabetes. Discuss with your doctor.");
+    recs.push("Lifestyle changes (diet + activity) can make a big difference at this stage.");
+    recs.push("Your doctor may suggest rechecking HbA1c in 3-6 months.");
   } else if (effectiveHbA1c < 8.0) {
-    score = 65; level = "high"; label = "Diabetes (managed)";
-    recs.push("Target HbA1c <7% for most adults.");
-    recs.push("Review medication regimen adherence.");
-    recs.push("Screen for complications: retinopathy, nephropathy, neuropathy.");
+    score = 65; level = "high"; label = "Elevated (managed range)";
+    recs.push("Your HbA1c is above the typical target. Discuss goals with your doctor.");
+    recs.push("Ask about screening for related conditions at your next visit.");
+    recs.push("Medication adherence is important. Talk to your doctor about your regimen.");
   } else {
-    score = 90; level = "very-high"; label = "Diabetes (poorly controlled)";
-    recs.push("Urgent medication review needed.");
-    recs.push("Consider adding insulin or GLP-1 agonist.");
-    recs.push("Screen for diabetic ketoacidosis signs.");
-    recs.push("Monthly glucose monitoring recommended.");
+    score = 90; level = "very-high"; label = "Significantly elevated";
+    recs.push("Your HbA1c is notably high. Please consult your doctor soon.");
+    recs.push("Your doctor may want to review your current treatment plan.");
+    recs.push("Frequent monitoring may be helpful at this level.");
   }
 
   if (trend === "worsening") {
     score = Math.min(score + 15, 100);
-    recs.unshift("⚠ HbA1c trending upward — medication adjustment may be needed.");
+    recs.unshift("⚠ HbA1c is trending upward. Bring this to your doctor's attention.");
   } else if (trend === "improving") {
-    recs.unshift("✓ HbA1c trending downward — current management appears effective.");
+    recs.unshift("✓ HbA1c is trending downward. Your current approach appears to be working.");
   }
 
   // Post-prandial spikes
   if (ppg != null && ppg > 200) {
-    recs.push("Post-meal glucose very high — consider mealtime insulin or acarbose.");
+    recs.push("Post-meal glucose is elevated. Your doctor may want to review mealtime management.");
   }
 
   return {
@@ -288,8 +286,8 @@ export function computeKidneyRisk(vitals: VitalsMap, age: number | null, isMale:
     return {
       id: "kidney", title: "Kidney Function (eGFR)", category: "Kidney",
       score: null, level: "insufficient", label: "Insufficient data",
-      detail: "Need serum creatinine and age to calculate eGFR.", inputs,
-      recommendations: ["Get a serum creatinine test."],
+      detail: "Serum creatinine and age are needed to estimate kidney function.", inputs,
+      recommendations: ["Ask your doctor about a serum creatinine test."],
     };
   }
 
@@ -316,38 +314,37 @@ export function computeKidneyRisk(vitals: VitalsMap, age: number | null, isMale:
   const recs: string[] = [];
 
   if (eGFR >= 90) {
-    stage = "G1 — Normal"; level = "low"; score = 10;
-    recs.push("Kidney function normal. Continue routine monitoring.");
+    stage = "G1: Normal"; level = "low"; score = 10;
+    recs.push("Kidney function appears normal based on this value.");
   } else if (eGFR >= 60) {
-    stage = "G2 — Mildly decreased"; level = "moderate"; score = 30;
-    recs.push("Mild kidney function decline. Monitor annually.");
-    recs.push("Control blood pressure to <130/80.");
+    stage = "G2: Mildly decreased"; level = "moderate"; score = 30;
+    recs.push("Mild change detected. Your doctor may want to monitor this annually.");
+    recs.push("Ask about blood pressure goals at your next visit.");
   } else if (eGFR >= 45) {
-    stage = "G3a — Mild-moderate decrease"; level = "moderate"; score = 50;
-    recs.push("Refer to nephrologist for co-management.");
-    recs.push("Avoid NSAIDs and nephrotoxic drugs.");
-    recs.push("Monitor electrolytes and phosphate.");
+    stage = "G3a: Mild-moderate decrease"; level = "moderate"; score = 50;
+    recs.push("Your doctor may want to involve a kidney specialist.");
+    recs.push("Discuss which medications to avoid with your doctor.");
   } else if (eGFR >= 30) {
-    stage = "G3b — Moderate-severe decrease"; level = "high"; score = 65;
-    recs.push("Active nephrology management needed.");
-    recs.push("Strict BP and glucose control.");
-    recs.push("Assess for anemia and bone disease.");
+    stage = "G3b: Moderate-severe decrease"; level = "high"; score = 65;
+    recs.push("This level typically needs active doctor involvement.");
+    recs.push("Discuss blood pressure and blood sugar targets with your doctor.");
+    recs.push("Ask about related screening (anemia, bone health).");
   } else if (eGFR >= 15) {
-    stage = "G4 — Severely decreased"; level = "very-high"; score = 80;
-    recs.push("Prepare for renal replacement therapy.");
-    recs.push("Dietary protein restriction may be needed.");
-    recs.push("Monthly monitoring recommended.");
+    stage = "G4: Severely decreased"; level = "very-high"; score = 80;
+    recs.push("Please consult your doctor about next steps for kidney care.");
+    recs.push("Your doctor may discuss dietary adjustments.");
+    recs.push("Frequent monitoring is typically recommended at this stage.");
   } else {
-    stage = "G5 — Kidney failure"; level = "very-high"; score = 95;
-    recs.push("Dialysis or transplant evaluation urgently needed.");
-    recs.push("Strict fluid and dietary management.");
+    stage = "G5: Kidney failure range"; level = "very-high"; score = 95;
+    recs.push("This value indicates a serious concern. Please see your doctor urgently.");
+    recs.push("Your doctor will discuss treatment options with you.");
   }
 
   // BUN/Creatinine ratio for pre-renal assessment
   if (bun != null && creatinine > 0) {
     const ratio = bun / creatinine;
     if (ratio > 20) {
-      recs.push(`BUN/Cr ratio elevated (${Math.round(ratio)}) — evaluate for dehydration or GI bleed.`);
+      recs.push(`BUN/Cr ratio is elevated (${Math.round(ratio)}). Mention this to your doctor.`);
     }
   }
 
@@ -376,8 +373,8 @@ export function computeThyroidRisk(vitals: VitalsMap): RiskScore {
     return {
       id: "thyroid", title: "Thyroid Pattern", category: "Thyroid",
       score: null, level: "insufficient", label: "Insufficient data",
-      detail: "Need TSH to assess thyroid function.", inputs,
-      recommendations: ["Get a TSH blood test."],
+      detail: "TSH is needed to evaluate thyroid function.", inputs,
+      recommendations: ["Ask your doctor about a TSH blood test."],
     };
   }
 
@@ -388,58 +385,49 @@ export function computeThyroidRisk(vitals: VitalsMap): RiskScore {
 
   // Pattern detection using TSH + T3/T4
   if (tsh > 10) {
-    // Overt hypothyroidism
-    pattern = "Overt Hypothyroidism";
+    pattern = "Pattern suggests hypothyroidism";
     level = "high"; score = 75;
-    recs.push("Levothyroxine therapy strongly indicated.");
-    recs.push("Check anti-TPO antibodies to rule out Hashimoto's.");
-    recs.push("Recheck TSH in 6–8 weeks after starting treatment.");
+    recs.push("TSH is significantly elevated. Discuss thyroid management with your doctor.");
+    recs.push("Your doctor may want to check thyroid antibodies.");
+    recs.push("Follow-up testing is typically done 6-8 weeks after any changes.");
     if (t4 != null && t4 < 5.1) {
       inputs[2].status = "critical";
-      recs.push("Low T4 confirms hypothyroidism.");
+      recs.push("Low T4 supports this pattern. Share with your doctor.");
     }
   } else if (tsh > 4.0) {
-    // Subclinical hypothyroidism
-    pattern = "Subclinical Hypothyroidism";
+    pattern = "Mildly elevated TSH";
     level = "moderate"; score = 40;
-    recs.push("Repeat TSH in 6–12 weeks to confirm.");
-    recs.push("Consider treatment if TSH >10 or symptomatic.");
-    recs.push("Check anti-TPO antibodies.");
+    recs.push("TSH is slightly above range. Your doctor may want to recheck in 6-12 weeks.");
+    recs.push("Ask about thyroid antibody testing if not already done.");
   } else if (tsh < 0.1) {
-    // Overt hyperthyroidism
-    pattern = "Overt Hyperthyroidism";
+    pattern = "Pattern suggests hyperthyroidism";
     level = "very-high"; score = 85;
-    recs.push("Urgent evaluation for Graves' disease or toxic nodule.");
-    recs.push("Check thyroid uptake scan.");
-    recs.push("Consider beta-blockers for symptom control.");
-    recs.push("Monitor for thyroid storm in severe cases.");
+    recs.push("TSH is very low. Please discuss with your doctor promptly.");
+    recs.push("Your doctor will likely want further thyroid evaluation.");
+    recs.push("Mention any symptoms like rapid heartbeat, weight loss, or tremors.");
     if (t3 != null && t3 > 200) {
       inputs[1].status = "critical";
-      recs.push("Elevated T3 confirms thyrotoxicosis.");
+      recs.push("Elevated T3 adds context. Share this with your doctor.");
     }
   } else if (tsh < 0.4) {
-    // Subclinical hyperthyroidism
-    pattern = "Subclinical Hyperthyroidism";
+    pattern = "Slightly low TSH";
     level = "moderate"; score = 45;
-    recs.push("Repeat TSH in 6–12 weeks.");
-    recs.push("Evaluate for atrial fibrillation risk if age >65.");
-    recs.push("Assess bone density in postmenopausal women.");
+    recs.push("TSH is slightly below range. Recheck in 6-12 weeks may be useful.");
+    recs.push("Mention to your doctor, especially if you have heart-related concerns.");
   } else {
-    // Normal
     pattern = "Euthyroid (Normal)";
     level = "low"; score = 5;
-    recs.push("Thyroid function normal. Routine screening as indicated.");
+    recs.push("Thyroid function appears normal based on TSH.");
 
-    // Check for discordance
     if (t3 != null && (t3 > 200 || t3 < 80)) {
-      pattern = "Euthyroid with abnormal T3";
+      pattern = "Normal TSH with unusual T3";
       level = "moderate"; score = 30;
-      recs.push("Abnormal T3 with normal TSH — consider non-thyroidal illness.");
+      recs.push("T3 is outside the typical range despite normal TSH. Mention to your doctor.");
     }
     if (t4 != null && (t4 > 14.1 || t4 < 5.1)) {
-      pattern = "Euthyroid with abnormal T4";
+      pattern = "Normal TSH with unusual T4";
       level = "moderate"; score = 30;
-      recs.push("Abnormal T4 with normal TSH — check for binding protein disorders.");
+      recs.push("T4 is outside the typical range despite normal TSH. Mention to your doctor.");
     }
   }
 
@@ -522,25 +510,25 @@ export function detectMedicationEffects(
           if (effect.direction === "decrease") {
             if (pctChange < -5) {
               assessment = "responding";
-              detail = `${vitalKey.replace(/_/g, " ")} decreased by ${Math.abs(Math.round(pctChange))}% — medication appears effective.`;
+              detail = `${vitalKey.replace(/_/g, " ")} decreased by ${Math.abs(Math.round(pctChange))}%. This may reflect your medication working. Discuss with your doctor.`;
             } else if (pctChange > 5) {
               assessment = "not-responding";
-              detail = `${vitalKey.replace(/_/g, " ")} increased by ${Math.round(pctChange)}% despite medication — review adherence or dosage.`;
+              detail = `${vitalKey.replace(/_/g, " ")} increased by ${Math.round(pctChange)}% while on this medication. Mention this to your doctor.`;
             } else {
               assessment = "responding";
-              detail = `${vitalKey.replace(/_/g, " ")} stable — medication maintaining control.`;
+              detail = `${vitalKey.replace(/_/g, " ")} is stable. Your current approach may be helping.`;
             }
           } else if (effect.direction === "stabilize") {
             if (Math.abs(pctChange) < 15) {
               assessment = "responding";
-              detail = `${vitalKey.replace(/_/g, " ")} stable — medication maintaining levels.`;
+              detail = `${vitalKey.replace(/_/g, " ")} is stable. This may reflect your medication helping.`;
             } else {
               assessment = "not-responding";
-              detail = `${vitalKey.replace(/_/g, " ")} changed by ${Math.round(pctChange)}% — dose adjustment may be needed.`;
+              detail = `${vitalKey.replace(/_/g, " ")} changed by ${Math.round(pctChange)}%. Discuss with your doctor.`;
             }
           } else {
             assessment = pctChange > 0 ? "responding" : "not-responding";
-            detail = `${vitalKey.replace(/_/g, " ")} ${pctChange > 0 ? "increasing" : "not improving"} as expected.`;
+            detail = `${vitalKey.replace(/_/g, " ")} ${pctChange > 0 ? "moving in expected direction" : "not changing as expected"}. Mention at your next visit.`;
           }
 
           results.push({
