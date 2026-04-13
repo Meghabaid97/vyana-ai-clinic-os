@@ -542,6 +542,84 @@ const HealthTrends = () => {
         </div>
       </section>
 
+      {/* AI Trend Insights */}
+      <section className="px-5 pb-6">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <h2 className="text-[15px] font-bold text-foreground">Longitudinal Insights</h2>
+            </div>
+            <Badge variant="outline" className="text-[10px]">
+              {vitalHistory.length} snapshots
+            </Badge>
+          </div>
+
+          {trendAnalysis ? (
+            <div className="space-y-4">
+              {trendAnalysis.insights && (
+                <p className="text-[13px] text-foreground leading-relaxed">{trendAnalysis.insights}</p>
+              )}
+
+              {trendAnalysis.risk_flags.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-destructive uppercase tracking-wider flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" /> Risk Flags
+                  </p>
+                  {trendAnalysis.risk_flags.map((rf, i) => (
+                    <div key={i} className={`rounded-lg p-3 border ${rf.severity === "high" ? "bg-destructive/10 border-destructive/30" : rf.severity === "medium" ? "bg-yellow-500/10 border-yellow-500/30" : "bg-muted/50 border-border"}`}>
+                      <p className="text-sm font-medium text-foreground">{rf.flag}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{rf.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {trendAnalysis.correlations.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <Pill className="h-3 w-3" /> Medication-Lab Correlations
+                  </p>
+                  {trendAnalysis.correlations.map((c, i) => (
+                    <div key={i} className="rounded-lg border border-border p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-[13px] font-medium text-foreground flex-1">{c.observation}</p>
+                        <Badge variant="outline" className={`text-[10px] ${c.confidence === "high" ? "border-green-500/30 text-green-700" : c.confidence === "medium" ? "border-yellow-500/30 text-yellow-600" : "border-muted"}`}>
+                          {c.confidence}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">{c.supporting_data}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {trendAnalysis.disclaimer && (
+                <p className="text-[10px] text-muted-foreground italic border-t border-border pt-2">{trendAnalysis.disclaimer}</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {vitalHistory.length < 2
+                ? "Upload at least 2 health reports to unlock longitudinal trend analysis."
+                : "Click below to analyze trends across your health snapshots."}
+            </p>
+          )}
+
+          <button
+            onClick={runTrendAnalysis}
+            disabled={isAnalyzingTrends || vitalHistory.length < 2}
+            className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50"
+          >
+            {isAnalyzingTrends ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing trends...</>
+            ) : (
+              <><TrendingUp className="h-4 w-4" /> Analyze Trends & Correlations</>
+            )}
+          </button>
+        </div>
+      </section>
+
       {vitalCategories.map((category, ci) => (
         <section key={ci} className="px-5 pb-6">
           <h2 className="text-[15px] font-bold text-foreground mb-3">{category.title}</h2>
