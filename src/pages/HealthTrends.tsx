@@ -70,7 +70,10 @@ const HealthTrends = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [vitalHistory, setVitalHistory] = useState<VitalHistoryEntry[]>([]);
+  const [trendAnalysis, setTrendAnalysis] = useState<TrendAnalysis | null>(null);
+  const [isAnalyzingTrends, setIsAnalyzingTrends] = useState(false);
   const autoProcessedRecordRef = useRef<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     void loadTrends();
