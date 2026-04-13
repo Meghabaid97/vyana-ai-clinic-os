@@ -36,6 +36,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import ClinicalBriefing from "@/components/ClinicalBriefing";
 import {
   Dialog,
   DialogContent,
