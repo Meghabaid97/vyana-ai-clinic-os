@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight, Upload, FileText, TrendingUp, Zap, Link2, Shield, Calendar,
-  Heart, Droplets, Activity, Loader2,
+  Heart, Droplets, Activity, Loader2, ScanLine,
 } from "lucide-react";
 
 interface PatientProfile {
@@ -220,6 +220,7 @@ const AppHome = () => {
             { icon: Zap, title: "30-second summary", desc: "One screen. Complete history. A doctor sees everything instantly.", path: "/patient-medical-history", badge: stats.consultations || undefined },
             { icon: Link2, title: "Share with any doctor", desc: "Secure link. 24 hours. No app needed on their end.", path: "/app/share", badge: stats.doctors || undefined },
             { icon: Shield, title: "Emergency access", desc: "Family safety net. Share your records instantly in emergencies.", path: "/emergency-contacts" },
+            { icon: ScanLine, title: "Prescription reader", desc: "Photograph any prescription — AI reads it in 5 languages.", path: "/app/prescription-reader" },
           ].map((f, i) => (
             <button
               key={i}
