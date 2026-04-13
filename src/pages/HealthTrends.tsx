@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  TrendingUp, Activity, Heart, Droplets, Thermometer, Eye,
-  Brain, Bone, Pill, Zap, Loader2, Sparkles, ArrowRight,
-  FileText, ShieldCheck, Info,
+  TrendingUp, TrendingDown, Activity, Heart, Droplets, Thermometer, Eye,
+  Brain, Bone, Pill, Zap, Loader2, Sparkles, ArrowRight, ArrowUp, ArrowDown,
+  Minus, FileText, ShieldCheck, Info, AlertTriangle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,6 +11,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useToast } from "@/hooks/use-toast";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
@@ -44,6 +45,14 @@ interface VitalHistoryEntry {
   recorded_at: string;
 }
 
+interface TrendAnalysis {
+  trends: Array<{ vital_name: string; vital_key: string; direction: string; significance: string; detail: string }>;
+  correlations: Array<{ observation: string; confidence: string; supporting_data: string; medication?: string; affected_vital?: string }>;
+  risk_flags: Array<{ flag: string; severity: string; detail: string }>;
+  insights: string;
+  disclaimer?: string;
+}
+
 const hasStrictStructuredSummary = (summary: string | null | undefined) => {
   if (!summary) return false;
   return summary.includes("Safety Note:") && summary.includes("Confidence:") && summary.includes("Document Type:");
@@ -61,7 +70,10 @@ const HealthTrends = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [vitalHistory, setVitalHistory] = useState<VitalHistoryEntry[]>([]);
+  const [trendAnalysis, setTrendAnalysis] = useState<TrendAnalysis | null>(null);
+  const [isAnalyzingTrends, setIsAnalyzingTrends] = useState(false);
   const autoProcessedRecordRef = useRef<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     void loadTrends();
@@ -260,6 +272,49 @@ const HealthTrends = () => {
     if (!records.length) return;
     autoProcessedRecordRef.current = null;
     await autoAnalyzeLatestRecord(records[0]);
+  };
+
+  const runTrendAnalysis = async () => {
+    if (vitalHistory.length < 2) {
+      toast({ title: "Need more data", description: "Upload at least 2 reports for trend analysis" });
+      return;
+    }
+    setIsAnalyzingTrends(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: patient } = await supabase.from("patients").select("name, age, id").eq("user_id", session.user.id).maybeSingle();
+      const { data: meds } = await supabase.from("medication_reminders").select("*").eq("patient_id", patient?.id || "");
+
+      const { data, error } = await supabase.functions.invoke("analyze-trends", {
+        body: {
+          vitalHistory,
+          medicationReminders: meds || [],
+          patientName: patient?.name,
+          patientAge: patient?.age,
+        },
+      });
+      if (error) throw error;
+      setTrendAnalysis(data);
+    } catch (err: any) {
+      console.error("Trend analysis error:", err);
+      toast({ title: "Error", description: "Failed to analyze trends", variant: "destructive" });
+    } finally {
+      setIsAnalyzingTrends(false);
+    }
+  };
+
+  // Get trend direction for a vital key from AI analysis
+  const getVitalTrend = (key: string) => {
+    if (!trendAnalysis?.trends) return null;
+    return trendAnalysis.trends.find(t => t.vital_key === key);
+  };
+
+  const trendDirectionIcon = (direction: string) => {
+    if (direction === "increasing") return <ArrowUp className="h-3 w-3 text-destructive" />;
+    if (direction === "decreasing") return <ArrowDown className="h-3 w-3 text-blue-500" />;
+    if (direction === "stable") return <Minus className="h-3 w-3 text-green-600" />;
+    return <Activity className="h-3 w-3 text-yellow-500" />;
   };
 
   // Use latest vital_history entry if available, fall back to live analysis
@@ -487,6 +542,84 @@ const HealthTrends = () => {
         </div>
       </section>
 
+      {/* AI Trend Insights */}
+      <section className="px-5 pb-6">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <h2 className="text-[15px] font-bold text-foreground">Longitudinal Insights</h2>
+            </div>
+            <Badge variant="outline" className="text-[10px]">
+              {vitalHistory.length} snapshots
+            </Badge>
+          </div>
+
+          {trendAnalysis ? (
+            <div className="space-y-4">
+              {trendAnalysis.insights && (
+                <p className="text-[13px] text-foreground leading-relaxed">{trendAnalysis.insights}</p>
+              )}
+
+              {trendAnalysis.risk_flags.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-destructive uppercase tracking-wider flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" /> Risk Flags
+                  </p>
+                  {trendAnalysis.risk_flags.map((rf, i) => (
+                    <div key={i} className={`rounded-lg p-3 border ${rf.severity === "high" ? "bg-destructive/10 border-destructive/30" : rf.severity === "medium" ? "bg-yellow-500/10 border-yellow-500/30" : "bg-muted/50 border-border"}`}>
+                      <p className="text-sm font-medium text-foreground">{rf.flag}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{rf.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {trendAnalysis.correlations.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <Pill className="h-3 w-3" /> Medication-Lab Correlations
+                  </p>
+                  {trendAnalysis.correlations.map((c, i) => (
+                    <div key={i} className="rounded-lg border border-border p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-[13px] font-medium text-foreground flex-1">{c.observation}</p>
+                        <Badge variant="outline" className={`text-[10px] ${c.confidence === "high" ? "border-green-500/30 text-green-700" : c.confidence === "medium" ? "border-yellow-500/30 text-yellow-600" : "border-muted"}`}>
+                          {c.confidence}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">{c.supporting_data}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {trendAnalysis.disclaimer && (
+                <p className="text-[10px] text-muted-foreground italic border-t border-border pt-2">{trendAnalysis.disclaimer}</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {vitalHistory.length < 2
+                ? "Upload at least 2 health reports to unlock longitudinal trend analysis."
+                : "Click below to analyze trends across your health snapshots."}
+            </p>
+          )}
+
+          <button
+            onClick={runTrendAnalysis}
+            disabled={isAnalyzingTrends || vitalHistory.length < 2}
+            className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50"
+          >
+            {isAnalyzingTrends ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing trends...</>
+            ) : (
+              <><TrendingUp className="h-4 w-4" /> Analyze Trends & Correlations</>
+            )}
+          </button>
+        </div>
+      </section>
+
       {vitalCategories.map((category, ci) => (
         <section key={ci} className="px-5 pb-6">
           <h2 className="text-[15px] font-bold text-foreground mb-3">{category.title}</h2>
@@ -495,6 +628,7 @@ const HealthTrends = () => {
               const timeline = getVitalTimeline(vital.key);
               const source = sources[vital.key];
               const hasValue = vital.value !== "—";
+              const trend = getVitalTrend(vital.key);
 
               return (
                 <HoverCard key={vi} openDelay={200}>
@@ -506,6 +640,7 @@ const HealthTrends = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-[13px] font-medium text-foreground truncate">{vital.label}</p>
+                          {trend && trendDirectionIcon(trend.direction)}
                           {hasValue && source && (
                             <Info className="h-3 w-3 text-muted-foreground shrink-0" />
                           )}
@@ -515,6 +650,11 @@ const HealthTrends = () => {
                           {timeline.length > 1 && (
                             <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-primary/20 text-primary">
                               {timeline.length} readings
+                            </Badge>
+                          )}
+                          {trend && (
+                            <Badge variant="outline" className={`text-[9px] px-1.5 py-0 h-4 ${trend.significance === "concerning" ? "border-destructive/30 text-destructive" : trend.significance === "notable" ? "border-yellow-500/30 text-yellow-600" : "border-green-500/30 text-green-600"}`}>
+                              {trend.direction}
                             </Badge>
                           )}
                         </div>

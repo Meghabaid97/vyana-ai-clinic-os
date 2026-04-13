@@ -36,6 +36,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import ClinicalBriefing from "@/components/ClinicalBriefing";
 import {
   Dialog,
   DialogContent,
@@ -833,6 +834,16 @@ const DoctorPatientView = () => {
               ))}
             </div>
           </Card>
+        )}
+
+        {/* Clinical Briefing */}
+        {consultations.length > 0 && (
+          <div className="mb-6">
+            <ClinicalBriefing
+              consultations={consultations}
+              patientHealthId={healthId}
+            />
+          </div>
         )}
 
         {/* Consultation History */}
