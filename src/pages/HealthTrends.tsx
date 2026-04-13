@@ -550,6 +550,7 @@ const HealthTrends = () => {
               const timeline = getVitalTimeline(vital.key);
               const source = sources[vital.key];
               const hasValue = vital.value !== "—";
+              const trend = getVitalTrend(vital.key);
 
               return (
                 <HoverCard key={vi} openDelay={200}>
@@ -561,6 +562,7 @@ const HealthTrends = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-[13px] font-medium text-foreground truncate">{vital.label}</p>
+                          {trend && trendDirectionIcon(trend.direction)}
                           {hasValue && source && (
                             <Info className="h-3 w-3 text-muted-foreground shrink-0" />
                           )}
@@ -570,6 +572,11 @@ const HealthTrends = () => {
                           {timeline.length > 1 && (
                             <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-primary/20 text-primary">
                               {timeline.length} readings
+                            </Badge>
+                          )}
+                          {trend && (
+                            <Badge variant="outline" className={`text-[9px] px-1.5 py-0 h-4 ${trend.significance === "concerning" ? "border-destructive/30 text-destructive" : trend.significance === "notable" ? "border-yellow-500/30 text-yellow-600" : "border-green-500/30 text-green-600"}`}>
+                              {trend.direction}
                             </Badge>
                           )}
                         </div>
