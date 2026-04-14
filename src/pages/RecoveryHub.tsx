@@ -438,7 +438,7 @@ const ClaimAssistant = () => {
               <Heart className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight">Insurance Claim Assistant</h1>
+              <h1 className="text-lg font-bold text-foreground leading-tight">Claim Assistant</h1>
               <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
                 Upload your hospital documents. We'll extract everything needed for your insurance claim.
               </p>
