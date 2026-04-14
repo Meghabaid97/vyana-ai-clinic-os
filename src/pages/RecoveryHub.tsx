@@ -702,14 +702,14 @@ const RecoveryHub = () => {
 
         {/* Missing items warning */}
         {missingItems.length > 0 && (
-          <div className="rounded-xl border border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 p-3">
+          <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3">
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-              <span className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">We still need:</span>
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <span className="text-sm font-semibold text-destructive">We still need:</span>
             </div>
             <ul className="space-y-1">
               {missingItems.map((item, i) => (
-                <li key={i} className="text-sm text-yellow-700 dark:text-yellow-400 flex items-start gap-2">
+                <li key={i} className="text-sm text-destructive/80 flex items-start gap-2">
                   <Circle className="h-3 w-3 mt-1 shrink-0" />
                   <span>{item}</span>
                 </li>
