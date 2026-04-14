@@ -566,12 +566,31 @@ const ClaimAssistant = () => {
         )}
 
         {extracted && (
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
-            <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-foreground">Data extracted successfully</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {extracted.insuranceClaim.primaryDiagnosis || "Diagnosis"} · {extracted.insuranceClaim.hospitalName || "Hospital"} · {extracted.confidence} confidence
+          <div className="space-y-2">
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
+              <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Data extracted successfully</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {extracted.insuranceClaim.primaryDiagnosis || "Diagnosis"} · {extracted.insuranceClaim.hospitalName || "Hospital"} · {extracted.confidence} confidence
+                </p>
+              </div>
+            </div>
+            {remindersCreated > 0 && (
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
+                <Pill className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{remindersCreated} medication reminder{remindersCreated > 1 ? "s" : ""} created</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Your discharge medications have been added to <button onClick={() => navigate("/app/medications")} className="text-primary underline">Medication Reminders</button>
+                  </p>
+                </div>
+              </div>
+            )}
+            <div className="rounded-xl border border-border bg-muted/50 p-3 flex items-start gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                All uploaded documents have been saved to your <button onClick={() => navigate("/app/records")} className="text-primary underline">Health Records</button> and will appear in your health trends analysis.
               </p>
             </div>
           </div>
