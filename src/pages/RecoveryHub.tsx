@@ -999,4 +999,4 @@ const StepIndicator = ({ steps, currentIndex }: { steps: { id: string; label: st
   </div>
 );
 
-export default RecoveryHub;
+export default ClaimAssistant;
