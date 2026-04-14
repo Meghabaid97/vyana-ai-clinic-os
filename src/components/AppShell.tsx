@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
-  { id: "recovery", label: "Recovery", shortLabel: "Care", icon: Heart, path: "/app/recovery" },
+  { id: "claims", label: "Claims", shortLabel: "Claim", icon: Heart, path: "/app/recovery" },
   { id: "trends", label: "Trends", shortLabel: "Trnd", icon: TrendingUp, path: "/app/trends" },
   { id: "records", label: "Records", shortLabel: "Files", icon: FolderOpen, path: "/app/records" },
   { id: "briefing", label: "Briefing", shortLabel: "Brief", icon: Stethoscope, path: "/app/briefing" },

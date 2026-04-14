@@ -13,6 +13,11 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { generateClaimPdf } from "@/lib/claimPdfGenerator";
+import {
+  saveToHealthRecords,
+  summarizeHealthRecord,
+  createMedicationReminders,
+} from "@/lib/healthRecordsPipeline";
 
 // ─── Types ───
 
@@ -106,7 +111,7 @@ type Step = "upload" | "insurance" | "review" | "chat";
 
 // ─── Component ───
 
-const RecoveryHub = () => {
+const ClaimAssistant = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,6 +123,11 @@ const RecoveryHub = () => {
   const [extracting, setExtracting] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedData | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [savingToRecords, setSavingToRecords] = useState(false);
+  const [patientId, setPatientId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [savedRecordIds, setSavedRecordIds] = useState<Set<string>>(new Set());
+  const [remindersCreated, setRemindersCreated] = useState(0);
 
   const [insurance, setInsurance] = useState<InsuranceDetails>({
     insuranceCompany: "", policyNumber: "", claimType: "",
@@ -129,6 +139,22 @@ const RecoveryHub = () => {
   const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+
+  // Load patient context
+  useEffect(() => {
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { navigate("/auth"); return; }
+      setUserId(session.user.id);
+      const { data: patient } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if (patient) setPatientId(patient.id);
+    };
+    load();
+  }, [navigate]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -154,6 +180,21 @@ const RecoveryHub = () => {
 
     setDocs(prev => [...prev, ...newDocs]);
     if (fileInputRef.current) fileInputRef.current.value = "";
+
+    // Auto-save each file to health records in background
+    if (patientId && userId) {
+      for (const doc of newDocs) {
+        saveToHealthRecords(doc.file, patientId, userId)
+          .then(async (result) => {
+            if (!result) return;
+            setSavedRecordIds(prev => new Set([...prev, doc.id]));
+            // Trigger AI summary in background
+            summarizeHealthRecord(result.recordId, result.filePath, doc.file.name, doc.file.type)
+              .catch(err => console.error("Background summary failed:", err));
+          })
+          .catch(err => console.error("Background save failed:", err));
+      }
+    }
   };
 
   const removeDoc = (id: string) => {
@@ -195,6 +236,25 @@ const RecoveryHub = () => {
 
       setExtracted(data);
       toast({ title: "Data extracted", description: "Discharge summary processed successfully" });
+
+      // Auto-create medication reminders from extracted medications
+      if (patientId && data?.medicalSummary?.medicationsAtDischarge?.length) {
+        try {
+          const count = await createMedicationReminders(
+            patientId,
+            data.medicalSummary.medicationsAtDischarge,
+          );
+          if (count > 0) {
+            setRemindersCreated(count);
+            toast({
+              title: `${count} medication reminder${count > 1 ? "s" : ""} created`,
+              description: "Your medications have been added to reminders automatically",
+            });
+          }
+        } catch (err) {
+          console.error("Failed to create medication reminders:", err);
+        }
+      }
     } catch (err: any) {
       console.error(err);
       toast({ title: "Extraction failed", description: err.message || "Could not process document", variant: "destructive" });
@@ -378,7 +438,7 @@ const RecoveryHub = () => {
               <Heart className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight">Insurance Claim Assistant</h1>
+              <h1 className="text-lg font-bold text-foreground leading-tight">Claim Assistant</h1>
               <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
                 Upload your hospital documents. We'll extract everything needed for your insurance claim.
               </p>
@@ -506,12 +566,31 @@ const RecoveryHub = () => {
         )}
 
         {extracted && (
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
-            <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-foreground">Data extracted successfully</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {extracted.insuranceClaim.primaryDiagnosis || "Diagnosis"} · {extracted.insuranceClaim.hospitalName || "Hospital"} · {extracted.confidence} confidence
+          <div className="space-y-2">
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
+              <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Data extracted successfully</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {extracted.insuranceClaim.primaryDiagnosis || "Diagnosis"} · {extracted.insuranceClaim.hospitalName || "Hospital"} · {extracted.confidence} confidence
+                </p>
+              </div>
+            </div>
+            {remindersCreated > 0 && (
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
+                <Pill className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{remindersCreated} medication reminder{remindersCreated > 1 ? "s" : ""} created</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Your discharge medications have been added to <button onClick={() => navigate("/app/medications")} className="text-primary underline">Medication Reminders</button>
+                  </p>
+                </div>
+              </div>
+            )}
+            <div className="rounded-xl border border-border bg-muted/50 p-3 flex items-start gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                All uploaded documents have been saved to your <button onClick={() => navigate("/app/records")} className="text-primary underline">Health Records</button> and will appear in your health trends analysis.
               </p>
             </div>
           </div>
@@ -958,4 +1037,4 @@ const StepIndicator = ({ steps, currentIndex }: { steps: { id: string; label: st
   </div>
 );
 
-export default RecoveryHub;
+export default ClaimAssistant;
