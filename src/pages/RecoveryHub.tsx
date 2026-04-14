@@ -3,13 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Upload, FileText, Shield, Heart, Loader2, Send, Bot, User,
+  Upload, FileText, Shield, Heart, Loader2, Send, Bot, User as UserIcon,
   ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Pill, Calendar,
-  Building2, IndianRupee, ClipboardList, ArrowLeft,
+  Building2, IndianRupee, ClipboardList, ArrowLeft, ArrowRight, X,
+  Camera, File, Check, Circle, Download, MessageSquare,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { generateClaimPdf } from "@/lib/claimPdfGenerator";
+
+// ─── Types ───
 
 interface MedicalSummary {
   admissionDate?: string;
@@ -53,7 +58,53 @@ interface ExtractedData {
   confidence: string;
 }
 
+interface UploadedDoc {
+  id: string;
+  file: File;
+  category: DocCategory;
+  preview?: string;
+  status: "pending" | "uploaded";
+}
+
+type DocCategory =
+  | "discharge_summary"
+  | "hospital_bill"
+  | "investigation_reports"
+  | "prescriptions"
+  | "insurance_claim_form"
+  | "admission_note"
+  | "id_proof"
+  | "insurance_card"
+  | "other";
+
+const DOC_CATEGORIES: { id: DocCategory; label: string; required: boolean; icon: typeof FileText }[] = [
+  { id: "discharge_summary", label: "Discharge Summary", required: true, icon: FileText },
+  { id: "hospital_bill", label: "Final Hospital Bill", required: true, icon: IndianRupee },
+  { id: "investigation_reports", label: "Investigation Reports", required: true, icon: ClipboardList },
+  { id: "prescriptions", label: "Prescriptions", required: true, icon: Pill },
+  { id: "insurance_claim_form", label: "Insurance Claim Form", required: true, icon: File },
+  { id: "admission_note", label: "Admission Note", required: false, icon: FileText },
+  { id: "id_proof", label: "ID Proof (Aadhaar / PAN)", required: false, icon: Shield },
+  { id: "insurance_card", label: "Insurance Card", required: false, icon: Heart },
+];
+
+interface InsuranceDetails {
+  insuranceCompany: string;
+  policyNumber: string;
+  claimType: "cashless" | "reimbursement" | "";
+  policyHolderName: string;
+  policyHolderRelation: string;
+  bankName: string;
+  bankAccountNumber: string;
+  bankIfsc: string;
+  tpaName: string;
+}
+
 type ChatMsg = { role: "user" | "assistant"; content: string };
+
+type Step = "upload" | "insurance" | "review" | "chat";
+
+// ─── Component ───
 
 const RecoveryHub = () => {
   const navigate = useNavigate();
@@ -61,13 +112,20 @@ const RecoveryHub = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const [uploading, setUploading] = useState(false);
+  const [step, setStep] = useState<Step>("upload");
+  const [docs, setDocs] = useState<UploadedDoc[]>([]);
+  const [activeCategory, setActiveCategory] = useState<DocCategory>("discharge_summary");
+  const [extracting, setExtracting] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedData | null>(null);
-  const [activeTab, setActiveTab] = useState<"summary" | "claim" | "chat">("summary");
-  const [showMedDetails, setShowMedDetails] = useState(true);
-  const [showClaimDetails, setShowClaimDetails] = useState(true);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
-  // Chat state
+  const [insurance, setInsurance] = useState<InsuranceDetails>({
+    insuranceCompany: "", policyNumber: "", claimType: "",
+    policyHolderName: "", policyHolderRelation: "self",
+    bankName: "", bankAccountNumber: "", bankIfsc: "", tpaName: "",
+  });
+
+  // Chat
   const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
@@ -76,21 +134,51 @@ const RecoveryHub = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // ─── Document upload ───
 
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      toast({ title: "File too large", description: "Max 10 MB", variant: "destructive" });
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newDocs: UploadedDoc[] = files.map(file => ({
+      id: crypto.randomUUID(),
+      file,
+      category: activeCategory,
+      status: "uploaded" as const,
+    }));
+
+    // Generate previews for images
+    for (const doc of newDocs) {
+      if (doc.file.type.startsWith("image/")) {
+        doc.preview = URL.createObjectURL(doc.file);
+      }
+    }
+
+    setDocs(prev => [...prev, ...newDocs]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeDoc = (id: string) => {
+    setDocs(prev => {
+      const doc = prev.find(d => d.id === id);
+      if (doc?.preview) URL.revokeObjectURL(doc.preview);
+      return prev.filter(d => d.id !== id);
+    });
+  };
+
+  const getDocsForCategory = (cat: DocCategory) => docs.filter(d => d.category === cat);
+  const hasDischarge = docs.some(d => d.category === "discharge_summary");
+
+  // ─── Extract from discharge summary ───
+
+  const extractDischargeData = async () => {
+    const dischargeDocs = getDocsForCategory("discharge_summary");
+    if (!dischargeDocs.length) {
+      toast({ title: "No discharge summary", description: "Upload a discharge summary first", variant: "destructive" });
       return;
     }
 
-    setUploading(true);
-    setExtracted(null);
-    setChatMessages([]);
-
+    setExtracting(true);
     try {
+      const file = dischargeDocs[0].file;
       const reader = new FileReader();
       const fileContent = await new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve(reader.result as string);
@@ -106,21 +194,44 @@ const RecoveryHub = () => {
       if (data?.error) throw new Error(data.error);
 
       setExtracted(data);
-      toast({ title: "Discharge summary processed", description: "Medical summary and claim data extracted." });
-
-      // Seed chat with welcome
-      setChatMessages([{
-        role: "assistant",
-        content: `I've reviewed your discharge summary. Here's what I can help you with:\n\n- **Understanding your claim data** — what each field means\n- **Missing documents** — what you'll need to file\n- **Claim process** — cashless vs reimbursement steps\n- **Corrections** — if any extracted data looks wrong\n\nWhat would you like help with?`
-      }]);
+      toast({ title: "Data extracted", description: "Discharge summary processed successfully" });
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Processing failed", description: err.message || "Could not process discharge summary", variant: "destructive" });
+      toast({ title: "Extraction failed", description: err.message || "Could not process document", variant: "destructive" });
     } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      setExtracting(false);
     }
   };
+
+  // ─── Missing items detection ───
+
+  const getMissingItems = () => {
+    const missing: string[] = [];
+
+    // Required docs
+    const requiredCats = DOC_CATEGORIES.filter(c => c.required);
+    for (const cat of requiredCats) {
+      if (!docs.some(d => d.category === cat.id)) {
+        missing.push(cat.label);
+      }
+    }
+
+    // Insurance details
+    if (!insurance.insuranceCompany) missing.push("Insurance company name");
+    if (!insurance.policyNumber) missing.push("Policy number");
+    if (!insurance.claimType) missing.push("Claim type (cashless/reimbursement)");
+
+    // Bank details for reimbursement
+    if (insurance.claimType === "reimbursement") {
+      if (!insurance.bankName) missing.push("Bank name");
+      if (!insurance.bankAccountNumber) missing.push("Bank account number");
+      if (!insurance.bankIfsc) missing.push("Bank IFSC code");
+    }
+
+    return missing;
+  };
+
+  // ─── Chat ───
 
   const sendChat = async () => {
     const text = chatInput.trim();
@@ -149,7 +260,12 @@ const RecoveryHub = () => {
           },
           body: JSON.stringify({
             messages: allMessages.map(m => ({ role: m.role, content: m.content })),
-            claimData: extracted?.insuranceClaim || {},
+            claimData: {
+              ...(extracted?.insuranceClaim || {}),
+              insurance: insurance,
+              uploadedDocuments: docs.map(d => d.category),
+              missingItems: getMissingItems(),
+            },
           }),
         }
       );
@@ -180,7 +296,6 @@ const RecoveryHub = () => {
         const { done: rd, value } = await reader.read();
         if (rd) break;
         textBuffer += decoder.decode(value, { stream: true });
-
         let nl: number;
         while ((nl = textBuffer.indexOf("\n")) !== -1) {
           let line = textBuffer.slice(0, nl);
@@ -204,7 +319,28 @@ const RecoveryHub = () => {
     }
   };
 
-  const renderList = (items: string[] | undefined, fallback = "Not mentioned in document") => {
+  // ─── PDF generation ───
+
+  const handleGeneratePdf = async () => {
+    setGeneratingPdf(true);
+    try {
+      await generateClaimPdf({
+        extracted: extracted || undefined,
+        insurance,
+        uploadedCategories: docs.map(d => d.category),
+      });
+      toast({ title: "Claim form generated", description: "PDF downloaded successfully" });
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: "PDF generation failed", description: err.message, variant: "destructive" });
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
+  // ─── Render helpers ───
+
+  const renderList = (items: string[] | undefined, fallback = "Not mentioned") => {
     if (!items?.length) return <p className="text-sm text-muted-foreground italic">{fallback}</p>;
     return (
       <ul className="space-y-1">
@@ -218,386 +354,608 @@ const RecoveryHub = () => {
     );
   };
 
-  // ----------- RENDER -----------
+  const stepIndex = ["upload", "insurance", "review", "chat"].indexOf(step);
+  const steps = [
+    { id: "upload", label: "Documents" },
+    { id: "insurance", label: "Insurance" },
+    { id: "review", label: "Review" },
+    { id: "chat", label: "Assistant" },
+  ];
 
-  if (!extracted) {
+  const missingItems = getMissingItems();
+
+  // ═══════════════════════════════════════
+  // STEP 1: UPLOAD DOCUMENTS
+  // ═══════════════════════════════════════
+
+  if (step === "upload") {
     return (
       <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
+        {/* Header */}
         <section className="rounded-2xl border border-border bg-card p-4">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
               <Heart className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight">Recovery Hub</h1>
+              <h1 className="text-lg font-bold text-foreground leading-tight">Insurance Claim Assistant</h1>
               <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                Upload your discharge summary — we'll prepare your insurance claim and a medical summary for every future visit.
+                Upload your hospital documents. We'll extract everything needed for your insurance claim.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="rounded-2xl border border-border bg-card p-5">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,application/pdf"
-            className="hidden"
-            onChange={handleUpload}
-          />
-          <div className="flex flex-col items-center gap-4 py-6">
-            {uploading ? (
-              <>
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                <div className="text-center">
-                  <p className="font-semibold text-foreground">Processing your discharge summary…</p>
-                  <p className="text-sm text-muted-foreground mt-1">Extracting medical data and claim information</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Upload className="h-8 w-8 text-primary" />
-                </div>
-                <div className="text-center">
-                  <p className="font-semibold text-foreground">Upload discharge summary</p>
-                  <p className="text-sm text-muted-foreground mt-1">Photo or PDF · Max 10 MB</p>
-                </div>
-                <Button onClick={() => fileInputRef.current?.click()} className="rounded-xl">
-                  <Upload className="h-4 w-4 mr-2" /> Choose file
-                </Button>
-              </>
-            )}
-          </div>
-        </section>
+        {/* Progress */}
+        <StepIndicator steps={steps} currentIndex={stepIndex} />
 
-        <section className="space-y-2">
-          {[
-            { icon: FileText, text: "Get a doctor-ready medical summary for your next visit" },
-            { icon: IndianRupee, text: "Auto-extract insurance claim data — no manual entry" },
-            { icon: Bot, text: "Chat with AI to complete your claim filing" },
-            { icon: Shield, text: "Your data stays private and is never shared without consent" },
-          ].map((item, i) => (
-            <div key={i} className="flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3">
-              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                <item.icon className="h-3.5 w-3.5 text-primary" />
+        {/* Document categories */}
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-foreground">Required Documents</h2>
+          {DOC_CATEGORIES.filter(c => c.required).map(cat => {
+            const catDocs = getDocsForCategory(cat.id);
+            const hasDoc = catDocs.length > 0;
+            return (
+              <div key={cat.id} className={`rounded-xl border bg-card p-3 transition-colors ${hasDoc ? "border-primary/30" : "border-border"}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    {hasDoc ? (
+                      <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                    ) : (
+                      <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center">
+                        <Circle className="h-3.5 w-3.5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{cat.label}</p>
+                      {catDocs.length > 0 && (
+                        <p className="text-[11px] text-muted-foreground">{catDocs.length} file{catDocs.length > 1 ? "s" : ""}</p>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-lg h-8 text-xs"
+                    onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
+                  >
+                    <Camera className="h-3.5 w-3.5 mr-1" /> {hasDoc ? "Add more" : "Upload"}
+                  </Button>
+                </div>
+                {catDocs.length > 0 && (
+                  <div className="mt-2 space-y-1.5">
+                    {catDocs.map(doc => (
+                      <div key={doc.id} className="flex items-center gap-2 rounded-lg bg-muted/50 p-2">
+                        {doc.preview ? (
+                          <img src={doc.preview} alt="" className="h-8 w-8 rounded object-cover" />
+                        ) : (
+                          <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
+                            <File className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        )}
+                        <span className="text-xs text-foreground flex-1 truncate">{doc.file.name}</span>
+                        <button onClick={() => removeDoc(doc.id)} className="text-muted-foreground hover:text-destructive">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <p className="text-sm text-foreground">{item.text}</p>
+            );
+          })}
+
+          <h2 className="text-sm font-semibold text-foreground pt-2">Optional (but useful)</h2>
+          {DOC_CATEGORIES.filter(c => !c.required).map(cat => {
+            const catDocs = getDocsForCategory(cat.id);
+            const hasDoc = catDocs.length > 0;
+            return (
+              <div key={cat.id} className={`rounded-xl border bg-card p-3 transition-colors ${hasDoc ? "border-primary/30" : "border-border"}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    {hasDoc ? (
+                      <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                    ) : (
+                      <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center">
+                        <Circle className="h-3.5 w-3.5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <p className="text-sm font-medium text-foreground">{cat.label}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-lg h-8 text-xs"
+                    onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
+                  >
+                    <Upload className="h-3.5 w-3.5 mr-1" /> Upload
+                  </Button>
+                </div>
+                {catDocs.length > 0 && (
+                  <div className="mt-2 space-y-1.5">
+                    {catDocs.map(doc => (
+                      <div key={doc.id} className="flex items-center gap-2 rounded-lg bg-muted/50 p-2">
+                        <span className="text-xs text-foreground flex-1 truncate">{doc.file.name}</span>
+                        <button onClick={() => removeDoc(doc.id)} className="text-muted-foreground hover:text-destructive">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Extract + Continue */}
+        {hasDischarge && !extracted && (
+          <Button
+            onClick={extractDischargeData}
+            disabled={extracting}
+            className="w-full rounded-xl"
+            variant="outline"
+          >
+            {extracting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+            {extracting ? "Extracting data from discharge summary…" : "Extract data from discharge summary"}
+          </Button>
+        )}
+
+        {extracted && (
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
+            <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Data extracted successfully</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {extracted.insuranceClaim.primaryDiagnosis || "Diagnosis"} · {extracted.insuranceClaim.hospitalName || "Hospital"} · {extracted.confidence} confidence
+              </p>
             </div>
-          ))}
-        </section>
+          </div>
+        )}
+
+        <Button
+          onClick={() => {
+            if (hasDischarge && !extracted) {
+              toast({ title: "Extract first", description: "Please extract data from your discharge summary before proceeding", variant: "destructive" });
+              return;
+            }
+            setStep("insurance");
+          }}
+          disabled={docs.length === 0}
+          className="w-full rounded-xl"
+        >
+          Continue to insurance details <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+
+        <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={handleFileSelect} />
       </div>
     );
   }
 
-  const { medicalSummary: ms, insuranceClaim: ic } = extracted;
+  // ═══════════════════════════════════════
+  // STEP 2: INSURANCE DETAILS
+  // ═══════════════════════════════════════
+
+  if (step === "insurance") {
+    return (
+      <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setStep("upload")} className="text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h1 className="text-lg font-bold text-foreground">Insurance Details</h1>
+        </div>
+
+        <StepIndicator steps={steps} currentIndex={stepIndex} />
+
+        <div className="space-y-4">
+          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+            <h2 className="text-sm font-semibold text-foreground">Policy Information</h2>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Insurance Company *</label>
+              <Input
+                value={insurance.insuranceCompany}
+                onChange={e => setInsurance(p => ({ ...p, insuranceCompany: e.target.value }))}
+                placeholder="e.g. Star Health, HDFC Ergo, ICICI Lombard"
+                className="rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Policy Number *</label>
+              <Input
+                value={insurance.policyNumber}
+                onChange={e => setInsurance(p => ({ ...p, policyNumber: e.target.value }))}
+                placeholder="Enter policy number"
+                className="rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">TPA Name (if applicable)</label>
+              <Input
+                value={insurance.tpaName}
+                onChange={e => setInsurance(p => ({ ...p, tpaName: e.target.value }))}
+                placeholder="e.g. Medi Assist, Vidal Health"
+                className="rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Claim Type *</label>
+              <div className="grid grid-cols-2 gap-2">
+                {(["cashless", "reimbursement"] as const).map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setInsurance(p => ({ ...p, claimType: type }))}
+                    className={`rounded-xl border p-3 text-center transition-colors ${
+                      insurance.claimType === type
+                        ? "border-primary bg-primary/5 text-foreground"
+                        : "border-border bg-card text-muted-foreground"
+                    }`}
+                  >
+                    <p className="text-sm font-medium capitalize">{type}</p>
+                    <p className="text-[10px] mt-0.5">
+                      {type === "cashless" ? "Hospital settles directly" : "You pay, then claim"}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+            <h2 className="text-sm font-semibold text-foreground">Policy Holder</h2>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Policy Holder Name</label>
+              <Input
+                value={insurance.policyHolderName}
+                onChange={e => setInsurance(p => ({ ...p, policyHolderName: e.target.value }))}
+                placeholder="Name as on policy"
+                className="rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Relation to Patient</label>
+              <div className="flex flex-wrap gap-1.5">
+                {["self", "spouse", "child", "parent", "other"].map(rel => (
+                  <button
+                    key={rel}
+                    onClick={() => setInsurance(p => ({ ...p, policyHolderRelation: rel }))}
+                    className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors capitalize ${
+                      insurance.policyHolderRelation === rel
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    {rel}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {insurance.claimType === "reimbursement" && (
+            <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                Bank Details
+                <span className="text-[10px] font-normal text-muted-foreground">(for reimbursement)</span>
+              </h2>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Bank Name</label>
+                <Input
+                  value={insurance.bankName}
+                  onChange={e => setInsurance(p => ({ ...p, bankName: e.target.value }))}
+                  placeholder="e.g. State Bank of India"
+                  className="rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Account Number</label>
+                <Input
+                  value={insurance.bankAccountNumber}
+                  onChange={e => setInsurance(p => ({ ...p, bankAccountNumber: e.target.value }))}
+                  placeholder="Enter account number"
+                  className="rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">IFSC Code</label>
+                <Input
+                  value={insurance.bankIfsc}
+                  onChange={e => setInsurance(p => ({ ...p, bankIfsc: e.target.value.toUpperCase() }))}
+                  placeholder="e.g. SBIN0001234"
+                  className="rounded-lg"
+                  maxLength={11}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Button onClick={() => setStep("review")} className="w-full rounded-xl">
+          Review claim details <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════
+  // STEP 3: REVIEW & GENERATE
+  // ═══════════════════════════════════════
+
+  if (step === "review") {
+    const ic = extracted?.insuranceClaim;
+    const ms = extracted?.medicalSummary;
+
+    return (
+      <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setStep("insurance")} className="text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h1 className="text-lg font-bold text-foreground">Review & Generate</h1>
+        </div>
+
+        <StepIndicator steps={steps} currentIndex={stepIndex} />
+
+        {/* Missing items warning */}
+        {missingItems.length > 0 && (
+          <div className="rounded-xl border border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              <span className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">We still need:</span>
+            </div>
+            <ul className="space-y-1">
+              {missingItems.map((item, i) => (
+                <li key={i} className="text-sm text-yellow-700 dark:text-yellow-400 flex items-start gap-2">
+                  <Circle className="h-3 w-3 mt-1 shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Document checklist */}
+        <div className="rounded-xl border border-border bg-card p-3">
+          <h2 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+            <ClipboardList className="h-4 w-4 text-primary" /> Document Checklist
+          </h2>
+          <div className="space-y-1.5">
+            {DOC_CATEGORIES.map(cat => {
+              const has = docs.some(d => d.category === cat.id);
+              return (
+                <div key={cat.id} className="flex items-center gap-2 text-sm">
+                  {has ? (
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                  ) : (
+                    <Circle className={`h-3.5 w-3.5 shrink-0 ${cat.required ? "text-destructive" : "text-muted-foreground"}`} />
+                  )}
+                  <span className={has ? "text-foreground" : "text-muted-foreground"}>
+                    {cat.label}
+                    {cat.required && !has && <span className="text-destructive text-[10px] ml-1">required</span>}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Extracted claim data */}
+        {ic && (
+          <div className="rounded-xl border border-border bg-card p-3 space-y-2">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-primary" /> Extracted Claim Data
+            </h2>
+            {([
+              ["Patient", ic.patientName],
+              ["Hospital", ic.hospitalName],
+              ["Admission", ic.admissionDate],
+              ["Discharge", ic.dischargeDate],
+              ["Days", ic.daysOfStay],
+              ["Diagnosis", ic.primaryDiagnosis],
+              ["Doctor", ic.treatingDoctorName],
+              ["Total Bill", ic.totalBillAmount ? `₹${ic.totalBillAmount}` : null],
+            ] as [string, string | null | undefined][]).filter(([, v]) => v).map(([label, value]) => (
+              <div key={label} className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{label}</span>
+                <span className="text-foreground font-medium text-right max-w-[60%]">{value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Insurance details summary */}
+        <div className="rounded-xl border border-border bg-card p-3 space-y-2">
+          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Shield className="h-4 w-4 text-primary" /> Insurance Details
+          </h2>
+          {([
+            ["Company", insurance.insuranceCompany],
+            ["Policy #", insurance.policyNumber],
+            ["Claim Type", insurance.claimType ? insurance.claimType.charAt(0).toUpperCase() + insurance.claimType.slice(1) : ""],
+            ["TPA", insurance.tpaName],
+            ["Holder", insurance.policyHolderName],
+            ["Relation", insurance.policyHolderRelation],
+          ] as [string, string][]).filter(([, v]) => v).map(([label, value]) => (
+            <div key={label} className="flex justify-between text-sm">
+              <span className="text-muted-foreground">{label}</span>
+              <span className="text-foreground font-medium">{value}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Medical summary preview */}
+        {ms && (
+          <div className="rounded-xl border border-border bg-card p-3 space-y-2">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary" /> Medical Summary for Future Visits
+            </h2>
+            <p className="text-sm text-foreground"><strong>Diagnosis:</strong> {ms.primaryDiagnosis}</p>
+            {ms.medicationsAtDischarge?.length ? (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Medications at discharge:</p>
+                {ms.medicationsAtDischarge.map((med, i) => (
+                  <p key={i} className="text-sm text-foreground">• {med.name} {med.dosage || ""} {med.frequency || ""}</p>
+                ))}
+              </div>
+            ) : null}
+            {ms.followUpInstructions?.length ? (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Follow-up:</p>
+                {renderList(ms.followUpInstructions)}
+              </div>
+            ) : null}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="space-y-2">
+          <Button
+            onClick={handleGeneratePdf}
+            disabled={generatingPdf}
+            className="w-full rounded-xl"
+          >
+            {generatingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+            {generatingPdf ? "Generating claim form…" : "Download Claim Form (PDF)"}
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (!chatMessages.length) {
+                setChatMessages([{
+                  role: "assistant",
+                  content: `I've reviewed your claim details. Here's what I can help with:\n\n${
+                    missingItems.length > 0
+                      ? `⚠️ **${missingItems.length} items still missing** — I can guide you on where to get them.\n\n`
+                      : "✅ All required items look complete!\n\n"
+                  }- **Filing process** — step-by-step for ${insurance.claimType || "your claim type"}\n- **Document corrections** — if anything extracted looks wrong\n- **Timeframes** — IRDA deadlines you should know\n- **TPA process** — how to follow up\n\nWhat would you like help with?`
+                }]);
+              }
+              setStep("chat");
+            }}
+            className="w-full rounded-xl"
+          >
+            <MessageSquare className="h-4 w-4 mr-2" /> Need help? Chat with Claims Assistant
+          </Button>
+        </div>
+
+        <div className="rounded-xl border border-border bg-muted/50 p-3">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              This claim form is auto-generated. Verify all details before submission. This is not legal or medical advice.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════
+  // STEP 4: CHAT ASSISTANT
+  // ═══════════════════════════════════════
 
   return (
     <div className="animate-fade-in flex flex-col h-full">
-      {/* Header */}
-      <div className="px-4 sm:px-5 pt-4 pb-3">
+      <div className="px-4 sm:px-5 pt-4 pb-2">
         <div className="flex items-center gap-2 mb-3">
-          <button onClick={() => { setExtracted(null); setChatMessages([]); }} className="text-muted-foreground hover:text-foreground">
+          <button onClick={() => setStep("review")} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Recovery Hub</h1>
-          <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium ${
-            extracted.confidence === "high" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-            extracted.confidence === "medium" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-            "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-          }`}>
-            {extracted.confidence} confidence
-          </span>
+          <h1 className="text-lg font-bold text-foreground">Claims Assistant</h1>
         </div>
+        <StepIndicator steps={steps} currentIndex={stepIndex} />
+      </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 rounded-xl bg-muted p-1">
-          {([
-            { id: "summary" as const, label: "Medical Summary", icon: FileText },
-            { id: "claim" as const, label: "Insurance Claim", icon: IndianRupee },
-            { id: "chat" as const, label: "Claims Chat", icon: Bot },
-          ]).map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition-colors ${
-                activeTab === tab.id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
-              }`}
-            >
-              <tab.icon className="h-3.5 w-3.5" />
-              <span className="hidden min-[400px]:inline">{tab.label}</span>
-            </button>
+      <div className="flex-1 overflow-y-auto px-4 sm:px-5 pb-2">
+        <div className="space-y-3 pt-2">
+          {chatMessages.map((msg, i) => (
+            <div key={i} className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              {msg.role === "assistant" && (
+                <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Bot className="h-3.5 w-3.5 text-primary" />
+                </div>
+              )}
+              <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                msg.role === "user"
+                  ? "bg-primary text-primary-foreground rounded-br-md"
+                  : "bg-muted text-foreground rounded-bl-md"
+              }`}>
+                {msg.role === "assistant" ? (
+                  <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                ) : msg.content}
+              </div>
+              {msg.role === "user" && (
+                <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                  <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                </div>
+              )}
+            </div>
           ))}
+          {chatLoading && chatMessages[chatMessages.length - 1]?.role !== "assistant" && (
+            <div className="flex gap-2.5">
+              <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Bot className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
+            </div>
+          )}
+          <div ref={chatEndRef} />
         </div>
       </div>
 
-      {/* Tab content */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-5 pb-6">
-        {activeTab === "summary" && (
-          <div className="space-y-3 pt-2">
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
-              <p className="text-xs text-muted-foreground mb-1">Primary Diagnosis</p>
-              <p className="font-semibold text-foreground">{ms.primaryDiagnosis || "—"}</p>
-              {ms.admissionDate && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {ms.admissionDate} → {ms.dischargeDate || "—"}
-                </p>
-              )}
-            </div>
-
-            {ms.secondaryDiagnoses?.length ? (
-              <div className="rounded-xl border border-border bg-card p-3">
-                <p className="text-xs font-medium text-muted-foreground mb-2">Other Diagnoses</p>
-                {renderList(ms.secondaryDiagnoses)}
-              </div>
-            ) : null}
-
-            <div className="rounded-xl border border-border bg-card p-3">
-              <button onClick={() => setShowMedDetails(!showMedDetails)} className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <Pill className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-semibold text-foreground">Medications at Discharge</span>
-                  {ms.medicationsAtDischarge?.length ? (
-                    <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">{ms.medicationsAtDischarge.length}</span>
-                  ) : null}
-                </div>
-                {showMedDetails ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-              </button>
-              {showMedDetails && ms.medicationsAtDischarge?.length ? (
-                <div className="mt-2 space-y-2">
-                  {ms.medicationsAtDischarge.map((med, i) => (
-                    <div key={i} className="rounded-lg bg-muted/50 p-2.5">
-                      <p className="text-sm font-medium text-foreground">{med.name}</p>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {med.dosage && <span className="text-[11px] text-muted-foreground">{med.dosage}</span>}
-                        {med.frequency && <span className="text-[11px] text-muted-foreground">· {med.frequency}</span>}
-                        {med.duration && <span className="text-[11px] text-muted-foreground">· {med.duration}</span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Follow-up Instructions</span>
-              </div>
-              {renderList(ms.followUpInstructions)}
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-3">
-              <p className="text-xs font-medium text-muted-foreground mb-2">Key Findings</p>
-              {renderList(ms.keyFindings)}
-            </div>
-
-            {ms.dietaryInstructions?.length || ms.activityRestrictions?.length ? (
-              <div className="rounded-xl border border-border bg-card p-3 space-y-3">
-                {ms.dietaryInstructions?.length ? (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Diet</p>
-                    {renderList(ms.dietaryInstructions)}
-                  </div>
-                ) : null}
-                {ms.activityRestrictions?.length ? (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Activity Restrictions</p>
-                    {renderList(ms.activityRestrictions)}
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            <div className="rounded-xl border border-border bg-muted/50 p-3">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  This summary contains only information extracted from your discharge document. It is not medical advice. Always consult your doctor for clinical decisions.
-                </p>
-              </div>
-            </div>
-
-            <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full rounded-xl">
-              <Upload className="h-4 w-4 mr-2" /> Upload another discharge summary
-            </Button>
-            <input ref={fileInputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleUpload} />
-          </div>
-        )}
-
-        {activeTab === "claim" && (
-          <div className="space-y-3 pt-2">
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Building2 className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Hospital Details</span>
-              </div>
-              <div className="space-y-1 text-sm">
-                <p className="text-foreground font-medium">{ic.hospitalName || "—"}</p>
-                {ic.hospitalAddress && <p className="text-muted-foreground text-xs">{ic.hospitalAddress}</p>}
-                {ic.treatingDoctorName && (
-                  <p className="text-muted-foreground text-xs">
-                    Dr. {ic.treatingDoctorName} {ic.treatingDoctorRegistration ? `(${ic.treatingDoctorRegistration})` : ""}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-3">
-              <button onClick={() => setShowClaimDetails(!showClaimDetails)} className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-semibold text-foreground">Claim Details</span>
-                </div>
-                {showClaimDetails ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-              </button>
-              {showClaimDetails && (
-                <div className="mt-2 space-y-2">
-                  {([
-                    ["Patient", ic.patientName],
-                    ["Age / Gender", [ic.patientAge, ic.patientGender].filter(Boolean).join(" / ") || null],
-                    ["Admission", ic.admissionDate],
-                    ["Discharge", ic.dischargeDate],
-                    ["Stay", ic.daysOfStay ? `${ic.daysOfStay} days` : null],
-                    ["Type", ic.admissionType],
-                    ["Room", ic.roomType],
-                    ["Diagnosis", ic.primaryDiagnosis],
-                    ["Pre-Auth #", ic.preAuthorizationNumber],
-                  ] as [string, string | null | undefined][]).filter(([, v]) => v).map(([label, value]) => (
-                    <div key={label} className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{label}</span>
-                      <span className="text-foreground font-medium text-right max-w-[60%]">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {ic.icdCodes?.length || ic.procedureCodes?.length ? (
-              <div className="rounded-xl border border-border bg-card p-3 space-y-2">
-                {ic.icdCodes?.length ? (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">ICD Codes</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {ic.icdCodes.map((c, i) => (
-                        <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-muted text-foreground">{c}</span>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-                {ic.procedureDescriptions?.length ? (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Procedures</p>
-                    {renderList(ic.procedureDescriptions)}
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            {ic.billingItems?.length ? (
-              <div className="rounded-xl border border-border bg-card p-3">
-                <p className="text-xs font-medium text-muted-foreground mb-2">Billing Items</p>
-                <div className="space-y-1.5">
-                  {ic.billingItems.map((b, i) => (
-                    <div key={i} className="flex justify-between text-sm">
-                      <span className="text-foreground">{b.item}</span>
-                      {b.amount && <span className="text-foreground font-medium">₹{b.amount}</span>}
-                    </div>
-                  ))}
-                  {ic.totalBillAmount && (
-                    <div className="flex justify-between text-sm pt-1.5 border-t border-border">
-                      <span className="font-semibold text-foreground">Total</span>
-                      <span className="font-bold text-primary">₹{ic.totalBillAmount}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : null}
-
-            <div className="rounded-xl border border-border bg-muted/50 p-3">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  This claim data is auto-extracted and may contain errors. Please verify all details before submitting to your insurer. Use the Claims Chat for assistance.
-                </p>
-              </div>
-            </div>
-
-            <Button onClick={() => setActiveTab("chat")} className="w-full rounded-xl">
-              <Bot className="h-4 w-4 mr-2" /> Get help filing your claim
-            </Button>
-          </div>
-        )}
-
-        {activeTab === "chat" && (
-          <div className="flex flex-col pt-2" style={{ minHeight: "calc(100vh - 260px)" }}>
-            <div className="flex-1 space-y-3 pb-3">
-              {chatMessages.map((msg, i) => (
-                <div key={i} className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  {msg.role === "assistant" && (
-                    <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <Bot className="h-3.5 w-3.5 text-primary" />
-                    </div>
-                  )}
-                  <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
-                    msg.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : "bg-muted text-foreground rounded-bl-md"
-                  }`}>
-                    {msg.role === "assistant" ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2 [&>ol]:mb-2">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
-                    ) : msg.content}
-                  </div>
-                  {msg.role === "user" && (
-                    <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
-                      <User className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-              ))}
-              {chatLoading && chatMessages[chatMessages.length - 1]?.role !== "assistant" && (
-                <div className="flex gap-2.5">
-                  <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Bot className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  </div>
-                </div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
-
-            <div className="sticky bottom-0 pt-2 pb-1 bg-background">
-              <div className="flex gap-2">
-                <Textarea
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
-                  placeholder="Ask about your claim process…"
-                  className="min-h-[44px] max-h-[120px] rounded-xl resize-none text-sm"
-                  rows={1}
-                />
-                <Button
-                  onClick={sendChat}
-                  disabled={!chatInput.trim() || chatLoading}
-                  size="icon"
-                  className="h-11 w-11 rounded-xl shrink-0"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-                AI assistant · Not legal or medical advice · Verify all details with your insurer
-              </p>
-            </div>
-          </div>
-        )}
+      <div className="px-4 sm:px-5 pt-2 pb-4 bg-background">
+        <div className="flex gap-2">
+          <Textarea
+            value={chatInput}
+            onChange={e => setChatInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
+            placeholder="Ask about your claim process…"
+            className="min-h-[44px] max-h-[120px] rounded-xl resize-none text-sm"
+            rows={1}
+          />
+          <Button
+            onClick={sendChat}
+            disabled={!chatInput.trim() || chatLoading}
+            size="icon"
+            className="h-11 w-11 rounded-xl shrink-0"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+        <p className="text-[10px] text-muted-foreground text-center mt-1.5">
+          AI assistant · Not legal or medical advice · Verify all details with your insurer
+        </p>
       </div>
     </div>
   );
 };
+
+// ─── Step Indicator ───
+
+const StepIndicator = ({ steps, currentIndex }: { steps: { id: string; label: string }[]; currentIndex: number }) => (
+  <div className="flex items-center gap-1">
+    {steps.map((s, i) => (
+      <div key={s.id} className="flex-1 flex flex-col items-center gap-1">
+        <div className={`h-1.5 w-full rounded-full transition-colors ${
+          i <= currentIndex ? "bg-primary" : "bg-muted"
+        }`} />
+        <span className={`text-[10px] font-medium ${
+          i <= currentIndex ? "text-primary" : "text-muted-foreground"
+        }`}>
+          {s.label}
+        </span>
+      </div>
+    ))}
+  </div>
+);
 
 export default RecoveryHub;
