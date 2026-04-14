@@ -13,6 +13,11 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { generateClaimPdf } from "@/lib/claimPdfGenerator";
+import {
+  saveToHealthRecords,
+  summarizeHealthRecord,
+  createMedicationReminders,
+} from "@/lib/healthRecordsPipeline";
 
 // ─── Types ───
 
@@ -106,7 +111,7 @@ type Step = "upload" | "insurance" | "review" | "chat";
 
 // ─── Component ───
 
-const RecoveryHub = () => {
+const ClaimAssistant = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,6 +123,11 @@ const RecoveryHub = () => {
   const [extracting, setExtracting] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedData | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [savingToRecords, setSavingToRecords] = useState(false);
+  const [patientId, setPatientId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [savedRecordIds, setSavedRecordIds] = useState<Set<string>>(new Set());
+  const [remindersCreated, setRemindersCreated] = useState(0);
 
   const [insurance, setInsurance] = useState<InsuranceDetails>({
     insuranceCompany: "", policyNumber: "", claimType: "",
@@ -129,6 +139,22 @@ const RecoveryHub = () => {
   const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+
+  // Load patient context
+  useEffect(() => {
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { navigate("/auth"); return; }
+      setUserId(session.user.id);
+      const { data: patient } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if (patient) setPatientId(patient.id);
+    };
+    load();
+  }, [navigate]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -154,6 +180,21 @@ const RecoveryHub = () => {
 
     setDocs(prev => [...prev, ...newDocs]);
     if (fileInputRef.current) fileInputRef.current.value = "";
+
+    // Auto-save each file to health records in background
+    if (patientId && userId) {
+      for (const doc of newDocs) {
+        saveToHealthRecords(doc.file, patientId, userId)
+          .then(async (result) => {
+            if (!result) return;
+            setSavedRecordIds(prev => new Set([...prev, doc.id]));
+            // Trigger AI summary in background
+            summarizeHealthRecord(result.recordId, result.filePath, doc.file.name, doc.file.type)
+              .catch(err => console.error("Background summary failed:", err));
+          })
+          .catch(err => console.error("Background save failed:", err));
+      }
+    }
   };
 
   const removeDoc = (id: string) => {
