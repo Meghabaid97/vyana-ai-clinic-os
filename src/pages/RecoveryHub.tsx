@@ -236,6 +236,25 @@ const ClaimAssistant = () => {
 
       setExtracted(data);
       toast({ title: "Data extracted", description: "Discharge summary processed successfully" });
+
+      // Auto-create medication reminders from extracted medications
+      if (patientId && data?.medicalSummary?.medicationsAtDischarge?.length) {
+        try {
+          const count = await createMedicationReminders(
+            patientId,
+            data.medicalSummary.medicationsAtDischarge,
+          );
+          if (count > 0) {
+            setRemindersCreated(count);
+            toast({
+              title: `${count} medication reminder${count > 1 ? "s" : ""} created`,
+              description: "Your medications have been added to reminders automatically",
+            });
+          }
+        } catch (err) {
+          console.error("Failed to create medication reminders:", err);
+        }
+      }
     } catch (err: any) {
       console.error(err);
       toast({ title: "Extraction failed", description: err.message || "Could not process document", variant: "destructive" });
