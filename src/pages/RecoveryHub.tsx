@@ -603,14 +603,24 @@ const ClaimAssistant = () => {
                     )}
                     <p className="text-sm font-medium text-foreground">{cat.label}</p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-lg h-8 text-xs"
-                    onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
-                  >
-                    <Upload className="h-3.5 w-3.5 mr-1" /> Upload
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg h-8 text-xs text-muted-foreground"
+                      onClick={() => openRecordsPicker(cat.id)}
+                    >
+                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> Records
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg h-8 text-xs"
+                      onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
+                    >
+                      <Upload className="h-3.5 w-3.5 mr-1" /> Upload
+                    </Button>
+                  </div>
                 </div>
                 {catDocs.length > 0 && (
                   <div className="mt-2 space-y-1.5">
