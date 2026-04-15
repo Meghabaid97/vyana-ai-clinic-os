@@ -1,0 +1,17 @@
+{
+  "name": "Vyana",
+  "short_name": "Vyana",
+  "description": "Your health story. Always with you.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6B6B",
+  "icons": [
+    {
+      "src": "/app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
