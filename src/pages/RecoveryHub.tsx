@@ -155,6 +155,9 @@ const ClaimAssistant = () => {
   const [healthRecords, setHealthRecords] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; file_size: number; uploaded_at: string }>>([]);
   const [loadingRecords, setLoadingRecords] = useState(false);
   const [downloadingRecord, setDownloadingRecord] = useState<string | null>(null);
+
+  // Load patient context
+  useEffect(() => {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth"); return; }
