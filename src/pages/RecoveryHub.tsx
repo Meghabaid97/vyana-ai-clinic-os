@@ -9,8 +9,15 @@ import {
   Upload, FileText, Shield, Heart, Loader2, Send, Bot, User as UserIcon,
   ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Pill, Calendar,
   Building2, IndianRupee, ClipboardList, ArrowLeft, ArrowRight, X,
-  Camera, File, Check, Circle, Download, MessageSquare,
+  Camera, File, Check, Circle, Download, MessageSquare, FolderOpen,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import ReactMarkdown from "react-markdown";
 import { generateClaimPdf } from "@/lib/claimPdfGenerator";
 import {
@@ -69,6 +76,8 @@ interface UploadedDoc {
   category: DocCategory;
   preview?: string;
   status: "pending" | "uploaded";
+  fromHealthRecord?: boolean;
+  healthRecordName?: string;
 }
 
 type DocCategory =
@@ -140,6 +149,13 @@ const ClaimAssistant = () => {
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
 
+  // Health records picker
+  const [showRecordsPicker, setShowRecordsPicker] = useState(false);
+  const [pickerCategory, setPickerCategory] = useState<DocCategory>("discharge_summary");
+  const [healthRecords, setHealthRecords] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; file_size: number; uploaded_at: string }>>([]);
+  const [loadingRecords, setLoadingRecords] = useState(false);
+  const [downloadingRecord, setDownloadingRecord] = useState<string | null>(null);
+
   // Load patient context
   useEffect(() => {
     const load = async () => {
@@ -203,6 +219,57 @@ const ClaimAssistant = () => {
       if (doc?.preview) URL.revokeObjectURL(doc.preview);
       return prev.filter(d => d.id !== id);
     });
+  };
+
+  const openRecordsPicker = async (category: DocCategory) => {
+    setPickerCategory(category);
+    setShowRecordsPicker(true);
+    if (healthRecords.length === 0 && patientId) {
+      setLoadingRecords(true);
+      try {
+        const { data } = await supabase
+          .from("health_records")
+          .select("id, file_name, file_path, file_type, file_size, uploaded_at")
+          .eq("patient_id", patientId)
+          .order("uploaded_at", { ascending: false });
+        setHealthRecords(data || []);
+      } catch (err) {
+        console.error("Failed to load health records:", err);
+      } finally {
+        setLoadingRecords(false);
+      }
+    }
+  };
+
+  const pickHealthRecord = async (record: { id: string; file_name: string; file_path: string; file_type: string; file_size: number }) => {
+    setDownloadingRecord(record.id);
+    try {
+      const { data } = await supabase.storage
+        .from("health-records")
+        .download(record.file_path);
+      if (!data) throw new Error("Could not download file");
+
+      const file = new window.File([data], record.file_name, { type: record.file_type });
+      const newDoc: UploadedDoc = {
+        id: crypto.randomUUID(),
+        file,
+        category: pickerCategory,
+        status: "uploaded",
+        fromHealthRecord: true,
+        healthRecordName: record.file_name,
+      };
+      if (file.type.startsWith("image/")) {
+        newDoc.preview = URL.createObjectURL(data);
+      }
+      setDocs(prev => [...prev, newDoc]);
+      setShowRecordsPicker(false);
+      toast({ title: "Record attached", description: `${record.file_name} added as ${DOC_CATEGORIES.find(c => c.id === pickerCategory)?.label}` });
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: "Failed to attach record", description: err.message, variant: "destructive" });
+    } finally {
+      setDownloadingRecord(null);
+    }
   };
 
   const getDocsForCategory = (cat: DocCategory) => docs.filter(d => d.category === cat);
@@ -475,14 +542,24 @@ const ClaimAssistant = () => {
                       )}
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-lg h-8 text-xs"
-                    onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
-                  >
-                    <Camera className="h-3.5 w-3.5 mr-1" /> {hasDoc ? "Add more" : "Upload"}
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg h-8 text-xs text-muted-foreground"
+                      onClick={() => openRecordsPicker(cat.id)}
+                    >
+                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> Records
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-lg h-8 text-xs"
+                      onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
+                    >
+                      <Camera className="h-3.5 w-3.5 mr-1" /> {hasDoc ? "Add more" : "Upload"}
+                    </Button>
+                  </div>
                 </div>
                 {catDocs.length > 0 && (
                   <div className="mt-2 space-y-1.5">
@@ -526,14 +603,24 @@ const ClaimAssistant = () => {
                     )}
                     <p className="text-sm font-medium text-foreground">{cat.label}</p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-lg h-8 text-xs"
-                    onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
-                  >
-                    <Upload className="h-3.5 w-3.5 mr-1" /> Upload
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg h-8 text-xs text-muted-foreground"
+                      onClick={() => openRecordsPicker(cat.id)}
+                    >
+                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> Records
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg h-8 text-xs"
+                      onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
+                    >
+                      <Upload className="h-3.5 w-3.5 mr-1" /> Upload
+                    </Button>
+                  </div>
                 </div>
                 {catDocs.length > 0 && (
                   <div className="mt-2 space-y-1.5">
@@ -611,6 +698,61 @@ const ClaimAssistant = () => {
         </Button>
 
         <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={handleFileSelect} />
+
+        {/* Health Records Picker Dialog */}
+        <Dialog open={showRecordsPicker} onOpenChange={setShowRecordsPicker}>
+          <DialogContent className="max-w-md max-h-[70vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FolderOpen className="h-5 w-5 text-primary" />
+                Pick from Health Records
+              </DialogTitle>
+              <DialogDescription>
+                Attach as: {DOC_CATEGORIES.find(c => c.id === pickerCategory)?.label}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2 py-2">
+              {loadingRecords ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+              ) : healthRecords.length === 0 ? (
+                <div className="text-center py-8">
+                  <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">No health records found. Upload records in the Health Records tab first.</p>
+                </div>
+              ) : (
+                healthRecords.map(record => (
+                  <button
+                    key={record.id}
+                    onClick={() => pickHealthRecord(record)}
+                    disabled={downloadingRecord === record.id}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors text-left"
+                  >
+                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                      {record.file_type.startsWith("image/") ? (
+                        <Camera className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{record.file_name}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {(record.file_size / 1024).toFixed(0)} KB • {new Date(record.uploaded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </p>
+                    </div>
+                    {downloadingRecord === record.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
+                    ) : (
+                      <Check className="h-4 w-4 text-muted-foreground shrink-0" />
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
