@@ -158,7 +158,7 @@ const SharedHealthRecords = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-background">
       <DoctorHeader
         title="Shared Health Records"
         subtitle="Records shared by patients with your consent"
