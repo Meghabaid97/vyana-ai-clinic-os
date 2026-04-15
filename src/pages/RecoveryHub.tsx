@@ -149,8 +149,12 @@ const ClaimAssistant = () => {
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
 
-  // Load patient context
-  useEffect(() => {
+  // Health records picker
+  const [showRecordsPicker, setShowRecordsPicker] = useState(false);
+  const [pickerCategory, setPickerCategory] = useState<DocCategory>("discharge_summary");
+  const [healthRecords, setHealthRecords] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; file_size: number; uploaded_at: string }>>([]);
+  const [loadingRecords, setLoadingRecords] = useState(false);
+  const [downloadingRecord, setDownloadingRecord] = useState<string | null>(null);
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth"); return; }
