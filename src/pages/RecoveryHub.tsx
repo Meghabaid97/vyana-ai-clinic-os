@@ -221,6 +221,57 @@ const ClaimAssistant = () => {
     });
   };
 
+  const openRecordsPicker = async (category: DocCategory) => {
+    setPickerCategory(category);
+    setShowRecordsPicker(true);
+    if (healthRecords.length === 0 && patientId) {
+      setLoadingRecords(true);
+      try {
+        const { data } = await supabase
+          .from("health_records")
+          .select("id, file_name, file_path, file_type, file_size, uploaded_at")
+          .eq("patient_id", patientId)
+          .order("uploaded_at", { ascending: false });
+        setHealthRecords(data || []);
+      } catch (err) {
+        console.error("Failed to load health records:", err);
+      } finally {
+        setLoadingRecords(false);
+      }
+    }
+  };
+
+  const pickHealthRecord = async (record: { id: string; file_name: string; file_path: string; file_type: string; file_size: number }) => {
+    setDownloadingRecord(record.id);
+    try {
+      const { data } = await supabase.storage
+        .from("health-records")
+        .download(record.file_path);
+      if (!data) throw new Error("Could not download file");
+
+      const file = new File([data], record.file_name, { type: record.file_type });
+      const newDoc: UploadedDoc = {
+        id: crypto.randomUUID(),
+        file,
+        category: pickerCategory,
+        status: "uploaded",
+        fromHealthRecord: true,
+        healthRecordName: record.file_name,
+      };
+      if (file.type.startsWith("image/")) {
+        newDoc.preview = URL.createObjectURL(data);
+      }
+      setDocs(prev => [...prev, newDoc]);
+      setShowRecordsPicker(false);
+      toast({ title: "Record attached", description: `${record.file_name} added as ${DOC_CATEGORIES.find(c => c.id === pickerCategory)?.label}` });
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: "Failed to attach record", description: err.message, variant: "destructive" });
+    } finally {
+      setDownloadingRecord(null);
+    }
+  };
+
   const getDocsForCategory = (cat: DocCategory) => docs.filter(d => d.category === cat);
   const hasDischarge = docs.some(d => d.category === "discharge_summary");
 
