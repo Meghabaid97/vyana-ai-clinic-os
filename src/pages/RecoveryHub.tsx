@@ -249,7 +249,7 @@ const ClaimAssistant = () => {
         .download(record.file_path);
       if (!data) throw new Error("Could not download file");
 
-      const file = new File([data], record.file_name, { type: record.file_type });
+      const file = new window.File([data], record.file_name, { type: record.file_type });
       const newDoc: UploadedDoc = {
         id: crypto.randomUUID(),
         file,
