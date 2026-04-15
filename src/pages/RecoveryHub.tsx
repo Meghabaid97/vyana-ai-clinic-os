@@ -76,6 +76,8 @@ interface UploadedDoc {
   category: DocCategory;
   preview?: string;
   status: "pending" | "uploaded";
+  fromHealthRecord?: boolean;
+  healthRecordName?: string;
 }
 
 type DocCategory =
