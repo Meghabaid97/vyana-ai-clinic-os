@@ -9,8 +9,15 @@ import {
   Upload, FileText, Shield, Heart, Loader2, Send, Bot, User as UserIcon,
   ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Pill, Calendar,
   Building2, IndianRupee, ClipboardList, ArrowLeft, ArrowRight, X,
-  Camera, File, Check, Circle, Download, MessageSquare,
+  Camera, File, Check, Circle, Download, MessageSquare, FolderOpen,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import ReactMarkdown from "react-markdown";
 import { generateClaimPdf } from "@/lib/claimPdfGenerator";
 import {
