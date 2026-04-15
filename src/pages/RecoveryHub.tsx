@@ -698,6 +698,61 @@ const ClaimAssistant = () => {
         </Button>
 
         <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={handleFileSelect} />
+
+        {/* Health Records Picker Dialog */}
+        <Dialog open={showRecordsPicker} onOpenChange={setShowRecordsPicker}>
+          <DialogContent className="max-w-md max-h-[70vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FolderOpen className="h-5 w-5 text-primary" />
+                Pick from Health Records
+              </DialogTitle>
+              <DialogDescription>
+                Attach as: {DOC_CATEGORIES.find(c => c.id === pickerCategory)?.label}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2 py-2">
+              {loadingRecords ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+              ) : healthRecords.length === 0 ? (
+                <div className="text-center py-8">
+                  <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">No health records found. Upload records in the Health Records tab first.</p>
+                </div>
+              ) : (
+                healthRecords.map(record => (
+                  <button
+                    key={record.id}
+                    onClick={() => pickHealthRecord(record)}
+                    disabled={downloadingRecord === record.id}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors text-left"
+                  >
+                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                      {record.file_type.startsWith("image/") ? (
+                        <Camera className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{record.file_name}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {(record.file_size / 1024).toFixed(0)} KB • {new Date(record.uploaded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </p>
+                    </div>
+                    {downloadingRecord === record.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
+                    ) : (
+                      <Check className="h-4 w-4 text-muted-foreground shrink-0" />
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
