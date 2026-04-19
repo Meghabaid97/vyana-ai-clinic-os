@@ -17,19 +17,18 @@ export const COLORS = {
 
 export const FPS = 30;
 
-// Scene durations match VO + buffer. Total ~161s.
+// Scene durations.
 export const SCENES = {
-  hook: 14,         // Meera at midnight, WhatsApp search
-  chaos: 18,        // The photo of a photo
-  story: 16,        // Health is a story
-  intro: 13,        // Vyana enters - logo + ABHA
-  yourStory: 16,    // Dashboard reveal
-  upload: 16,       // Records / upload demo
-  trends: 14,       // Trends demo
-  rx: 17,           // Rx reader demo
-  share: 15,        // Share + ABHA
-  emergency: 14,    // The 2AM moment
-  close: 8,         // Logo close
+  collage: 14,      // S0 collage (no VO, ambient music only)
+  story: 14,        // s3 VO ~13.5s
+  intro: 12,        // s4 VO ~10.8s
+  yourStory: 14,    // s5 VO ~13.4s
+  upload: 14,       // s6 VO ~13.7s
+  trends: 12,       // s7 VO ~11.7s
+  rx: 15,           // s8 VO ~14.7s
+  share: 13,        // s9 VO ~12.9s
+  emergency: 12,    // s10 VO ~11.8s
+  close: 6,         // s11 VO ~5.4s
 };
 
 export const sec = (s: number) => Math.round(s * FPS);
