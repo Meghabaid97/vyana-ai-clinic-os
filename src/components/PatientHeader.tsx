@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "./NotificationBell";
 import HeaderLocationSelector from "./HeaderLocationSelector";
@@ -11,6 +11,7 @@ interface PatientHeaderProps {
   patientName: string;
   title?: string;
   subtitle?: string;
+  showBack?: boolean;
 }
 
 const PatientHeader = ({ patientName, title, subtitle }: PatientHeaderProps) => {
