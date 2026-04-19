@@ -26,10 +26,10 @@ await renderMedia({
   outputLocation: "/tmp/vyana-silent.mp4",
   puppeteerInstance: browser,
   muted: true,
-  concurrency: 6,
-  scale: 0.6667,   // 1280x720 from 1920x1080
-  jpegQuality: 88,
-  crf: 22,
+  concurrency: 1,
+  scale: 0.6667,
+  jpegQuality: 85,
+  crf: 23,
 });
 
 await browser.close({ silent: false });
