@@ -14,7 +14,7 @@ interface PatientHeaderProps {
   showBack?: boolean;
 }
 
-const PatientHeader = ({ patientName, title, subtitle }: PatientHeaderProps) => {
+const PatientHeader = ({ patientName, title, subtitle, showBack = true }: PatientHeaderProps) => {
   const navigate = useNavigate();
   const [location, setLocation] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
 
