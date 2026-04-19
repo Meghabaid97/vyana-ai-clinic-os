@@ -2,36 +2,35 @@ import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { COLORS } from "../theme";
 
-// S11: Logo close
 export const S11Close: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
-  const fadeIn = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [durationInFrames - 25, durationInFrames], [1, 0], { extrapolateLeft: "clamp" });
+  const fadeIn = interpolate(frame, [0, 25], [0, 1], { extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [durationInFrames - 30, durationInFrames], [1, 0], { extrapolateLeft: "clamp" });
   const op = fadeIn * fadeOut;
-
-  const v = spring({ frame: frame - 5, fps, config: { damping: 18 } });
-  const yana = spring({ frame: frame - 25, fps, config: { damping: 22 } });
-  const tag = spring({ frame: frame - 70, fps, config: { damping: 24 } });
-
+  const word = spring({ frame: frame - 10, fps, config: { damping: 18, stiffness: 100 } });
+  const accent = interpolate(frame, [40, 80], [0, 1], { extrapolateRight: "clamp" });
+  const tag = spring({ frame: frame - 80, fps, config: { damping: 24 } });
   return (
-    <AbsoluteFill style={{ background: COLORS.bgDark, opacity: op, alignItems: "center", justifyContent: "center" }}>
-      <div style={{ display: "flex", alignItems: "baseline", fontFamily: "Fraunces, serif", fontWeight: 500 }}>
-        <span style={{
-          fontSize: 180, color: COLORS.coral, letterSpacing: -6,
-          opacity: v, transform: `scale(${interpolate(v, [0, 1], [0.85, 1])})`,
-        }}>V</span>
-        <span style={{
-          fontSize: 180, color: "#F4ECE0", letterSpacing: -6,
-          opacity: yana, transform: `scale(${interpolate(yana, [0, 1], [0.85, 1])})`,
-        }}>yana</span>
-      </div>
-      <div style={{
-        marginTop: 16, fontSize: 24, fontFamily: "Fraunces, serif", color: "#A89F94", fontStyle: "italic",
-        opacity: tag,
-      }}>
-        the system that remembers
-      </div>
+    <AbsoluteFill style={{ background: COLORS.bg, opacity: op }}>
+      <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(232,112,77,0.07) 0%, transparent 60%)" }} />
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+        <div style={{
+          fontFamily: "Fraunces, serif", fontSize: 200, fontWeight: 500, letterSpacing: -8,
+          color: COLORS.ink, opacity: word,
+          transform: `scale(${interpolate(word, [0, 1], [0.95, 1])})`,
+          display: "flex", alignItems: "baseline",
+        }}>
+          V<span style={{ color: COLORS.coral, opacity: accent }}>yana</span>
+        </div>
+        <div style={{
+          marginTop: 36, fontFamily: "Fraunces, serif", fontSize: 32, color: COLORS.inkSoft,
+          fontStyle: "italic", fontWeight: 400, letterSpacing: -0.5, opacity: tag,
+          transform: `translateY(${interpolate(tag, [0, 1], [10, 0])}px)`,
+        }}>
+          The system that remembers.
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };

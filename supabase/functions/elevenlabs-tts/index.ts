@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           text,
           model_id: "eleven_multilingual_v2",
-          voice_settings: { stability: 0.55, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true, speed: 0.95 },
+          voice_settings: { stability: 0.7, similarity_boost: 0.85, style: 0.15, use_speaker_boost: true, speed: 0.88 },
         }),
       }
     );
