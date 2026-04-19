@@ -30,7 +30,7 @@ await renderMedia({
   puppeteerInstance: browser,
   muted: true,
   concurrency: 1,
-  scale: 0.6667, // 1280x720 from 1920x1080
+  scale: 0.5, // 960x540 from 1920x1080
   jpegQuality: 85,
   crf: 23,
 });
