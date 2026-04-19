@@ -449,7 +449,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Share2 className="h-5 w-5 text-emerald-500" />
+              <Share2 className="h-5 w-5 text-primary" />
               Share Health Record
             </DialogTitle>
             <DialogDescription>
@@ -473,8 +473,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                   key={doctor.doctor_id}
                   className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors cursor-pointer ${
                     selectedDoctors.has(doctor.doctor_id)
-                      ? "border-emerald-500 bg-emerald-500/10"
-                      : "border-border hover:border-emerald-500/50"
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50"
                   }`}
                   onClick={() => {
                     const newSet = new Set(selectedDoctors);
@@ -514,7 +514,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
             <Button variant="outline" onClick={() => setShowConsentDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={saveConsent} className="bg-emerald-500 hover:bg-emerald-600">
+            <Button onClick={saveConsent}>
               Save Preferences
             </Button>
           </DialogFooter>
@@ -526,7 +526,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-violet-500" />
+              <Sparkles className="h-5 w-5 text-primary" />
               AI Summary
             </DialogTitle>
             <DialogDescription>
@@ -535,8 +535,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           </DialogHeader>
 
           {viewingSummary?.ai_summary && (
-            <div className="p-4 rounded-lg bg-violet-500/5 border border-violet-500/20">
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
+            <div className="p-4 rounded-lg bg-muted/40 border border-border">
+              <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                 {viewingSummary.ai_summary}
               </div>
             </div>
