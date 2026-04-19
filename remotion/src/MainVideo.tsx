@@ -4,8 +4,7 @@ import { loadFont as loadInter } from "@remotion/google-fonts/Inter";
 import { loadFont as loadFraunces } from "@remotion/google-fonts/Fraunces";
 import { COLORS, sec, SCENES } from "./theme";
 import { GrainTexture } from "./components/GrainTexture";
-import { S1Hook } from "./scenes/S1Hook";
-import { S2Chaos } from "./scenes/S2Chaos";
+import { S0Collage } from "./scenes/S0Collage";
 import { S3Story } from "./scenes/S3Story";
 import { S4Intro } from "./scenes/S4Intro";
 import { S5YourStory } from "./scenes/S5YourStory";
@@ -23,8 +22,7 @@ export const MainVideo: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: COLORS.bg, fontFamily: "Inter, sans-serif" }}>
       <Series>
-        <Series.Sequence durationInFrames={sec(SCENES.hook)}><S1Hook /></Series.Sequence>
-        <Series.Sequence durationInFrames={sec(SCENES.chaos)}><S2Chaos /></Series.Sequence>
+        <Series.Sequence durationInFrames={sec(SCENES.collage)}><S0Collage /></Series.Sequence>
         <Series.Sequence durationInFrames={sec(SCENES.story)}><S3Story /></Series.Sequence>
         <Series.Sequence durationInFrames={sec(SCENES.intro)}><S4Intro /></Series.Sequence>
         <Series.Sequence durationInFrames={sec(SCENES.yourStory)}><S5YourStory /></Series.Sequence>
