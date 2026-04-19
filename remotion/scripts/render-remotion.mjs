@@ -27,9 +27,9 @@ await renderMedia({
   puppeteerInstance: browser,
   muted: true,
   concurrency: 1,
-  scale: 0.6667,
-  jpegQuality: 85,
-  crf: 23,
+  scale: 0.5,
+  jpegQuality: 88,
+  crf: 22,
 });
 
 await browser.close({ silent: false });
