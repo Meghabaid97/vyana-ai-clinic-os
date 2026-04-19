@@ -26,11 +26,11 @@ await renderMedia({
   outputLocation: "/tmp/vyana-silent.mp4",
   puppeteerInstance: browser,
   muted: true,
-  concurrency: 4,
-  scale: 1.0,
-  jpegQuality: 92,
-  crf: 20,
+  concurrency: 1,
+  scale: 0.5,
+  jpegQuality: 88,
+  crf: 22,
 });
 
 await browser.close({ silent: false });
-console.log("Rendered to /mnt/documents/vyana-demo.mp4");
+console.log("Rendered silent video");
