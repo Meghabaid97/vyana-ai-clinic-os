@@ -6,18 +6,18 @@ import { COLORS } from "../theme";
 // Cells fade in staggered, hold, then collapse into the Vyana logo reveal.
 
 const CLIPS = [
-  "clips/c01-mother-drawer.mp4",
-  "clips/c02-whatsapp-scroll.mp4",
-  "clips/c03-father-calling.mp4",
-  "clips/c04-pharmacy-wait.mp4",
-  "clips/c05-ambulance.mp4",
-  "clips/c06-explain-doctor.mp4",
-  "clips/c07-pills-elderly.mp4",
-  "clips/c08-insurance-claim.mp4",
-  "clips/c09-army-jawan.mp4",
-  "clips/c10-old-prescription.mp4",
-  "clips/c11-rural-clinic.mp4",
-  "clips/c12-er-entry.mp4",
+  "clips-lo/c01-mother-drawer.mp4",
+  "clips-lo/c02-whatsapp-scroll.mp4",
+  "clips-lo/c03-father-calling.mp4",
+  "clips-lo/c04-pharmacy-wait.mp4",
+  "clips-lo/c05-ambulance.mp4",
+  "clips-lo/c06-explain-doctor.mp4",
+  "clips-lo/c07-pills-elderly.mp4",
+  "clips-lo/c08-insurance-claim.mp4",
+  "clips-lo/c09-army-jawan.mp4",
+  "clips-lo/c10-old-prescription.mp4",
+  "clips-lo/c11-rural-clinic.mp4",
+  "clips-lo/c12-er-entry.mp4",
 ];
 
 // Build 20 cells from the 12 clips; vary playback offset for visual variety.
