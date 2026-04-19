@@ -289,27 +289,22 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header with upload */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-gradient-to-r from-teal-500/10 via-emerald-500/10 to-cyan-500/10 border border-teal-500/20">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center shadow-lg">
-            <FolderOpen className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold">Health Records</h2>
-            <p className="text-sm text-muted-foreground">
-              {records.length} document{records.length !== 1 ? "s" : ""} • Securely stored
-            </p>
-          </div>
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
+        <div className="min-w-0">
+          <h2 className="text-base font-semibold text-foreground">Your records</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {records.length} document{records.length !== 1 ? "s" : ""} stored securely
+          </p>
         </div>
-        <div>
+        <div className="shrink-0">
           <input
             ref={fileInputRef}
             type="file"
@@ -320,77 +315,73 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           <Button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white shadow-lg"
+            size="sm"
+            className="rounded-xl"
           >
             {isUploading ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
             ) : (
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload className="h-4 w-4 mr-1.5" />
             )}
-            Upload Record
+            Upload
           </Button>
         </div>
       </div>
 
       {/* Privacy Notice */}
-      <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-        <Shield className="h-4 w-4 text-emerald-600" />
-        <span className="text-sm text-emerald-700 dark:text-emerald-400">
-          Your records are encrypted and only shared with doctors you explicitly consent to.
+      <div className="flex items-start gap-2 rounded-xl border border-border bg-muted/40 px-3 py-2.5">
+        <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <span className="text-xs text-muted-foreground leading-relaxed">
+          Your records are encrypted. Only doctors you explicitly consent to can view them.
         </span>
       </div>
 
       {records.length === 0 ? (
-        <Card className="p-12 text-center bg-gradient-to-br from-muted/30 to-muted/10">
-          <div className="h-20 w-20 mx-auto rounded-2xl bg-gradient-to-br from-teal-500/20 to-emerald-500/20 flex items-center justify-center mb-4">
-            <FileText className="h-10 w-10 text-teal-500" />
+        <Card className="p-8 text-center rounded-2xl border-border bg-card shadow-none">
+          <div className="h-14 w-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+            <FileText className="h-7 w-7 text-primary" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">No health records yet</h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Upload your medical documents like prescriptions, lab reports, or X-rays to keep them organized and share securely with doctors.
+          <h3 className="text-base font-semibold text-foreground mb-1">No records yet</h3>
+          <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
+            Upload prescriptions, lab reports, or scans to keep them organized in one place.
           </p>
           <Button
             onClick={() => fileInputRef.current?.click()}
             variant="outline"
-            size="lg"
-            className="border-teal-500/30 hover:bg-teal-500/10"
+            className="rounded-xl"
           >
             <Upload className="h-4 w-4 mr-2" />
-            Upload Your First Record
+            Upload your first record
           </Button>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="space-y-2.5">
           {records.map((record) => (
-            <Card key={record.id} className="p-4 hover:shadow-lg transition-all border-border/50 hover:border-teal-500/30">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-4 flex-1 min-w-0">
-                  <div className={`h-14 w-14 rounded-xl flex items-center justify-center shrink-0 ${
-                    record.file_type.startsWith("image/")
-                      ? "bg-gradient-to-br from-violet-500/20 to-purple-500/20"
-                      : "bg-gradient-to-br from-teal-500/20 to-emerald-500/20"
-                  }`}>
+            <Card key={record.id} className="p-3.5 rounded-2xl border-border bg-card shadow-none transition-colors hover:bg-muted/30">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-primary/10">
                     {record.file_type.startsWith("image/") ? (
-                      <FileImage className="h-7 w-7 text-violet-600" />
+                      <FileImage className="h-5 w-5 text-primary" />
                     ) : (
-                      <FileText className="h-7 w-7 text-teal-600" />
+                      <FileText className="h-5 w-5 text-primary" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate">{record.file_name}</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <h3 className="text-sm font-semibold text-foreground truncate">{record.file_name}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {formatFileSize(record.file_size)} • {formatDate(record.uploaded_at)}
                     </p>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-1.5 mt-2">
                       {record.ai_summary && (
-                        <Badge variant="secondary" className="bg-violet-500/10 text-violet-600 border-violet-500/20">
-                          <Sparkles className="h-3 w-3 mr-1" />
-                          AI Summary
+                        <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0 h-5">
+                          <Sparkles className="h-2.5 w-2.5 mr-1" />
+                          Summary
                         </Badge>
                       )}
                       {record.consent_shared_with && record.consent_shared_with.length > 0 && (
-                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-                          <Share2 className="h-3 w-3 mr-1" />
+                        <Badge variant="outline" className="rounded-full text-[10px] px-2 py-0 h-5">
+                          <Share2 className="h-2.5 w-2.5 mr-1" />
                           Shared ({record.consent_shared_with.length})
                         </Badge>
                       )}
@@ -398,49 +389,51 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 shrink-0">
                   {record.ai_summary ? (
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => {
                         setViewingSummary(record);
                         setShowSummaryDialog(true);
                       }}
-                      className="hidden sm:flex"
+                      className="h-8 w-8 rounded-full"
+                      aria-label="View summary"
                     >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Summary
+                      <Eye className="h-4 w-4 text-muted-foreground" />
                     </Button>
                   ) : (
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => summarizeRecord(record)}
                       disabled={isSummarizing === record.id}
-                      className="hidden sm:flex border-violet-500/30 hover:bg-violet-500/10"
+                      className="h-8 w-8 rounded-full"
+                      aria-label="Summarize"
                     >
                       {isSummarizing === record.id ? (
-                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                       ) : (
-                        <Sparkles className="h-4 w-4 mr-1 text-violet-500" />
+                        <Sparkles className="h-4 w-4 text-muted-foreground" />
                       )}
-                      Summarize
                     </Button>
                   )}
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
                     onClick={() => openConsentDialog(record)}
-                    className="border-emerald-500/30 hover:bg-emerald-500/10"
+                    className="h-8 w-8 rounded-full"
+                    aria-label="Share"
                   >
-                    <Share2 className="h-4 w-4 text-emerald-600" />
+                    <Share2 className="h-4 w-4 text-muted-foreground" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => deleteRecord(record)}
-                    className="hover:bg-destructive/10"
+                    className="h-8 w-8 rounded-full hover:bg-destructive/10"
+                    aria-label="Delete"
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -456,7 +449,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Share2 className="h-5 w-5 text-emerald-500" />
+              <Share2 className="h-5 w-5 text-primary" />
               Share Health Record
             </DialogTitle>
             <DialogDescription>
@@ -480,8 +473,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                   key={doctor.doctor_id}
                   className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors cursor-pointer ${
                     selectedDoctors.has(doctor.doctor_id)
-                      ? "border-emerald-500 bg-emerald-500/10"
-                      : "border-border hover:border-emerald-500/50"
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50"
                   }`}
                   onClick={() => {
                     const newSet = new Set(selectedDoctors);
@@ -521,7 +514,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
             <Button variant="outline" onClick={() => setShowConsentDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={saveConsent} className="bg-emerald-500 hover:bg-emerald-600">
+            <Button onClick={saveConsent}>
               Save Preferences
             </Button>
           </DialogFooter>
@@ -533,7 +526,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-violet-500" />
+              <Sparkles className="h-5 w-5 text-primary" />
               AI Summary
             </DialogTitle>
             <DialogDescription>
@@ -542,8 +535,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           </DialogHeader>
 
           {viewingSummary?.ai_summary && (
-            <div className="p-4 rounded-lg bg-violet-500/5 border border-violet-500/20">
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
+            <div className="p-4 rounded-lg bg-muted/40 border border-border">
+              <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                 {viewingSummary.ai_summary}
               </div>
             </div>
