@@ -1,37 +1,35 @@
-// Vyana brand tokens - matches the app
+// Vyana brand tokens
 export const COLORS = {
-  bg: "#FAFAF7",          // warm off-white (Notion-ish)
-  bgDark: "#0F0E0C",      // deep warm charcoal
-  ink: "#171514",         // primary text
-  inkSoft: "#5A524C",     // muted text
+  bg: "#FAFAF7",
+  bgDark: "#0F0E0C",
+  ink: "#171514",
+  inkSoft: "#5A524C",
   paper: "#FFFFFF",
   border: "#E8E3DD",
-  // Coral - Vyana's pop color (12 76% 61% in HSL)
   coral: "#E8704D",
   coralSoft: "#FBE4DA",
   coralDeep: "#C4502E",
   amber: "#E8A957",
   sage: "#7A9B7E",
-  // Accents for depth
   cream: "#F4ECE0",
   shadow: "rgba(23, 21, 20, 0.08)",
 };
 
 export const FPS = 30;
 
-// Scene timing in seconds (sums to ~180s)
+// Scene durations match VO + buffer. Total ~161s.
 export const SCENES = {
-  hook: 12,         // The drawer
-  chaos: 18,        // WhatsApp scroll, scattered records
-  clinic: 18,       // Doctor asking again
-  emergency: 22,    // 2AM split
-  intro: 14,        // Vyana enters
-  demoUpload: 22,   // Upload + AI summary
-  demoTimeline: 20, // Timeline + trends
-  demoRx: 20,       // Multilingual Rx reader
-  demoShare: 18,    // ABHA share
-  promise: 10,      // Family promise
-  close: 6,         // Logo close
+  hook: 14,         // Meera at midnight, WhatsApp search
+  chaos: 18,        // The photo of a photo
+  story: 16,        // Health is a story
+  intro: 13,        // Vyana enters - logo + ABHA
+  yourStory: 16,    // Dashboard reveal
+  upload: 16,       // Records / upload demo
+  trends: 14,       // Trends demo
+  rx: 17,           // Rx reader demo
+  share: 15,        // Share + ABHA
+  emergency: 14,    // The 2AM moment
+  close: 8,         // Logo close
 };
 
 export const sec = (s: number) => Math.round(s * FPS);
