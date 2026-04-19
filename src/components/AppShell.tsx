@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Home, TrendingUp, FolderOpen, Stethoscope, User, Heart } from "lucide-react";
+import { Home, TrendingUp, FolderOpen, Stethoscope, User, Heart, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,6 +12,16 @@ const tabs = [
   { id: "briefing", label: "Briefing", shortLabel: "Brief", icon: Stethoscope, path: "/app/briefing" },
   { id: "profile", label: "Profile", shortLabel: "Me", icon: User, path: "/app/profile" },
 ];
+
+// Sub-route titles (routes inside /app that aren't a primary tab)
+const subRouteTitles: Record<string, string> = {
+  "/app/timeline": "Timeline",
+  "/app/vaccinations": "Vaccinations",
+  "/app/medications": "Medications",
+  "/app/prescription-reader": "Prescription Reader",
+  "/app/share": "Share Records",
+  "/app/story": "Why Vyana",
+};
 
 const AppShell = () => {
   const navigate = useNavigate();
