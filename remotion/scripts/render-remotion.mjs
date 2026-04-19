@@ -25,7 +25,10 @@ await renderMedia({
   outputLocation: "/mnt/documents/vyana-demo.mp4",
   puppeteerInstance: browser,
   muted: false,
-  concurrency: 2,
+  concurrency: 6,
+  scale: 0.5,
+  jpegQuality: 80,
+  crf: 26,
 });
 
 await browser.close({ silent: false });
