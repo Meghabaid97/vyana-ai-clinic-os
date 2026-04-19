@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const bundled = await bundle({
   entryPoint: path.resolve(__dirname, "../src/index.ts"),
+  publicDir: path.resolve(__dirname, "../public"),
   webpackOverride: (c) => c,
 });
 
@@ -22,9 +23,9 @@ await renderMedia({
   composition,
   serveUrl: bundled,
   codec: "h264",
-  outputLocation: "/mnt/documents/vyana-demo.mp4",
+  outputLocation: "/tmp/vyana-silent.mp4",
   puppeteerInstance: browser,
-  muted: false,
+  muted: true,
   concurrency: 6,
   scale: 0.5,
   jpegQuality: 80,
