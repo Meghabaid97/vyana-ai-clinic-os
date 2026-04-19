@@ -44,14 +44,29 @@ const AppShell = () => {
       : location.pathname.startsWith(t.path)
   )?.id || "home";
 
+  const tabPaths = new Set(tabs.map((t) => t.path));
+  const isSubRoute = !tabPaths.has(location.pathname) && location.pathname.startsWith("/app");
+  const subTitle = subRouteTitles[location.pathname];
+
   return (
     <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
       {/* Top bar */}
       <header className="bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm">
-        <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between">
-          <span className="text-lg font-semibold text-foreground tracking-tight">
-            V<span className="text-primary">yana</span>
-          </span>
+        <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between gap-2">
+          {isSubRoute ? (
+            <button
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
+              aria-label="Go back"
+              className="-ml-1 inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-foreground hover:bg-muted transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="text-sm font-semibold truncate">{subTitle || "Back"}</span>
+            </button>
+          ) : (
+            <span className="text-lg font-semibold text-foreground tracking-tight">
+              V<span className="text-primary">yana</span>
+            </span>
+          )}
           <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{patientName.split(" ")[0]}</span>
         </div>
       </header>
