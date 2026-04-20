@@ -1,25 +1,29 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const WhyVyana = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const inApp = location.pathname.startsWith("/app");
 
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-50 bg-background border-b border-border">
-        <div className="max-w-[700px] mx-auto px-6 h-12 flex items-center justify-between">
-          <button onClick={() => navigate("/")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span className="font-semibold text-foreground">Vyana</span>
-          </button>
-          <Button size="sm" className="h-7 px-3 text-sm rounded-md" onClick={() => { const el = document.getElementById("contact"); if (el) el.scrollIntoView({ behavior: "smooth" }); else navigate("/"); }}>
-            Get Early Access
-          </Button>
-        </div>
-      </nav>
+    <div className={inApp ? "bg-background" : "min-h-screen bg-background"}>
+      {!inApp && (
+        <nav className="sticky top-0 z-50 bg-background border-b border-border safe-area-top">
+          <div className="max-w-[700px] mx-auto px-6 h-12 flex items-center justify-between">
+            <button onClick={() => navigate("/")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span className="font-semibold text-foreground">Vyana</span>
+            </button>
+            <Button size="sm" className="h-7 px-3 text-sm rounded-md" onClick={() => { const el = document.getElementById("contact"); if (el) el.scrollIntoView({ behavior: "smooth" }); else navigate("/"); }}>
+              Get Early Access
+            </Button>
+          </div>
+        </nav>
+      )}
 
-      <article className="max-w-[700px] mx-auto px-6 py-12">
+      <article className="max-w-[700px] mx-auto px-5 sm:px-6 py-8 sm:py-12">
         <header className="mb-12 animate-fade-in-slow">
           <p className="text-sm text-primary font-medium mb-3">The story behind Vyana</p>
           <h1 className="text-3xl lg:text-[44px] font-bold leading-[1.1] tracking-[-0.02em] text-foreground">
