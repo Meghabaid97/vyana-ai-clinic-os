@@ -382,61 +382,117 @@ export const MockShare: React.FC<{ generateAt?: number }> = ({ generateAt = 50 }
 // ====================================================================
 // CLAIM ASSISTANT — insurance claim wizard
 // ====================================================================
-export const MockClaim: React.FC<{ generateAt?: number }> = ({ generateAt = 70 }) => {
+export const MockClaim: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const head = spring({ frame: frame - 10, fps, config: { damping: 22 } });
-  const steps = [0, 1, 2, 3].map(i => spring({ frame: frame - 30 - i * 10, fps, config: { damping: 22 } }));
-  const pdfEnter = spring({ frame: frame - generateAt, fps, config: { damping: 22 } });
-  const showPdf = frame > generateAt - 5;
-  const stepLabels = ["Discharge", "Bills", "Policy", "Claim PDF"];
+  const heroEnter = spring({ frame: frame - 22, fps, config: { damping: 22 } });
+  const tabsEnter = spring({ frame: frame - 40, fps, config: { damping: 22 } });
+
+  // 5 required docs — they tick on one by one starting at frame 60, every 18 frames
+  const docs = [
+    "Discharge Summary",
+    "Final Hospital Bill",
+    "Investigation Reports",
+    "Prescriptions",
+    "Insurance Claim Form",
+  ];
+  const checkStart = 55;
+  const checkStep = 16;
+  const rowSprings = docs.map((_, i) => spring({ frame: frame - 30 - i * 8, fps, config: { damping: 22 } }));
+  const checkSprings = docs.map((_, i) => spring({ frame: frame - (checkStart + i * checkStep), fps, config: { damping: 18, stiffness: 180 } }));
+
+  // Progress bar fills as docs check on
+  const completed = checkSprings.filter(v => v > 0.5).length;
+  const progress = interpolate(completed, [0, docs.length], [0.25, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const wizardSteps = ["Documents", "Insurance", "Review", "Assistant"];
 
   return (
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
-      <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>Claim Assistant</div>
-        <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 36, color: COLORS.ink, fontWeight: 500, letterSpacing: -0.8, lineHeight: 1.05 }}>
-          Insurance, <em style={{ color: COLORS.coral, fontStyle: "italic" }}>filed for you</em>
+      {/* Header */}
+      <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)`, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <div style={{ fontFamily: "Fraunces, serif", fontSize: 26, fontWeight: 700 }}>
+          V<span style={{ color: COLORS.coral }}>yana</span>
+        </div>
+        <div style={{ fontFamily: "Inter", fontSize: 16, color: COLORS.inkSoft }}>Megha</div>
+      </div>
+
+      {/* Hero card */}
+      <div style={{
+        margin: "16px 22px 0", padding: 22, background: "#fff",
+        borderRadius: 22, border: `1px solid ${COLORS.border}`,
+        display: "flex", gap: 16, alignItems: "flex-start",
+        opacity: heroEnter, transform: `translateY(${interpolate(heroEnter, [0, 1], [12, 0])}px)`,
+      }}>
+        <div style={{ width: 56, height: 56, borderRadius: 16, background: COLORS.coralSoft, display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.coral, fontSize: 26 }}>♡</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "Fraunces, serif", fontSize: 24, color: COLORS.ink, fontWeight: 700, lineHeight: 1.1 }}>Claim Assistant</div>
+          <div style={{ marginTop: 8, fontFamily: "Inter", fontSize: 17, color: COLORS.inkSoft, lineHeight: 1.4 }}>
+            Upload your hospital documents. We'll extract everything needed for your insurance claim.
+          </div>
         </div>
       </div>
 
-      {/* Wizard step pills */}
-      <div style={{ margin: "24px 22px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        {stepLabels.map((s, i) => (
-          <div key={s} style={{
-            padding: 18, background: "#fff", borderRadius: 18,
-            border: `2px solid ${i < 3 ? COLORS.sage : COLORS.coral}`,
-            opacity: steps[i], transform: `translateY(${interpolate(steps[i], [0, 1], [12, 0])}px)`,
-          }}>
-            <div style={{ fontSize: 15, color: COLORS.inkSoft, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>Step {i + 1}</div>
-            <div style={{ marginTop: 6, fontFamily: "Fraunces, serif", fontSize: 20, color: COLORS.ink, fontWeight: 600, lineHeight: 1.1 }}>{s}</div>
-            <div style={{ marginTop: 6, fontSize: 12, color: i < 3 ? COLORS.sage : COLORS.coral, fontWeight: 700 }}>
-              {i < 3 ? "✓ Uploaded" : "Generating…"}
-            </div>
-          </div>
-        ))}
+      {/* Wizard step indicator */}
+      <div style={{ margin: "22px 22px 0", opacity: tabsEnter }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          {wizardSteps.map((_, i) => (
+            <div key={i} style={{
+              flex: 1, height: 4, borderRadius: 2,
+              background: i === 0 ? COLORS.coral : `${COLORS.inkSoft}33`,
+              transform: i === 0 ? `scaleX(${progress})` : "scaleX(1)",
+              transformOrigin: "left",
+              transition: "none",
+            }} />
+          ))}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "Inter", fontSize: 13, fontWeight: 600 }}>
+          {wizardSteps.map((s, i) => (
+            <div key={s} style={{ color: i === 0 ? COLORS.coral : COLORS.inkSoft, flex: 1, textAlign: i === 0 ? "left" : i === wizardSteps.length - 1 ? "right" : "center" }}>{s}</div>
+          ))}
+        </div>
       </div>
 
-      {/* Generated claim PDF */}
-      {showPdf && (
-        <div style={{
-          margin: "20px 22px 0", padding: 22,
-          background: "linear-gradient(135deg, #FBE4DA 0%, #fff 100%)",
-          borderRadius: 22, border: `2px solid ${COLORS.coral}`,
-          opacity: pdfEnter, transform: `translateY(${interpolate(pdfEnter, [0, 1], [16, 0])}px)`,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 16, color: COLORS.coralDeep, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>
-            <div style={{ width: 8, height: 8, borderRadius: 4, background: COLORS.coral }} /> Claim ready
-          </div>
-          <div style={{ marginTop: 12, padding: "14px 16px", background: "#fff", borderRadius: 12, display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 44, height: 56, background: COLORS.coral, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "Inter", fontSize: 12, fontWeight: 800 }}>PDF</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "Inter", fontSize: 15, color: COLORS.ink, fontWeight: 700 }}>StarHealth_Claim.pdf</div>
-              <div style={{ marginTop: 2, fontFamily: "Inter", fontSize: 17, color: COLORS.inkSoft }}>₹ 84,200 · 12 pages</div>
+      {/* Required Documents */}
+      <div style={{ margin: "22px 22px 0", fontFamily: "Inter", fontSize: 19, fontWeight: 800, color: COLORS.ink }}>Required Documents</div>
+
+      <div style={{ margin: "12px 22px 0" }}>
+        {docs.map((name, i) => {
+          const checked = checkSprings[i] > 0.4;
+          return (
+            <div key={name} style={{
+              display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
+              background: "#fff", borderRadius: 16, border: `1px solid ${COLORS.border}`,
+              marginBottom: 10,
+              opacity: rowSprings[i], transform: `translateY(${interpolate(rowSprings[i], [0, 1], [10, 0])}px)`,
+            }}>
+              {/* Check circle */}
+              <div style={{
+                width: 28, height: 28, borderRadius: 14,
+                border: `2px solid ${checked ? COLORS.coral : `${COLORS.inkSoft}55`}`,
+                background: checked ? COLORS.coral : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "#fff", fontSize: 16, fontWeight: 800,
+                transform: `scale(${checked ? Math.min(1, checkSprings[i] * 1.1) : 1})`,
+              }}>
+                {checked ? "✓" : ""}
+              </div>
+              <div style={{ flex: 1, fontFamily: "Inter", fontSize: 16, color: COLORS.ink, fontWeight: 700, lineHeight: 1.15 }}>{name}</div>
+              <div style={{
+                padding: "8px 12px", borderRadius: 10,
+                border: `1px solid ${COLORS.border}`,
+                fontFamily: "Inter", fontSize: 13, fontWeight: 700,
+                color: COLORS.ink,
+                background: checked ? `${COLORS.sage}18` : "#fff",
+                display: "flex", alignItems: "center", gap: 6,
+              }}>
+                {checked ? "✓ Done" : "📷 Upload"}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          );
+        })}
+      </div>
 
       <Tabs active="records" />
     </div>
