@@ -16,11 +16,36 @@ const steps = [
   },
 ];
 
+import { useReveal } from "@/hooks/use-reveal";
+
+const StepRow = ({ s, idx }: { s: typeof steps[number]; idx: number }) => {
+  const { ref, visible } = useReveal<HTMLDivElement>();
+  return (
+    <div
+      ref={ref}
+      className={`reveal reveal-delay-${Math.min(idx + 1, 4)} ${visible ? "is-visible" : ""} grid md:grid-cols-12 gap-6 md:gap-12 items-start border-t border-border pt-10`}
+    >
+      <div className="md:col-span-2">
+        <span className="font-serif italic text-5xl text-primary">{s.n}</span>
+      </div>
+      <div className="md:col-span-10 max-w-[640px]">
+        <h3 className="font-serif text-2xl sm:text-3xl text-foreground mb-3 leading-tight">
+          {s.title}
+        </h3>
+        <p className="text-[15px] text-muted-foreground leading-[1.75]">
+          {s.body}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const HowItWorks = () => {
+  const header = useReveal<HTMLDivElement>();
   return (
     <section id="how" className="py-24 lg:py-32">
       <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
-        <div className="max-w-[640px] mb-16">
+        <div ref={header.ref} className={`reveal ${header.visible ? "is-visible" : ""} max-w-[640px] mb-16`}>
           <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-4">
             IV &nbsp;·&nbsp; How it works
           </p>
@@ -32,23 +57,8 @@ const HowItWorks = () => {
         </div>
 
         <div className="space-y-16">
-          {steps.map((s) => (
-            <div
-              key={s.n}
-              className="grid md:grid-cols-12 gap-6 md:gap-12 items-start border-t border-border pt-10"
-            >
-              <div className="md:col-span-2">
-                <span className="font-serif italic text-5xl text-primary">{s.n}</span>
-              </div>
-              <div className="md:col-span-10 max-w-[640px]">
-                <h3 className="font-serif text-2xl sm:text-3xl text-foreground mb-3 leading-tight">
-                  {s.title}
-                </h3>
-                <p className="text-[15px] text-muted-foreground leading-[1.75]">
-                  {s.body}
-                </p>
-              </div>
-            </div>
+          {steps.map((s, i) => (
+            <StepRow key={s.n} s={s} idx={i} />
           ))}
         </div>
       </div>
@@ -57,3 +67,4 @@ const HowItWorks = () => {
 };
 
 export default HowItWorks;
+
