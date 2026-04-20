@@ -1,6 +1,6 @@
 import { useReveal } from "@/hooks/use-reveal";
 import { Upload, LineChart, FileText, Smartphone, Activity, Stethoscope, Lock } from "lucide-react";
-import bg from "@/assets/landing-steps-statue.jpg";
+import bg from "@/assets/landing-steps-hands.jpg";
 
 type Step = {
   icon: typeof Upload;
