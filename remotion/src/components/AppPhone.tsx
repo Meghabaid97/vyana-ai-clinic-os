@@ -12,9 +12,9 @@ export const AppPhone: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const enter = spring({ frame: frame - delay, fps, config: { damping: 22, stiffness: 90 } });
-  // Subtle continuous float
-  const float = Math.sin((frame - delay) / 30) * 4;
-  const ty = interpolate(enter, [0, 1], [60, 0]) + float;
+  // No continuous float — keeps the phone visually anchored.
+  const ty = interpolate(enter, [0, 1], [60, 0]);
+
 
   // Bigger phone for legibility
   const PHONE_W = 560;

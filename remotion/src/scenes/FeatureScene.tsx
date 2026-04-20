@@ -38,8 +38,8 @@ export const FeatureScene: React.FC<{
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const op = interpolate(frame, [0, 18, durationInFrames - 22, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const camX = Math.sin(frame / 95) * 14;
   const bodyEnter = spring({ frame: frame - 110, fps, config: { damping: 22 } });
+
 
   const Mock = SHOTS[shot] ?? MockHome;
   const phoneNode = (
