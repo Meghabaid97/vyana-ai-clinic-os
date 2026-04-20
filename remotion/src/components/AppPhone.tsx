@@ -16,11 +16,11 @@ export const AppPhone: React.FC<{
   const ty = interpolate(enter, [0, 1], [60, 0]);
 
 
-  // Bigger phone for legibility
-  const PHONE_W = 560;
-  const PHONE_H = 1140;
-  const SHOT_W = 532;
-  const SHOT_H = 1112;
+  // Larger phone — was getting downscaled by 0.78 making mock UI text unreadable.
+  const PHONE_W = 720;
+  const PHONE_H = 1465;
+  const SHOT_W = 686;
+  const SHOT_H = 1431;
 
   return (
     <div style={{

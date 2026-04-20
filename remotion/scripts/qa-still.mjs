@@ -1,0 +1,10 @@
+import { bundle } from "@remotion/bundler";
+import { renderStill, selectComposition, openBrowser } from "@remotion/renderer";
+import path from "path";
+const id = process.argv[2], frame = parseInt(process.argv[3]||"0",10), out = process.argv[4];
+const bundled = await bundle({ entryPoint: path.resolve("src/index.ts"), publicDir: path.resolve("public"), webpackOverride: c=>c });
+const browser = await openBrowser("chrome", { browserExecutable: process.env.PUPPETEER_EXECUTABLE_PATH ?? "/bin/chromium", chromiumOptions: { args: ["--no-sandbox","--disable-gpu","--disable-dev-shm-usage"] }, chromeMode: "chrome-for-testing" });
+const composition = await selectComposition({ serveUrl: bundled, id, puppeteerInstance: browser });
+await renderStill({ composition, serveUrl: bundled, frame, output: out, puppeteerInstance: browser, scale: 0.5 });
+await browser.close({ silent: false });
+console.log("ok", out);

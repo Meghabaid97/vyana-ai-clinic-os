@@ -52,7 +52,7 @@ export const MockHome: React.FC = () => {
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
       {/* Header */}
       <div style={{ padding: "24px 28px 0", opacity: headEnter, transform: `translateY(${interpolate(headEnter, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Sunday morning</div>
+        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>Sunday morning</div>
         <div style={{ marginTop: 10, fontFamily: "Fraunces, serif", fontSize: 48, color: COLORS.ink, fontWeight: 500, letterSpacing: -1, lineHeight: 1.05 }}>
           Hello, <em style={{ color: COLORS.coral, fontStyle: "italic" }}>Meera</em>
         </div>
@@ -65,7 +65,7 @@ export const MockHome: React.FC = () => {
         boxShadow: "0 12px 40px rgba(20,15,10,0.06)",
         opacity: storyEnter, transform: `translateY(${interpolate(storyEnter, [0, 1], [20, 0])}px)`,
       }}>
-        <div style={{ fontSize: 13, color: COLORS.coral, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>Your Health Story</div>
+        <div style={{ fontSize: 17, color: COLORS.coral, fontWeight: 800, letterSpacing: 2.2, textTransform: "uppercase" }}>Your Health Story</div>
         <div style={{ marginTop: 14, fontFamily: "Fraunces, serif", fontSize: 26, color: COLORS.ink, lineHeight: 1.35, fontWeight: 500 }}>
           Sugar and pressure have <em style={{ color: COLORS.sage, fontStyle: "italic" }}>quietly improved</em>.
         </div>
@@ -77,14 +77,14 @@ export const MockHome: React.FC = () => {
         opacity: statsEnter, transform: `translateY(${interpolate(statsEnter, [0, 1], [16, 0])}px)`,
       }}>
         <div style={{ padding: 22, background: "#fff", borderRadius: 22, border: `1px solid ${COLORS.border}` }}>
-          <div style={{ fontSize: 12, color: COLORS.inkSoft, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>HbA1c</div>
+          <div style={{ fontSize: 16, color: COLORS.inkSoft, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>HbA1c</div>
           <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 44, color: COLORS.ink, fontWeight: 600, lineHeight: 1 }}>6.2</div>
-          <div style={{ marginTop: 6, fontSize: 13, color: COLORS.sage, fontWeight: 600 }}>↓ 0.8 in 6 mo</div>
+          <div style={{ marginTop: 6, fontSize: 17, color: COLORS.sage, fontWeight: 700 }}>↓ 0.8 in 6 mo</div>
         </div>
         <div style={{ padding: 22, background: "#fff", borderRadius: 22, border: `1px solid ${COLORS.border}` }}>
-          <div style={{ fontSize: 12, color: COLORS.inkSoft, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>BP avg</div>
+          <div style={{ fontSize: 16, color: COLORS.inkSoft, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>BP avg</div>
           <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 44, color: COLORS.ink, fontWeight: 600, lineHeight: 1 }}>122<span style={{ color: COLORS.inkSoft, fontSize: 28 }}>/78</span></div>
-          <div style={{ marginTop: 6, fontSize: 13, color: COLORS.sage, fontWeight: 600 }}>Within range</div>
+          <div style={{ marginTop: 6, fontSize: 17, color: COLORS.sage, fontWeight: 700 }}>Within range</div>
         </div>
       </div>
 
@@ -93,8 +93,8 @@ export const MockHome: React.FC = () => {
         margin: "20px 22px 0", padding: "16px 20px", background: COLORS.coralSoft,
         borderRadius: 18, opacity: abhaEnter, transform: `translateY(${interpolate(abhaEnter, [0, 1], [10, 0])}px)`,
       }}>
-        <div style={{ fontSize: 12, color: COLORS.coralDeep, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>Linked to ABHA</div>
-        <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 15, color: COLORS.ink, fontWeight: 500 }}>
+        <div style={{ fontSize: 16, color: COLORS.coralDeep, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>Linked to ABHA</div>
+        <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 19, color: COLORS.ink, fontWeight: 600 }}>
           12-3456-•••-1234
         </div>
       </div>
@@ -124,7 +124,7 @@ export const MockRecords: React.FC<{ pulseUploadAt?: number }> = ({ pulseUploadA
   return (
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
       <div style={{ padding: "24px 28px 0", opacity: headEnter, transform: `translateY(${interpolate(headEnter, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Records</div>
+        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>Records</div>
         <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 40, color: COLORS.ink, fontWeight: 500, letterSpacing: -1, lineHeight: 1.05 }}>
           Everything,<br/>in <em style={{ color: COLORS.coral, fontStyle: "italic" }}>one place</em>
         </div>
@@ -148,13 +148,13 @@ export const MockRecords: React.FC<{ pulseUploadAt?: number }> = ({ pulseUploadA
           border: `2px solid ${COLORS.coral}`,
           opacity: newCardEnter, transform: `translateY(${interpolate(newCardEnter, [0, 1], [16, 0])}px)`,
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: COLORS.coralDeep, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 16, color: COLORS.coralDeep, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>
             <div style={{ width: 8, height: 8, borderRadius: 4, background: COLORS.coral }} /> AI extracted
           </div>
           <div style={{ marginTop: 10, fontFamily: "Fraunces, serif", fontSize: 22, color: COLORS.ink, fontWeight: 600 }}>
             Lipid Panel
           </div>
-          <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 15, color: COLORS.inkSoft, lineHeight: 1.5 }}>
+          <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 19, color: COLORS.inkSoft, lineHeight: 1.5 }}>
             LDL slightly elevated · 142 mg/dL
           </div>
         </div>
@@ -173,8 +173,8 @@ export const MockRecords: React.FC<{ pulseUploadAt?: number }> = ({ pulseUploadA
               ▢
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "Inter", fontSize: 16, color: COLORS.ink, fontWeight: 600 }}>{it.name}</div>
-              <div style={{ marginTop: 3, fontFamily: "Inter", fontSize: 13, color: COLORS.inkSoft }}>{it.date}</div>
+              <div style={{ fontFamily: "Inter", fontSize: 20, color: COLORS.ink, fontWeight: 700 }}>{it.name}</div>
+              <div style={{ marginTop: 3, fontFamily: "Inter", fontSize: 17, color: COLORS.inkSoft }}>{it.date}</div>
             </div>
             <div style={{ color: COLORS.inkSoft, fontSize: 22 }}>›</div>
           </div>
@@ -211,7 +211,7 @@ export const MockTrends: React.FC = () => {
   return (
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
       <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>HbA1c · 6 years</div>
+        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>HbA1c · 6 years</div>
       </div>
 
       {/* Hero number */}
@@ -242,7 +242,7 @@ export const MockTrends: React.FC = () => {
               opacity={interpolate(lineLen, [i / points.length - 0.05, i / points.length + 0.05], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })} />
           ))}
         </svg>
-        <div style={{ marginTop: 14, display: "flex", justifyContent: "space-between", fontFamily: "Inter", fontSize: 13, color: COLORS.inkSoft, fontWeight: 600 }}>
+        <div style={{ marginTop: 14, display: "flex", justifyContent: "space-between", fontFamily: "Inter", fontSize: 17, color: COLORS.inkSoft, fontWeight: 600 }}>
           <span>2019</span><span>2021</span><span>2023</span><span>2025</span>
         </div>
       </div>
@@ -276,7 +276,7 @@ export const MockRx: React.FC = () => {
   return (
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
       <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Rx Reader</div>
+        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>Rx Reader</div>
         <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 36, color: COLORS.ink, fontWeight: 500, letterSpacing: -0.8, lineHeight: 1.05 }}>
           Even <em style={{ color: COLORS.coral, fontStyle: "italic" }}>handwritten</em>
         </div>
@@ -287,7 +287,7 @@ export const MockRx: React.FC = () => {
         margin: "24px 22px 0", padding: 22, background: "#fff",
         borderRadius: 22, border: `1px solid ${COLORS.border}`,
       }}>
-        <div style={{ fontSize: 12, color: COLORS.inkSoft, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>Uploaded</div>
+        <div style={{ fontSize: 16, color: COLORS.inkSoft, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>Uploaded</div>
         <div style={{
           marginTop: 12, padding: 20, borderRadius: 14,
           background: "repeating-linear-gradient(0deg, #FFFBF3 0, #FFFBF3 28px, #F4ECE0 29px)",
@@ -312,7 +312,7 @@ export const MockRx: React.FC = () => {
           <div style={{ fontSize: 12, color: COLORS.inkSoft, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase" }}>↓ Translated</div>
         </div>
         <div style={{ marginTop: 14, fontFamily: "Fraunces, serif", fontSize: 30, color: COLORS.ink, fontWeight: 600, lineHeight: 1.1 }}>{cur.en}</div>
-        <div style={{ marginTop: 8, fontFamily: "Inter", fontSize: 16, color: COLORS.inkSoft }}>{cur.dose}</div>
+        <div style={{ marginTop: 8, fontFamily: "Inter", fontSize: 20, color: COLORS.inkSoft }}>{cur.dose}</div>
       </div>
 
       <Tabs active="rx" />
@@ -333,7 +333,7 @@ export const MockShare: React.FC<{ generateAt?: number }> = ({ generateAt = 50 }
   return (
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
       <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Share</div>
+        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>Share</div>
         <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 36, color: COLORS.ink, fontWeight: 500, letterSpacing: -0.8, lineHeight: 1.05 }}>
           With your <em style={{ color: COLORS.coral, fontStyle: "italic" }}>doctor</em>
         </div>
@@ -341,9 +341,9 @@ export const MockShare: React.FC<{ generateAt?: number }> = ({ generateAt = 50 }
 
       {/* Recipient card */}
       <div style={{ margin: "24px 22px 0", padding: 22, background: "#fff", borderRadius: 22, border: `1px solid ${COLORS.border}` }}>
-        <div style={{ fontSize: 12, color: COLORS.inkSoft, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>Recipient</div>
+        <div style={{ fontSize: 16, color: COLORS.inkSoft, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>Recipient</div>
         <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 24, color: COLORS.ink, fontWeight: 600 }}>Dr. Anand Iyer</div>
-        <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft }}>Cardiology · +91 98•••••43</div>
+        <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft }}>Cardiology · +91 98•••••43</div>
       </div>
 
       {/* Generate button */}
@@ -362,13 +362,13 @@ export const MockShare: React.FC<{ generateAt?: number }> = ({ generateAt = 50 }
           borderRadius: 22, border: `2px solid ${COLORS.sage}`,
           opacity: linkEnter, transform: `translateY(${interpolate(linkEnter, [0, 1], [16, 0])}px)`,
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: COLORS.sage, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 16, color: COLORS.sage, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>
             <div style={{ width: 8, height: 8, borderRadius: 4, background: COLORS.sage }} /> Link ready
           </div>
           <div style={{ marginTop: 12, padding: "14px 16px", background: "#fff", borderRadius: 12, fontFamily: "monospace", fontSize: 16, color: COLORS.ink, fontWeight: 600 }}>
             vyana.in/s/8f3a··e21c
           </div>
-          <div style={{ marginTop: 10, fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft }}>
+          <div style={{ marginTop: 10, fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft }}>
             Expires in 23h 58m
           </div>
         </div>
@@ -394,7 +394,7 @@ export const MockClaim: React.FC<{ generateAt?: number }> = ({ generateAt = 70 }
   return (
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
       <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Claim Assistant</div>
+        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>Claim Assistant</div>
         <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 36, color: COLORS.ink, fontWeight: 500, letterSpacing: -0.8, lineHeight: 1.05 }}>
           Insurance, <em style={{ color: COLORS.coral, fontStyle: "italic" }}>filed for you</em>
         </div>
@@ -408,7 +408,7 @@ export const MockClaim: React.FC<{ generateAt?: number }> = ({ generateAt = 70 }
             border: `2px solid ${i < 3 ? COLORS.sage : COLORS.coral}`,
             opacity: steps[i], transform: `translateY(${interpolate(steps[i], [0, 1], [12, 0])}px)`,
           }}>
-            <div style={{ fontSize: 11, color: COLORS.inkSoft, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>Step {i + 1}</div>
+            <div style={{ fontSize: 15, color: COLORS.inkSoft, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>Step {i + 1}</div>
             <div style={{ marginTop: 6, fontFamily: "Fraunces, serif", fontSize: 20, color: COLORS.ink, fontWeight: 600, lineHeight: 1.1 }}>{s}</div>
             <div style={{ marginTop: 6, fontSize: 12, color: i < 3 ? COLORS.sage : COLORS.coral, fontWeight: 700 }}>
               {i < 3 ? "✓ Uploaded" : "Generating…"}
@@ -425,14 +425,14 @@ export const MockClaim: React.FC<{ generateAt?: number }> = ({ generateAt = 70 }
           borderRadius: 22, border: `2px solid ${COLORS.coral}`,
           opacity: pdfEnter, transform: `translateY(${interpolate(pdfEnter, [0, 1], [16, 0])}px)`,
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: COLORS.coralDeep, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 16, color: COLORS.coralDeep, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>
             <div style={{ width: 8, height: 8, borderRadius: 4, background: COLORS.coral }} /> Claim ready
           </div>
           <div style={{ marginTop: 12, padding: "14px 16px", background: "#fff", borderRadius: 12, display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ width: 44, height: 56, background: COLORS.coral, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "Inter", fontSize: 12, fontWeight: 800 }}>PDF</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: "Inter", fontSize: 15, color: COLORS.ink, fontWeight: 700 }}>StarHealth_Claim.pdf</div>
-              <div style={{ marginTop: 2, fontFamily: "Inter", fontSize: 13, color: COLORS.inkSoft }}>₹ 84,200 · 12 pages</div>
+              <div style={{ marginTop: 2, fontFamily: "Inter", fontSize: 17, color: COLORS.inkSoft }}>₹ 84,200 · 12 pages</div>
             </div>
           </div>
         </div>
@@ -455,7 +455,7 @@ export const MockBriefing: React.FC = () => {
   return (
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
       <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Clinical Briefing</div>
+        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>Clinical Briefing</div>
         <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 36, color: COLORS.ink, fontWeight: 500, letterSpacing: -0.8, lineHeight: 1.05 }}>
           For Dr. <em style={{ color: COLORS.coral, fontStyle: "italic" }}>Iyer</em>
         </div>
@@ -471,7 +471,7 @@ export const MockBriefing: React.FC = () => {
           border: `1px solid ${COLORS.border}`,
           opacity: sections[i], transform: `translateY(${interpolate(sections[i], [0, 1], [14, 0])}px)`,
         }}>
-          <div style={{ fontSize: 12, color: COLORS.coral, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>{s.title}</div>
+          <div style={{ fontSize: 16, color: COLORS.coral, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>{s.title}</div>
           <div style={{ marginTop: 8, fontFamily: "Inter", fontSize: 16, color: COLORS.ink, lineHeight: 1.5 }}>{s.body}</div>
         </div>
       ))}
@@ -512,7 +512,7 @@ export const MockEmergency: React.FC = () => {
             padding: 18, background: "#fff", borderRadius: 18, border: `2px solid ${it.c}`,
             opacity: items[i], transform: `translateY(${interpolate(items[i], [0, 1], [12, 0])}px)`,
           }}>
-            <div style={{ fontSize: 12, color: COLORS.inkSoft, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>{it.k}</div>
+            <div style={{ fontSize: 16, color: COLORS.inkSoft, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>{it.k}</div>
             <div style={{ marginTop: 6, fontFamily: "Fraunces, serif", fontSize: 24, color: COLORS.ink, fontWeight: 600, lineHeight: 1.05 }}>{it.v}</div>
           </div>
         ))}
@@ -524,15 +524,15 @@ export const MockEmergency: React.FC = () => {
         border: `1px solid ${COLORS.border}`,
         opacity: medsEnter, transform: `translateY(${interpolate(medsEnter, [0, 1], [12, 0])}px)`,
       }}>
-        <div style={{ fontSize: 12, color: COLORS.coral, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>Active medications</div>
+        <div style={{ fontSize: 16, color: COLORS.coral, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>Active medications</div>
         {[
           ["Metformin", "500mg · 2x"],
           ["Telmisartan", "40mg · AM"],
           ["Atorvastatin", "10mg · PM"],
         ].map(([n, d]) => (
           <div key={n} style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <div style={{ fontFamily: "Inter", fontSize: 17, color: COLORS.ink, fontWeight: 600 }}>{n}</div>
-            <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft }}>{d}</div>
+            <div style={{ fontFamily: "Inter", fontSize: 21, color: COLORS.ink, fontWeight: 700 }}>{n}</div>
+            <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft }}>{d}</div>
           </div>
         ))}
       </div>
@@ -559,7 +559,7 @@ export const MockTimeline: React.FC = () => {
   return (
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
       <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Timeline</div>
+        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>Timeline</div>
         <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 36, color: COLORS.ink, fontWeight: 500, letterSpacing: -0.8, lineHeight: 1.05 }}>
           Your life, <em style={{ color: COLORS.coral, fontStyle: "italic" }}>in order</em>
         </div>
@@ -575,7 +575,7 @@ export const MockTimeline: React.FC = () => {
             <div style={{ width: 18, height: 18, borderRadius: 9, background: e.c, border: "3px solid #fff", boxShadow: `0 0 0 2px ${e.c}66`, flexShrink: 0, marginLeft: -1 }} />
             <div style={{ flex: 1, padding: "14px 18px", background: "#fff", borderRadius: 16, border: `1px solid ${COLORS.border}` }}>
               <div style={{ fontSize: 12, color: COLORS.inkSoft, fontWeight: 700, letterSpacing: 1.5 }}>{e.y}</div>
-              <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 16, color: COLORS.ink, fontWeight: 600 }}>{e.t}</div>
+              <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 20, color: COLORS.ink, fontWeight: 700 }}>{e.t}</div>
             </div>
           </div>
         ))}
