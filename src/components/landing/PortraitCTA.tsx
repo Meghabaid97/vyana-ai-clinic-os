@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import portrait from "@/assets/landing-cta-portrait.jpg";
 
 const PortraitCTA = () => {
   const [email, setEmail] = useState("");
@@ -32,24 +31,23 @@ const PortraitCTA = () => {
       id="contact"
       className="relative overflow-hidden bg-[hsl(22_25%_8%)] py-32 lg:py-40"
     >
-      {/* Family portrait backdrop — gentle, honest, warm */}
+      {/* Warm gradient backdrop — no photo */}
       <div className="absolute inset-0 overflow-hidden">
-        <img
-          src={portrait}
-          alt="A family — grandparents with grandchildren"
-          loading="lazy"
-          width={1920}
-          height={1280}
-          className="w-full h-full object-cover animate-ken-burns"
-        />
-        {/* Soft warm wash for legibility — not heavy */}
-        <div className="absolute inset-0 bg-[hsl(22_25%_8%/0.35)]" />
-        {/* Center darkening behind the card only */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 38% 48% at 50% 50%, hsl(22 25% 6% / 0.65) 0%, transparent 70%)",
+              "radial-gradient(ellipse 80% 60% at 50% 40%, hsl(14 62% 22%) 0%, hsl(22 30% 12%) 55%, hsl(22 25% 8%) 100%)",
+          }}
+        />
+        {/* Subtle warm grain */}
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.12] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(hsl(36 40% 80% / 0.4) 0.6px, transparent 0.6px)",
+            backgroundSize: "3px 3px",
           }}
         />
         {/* Top fade into previous section */}
