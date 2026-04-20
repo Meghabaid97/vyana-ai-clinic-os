@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import heroPainting from "@/assets/landing-hero-painting.jpg";
+import closingBackdrop from "@/assets/landing-howitworks-painting.jpg";
 
 const PortraitCTA = () => {
   const [email, setEmail] = useState("");
@@ -32,16 +32,16 @@ const PortraitCTA = () => {
       id="contact"
       className="relative overflow-hidden bg-[hsl(22_25%_8%)] py-32 lg:py-40"
     >
-      {/* Sepia painting backdrop — bookend to hero */}
+      {/* Sepia painting backdrop — closes the story: elder & child, memory passed on */}
       <div className="absolute inset-0 overflow-hidden">
         <img
-          src={heroPainting}
+          src={closingBackdrop}
           alt=""
           aria-hidden
           loading="lazy"
           width={1920}
           height={1280}
-          className="w-full h-full object-cover opacity-60"
+          className="w-full h-full object-cover opacity-55"
         />
         {/* Deep walnut veil for legibility on dark CTA */}
         <div className="absolute inset-0 bg-[hsl(22_25%_10%/0.78)]" />
