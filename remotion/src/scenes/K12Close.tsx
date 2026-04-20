@@ -28,11 +28,12 @@ export const K12Close: React.FC = () => {
           V<span style={{ color: COLORS.coral }}>yana</span>
         </div>
         <div style={{
-          marginTop: 30, fontFamily: "Fraunces, serif", fontSize: 50,
+          marginTop: 30, fontFamily: "Fraunces, serif", fontSize: 52,
           fontStyle: "italic", color: COLORS.inkSoft, letterSpacing: -1.2,
           opacity: tag, transform: `translateY(${(1 - tag) * 20}px)`,
+          textAlign: "center",
         }}>
-          The system that remembers.
+          Your health story, <span style={{ color: COLORS.coral }}>always with you.</span>
         </div>
         <div style={{
           marginTop: 80, padding: "22px 56px",

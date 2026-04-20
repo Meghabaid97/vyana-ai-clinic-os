@@ -4,6 +4,7 @@ import { COLORS } from "../theme";
 import { BackdropKinetic, Stickers } from "../components/Kinetic";
 import { Eyebrow } from "../components/KineticText";
 
+// Scene 4: Brand reveal — Vyana wordmark + new tagline
 export const K4Reveal: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
@@ -41,11 +42,12 @@ export const K4Reveal: React.FC = () => {
           <span style={letterStyle(a2, COLORS.coral)}>a</span>
         </div>
         <div style={{
-          marginTop: 30, fontFamily: "Fraunces, serif", fontSize: 44,
-          fontStyle: "italic", color: COLORS.inkSoft, letterSpacing: -1,
+          marginTop: 30, fontFamily: "Fraunces, serif", fontSize: 52,
+          fontStyle: "italic", color: COLORS.inkSoft, letterSpacing: -1.2,
           opacity: tag, transform: `translateY(${(1 - tag) * 20}px)`,
+          textAlign: "center",
         }}>
-          The system that remembers.
+          Your health story, <span style={{ color: COLORS.coral }}>always with you.</span>
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
