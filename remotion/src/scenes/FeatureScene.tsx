@@ -4,6 +4,7 @@ import { COLORS } from "../theme";
 import { BackdropKinetic, Stickers, Palette } from "../components/Kinetic";
 import { KineticHeadline, Eyebrow } from "../components/KineticText";
 import { AppPhone } from "../components/AppPhone";
+import { RealScreen } from "../components/RealScreen";
 import {
   MockHome, MockRecords, MockTrends, MockRx, MockShare,
   MockEmergency, MockClaim, MockBriefing, MockTimeline,
@@ -21,8 +22,8 @@ const SHOTS: Record<string, React.FC<any>> = {
   timeline: MockTimeline,
 };
 
-// Shared layout for product-feature scenes: live mock phone on one side, kinetic copy on the other.
-// NO continuous floating motion — phone enters, settles, holds. Only entrance animation.
+// Shared layout for product-feature scenes.
+// Pass `realSrc` to play a real Vyana app screen recording instead of the React mock.
 export const FeatureScene: React.FC<{
   shot: string;
   eyebrow: string;
@@ -35,18 +36,19 @@ export const FeatureScene: React.FC<{
   scrollSpeed?: number;
   rotate?: number;
   italicTitle?: boolean;
-}> = ({ shot, eyebrow, title, accent, body, palette, seed, side = "left", rotate = 0, italicTitle }) => {
+  realSrc?: string;
+  realStart?: number;
+}> = ({ shot, eyebrow, title, accent, body, palette, seed, side = "left", rotate = 0, italicTitle, realSrc, realStart = 0 }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const op = interpolate(frame, [0, 18, durationInFrames - 22, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const bodyEnter = spring({ frame: frame - 110, fps, config: { damping: 22 } });
 
   const Mock = SHOTS[shot] ?? MockHome;
-  // Phone native 720×1465; scale 0.95 → fills vertical canvas. Mock UI is now huge & legible.
   const phoneNode = (
     <div style={{ flexShrink: 0 }}>
       <AppPhone delay={20} rotate={rotate} scale={0.72}>
-        <Mock />
+        {realSrc ? <RealScreen src={realSrc} startFrom={realStart} /> : <Mock />}
       </AppPhone>
     </div>
   );
