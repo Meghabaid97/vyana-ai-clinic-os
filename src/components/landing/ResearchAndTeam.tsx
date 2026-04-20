@@ -138,11 +138,11 @@ const ResearchAndTeam = () => {
 
             {/* Logos row — equal-size pills */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="h-28 rounded-lg bg-white px-6 flex items-center justify-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)]">
+              <div className="h-28 rounded-lg bg-white px-3 flex items-center justify-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)] overflow-hidden">
                 <img
                   src={whartonLogo}
                   alt="Wharton School, University of Pennsylvania"
-                  className="max-h-16 w-auto object-contain"
+                  className="max-h-24 w-auto object-contain"
                   loading="lazy"
                 />
               </div>
