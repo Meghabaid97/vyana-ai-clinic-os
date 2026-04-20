@@ -217,8 +217,8 @@ const StepRow = ({ step, index }: { step: Step; index: number }) => {
         >
           <Icon className="w-5 h-5 text-primary" />
         </div>
-        <p className="text-[11px] tracking-[0.35em] uppercase text-primary font-semibold mb-5">
-          {step.eyebrow}
+        <p className="font-mono text-[11px] tracking-wider text-primary mb-5">
+          {step.eyebrow.replace(/^Step\s*0?/, "0").replace(/^0(\d)/, "0$1 —")}
         </p>
         <h3 className="font-serif text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-white mb-5">
           {step.title}
@@ -331,8 +331,9 @@ const StepsCinematic = () => {
           ref={header.ref}
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[760px] mb-12`}
         >
-          <p className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-5">
-            VI &nbsp;·&nbsp; In action
+          <p className="font-serif italic text-[15px] text-[hsl(36_25%_85%)] mb-5">
+            <span className="font-mono not-italic text-[11px] tracking-wider text-primary mr-3">05 —</span>
+            In action
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.0] tracking-[-0.02em] text-white">
             Pick a moment.

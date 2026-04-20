@@ -3,8 +3,9 @@ const DemoFilm = () => {
     <section id="story" className="py-24 lg:py-32 bg-background">
       <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
         <div className="max-w-[640px] mb-12">
-          <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-4">
-            II &nbsp;·&nbsp; A 90-second film
+          <p className="font-serif italic text-[15px] text-foreground/65 mb-4">
+            <span className="font-mono not-italic text-[11px] tracking-wider text-primary mr-3">03 —</span>
+            A 90-second film
           </p>
           <h2 className="font-serif text-3xl sm:text-5xl leading-[1.05] tracking-[-0.02em] text-foreground">
             What it feels like

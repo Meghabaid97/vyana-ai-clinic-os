@@ -28,8 +28,9 @@ const EditorialHero = () => {
       <div className="relative z-10 min-h-[100svh] flex items-center">
         <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-28 pb-20">
           <div className="max-w-[640px] space-y-8 animate-fade-in-slow">
-            <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium">
-              I &nbsp;·&nbsp; A longitudinal health memory layer
+            <p className="font-serif italic text-[15px] text-foreground/65">
+              <span className="font-mono not-italic text-[11px] tracking-wider text-primary mr-3">01 —</span>
+              A longitudinal health memory layer
             </p>
 
             <h1 className="font-serif text-[44px] sm:text-[64px] lg:text-[84px] leading-[0.98] tracking-[-0.02em] text-foreground">

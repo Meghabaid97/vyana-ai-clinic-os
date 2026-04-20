@@ -85,8 +85,9 @@ const ResearchAndTeam = () => {
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         {/* Section header */}
         <div className="max-w-[640px] mb-14">
-          <p className="text-[11px] tracking-[0.25em] uppercase text-[hsl(30_30%_85%)] font-medium mb-4">
-            III &nbsp;·&nbsp; The science
+          <p className="font-serif italic text-[15px] text-[hsl(30_30%_85%)] mb-4">
+            <span className="font-mono not-italic text-[11px] tracking-wider text-primary mr-3">04 —</span>
+            The science
           </p>
           <h2 className="font-serif text-3xl sm:text-5xl lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-white">
             Built on the same protocols
