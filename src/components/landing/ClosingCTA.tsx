@@ -24,7 +24,7 @@ const ClosingCTA = () => {
           <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5">
             <Button
               className="group h-12 px-7 text-[15px] rounded-full"
-              onClick={() => (window.location.href = "mailto:mbaid@wharton.upenn.edu?subject=Vyana%20early%20access")}
+              onClick={() => (window.location.href = "/auth")}
             >
               Try Vyana now
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />

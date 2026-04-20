@@ -129,11 +129,11 @@ const PortraitCTA = () => {
               />
             </div>
             <Button
-              type="submit"
-              disabled={submitting}
+              type="button"
+              onClick={() => (window.location.href = "/auth")}
               className="group w-full h-12 mt-2 rounded-lg text-[15px] bg-primary hover:bg-primary/90"
             >
-              {submitting ? "Starting…" : "Try Vyana now"}
+              Try Vyana now
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
           </form>
