@@ -9,7 +9,7 @@ const citations = [
   {
     title: "Diabetes Staging",
     cite: "American Diabetes Association. (2024). Standards of Care in Diabetes. Diabetes Care, 47(Suppl. 1).",
-    line: "HbA1c thresholds, prediabetes flags, and glycemic targets follow ADA 2024 — the same standard used by every Indian endocrinology practice.",
+    line: "HbA1c thresholds, prediabetes flags, and glycemic targets follow ADA 2024, the same standard used by every Indian endocrinology practice.",
   },
   {
     title: "Kidney Function",

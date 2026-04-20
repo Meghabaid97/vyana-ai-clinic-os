@@ -17,7 +17,7 @@ const citations = [
   {
     title: "Family caregiving burden",
     cite: "Brinda, E. M., et al. (2014). Cost and burden of informal caregiving of dependent older people. BMC Health Services Research, 14, 207.",
-    line: "Indian family caregivers carry 80%+ of chronic care coordination — often without any clinical record to anchor decisions.",
+    line: "Indian family caregivers carry 80%+ of chronic care coordination, often without any clinical record to anchor decisions.",
   },
   {
     title: "Medication adherence",
@@ -27,7 +27,7 @@ const citations = [
   {
     title: "Emergency room handoffs",
     cite: "Stiell, A., et al. (2003). Prevalence of information gaps in the emergency department. CMAJ, 169(10).",
-    line: "Information gaps occur in 32% of ER visits — and are independently associated with longer stays and adverse events.",
+    line: "Information gaps occur in 32% of ER visits, and are independently associated with longer stays and adverse events.",
   },
 ];
 
