@@ -166,7 +166,7 @@ const ResearchAndTeam = () => {
                 Megha Baid
               </h4>
               <p className="text-[13px] text-primary font-medium mb-4">
-                Founder · CS · Ex-FAANG · Wharton MBA
+                Founder · CS Major · Ex-FAANG · Wharton MBA
               </p>
               <p className="text-[14px] text-[hsl(30_15%_80%)] leading-[1.75]">
                 Megha is pursuing her MBA at Wharton, focused on healthcare and
