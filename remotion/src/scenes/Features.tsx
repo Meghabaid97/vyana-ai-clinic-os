@@ -62,7 +62,7 @@ export const K9Briefing = () => (
 export const K9bClaim = () => (
   <FeatureScene shot="claim" eyebrow="Insurance, simplified"
     title="Claims, filed for you." accent="for you." italicTitle
-    body="Upload discharge and bills. Vyana drafts the insurance claim PDF — ready to submit."
+    body="Tick off discharge, bills, prescriptions. Vyana drafts the insurance claim PDF, ready to submit."
     palette={{ bg: COLORS.peach, blob1: COLORS.coral + "55", blob2: COLORS.amber + "44", blob3: COLORS.yellow + "33", ink: COLORS.coralDeep }}
     seed={13} side="right"
   />
