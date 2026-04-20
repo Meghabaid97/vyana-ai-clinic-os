@@ -7,18 +7,18 @@ import { COLORS } from "../theme";
 export const K12Close: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
-  const op = interpolate(frame, [0, 20, durationInFrames - 30, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const op = interpolate(frame, [0, 20, durationInFrames - 18, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-  const l1 = spring({ frame: frame - 20,  fps, config: { damping: 22, stiffness: 110 } });
-  const l2 = spring({ frame: frame - 70,  fps, config: { damping: 22, stiffness: 110 } });
-  const l3 = spring({ frame: frame - 130, fps, config: { damping: 22, stiffness: 110 } });
+  const l1 = spring({ frame: frame - 15,  fps, config: { damping: 22, stiffness: 110 } });
+  const l2 = spring({ frame: frame - 55,  fps, config: { damping: 22, stiffness: 110 } });
+  const l3 = spring({ frame: frame - 105, fps, config: { damping: 22, stiffness: 110 } });
 
-  const logo = spring({ frame: frame - 220, fps, config: { damping: 14, stiffness: 90 } });
-  const tag  = spring({ frame: frame - 280, fps, config: { damping: 22 } });
-  const url  = spring({ frame: frame - 340, fps, config: { damping: 18 } });
+  const logo = spring({ frame: frame - 180, fps, config: { damping: 14, stiffness: 90 } });
+  const tag  = spring({ frame: frame - 230, fps, config: { damping: 22 } });
+  const url  = spring({ frame: frame - 280, fps, config: { damping: 18 } });
 
   // Statement fades out as logo enters
-  const stmtOut = interpolate(frame, [200, 230], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const stmtOut = interpolate(frame, [165, 195], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <AbsoluteFill style={{ background: "#0A0908", opacity: op }}>

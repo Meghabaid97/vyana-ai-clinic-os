@@ -43,17 +43,16 @@ export const K7Trends = () => (
 export const K8Rx = () => (
   <FeatureScene shot="rx" eyebrow="5 Indian languages"
     title="Even handwritten." accent="handwritten." italicTitle
-    body="Tamil, Hindi, Telugu, Bengali, English. Read, translated, reminded — every dose."
+    body="Tamil, Hindi, Telugu, Bengali, English. Read, translated, reminded, every dose."
     palette={{ bg: COLORS.peach, blob1: COLORS.coral + "55", blob2: COLORS.amber + "55", blob3: COLORS.yellow + "44", ink: COLORS.coralDeep }}
     seed={8} side="right"
-    realSrc="screens/s2.mp4"
   />
 );
 
 export const K9Briefing = () => (
   <FeatureScene shot="briefing" eyebrow="Walk in prepared"
     title="Every visit, briefed." accent="briefed." italicTitle
-    body="Vyana writes a one-page summary for your doctor — symptoms, history, medications, questions."
+    body="Vyana writes a one page summary for your doctor. Symptoms, history, medications, questions."
     palette={{ bg: COLORS.sand, blob1: COLORS.amber + "55", blob2: COLORS.coral + "44", blob3: COLORS.sage + "33", ink: COLORS.amber }}
     seed={9} side="left"
   />

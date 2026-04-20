@@ -506,31 +506,103 @@ export const MockBriefing: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const head = spring({ frame: frame - 10, fps, config: { damping: 22 } });
-  const sections = [0, 1, 2].map(i => spring({ frame: frame - 35 - i * 18, fps, config: { damping: 22 } }));
+  const heroEnter = spring({ frame: frame - 22, fps, config: { damping: 22 } });
+  const tabsEnter = spring({ frame: frame - 40, fps, config: { damping: 22 } });
+
+  // Same wizard tab pattern as Claim — "Briefing" is active
+  const wizardSteps = ["Summary", "History", "Meds", "Questions"];
+
+  // 4 briefing sections appear progressively, like docs ticking on
+  const sections = [
+    { title: "What brings you in", body: "Fatigue 3 weeks. Sleep disrupted. No chest pain." },
+    { title: "Active conditions",  body: "T2DM (2019), Hypertension (2021). HbA1c 7.0 → 6.2." },
+    { title: "Current medications", body: "Metformin 500mg ×2 · Telmisartan 40mg · Atorvastatin 10mg" },
+    { title: "Questions for doctor", body: "Adjust Metformin dose? Repeat thyroid panel?" },
+  ];
+  const checkStart = 55;
+  const checkStep = 16;
+  const rowSprings = sections.map((_, i) => spring({ frame: frame - 30 - i * 8, fps, config: { damping: 22 } }));
+  const checkSprings = sections.map((_, i) => spring({ frame: frame - (checkStart + i * checkStep), fps, config: { damping: 18, stiffness: 180 } }));
+  const completed = checkSprings.filter(v => v > 0.5).length;
+  const progress = interpolate(completed, [0, sections.length], [0.2, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
-      <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)` }}>
-        <div style={{ fontFamily: "Inter", fontSize: 18, color: COLORS.inkSoft, letterSpacing: 2.4, textTransform: "uppercase", fontWeight: 700 }}>Clinical Briefing</div>
-        <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 36, color: COLORS.ink, fontWeight: 500, letterSpacing: -0.8, lineHeight: 1.05 }}>
-          For Dr. <em style={{ color: COLORS.coral, fontStyle: "italic" }}>Iyer</em>
+      {/* Header */}
+      <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)`, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <div style={{ fontFamily: "Fraunces, serif", fontSize: 26, fontWeight: 700 }}>
+          V<span style={{ color: COLORS.coral }}>yana</span>
+        </div>
+        <div style={{ fontFamily: "Inter", fontSize: 16, color: COLORS.inkSoft }}>Megha</div>
+      </div>
+
+      {/* Hero card */}
+      <div style={{
+        margin: "16px 22px 0", padding: 22, background: "#fff",
+        borderRadius: 22, border: `1px solid ${COLORS.border}`,
+        display: "flex", gap: 16, alignItems: "flex-start",
+        opacity: heroEnter, transform: `translateY(${interpolate(heroEnter, [0, 1], [12, 0])}px)`,
+      }}>
+        <div style={{ width: 56, height: 56, borderRadius: 16, background: COLORS.coralSoft, display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.coral, fontSize: 26 }}>♡</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "Fraunces, serif", fontSize: 24, color: COLORS.ink, fontWeight: 700, lineHeight: 1.1 }}>Clinical Briefing</div>
+          <div style={{ marginTop: 8, fontFamily: "Inter", fontSize: 17, color: COLORS.inkSoft, lineHeight: 1.4 }}>
+            One page for Dr. Iyer. Symptoms, history, medications, questions.
+          </div>
         </div>
       </div>
 
-      {[
-        { title: "Subjective", body: "Fatigue past 3 weeks. No chest pain. Sleep disrupted." },
-        { title: "History", body: "T2DM since 2019. HbA1c trending down: 7.0 → 6.2." },
-        { title: "Medications", body: "Metformin 500mg ×2, Telmisartan 40mg AM, Atorvastatin 10mg PM." },
-      ].map((s, i) => (
-        <div key={s.title} style={{
-          margin: "20px 22px 0", padding: 20, background: "#fff", borderRadius: 20,
-          border: `1px solid ${COLORS.border}`,
-          opacity: sections[i], transform: `translateY(${interpolate(sections[i], [0, 1], [14, 0])}px)`,
-        }}>
-          <div style={{ fontSize: 16, color: COLORS.coral, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>{s.title}</div>
-          <div style={{ marginTop: 8, fontFamily: "Inter", fontSize: 16, color: COLORS.ink, lineHeight: 1.5 }}>{s.body}</div>
+      {/* Wizard step indicator */}
+      <div style={{ margin: "22px 22px 0", opacity: tabsEnter }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          {wizardSteps.map((_, i) => (
+            <div key={i} style={{
+              flex: 1, height: 4, borderRadius: 2,
+              background: i === 0 ? COLORS.coral : `${COLORS.inkSoft}33`,
+              transform: i === 0 ? `scaleX(${progress})` : "scaleX(1)",
+              transformOrigin: "left",
+            }} />
+          ))}
         </div>
-      ))}
+        <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "Inter", fontSize: 13, fontWeight: 600 }}>
+          {wizardSteps.map((s, i) => (
+            <div key={s} style={{ color: i === 0 ? COLORS.coral : COLORS.inkSoft, flex: 1, textAlign: i === 0 ? "left" : i === wizardSteps.length - 1 ? "right" : "center" }}>{s}</div>
+          ))}
+        </div>
+      </div>
+
+      {/* Briefing sections */}
+      <div style={{ margin: "22px 22px 0", fontFamily: "Inter", fontSize: 19, fontWeight: 800, color: COLORS.ink }}>One page summary</div>
+
+      <div style={{ margin: "12px 22px 0" }}>
+        {sections.map((s, i) => {
+          const checked = checkSprings[i] > 0.4;
+          return (
+            <div key={s.title} style={{
+              display: "flex", alignItems: "flex-start", gap: 14, padding: "14px 16px",
+              background: "#fff", borderRadius: 16, border: `1px solid ${COLORS.border}`,
+              marginBottom: 10,
+              opacity: rowSprings[i], transform: `translateY(${interpolate(rowSprings[i], [0, 1], [10, 0])}px)`,
+            }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 14, flexShrink: 0,
+                border: `2px solid ${checked ? COLORS.coral : `${COLORS.inkSoft}55`}`,
+                background: checked ? COLORS.coral : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "#fff", fontSize: 16, fontWeight: 800,
+                transform: `scale(${checked ? Math.min(1, checkSprings[i] * 1.1) : 1})`,
+                marginTop: 2,
+              }}>
+                {checked ? "✓" : ""}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: "Inter", fontSize: 15, color: COLORS.ink, fontWeight: 700, lineHeight: 1.2 }}>{s.title}</div>
+                <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, lineHeight: 1.4 }}>{s.body}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       <Tabs active="home" />
     </div>
