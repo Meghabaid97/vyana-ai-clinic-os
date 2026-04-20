@@ -42,7 +42,7 @@ export const S0bFounder: React.FC = () => {
             letterSpacing: -2.2, fontWeight: 500, lineHeight: 1.1,
           }}>
             I lost my grandparents.<br/>
-            <em style={{ color: COLORS.coral, fontStyle: "italic", fontWeight: 400 }}>Their story went with them.</em>
+            <em style={{ color: COLORS.coral, fontStyle: "italic", fontWeight: 400 }}>No records to save them.</em>
           </div>
         </div>
       </AbsoluteFill>
