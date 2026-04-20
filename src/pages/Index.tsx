@@ -1,8 +1,7 @@
 import EditorialHero from "@/components/landing/EditorialHero";
 import DemoFilm from "@/components/landing/DemoFilm";
-import ResearchStrip from "@/components/landing/ResearchStrip";
+import ResearchAndTeam from "@/components/landing/ResearchAndTeam";
 import HowItWorks from "@/components/landing/HowItWorks";
-import TeamSection from "@/components/landing/TeamSection";
 import ClosingCTA from "@/components/landing/ClosingCTA";
 import SideRail from "@/components/landing/SideRail";
 import Navigation from "@/components/Navigation";
@@ -13,9 +12,8 @@ const Index = () => (
     <SideRail />
     <EditorialHero />
     <DemoFilm />
-    <ResearchStrip />
+    <ResearchAndTeam />
     <HowItWorks />
-    <TeamSection />
     <ClosingCTA />
   </div>
 );
