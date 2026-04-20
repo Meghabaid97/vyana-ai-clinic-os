@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import heroBg from "@/assets/landing-hero-painting.jpg";
+import familyPhoto from "@/assets/family-tirupur-2005.jpg";
 
 const WhyVyana = () => {
   const navigate = useNavigate();
