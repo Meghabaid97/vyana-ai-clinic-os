@@ -199,6 +199,7 @@ const Mockup = ({ kind }: { kind: Step["mockup"] }) => {
 const StepRow = ({ step, index }: { step: Step; index: number }) => {
   const reveal = useReveal<HTMLDivElement>();
   const Icon = step.icon;
+  const PillIcon = step.pillIcon;
   const reverse = index % 2 === 1;
   return (
     <div
