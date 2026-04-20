@@ -43,10 +43,9 @@ export const K7Trends = () => (
 export const K8Rx = () => (
   <FeatureScene shot="rx" eyebrow="5 Indian languages"
     title="Even handwritten." accent="handwritten." italicTitle
-    body="Tamil, Hindi, Telugu, Bengali, English. Read, translated, reminded — every dose."
+    body="Tamil, Hindi, Telugu, Bengali, English. Read, translated, reminded, every dose."
     palette={{ bg: COLORS.peach, blob1: COLORS.coral + "55", blob2: COLORS.amber + "55", blob3: COLORS.yellow + "44", ink: COLORS.coralDeep }}
     seed={8} side="right"
-    realSrc="screens/s2.mp4"
   />
 );
 
