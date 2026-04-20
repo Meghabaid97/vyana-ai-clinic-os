@@ -66,29 +66,28 @@ const Constellation = () => {
       id="constellation"
       className="relative overflow-hidden bg-[hsl(22_25%_8%)]"
     >
-      {/* Sepia backdrop — fixed so it parallax-shifts as you scroll, very subtle */}
-      <div
-        className="absolute inset-0 overflow-hidden"
-        style={{
-          backgroundImage: `url(${bg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
-        aria-hidden
-      >
-        {/* Heavy warm walnut veil — image becomes texture, not photograph */}
-        <div className="absolute inset-0 bg-[hsl(22_28%_9%/0.88)]" />
+      {/* Sepia oil-painting backdrop */}
+      <div className="absolute inset-0 overflow-hidden">
+        <img
+          src={bg}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          width={1920}
+          height={1080}
+          className="w-full h-full object-cover animate-ken-burns opacity-90"
+        />
+        <div className="absolute inset-0 bg-[hsl(22_25%_8%/0.78)]" />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, hsl(22 28% 6% / 0.5) 100%)",
+              "radial-gradient(ellipse 60% 55% at 50% 50%, transparent 0%, hsl(22 25% 6% / 0.6) 100%)",
           }}
         />
         {/* Top + bottom fades into adjacent ivory sections */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[hsl(36_30%_96%)] to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(22_28%_9%)] to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent" />
       </div>
 
       {/* Starfield — dense field of tiny ivory specks like the reference */}

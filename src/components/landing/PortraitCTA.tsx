@@ -30,28 +30,30 @@ const PortraitCTA = () => {
   return (
     <section
       id="contact"
-      className="relative overflow-hidden bg-[hsl(22_28%_9%)] py-32 lg:py-40"
+      className="relative overflow-hidden bg-[hsl(22_25%_8%)] py-32 lg:py-40"
     >
-      {/* Sepia portrait backdrop — fixed parallax, warm veil */}
-      <div
-        className="absolute inset-0 overflow-hidden"
-        style={{
-          backgroundImage: `url(${portrait})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
-        aria-hidden
-      >
-        <div className="absolute inset-0 bg-[hsl(22_28%_9%/0.78)]" />
+      {/* Sepia portrait backdrop */}
+      <div className="absolute inset-0 overflow-hidden">
+        <img
+          src={portrait}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          width={1920}
+          height={1280}
+          className="w-full h-full object-cover animate-ken-burns opacity-95"
+        />
+        <div className="absolute inset-0 bg-[hsl(22_25%_8%/0.55)]" />
+        {/* Center darkening for card legibility */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 40% 50% at 50% 50%, hsl(22 28% 6% / 0.55) 0%, transparent 70%)",
+              "radial-gradient(ellipse 35% 45% at 50% 50%, hsl(22 25% 6% / 0.55) 0%, transparent 70%)",
           }}
         />
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[hsl(22_28%_9%)] to-transparent" />
+        {/* Top fade into previous section */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[hsl(36_30%_96%)] to-transparent" />
       </div>
 
       {/* Floating amber particles */}

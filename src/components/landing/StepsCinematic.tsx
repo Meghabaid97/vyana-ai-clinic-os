@@ -3,37 +3,37 @@ import { Upload, LineChart, FileText } from "lucide-react";
 import bg from "@/assets/landing-steps-statue.jpg";
 
 type Step = {
-  num: string;
   icon: typeof Upload;
   eyebrow: string;
   title: string;
+  italic: string;
   body: string;
   mockup: "upload" | "trends" | "briefing";
 };
 
 const steps: Step[] = [
   {
-    num: "STEP 01",
     icon: Upload,
     eyebrow: "Step 01",
-    title: "Drop in the paper.",
-    body: "Old prescriptions. Discharge summaries. Lab reports in any of five Indian languages, handwritten or printed. We read them all.",
+    title: "Hand us the paper.",
+    italic: "Every yellowed prescription, every lab from a clinic you've forgotten the name of.",
+    body: "Snap a photo. Drop a PDF. Forward the email. We read handwritten Hindi, printed Tamil, smudged Bengali — five languages, twelve formats, one calm record.",
     mockup: "upload",
   },
   {
-    num: "STEP 02",
     icon: LineChart,
     eyebrow: "Step 02",
     title: "Watch the story emerge.",
-    body: "Thirty-three vitals tracked over years. HbA1c, BP, eGFR, thyroid panels. The slow-moving signals that catch trouble early.",
+    italic: "Thirty-three vitals, gathered patiently, year after year.",
+    body: "HbA1c climbing in slow degrees. BP nudging upward each winter. The signals a fifteen-minute consult cannot see — finally where you can see them too.",
     mockup: "trends",
   },
   {
-    num: "STEP 03",
     icon: FileText,
     eyebrow: "Step 03",
-    title: "Walk in prepared.",
-    body: "One-page clinical briefing any doctor reads in thirty seconds. Share it on WhatsApp before the appointment, not in the waiting room.",
+    title: "Walk in already understood.",
+    italic: "One page. Thirty seconds. Your doctor reads it before you sit down.",
+    body: "Diagnoses, medications, allergies, recent labs, last consult. A WhatsApp link the doctor opens on the way to the clinic — so the consultation begins with answers, not paperwork.",
     mockup: "briefing",
   },
 ];
@@ -63,7 +63,7 @@ const UploadMockup = () => (
         <div className="flex items-center gap-3 min-w-0">
           <div
             className="w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center"
-            style={{ background: `${f.tone.replace(")", " / 0.18)")}` }}
+            style={{ background: f.tone.replace(")", " / 0.18)") }}
           >
             <FileText className="w-3.5 h-3.5" style={{ color: f.tone }} />
           </div>
@@ -115,7 +115,7 @@ const TrendsMockup = () => {
               style={{ background: "hsl(36 25% 70% / 0.1)" }}
             >
               <div
-                className="h-full rounded-full"
+                className="h-full rounded-full transition-all duration-1000"
                 style={{ width: `${t.pct}%`, background: t.tone }}
               />
             </div>
@@ -206,7 +206,10 @@ const StepRow = ({ step, index }: { step: Step; index: number }) => {
         <h3 className="font-serif text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-white mb-5">
           {step.title}
         </h3>
-        <p className="font-serif italic text-[17px] text-[hsl(36_25%_82%)] leading-relaxed max-w-[440px]">
+        <p className="font-serif italic text-[19px] text-[hsl(36_30%_88%)] leading-relaxed max-w-[460px] mb-4">
+          {step.italic}
+        </p>
+        <p className="text-[15px] text-[hsl(36_22%_75%)] leading-[1.7] max-w-[460px]">
           {step.body}
         </p>
       </div>
@@ -232,7 +235,7 @@ const StepsCinematic = () => {
       id="steps"
       className="relative overflow-hidden bg-[hsl(22_28%_9%)]"
     >
-      {/* Sepia backdrop — fixed parallax, heavy warm veil */}
+      {/* Sepia statue backdrop — fixed parallax, warm veil */}
       <div
         className="absolute inset-0 overflow-hidden"
         style={{
@@ -251,7 +254,6 @@ const StepsCinematic = () => {
               "radial-gradient(ellipse 75% 65% at 50% 50%, transparent 0%, hsl(22 28% 6% / 0.55) 100%)",
           }}
         />
-        {/* Seamless gradient transitions to neighbouring dark sections */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[hsl(22_28%_9%)] to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(22_28%_9%)] to-transparent" />
       </div>
@@ -296,13 +298,13 @@ const StepsCinematic = () => {
             VI &nbsp;·&nbsp; In action
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.0] tracking-[-0.02em] text-white">
-            Three steps,
+            Pick a moment.
             <br />
-            <em className="italic text-primary font-normal">a lifetime of clarity.</em>
+            <em className="italic text-primary font-normal">Live it together.</em>
           </h2>
           <p className="mt-6 font-serif italic text-[18px] text-[hsl(36_25%_85%)] leading-relaxed max-w-[560px]">
-            From the first dusty prescription to the briefing your doctor opens
-            on her phone. Here is what changes.
+            Three small acts, repeated quietly across the years, become the
+            difference between a panicked midnight and a calm conversation.
           </p>
         </div>
 
