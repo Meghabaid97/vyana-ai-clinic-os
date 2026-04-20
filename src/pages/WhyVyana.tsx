@@ -210,17 +210,17 @@ const WhyVyana = () => {
           <div className="flex justify-center gap-3 pt-2">
             <Button
               className="group h-11 px-6 text-[15px] rounded-full"
-              onClick={() => (window.location.href = "mailto:mbaid@wharton.upenn.edu")}
+              onClick={() => navigate("/auth")}
             >
-              Partner with us
+              Try Vyana now
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
             <Button
               variant="ghost"
               className="h-11 px-6 text-[15px] text-[hsl(22_15%_35%)] hover:text-[hsl(22_20%_14%)]"
-              onClick={() => navigate("/auth")}
+              onClick={() => (window.location.href = "mailto:mbaid@wharton.upenn.edu")}
             >
-              Try Vyana
+              Partner with us
             </Button>
           </div>
         </div>
