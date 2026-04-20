@@ -91,17 +91,17 @@ const PortraitCTA = () => {
           }}
         >
           <p className="text-[11px] tracking-[0.35em] uppercase text-primary font-semibold mb-6">
-            Early access
+            Try Vyana now
           </p>
           <h2 className="font-serif text-[36px] sm:text-[52px] leading-[1.05] tracking-[-0.02em] text-white">
-            One record could
+            Start your family's
             <br />
-            <em className="italic text-primary font-normal">save the night.</em>
+            <em className="italic text-primary font-normal">health story today.</em>
           </h2>
-          <p className="mt-6 text-[15px] text-[hsl(36_25%_82%)] leading-relaxed max-w-[440px] mx-auto">
-            Join the waitlist. We're starting with a small group of families
-            already navigating elderly parents, chronic conditions, or rare
-            diagnoses.
+          <p className="mt-6 text-[15px] text-[hsl(36_25%_82%)] leading-relaxed max-w-[460px] mx-auto">
+            Free to start. Built for every Indian family, whether you're managing
+            a single prescription or a decade of hospital visits. The next
+            emergency shouldn't begin with a blank page.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-10 space-y-3 text-left">
@@ -134,7 +134,7 @@ const PortraitCTA = () => {
               disabled={submitting}
               className="group w-full h-12 mt-2 rounded-lg text-[15px] bg-primary hover:bg-primary/90"
             >
-              {submitting ? "Joining…" : "Join the waitlist"}
+              {submitting ? "Getting you in…" : "Try Vyana now"}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
           </form>
