@@ -91,16 +91,16 @@ const PortraitCTA = () => {
           }}
         >
           <p className="text-[11px] tracking-[0.35em] uppercase text-primary font-semibold mb-6">
-            Get started
+            Try Vyana now
           </p>
           <h2 className="font-serif text-[36px] sm:text-[52px] leading-[1.05] tracking-[-0.02em] text-white">
-            Your health history,
+            Start your family's
             <br />
-            <em className="italic text-primary font-normal">finally in one place.</em>
+            <em className="italic text-primary font-normal">health story today</em>
           </h2>
           <p className="mt-6 text-[15px] text-[hsl(36_25%_82%)] leading-relaxed max-w-[440px] mx-auto">
-            Try Vyana now. Built for every family navigating elderly parents,
-            chronic conditions, or simply staying on top of their health.
+            Free to start. Built for every Indian family, whether you're
+            managing a single prescription or a decade of hospital visits.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-10 space-y-3 text-left">
