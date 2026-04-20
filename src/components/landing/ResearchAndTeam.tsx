@@ -1,6 +1,5 @@
 import backdrop from "@/assets/landing-howitworks-painting.jpg";
 import whartonLogo from "@/assets/wharton-logo.png";
-import familyPhoto from "@/assets/family-tirupur-2005.jpg";
 
 const citations = [
   {
@@ -163,24 +162,12 @@ const ResearchAndTeam = () => {
               className="rounded-xl px-7 py-7 sm:px-9 sm:py-8 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]"
               style={{ background: "hsl(20 18% 12% / 0.92)" }}
             >
-              <div className="flex items-start gap-5 mb-4">
-                <img
-                  src={familyPhoto}
-                  alt="Family photo from Tirupur, 2005"
-                  loading="lazy"
-                  width={80}
-                  height={80}
-                  className="w-20 h-20 rounded-lg object-cover border-2 border-[hsl(30_30%_70%/0.3)] shadow-lg flex-shrink-0"
-                />
-                <div>
-                  <h4 className="font-serif text-[22px] sm:text-[26px] text-white leading-tight mb-1">
-                    Megha Baid
-                  </h4>
-                  <p className="text-[13px] text-primary font-medium">
-                    Founder · CS · Ex-FAANG · Wharton MBA
-                  </p>
-                </div>
-              </div>
+              <h4 className="font-serif text-[22px] sm:text-[26px] text-white leading-tight mb-1">
+                Megha Baid
+              </h4>
+              <p className="text-[13px] text-primary font-medium mb-4">
+                Founder · CS · Ex-FAANG · Wharton MBA
+              </p>
               <p className="text-[14px] text-[hsl(30_15%_80%)] leading-[1.75]">
                 Megha is pursuing her MBA at Wharton, focused on healthcare and
                 applied AI. She lost both grandparents to medical emergencies
