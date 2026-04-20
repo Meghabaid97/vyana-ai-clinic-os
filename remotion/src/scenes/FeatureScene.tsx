@@ -1,0 +1,66 @@
+import React from "react";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
+import { COLORS } from "../theme";
+import { BackdropKinetic, Stickers, Palette } from "../components/Kinetic";
+import { KineticHeadline, Eyebrow } from "../components/KineticText";
+import { PhoneShot } from "../components/PhoneShot";
+
+// Shared layout for product-feature scenes: phone on one side, kinetic copy on the other.
+export const FeatureScene: React.FC<{
+  shot: string;
+  eyebrow: string;
+  title: string;
+  accent?: string;
+  body: string;
+  palette: Palette;
+  seed: number;
+  side?: "left" | "right";
+  scrollSpeed?: number;
+  rotate?: number;
+  italicTitle?: boolean;
+}> = ({ shot, eyebrow, title, accent, body, palette, seed, side = "left", scrollSpeed = 0, rotate = -3, italicTitle }) => {
+  const frame = useCurrentFrame();
+  const { fps, durationInFrames } = useVideoConfig();
+  const op = interpolate(frame, [0, 18, durationInFrames - 22, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const camX = Math.sin(frame / 95) * 14;
+  const bodyEnter = spring({ frame: frame - 110, fps, config: { damping: 22 } });
+
+  const phoneNode = (
+    <div style={{ flexShrink: 0 }}>
+      <PhoneShot shot={shot} delay={20} rotate={rotate} scrollSpeed={scrollSpeed} />
+    </div>
+  );
+  const textNode = (
+    <div style={{ maxWidth: 800 }}>
+      <Eyebrow text={eyebrow} delay={5} color={COLORS.coral} />
+      <div style={{ height: 28 }} />
+      <KineticHeadline
+        text={title} delay={45} size={102} weight={700} serif italic={italicTitle}
+        color={COLORS.ink} accentWord={accent} accentColor={COLORS.coral}
+        align="left" maxWidth={780} lineHeight={1.0}
+      />
+      <div style={{ height: 32 }} />
+      <div style={{
+        fontFamily: "Inter, sans-serif", fontSize: 30, lineHeight: 1.45,
+        color: COLORS.inkSoft, fontWeight: 400, maxWidth: 620,
+        opacity: bodyEnter, transform: `translateY(${(1 - bodyEnter) * 16}px)`,
+      }}>{body}</div>
+    </div>
+  );
+
+  return (
+    <AbsoluteFill style={{ opacity: op }}>
+      <BackdropKinetic seed={seed} palette={palette} />
+      <Stickers seed={seed + 100} count={5} ink={palette.ink} />
+      <AbsoluteFill style={{
+        display: "flex", alignItems: "center", justifyContent: "center",
+        gap: 110, padding: "0 100px",
+        flexDirection: side === "left" ? "row" : "row-reverse",
+        transform: `translateX(${camX}px)`,
+      }}>
+        {phoneNode}
+        {textNode}
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
