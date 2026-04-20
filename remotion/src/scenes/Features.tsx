@@ -55,6 +55,7 @@ export const K9Briefing = () => (
     body="Vyana writes a one page summary for your doctor. Symptoms, history, medications, questions."
     palette={{ bg: COLORS.sand, blob1: COLORS.amber + "55", blob2: COLORS.coral + "44", blob3: COLORS.sage + "33", ink: COLORS.amber }}
     seed={9} side="left"
+    realSrc="screens/doctor.mp4" realStart={13}
   />
 );
 
