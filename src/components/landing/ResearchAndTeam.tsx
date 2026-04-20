@@ -1,4 +1,4 @@
-import backdrop from "@/assets/landing-howitworks-painting.jpg";
+import backdrop from "@/assets/landing-research-backdrop.jpg";
 import whartonLogo from "@/assets/wharton-logo.png";
 
 const citations = [
