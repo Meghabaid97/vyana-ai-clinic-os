@@ -4,6 +4,7 @@ import DemoFilm from "@/components/landing/DemoFilm";
 import ResearchAndTeam from "@/components/landing/ResearchAndTeam";
 import HowItWorks from "@/components/landing/HowItWorks";
 import Constellation from "@/components/landing/Constellation";
+import StepsCinematic from "@/components/landing/StepsCinematic";
 import PortraitCTA from "@/components/landing/PortraitCTA";
 import SideRail from "@/components/landing/SideRail";
 import Navigation from "@/components/Navigation";
@@ -18,6 +19,7 @@ const Index = () => (
     <ResearchAndTeam />
     <HowItWorks />
     <Constellation />
+    <StepsCinematic />
     <PortraitCTA />
   </div>
 );
