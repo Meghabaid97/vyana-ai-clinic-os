@@ -338,7 +338,15 @@ const EmergencyContacts = () => {
                         <p className="text-sm text-muted-foreground">{contact.contact_email}</p>
                       )}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      <Button
+                        size="sm"
+                        onClick={() => shareViaWhatsApp(contact)}
+                        className="gap-1.5 bg-[#25D366] hover:bg-[#1DA851] text-white"
+                      >
+                        <Share2 className="h-3.5 w-3.5" />
+                        WhatsApp
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
