@@ -41,7 +41,9 @@ export const FeatureScene: React.FC<{
 }> = ({ shot, eyebrow, title, accent, body, palette, seed, side = "left", rotate = 0, italicTitle, realSrc, realStart = 0 }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
-  const op = interpolate(frame, [0, 18, durationInFrames - 22, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Hold the final mock state longer — only fade the last 8 frames so the wizard
+  // results (checks, briefing rows, claim docs) stay legible right up to the cut.
+  const op = interpolate(frame, [0, 18, durationInFrames - 8, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const bodyEnter = spring({ frame: frame - 110, fps, config: { damping: 22 } });
 
   const Mock = SHOTS[shot] ?? MockHome;
