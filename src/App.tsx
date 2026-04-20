@@ -46,8 +46,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           {/* Public */}
-          <Route path="/" element={<Splash />} />
-          <Route path="/landing" element={<Index />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/splash" element={<Splash />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/why-vyana" element={<WhyVyana />} />
           <Route path="/legal" element={<Legal />} />
