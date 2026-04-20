@@ -135,17 +135,17 @@ const ResearchAndTeam = () => {
               </h3>
             </div>
 
-            {/* Logos row — Wharton on white pill */}
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex-1 min-w-[160px] rounded-lg bg-white px-6 py-5 flex items-center justify-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)]">
+            {/* Logos row — equal-size pills */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-28 rounded-lg bg-white px-6 flex items-center justify-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)]">
                 <img
                   src={whartonLogo}
                   alt="Wharton School, University of Pennsylvania"
-                  className="h-16 w-auto object-contain"
+                  className="max-h-16 w-auto object-contain"
                   loading="lazy"
                 />
               </div>
-              <div className="flex-1 min-w-[160px] rounded-lg bg-white px-6 py-5 flex items-center justify-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)]">
+              <div className="h-28 rounded-lg bg-white px-6 flex items-center justify-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)]">
                 <div className="text-center">
                   <div className="font-serif text-base text-[hsl(20_20%_18%)] tracking-wide leading-tight">
                     Clinical Advisors
