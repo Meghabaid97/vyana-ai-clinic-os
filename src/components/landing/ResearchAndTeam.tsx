@@ -2,24 +2,24 @@ import backdrop from "@/assets/landing-research-backdrop.jpg";
 
 const citations = [
   {
-    title: "Longitudinal Health Records",
-    cite: "WHO. (2016). Framework on integrated, people-centred health services. World Health Organization.",
-    line: "Continuity of clinical information is the single strongest predictor of safe, appropriate care across visits.",
+    title: "Cardiovascular Risk",
+    cite: "Goff, D. C., et al. (2014). 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. Circulation, 129(25_suppl_2), S49–S73.",
+    line: "Vyana implements the Pooled Cohort ASCVD equations to estimate 10-year heart-attack and stroke risk from real patient vitals, never speculative inference.",
   },
   {
-    title: "Diagnostic Delays in India",
-    cite: "Lancet Commission on Diagnostics. (2021). Transforming access to diagnostics. The Lancet, 398(10315).",
-    line: "47% of the world's population has little or no access to diagnostics. Repeated tests are the norm, not the exception.",
+    title: "Diabetes Staging",
+    cite: "American Diabetes Association. (2024). Standards of Care in Diabetes. Diabetes Care, 47(Suppl. 1).",
+    line: "HbA1c thresholds, prediabetes flags, and glycemic targets follow ADA 2024 — the same standard used by every Indian endocrinology practice.",
   },
   {
-    title: "ABDM & Federated Records",
-    cite: "Ministry of Health & Family Welfare. (2020). Ayushman Bharat Digital Mission Strategy Overview.",
-    line: "India's health stack envisions consent-based, patient-held records as the foundation of digital care.",
+    title: "Kidney Function",
+    cite: "KDIGO. (2024). Clinical Practice Guideline for the Evaluation and Management of CKD. Kidney International, 105(4S).",
+    line: "eGFR is computed via the 2021 CKD-EPI race-free equation, with KDIGO stage flags surfaced before they become irreversible.",
   },
   {
-    title: "Family Caregiving Burden",
-    cite: "Brinda, E. M., et al. (2014). Cost and burden of informal caregiving of dependent older people. BMC Health Services Research, 14, 207.",
-    line: "Indian family caregivers carry 80%+ of chronic care coordination, often without any clinical record to anchor decisions.",
+    title: "Drug Interactions",
+    cite: "WHO Collaborating Centre for Drug Statistics Methodology. (2024). ATC/DDD Index. Geneva.",
+    line: "Every medication is mapped to ATC codes and cross-checked for major interactions before any reminder, refill, or briefing leaves the app.",
   },
 ];
 
@@ -51,10 +51,14 @@ const ResearchAndTeam = () => {
             III &nbsp;·&nbsp; The science
           </p>
           <h2 className="font-serif text-3xl sm:text-5xl lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-white">
-            Grounded in clinical
+            Built on the same protocols
             <br />
-            <em className="italic text-primary font-normal">and public-health research.</em>
+            <em className="italic text-primary font-normal">your doctor already trusts.</em>
           </h2>
+          <p className="mt-5 text-[15px] text-[hsl(30_25%_88%)] leading-relaxed max-w-[560px]">
+            Every flag, score and warning in Vyana is a faithful implementation
+            of a published clinical guideline. Not generative guesswork.
+          </p>
         </div>
 
         {/* Two-column composition: cream citation cards | team strip */}
