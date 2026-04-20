@@ -9,7 +9,7 @@ const stats = [
   {
     value: "33+",
     unit: "vitals",
-    body: "Vyana plots across years — the slow signals doctors rarely see",
+    body: "Vyana plots across years, the slow signals doctors rarely see",
   },
   {
     value: "80%",

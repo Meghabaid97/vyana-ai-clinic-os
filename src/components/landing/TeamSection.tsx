@@ -30,7 +30,7 @@ const TeamSection = () => {
               product and operations across consumer technology in India.
             </p>
             <p>
-              Vyana began in Tirupur, Tamil Nadu in 2005 — when she lost both
+              Vyana began in Tirupur, Tamil Nadu in 2005, when she lost both
               grandparents to medical emergencies that arrived at hospitals with
               no records, no history, and five minutes to explain a lifetime.
               Fifteen years later, she watched her father survive intestinal

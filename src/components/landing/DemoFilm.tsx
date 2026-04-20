@@ -27,7 +27,7 @@ const DemoFilm = () => {
         </div>
 
         <p className="mt-6 text-[13px] text-muted-foreground italic max-w-[640px]">
-          Every prescription, every lab, every visit — quietly stitched into one
+          Every prescription, every lab, every visit, quietly stitched into one
           continuous health story.
         </p>
       </div>

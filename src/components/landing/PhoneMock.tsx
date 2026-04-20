@@ -53,9 +53,9 @@ export const MockStoryScreen = () => (
     <div className="flex-1 px-5 space-y-3 overflow-hidden">
       {[
         { d: "Apr 12", t: "Apollo · Cardiology", v: "BP 128 / 82" },
-        { d: "Mar 03", t: "Lab — HbA1c", v: "6.4%" },
-        { d: "Feb 18", t: "Discharge — Fortis", v: "Day 4" },
-        { d: "Jan 22", t: "Rx — Metformin", v: "500mg" },
+        { d: "Mar 03", t: "Lab · HbA1c", v: "6.4%" },
+        { d: "Feb 18", t: "Discharge · Fortis", v: "Day 4" },
+        { d: "Jan 22", t: "Rx · Metformin", v: "500mg" },
       ].map((r, i) => (
         <div
           key={i}
