@@ -42,10 +42,10 @@ export const FeatureScene: React.FC<{
   const bodyEnter = spring({ frame: frame - 110, fps, config: { damping: 22 } });
 
   const Mock = SHOTS[shot] ?? MockHome;
-  // Phone native 720×1465; scale 0.95 → 684×1392 — fills 1080 canvas vertically. Mock UI is now huge & legible.
+  // Phone native 720×1465; scale 0.95 → fills vertical canvas. Mock UI is now huge & legible.
   const phoneNode = (
     <div style={{ flexShrink: 0 }}>
-      <AppPhone delay={20} rotate={rotate} scale={0.7}>
+      <AppPhone delay={20} rotate={rotate} scale={0.72}>
         <Mock />
       </AppPhone>
     </div>
