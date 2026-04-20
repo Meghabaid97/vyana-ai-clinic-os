@@ -2,66 +2,75 @@ import React from "react";
 import { AbsoluteFill, Img, staticFile, interpolate, useCurrentFrame, useVideoConfig, spring } from "remotion";
 import { COLORS } from "../theme";
 
-// 5x4 collage (20 cells) using extracted still frames (4 per clip) for low compositor load.
-// Each cell cross-fades between its 4 stills with Ken Burns + staggered entrance, then collapses to logo.
+// 3x2 hero collage — 6 large, legible images of the everyday Indian healthcare struggle.
+// Each cell has a burned-in pain-point caption. Builds chaos → resolves into Vyana.
+// Designed for YC: shows the problem clearly, no founder backstory.
 
-const CLIP_NAMES = [
-  "c01-mother-drawer", "c02-whatsapp-scroll", "c03-father-calling", "c04-pharmacy-wait",
-  "c05-ambulance", "c06-explain-doctor", "c07-pills-elderly", "c08-insurance-claim",
-  "c09-army-jawan", "c10-old-prescription", "c11-rural-clinic", "c12-er-entry",
+type CellData = { name: string; still: number; caption: string; sub: string };
+
+const CELLS: CellData[] = [
+  { name: "c10-old-prescription", still: 2, caption: "75 pages",          sub: "of scattered reports" },
+  { name: "c06-explain-doctor",   still: 1, caption: "5 minutes",          sub: "to explain everything" },
+  { name: "c04-pharmacy-wait",    still: 3, caption: "Same tests",         sub: "ordered again" },
+  { name: "c12-er-entry",         still: 1, caption: "2 AM",               sub: "no records, no history" },
+  { name: "c01-mother-drawer",    still: 2, caption: "In a drawer",        sub: "somewhere at home" },
+  { name: "c03-father-calling",   still: 1, caption: "Calling family",     sub: "to remember the dose" },
 ];
 
-const ORDER = [3, 12, 8, 17, 1, 14, 6, 11, 19, 4, 10, 16, 0, 13, 9, 18, 2, 7, 15, 5];
-const CELLS = Array.from({ length: 20 }, (_, i) => ({
-  name: CLIP_NAMES[i % CLIP_NAMES.length],
-  startStill: i % 4,
-  order: ORDER[i],
-}));
-
-const COLS = 5;
-const ROWS = 4;
+const COLS = 3;
+const ROWS = 2;
 
 const Cell: React.FC<{
-  name: string; startStill: number; appearAt: number; col: number; row: number;
+  data: CellData; appearAt: number; col: number; row: number;
   cellW: number; cellH: number; width: number; height: number; collapse: number;
-}> = ({ name, startStill, appearAt, col, row, cellW, cellH, width, height, collapse }) => {
+}> = ({ data, appearAt, col, row, cellW, cellH, width, height, collapse }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const enter = spring({ frame: frame - appearAt, fps, config: { damping: 26, stiffness: 110 } });
-
-  // Cycle through 4 stills with cross-fade
+  const enter = spring({ frame: frame - appearAt, fps, config: { damping: 24, stiffness: 130 } });
   const localFrame = Math.max(0, frame - appearAt);
-  const stillDuration = 90; // 3s per still
-  const fadeDuration = 30;
-  const stillIndex = Math.floor(localFrame / stillDuration);
-  const intoStill = localFrame - stillIndex * stillDuration;
-  const fadeIn = interpolate(intoStill, [0, fadeDuration], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const captionEnter = spring({ frame: frame - appearAt - 14, fps, config: { damping: 22, stiffness: 140 } });
 
-  const currentStill = ((startStill + stillIndex) % 4) + 1;
-  const nextStill = ((startStill + stillIndex + 1) % 4) + 1;
-
-  const kb = interpolate(localFrame, [0, 420], [1.05, 1.20], { extrapolateRight: "clamp" });
+  // Slow Ken Burns — subtle, cinematic
+  const kb = interpolate(localFrame, [0, 360], [1.04, 1.14], { extrapolateRight: "clamp" });
+  const kbX = interpolate(localFrame, [0, 360], [0, (col - 1) * -10], { extrapolateRight: "clamp" });
 
   const cx = col * cellW + cellW / 2;
   const cy = row * cellH + cellH / 2;
   const dx = (width / 2 - cx) * collapse;
   const dy = (height / 2 - cy) * collapse;
-  const collapseScale = interpolate(collapse, [0, 1], [1, 0.05]);
-  const collapseOp = interpolate(collapse, [0, 0.6, 1], [1, 0.4, 0]);
+  const collapseScale = interpolate(collapse, [0, 1], [1, 0.04]);
+  const collapseOp = interpolate(collapse, [0, 0.6, 1], [1, 0.3, 0]);
 
+  const PAD = 10;
   return (
     <div style={{
-      position: "absolute", left: col * cellW, top: row * cellH,
-      width: cellW, height: cellH, overflow: "hidden",
-      transform: `translate(${dx}px, ${dy}px) scale(${collapseScale})`,
+      position: "absolute", left: col * cellW + PAD, top: row * cellH + PAD,
+      width: cellW - PAD * 2, height: cellH - PAD * 2, overflow: "hidden",
+      transform: `translate(${dx}px, ${dy}px) scale(${interpolate(enter, [0, 1], [0.92, 1]) * collapseScale})`,
       opacity: enter * collapseOp, background: "#0A0908",
+      borderRadius: 6,
+      boxShadow: "0 20px 60px -20px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.06)",
     }}>
-      <div style={{ position: "absolute", inset: 0, transform: `scale(${kb})`, filter: "saturate(0.85) contrast(1.05)" }}>
-        <Img src={staticFile(`stills/${name}-${currentStill}.jpg`)} style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }} />
-        <Img src={staticFile(`stills/${name}-${nextStill}.jpg`)} style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, opacity: fadeIn }} />
+      <div style={{ position: "absolute", inset: 0, transform: `scale(${kb}) translateX(${kbX}px)`, filter: "saturate(0.75) contrast(1.1) brightness(0.85)" }}>
+        <Img src={staticFile(`stills/${data.name}-${data.still}.jpg`)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </div>
-      <AbsoluteFill style={{ background: "radial-gradient(circle at 50% 50%, transparent 50%, rgba(10,9,8,0.4) 100%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+      {/* Bottom gradient for caption legibility */}
+      <AbsoluteFill style={{ background: "linear-gradient(180deg, transparent 40%, rgba(10,9,8,0.85) 100%)", pointerEvents: "none" }} />
+      {/* Caption */}
+      <div style={{
+        position: "absolute", left: 28, right: 28, bottom: 26,
+        opacity: captionEnter,
+        transform: `translateY(${(1 - captionEnter) * 14}px)`,
+      }}>
+        <div style={{
+          fontFamily: "Fraunces, serif", fontSize: 56, color: "#F4ECE0",
+          letterSpacing: -1.2, fontWeight: 500, lineHeight: 1.0,
+        }}>{data.caption}</div>
+        <div style={{
+          fontFamily: "Inter, sans-serif", fontSize: 18, color: COLORS.coral,
+          letterSpacing: 0.5, fontWeight: 500, marginTop: 8, textTransform: "uppercase",
+        }}>{data.sub}</div>
+      </div>
     </div>
   );
 };
@@ -70,53 +79,83 @@ export const S0Collage: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames, width, height } = useVideoConfig();
 
-  const STAGGER = 6;
-  const HOLD_END = durationInFrames - 50;
+  // 14s scene = 420 frames at 30fps
+  // Phase 1 (0-180): cells stagger in, building the chaos
+  // Phase 2 (180-300): hero headline reveals
+  // Phase 3 (300-380): hold
+  // Phase 4 (380-420): collapse into Vyana
+  const STAGGER = 16;
+  const HOLD_END = durationInFrames - 40;
 
   const collapse = interpolate(frame, [HOLD_END, durationInFrames], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const logoEnter = spring({ frame: frame - (HOLD_END + 8), fps, config: { damping: 22 } });
+  const logoEnter = spring({ frame: frame - (HOLD_END + 6), fps, config: { damping: 20, stiffness: 110 } });
 
   const cellW = width / COLS;
   const cellH = height / ROWS;
 
+  // Headline phase
+  const headlineEnter = spring({ frame: frame - 180, fps, config: { damping: 22, stiffness: 100 } });
+  const headlineOut = interpolate(frame, [HOLD_END - 30, HOLD_END], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const headlineOp = headlineEnter * headlineOut;
+
   return (
     <AbsoluteFill style={{ background: "#0A0908" }}>
+      {/* Cell grid */}
       {CELLS.map((c, i) => {
         const row = Math.floor(i / COLS);
         const col = i % COLS;
         return (
-          <Cell key={i} name={c.name} startStill={c.startStill} appearAt={c.order * STAGGER}
+          <Cell key={i} data={c} appearAt={i * STAGGER}
             col={col} row={row} cellW={cellW} cellH={cellH} width={width} height={height} collapse={collapse} />
         );
       })}
 
+      {/* Vignette darkening for headline phase */}
       <AbsoluteFill style={{
-        background: "radial-gradient(circle at 50% 50%, transparent 30%, rgba(0,0,0,0.65) 100%)",
+        background: "radial-gradient(ellipse at 50% 50%, rgba(10,9,8,0.4) 0%, rgba(10,9,8,0.92) 75%)",
         pointerEvents: "none",
-        opacity: interpolate(frame, [60, durationInFrames - 60], [0.3, 0.85]),
+        opacity: interpolate(frame, [150, 220, HOLD_END - 30, HOLD_END], [0, 0.95, 0.95, 0.4], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
       }} />
 
+      {/* Hero headline overlay */}
       <AbsoluteFill style={{
         display: "flex", alignItems: "center", justifyContent: "center",
-        opacity: interpolate(frame, [120, 180, HOLD_END - 20, HOLD_END], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+        opacity: headlineOp, padding: "0 120px",
       }}>
-        <div style={{
-          fontFamily: "Fraunces, serif", fontSize: 78, color: "#F4ECE0",
-          textAlign: "center", letterSpacing: -1.5, fontWeight: 400, lineHeight: 1.15,
-          textShadow: "0 4px 30px rgba(0,0,0,0.6)",
-        }}>
-          A billion stories.<br/>
-          <em style={{ color: COLORS.coral, fontStyle: "italic" }}>One missing thread.</em>
+        <div style={{ textAlign: "center", maxWidth: 1500 }}>
+          <div style={{
+            fontFamily: "Inter, sans-serif", fontSize: 22, color: COLORS.coral,
+            letterSpacing: 4, fontWeight: 600, textTransform: "uppercase",
+            marginBottom: 36,
+            transform: `translateY(${(1 - headlineEnter) * 20}px)`,
+          }}>The everyday reality</div>
+          <div style={{
+            fontFamily: "Fraunces, serif", fontSize: 96, color: "#F4ECE0",
+            letterSpacing: -2.5, fontWeight: 500, lineHeight: 1.05,
+            textShadow: "0 6px 40px rgba(0,0,0,0.8)",
+          }}>
+            A billion patients.<br/>
+            <em style={{ color: COLORS.coral, fontStyle: "italic", fontWeight: 400 }}>No medical memory.</em>
+          </div>
+          <div style={{
+            fontFamily: "Inter, sans-serif", fontSize: 26, color: "#C9BDB0",
+            fontWeight: 400, marginTop: 36, lineHeight: 1.4, maxWidth: 900,
+            margin: "36px auto 0",
+            opacity: interpolate(frame, [220, 260], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            Every doctor visit starts from zero. Every test gets repeated.<br/>Every family carries the records in their head.
+          </div>
         </div>
       </AbsoluteFill>
 
+      {/* Vyana logo at the very end */}
       <AbsoluteFill style={{
         display: "flex", alignItems: "center", justifyContent: "center", opacity: logoEnter,
       }}>
         <div style={{
-          fontFamily: "Fraunces, serif", fontSize: 140, color: "#F4ECE0",
-          letterSpacing: -3, fontWeight: 500,
-          transform: `scale(${interpolate(logoEnter, [0, 1], [0.9, 1])})`,
+          fontFamily: "Fraunces, serif", fontSize: 160, color: "#F4ECE0",
+          letterSpacing: -4, fontWeight: 500,
+          transform: `scale(${interpolate(logoEnter, [0, 1], [0.85, 1])})`,
         }}>
           Vyana
         </div>
