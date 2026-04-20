@@ -3,9 +3,25 @@ import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } fr
 import { COLORS } from "../theme";
 import { BackdropKinetic, Stickers, Palette } from "../components/Kinetic";
 import { KineticHeadline, Eyebrow } from "../components/KineticText";
-import { PhoneShot } from "../components/PhoneShot";
+import { AppPhone } from "../components/AppPhone";
+import {
+  MockHome, MockRecords, MockTrends, MockRx, MockShare,
+  MockEmergency, MockClaim, MockBriefing, MockTimeline,
+} from "../components/MockScreens";
 
-// Shared layout for product-feature scenes: phone on one side, kinetic copy on the other.
+const SHOTS: Record<string, React.FC<any>> = {
+  home: MockHome,
+  records: MockRecords,
+  trends: MockTrends,
+  rx: MockRx,
+  share: MockShare,
+  emergency: MockEmergency,
+  claim: MockClaim,
+  briefing: MockBriefing,
+  timeline: MockTimeline,
+};
+
+// Shared layout for product-feature scenes: live mock phone on one side, kinetic copy on the other.
 export const FeatureScene: React.FC<{
   shot: string;
   eyebrow: string;
@@ -18,16 +34,19 @@ export const FeatureScene: React.FC<{
   scrollSpeed?: number;
   rotate?: number;
   italicTitle?: boolean;
-}> = ({ shot, eyebrow, title, accent, body, palette, seed, side = "left", scrollSpeed = 0, rotate = -3, italicTitle }) => {
+}> = ({ shot, eyebrow, title, accent, body, palette, seed, side = "left", rotate = -3, italicTitle }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const op = interpolate(frame, [0, 18, durationInFrames - 22, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const camX = Math.sin(frame / 95) * 14;
   const bodyEnter = spring({ frame: frame - 110, fps, config: { damping: 22 } });
 
+  const Mock = SHOTS[shot] ?? MockHome;
   const phoneNode = (
     <div style={{ flexShrink: 0 }}>
-      <PhoneShot shot={shot} delay={20} rotate={rotate} scrollSpeed={scrollSpeed} />
+      <AppPhone delay={20} rotate={rotate} scale={0.78}>
+        <Mock />
+      </AppPhone>
     </div>
   );
   const textNode = (
@@ -54,7 +73,7 @@ export const FeatureScene: React.FC<{
       <Stickers seed={seed + 100} count={5} ink={palette.ink} />
       <AbsoluteFill style={{
         display: "flex", alignItems: "center", justifyContent: "center",
-        gap: 110, padding: "0 100px",
+        gap: 90, padding: "0 80px",
         flexDirection: side === "left" ? "row" : "row-reverse",
         transform: `translateX(${camX}px)`,
       }}>
