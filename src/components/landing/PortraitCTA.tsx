@@ -158,7 +158,7 @@ const PortraitCTA = () => {
             </p>
             <span
               aria-label="Megha, founder"
-              className="text-[44px] sm:text-[52px] text-primary leading-none"
+              className="text-[28px] sm:text-[32px] text-primary leading-none"
               style={{
                 fontFamily: '"Homemade Apple", "Caveat", cursive',
                 transform: "rotate(-3deg)",

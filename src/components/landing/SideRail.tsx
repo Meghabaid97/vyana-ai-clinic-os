@@ -44,7 +44,7 @@ const SideRail = () => {
   return (
     <nav
       aria-label="Section navigation"
-      className="hidden lg:block fixed left-6 xl:left-10 top-1/2 -translate-y-1/2 z-40"
+      className="hidden xl:block fixed left-5 top-1/2 -translate-y-1/2 z-40"
     >
       {/* Italic word-ladder — no dots, no roman numerals, no track */}
       <ul className="flex flex-col gap-3">
