@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertTriangle, Copy, Loader2, Plus, Shield, Trash2, UserPlus,
-  Heart, Clock, ExternalLink, Users,
+  Heart, Clock, ExternalLink, Users, Share2,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter,
@@ -151,10 +151,29 @@ const EmergencyContacts = () => {
     }
   };
 
+  const buildAccessLink = (token: string) =>
+    `${window.location.origin}/emergency-access/${token}`;
+
   const copyAccessLink = (token: string) => {
-    const link = `${window.location.origin}/emergency-access/${token}`;
-    navigator.clipboard.writeText(link);
+    navigator.clipboard.writeText(buildAccessLink(token));
     toast({ title: "Link copied", description: "Share this link with your emergency contact." });
+  };
+
+  const shareViaWhatsApp = (contact: EmergencyContact) => {
+    const link = buildAccessLink(contact.access_token);
+    const message =
+      `🚨 Emergency Health Access\n\n` +
+      `${contact.contact_name}, you have been added as my emergency contact on Vyana.\n\n` +
+      `In case of an emergency, open this link to view my health records (medications, conditions, allergies, recent visits):\n${link}\n\n` +
+      `Please save this message. The link works 24/7 and does not need an account.\n\n` +
+      `— ${patientName}`;
+    // If the contact has a phone number, prefill the recipient (E.164: strip non-digits, keep leading +)
+    const cleanedPhone = contact.contact_phone.replace(/[^\d+]/g, "").replace(/^\++/, "+");
+    const target = cleanedPhone.startsWith("+") ? cleanedPhone.slice(1) : cleanedPhone;
+    const url = target
+      ? `https://wa.me/${target}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
   };
 
   if (isLoading) {
