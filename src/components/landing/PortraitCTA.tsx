@@ -103,7 +103,6 @@ const PortraitCTA = () => {
           }}
         >
           <p className="font-serif italic text-[14px] text-primary/90 mb-6">
-            <span className="font-mono not-italic text-[11px] tracking-wider mr-3">06 —</span>
             Begin
           </p>
           <h2 className="font-serif text-[36px] sm:text-[52px] leading-[1.05] tracking-[-0.02em] text-white">

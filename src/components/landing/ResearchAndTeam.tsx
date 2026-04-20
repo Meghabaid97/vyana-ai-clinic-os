@@ -86,7 +86,6 @@ const ResearchAndTeam = () => {
         {/* Section header */}
         <div className="max-w-[640px] mb-14">
           <p className="font-serif italic text-[15px] text-[hsl(30_30%_85%)] mb-4">
-            <span className="font-mono not-italic text-[11px] tracking-wider text-primary mr-3">04 —</span>
             The science
           </p>
           <h2 className="font-serif text-3xl sm:text-5xl lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-white">

@@ -332,7 +332,6 @@ const StepsCinematic = () => {
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[760px] mb-12`}
         >
           <p className="font-serif italic text-[15px] text-[hsl(36_25%_85%)] mb-5">
-            <span className="font-mono not-italic text-[11px] tracking-wider text-primary mr-3">05 —</span>
             In action
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.0] tracking-[-0.02em] text-white">

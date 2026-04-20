@@ -151,8 +151,8 @@ const HowItWorks = () => {
           ref={header.ref}
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[760px] mb-8`}
         >
-          <p className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-5">
-            IV &nbsp;·&nbsp; How it works
+          <p className="font-serif italic text-[15px] text-primary/90 mb-5">
+            How it works
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[80px] leading-[1.0] tracking-[-0.02em] text-white">
             Three quiet steps.
