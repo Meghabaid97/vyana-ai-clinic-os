@@ -91,27 +91,30 @@ const HowItWorks = () => {
 
   return (
     <section id="how" className="relative overflow-hidden bg-[hsl(22_25%_10%)]">
-      {/* Warm walnut backdrop with soft radial glow + grain */}
+      {/* Sepia photograph backdrop — fixed-feel via Ken Burns drift */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Layered radial warmth — terracotta glows on walnut */}
+        <img
+          src={painting}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          width={1920}
+          height={1080}
+          className="w-full h-full object-cover animate-ken-burns opacity-90"
+        />
+        {/* Warm walnut veil so cards/text float cleanly */}
+        <div className="absolute inset-0 bg-[hsl(22_25%_10%/0.72)]" />
+        {/* Inner vignette to focus center */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 80% 50% at 20% 20%, hsl(14 62% 24% / 0.55), transparent 60%), radial-gradient(ellipse 60% 40% at 80% 70%, hsl(28 55% 22% / 0.5), transparent 60%), radial-gradient(ellipse 100% 60% at 50% 100%, hsl(14 50% 18% / 0.4), transparent 70%)",
-          }}
-        />
-        {/* Subtle paper grain via SVG noise */}
-        <div
-          className="absolute inset-0 opacity-[0.08] mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+              "radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, hsl(22 25% 8% / 0.55) 100%)",
           }}
         />
         {/* Top + bottom fades into adjacent sections */}
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[hsl(36_30%_96%)] to-transparent opacity-30" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent opacity-30" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[hsl(36_30%_96%)] to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent" />
       </div>
 
       {/* Floating amber particles */}
