@@ -1,4 +1,4 @@
-import backdrop from "@/assets/landing-research-backdrop.jpg";
+import backdrop from "@/assets/landing-howitworks-painting.jpg";
 
 const citations = [
   {
@@ -29,8 +29,8 @@ const ResearchAndTeam = () => {
       id="research"
       className="relative py-24 lg:py-36 overflow-hidden"
     >
-      {/* Painting backdrop */}
-      <div className="absolute inset-0">
+      {/* Sepia photograph backdrop */}
+      <div className="absolute inset-0 overflow-hidden">
         <img
           src={backdrop}
           alt=""
@@ -38,10 +38,47 @@ const ResearchAndTeam = () => {
           loading="lazy"
           width={1920}
           height={1280}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover animate-ken-burns opacity-90"
         />
-        {/* Warm sepia veil to unify cards over backdrop */}
-        <div className="absolute inset-0 bg-[hsl(30_25%_18%/0.55)]" />
+        {/* Deep walnut veil — slightly lighter than How It Works for distinction */}
+        <div className="absolute inset-0 bg-[hsl(22_25%_12%/0.78)]" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, hsl(22 25% 8% / 0.5) 100%)",
+          }}
+        />
+        {/* Top + bottom fades into adjacent ivory sections */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[hsl(36_30%_96%)] to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent" />
+      </div>
+
+      {/* Floating amber particles — same motif as How It Works */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[
+          { top: "15%", left: "12%", delay: "0s", size: 1.5 },
+          { top: "32%", left: "78%", delay: "1.2s", size: 2 },
+          { top: "55%", left: "22%", delay: "2.5s", size: 1 },
+          { top: "70%", left: "85%", delay: "0.6s", size: 1.5 },
+          { top: "82%", left: "40%", delay: "3.2s", size: 2 },
+          { top: "25%", left: "50%", delay: "2s", size: 1 },
+          { top: "60%", left: "60%", delay: "1.8s", size: 1.2 },
+        ].map((p, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-primary/70 animate-soft-float"
+            style={{
+              top: p.top,
+              left: p.left,
+              width: `${p.size * 4}px`,
+              height: `${p.size * 4}px`,
+              animationDelay: p.delay,
+              filter: "blur(0.5px)",
+              boxShadow: "0 0 12px hsl(14 62% 54% / 0.6)",
+            }}
+          />
+        ))}
       </div>
 
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
