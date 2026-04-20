@@ -3,10 +3,9 @@ import { useEffect, useState } from "react";
 const sections = [
   { id: "hero", numeral: "I", label: "Home" },
   { id: "story", numeral: "II", label: "Story" },
-  { id: "research", numeral: "III", label: "Research" },
+  { id: "research", numeral: "III", label: "Science" },
   { id: "how", numeral: "IV", label: "How" },
-  { id: "team", numeral: "V", label: "Team" },
-  { id: "contact", numeral: "VI", label: "Access" },
+  { id: "contact", numeral: "V", label: "Access" },
 ];
 
 const SideRail = () => {
