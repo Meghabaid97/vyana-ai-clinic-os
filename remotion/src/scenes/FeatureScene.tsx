@@ -22,6 +22,7 @@ const SHOTS: Record<string, React.FC<any>> = {
 };
 
 // Shared layout for product-feature scenes: live mock phone on one side, kinetic copy on the other.
+// NO continuous floating motion — phone enters, settles, holds. Only entrance animation.
 export const FeatureScene: React.FC<{
   shot: string;
   eyebrow: string;
@@ -34,12 +35,11 @@ export const FeatureScene: React.FC<{
   scrollSpeed?: number;
   rotate?: number;
   italicTitle?: boolean;
-}> = ({ shot, eyebrow, title, accent, body, palette, seed, side = "left", rotate = -3, italicTitle }) => {
+}> = ({ shot, eyebrow, title, accent, body, palette, seed, side = "left", rotate = 0, italicTitle }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const op = interpolate(frame, [0, 18, durationInFrames - 22, durationInFrames], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const bodyEnter = spring({ frame: frame - 110, fps, config: { damping: 22 } });
-
 
   const Mock = SHOTS[shot] ?? MockHome;
   const phoneNode = (
@@ -75,7 +75,6 @@ export const FeatureScene: React.FC<{
         display: "flex", alignItems: "center", justifyContent: "center",
         gap: 90, padding: "0 80px",
         flexDirection: side === "left" ? "row" : "row-reverse",
-        transform: `translateX(${camX}px)`,
       }}>
         {phoneNode}
         {textNode}
