@@ -42,27 +42,27 @@ export const FeatureScene: React.FC<{
   const bodyEnter = spring({ frame: frame - 110, fps, config: { damping: 22 } });
 
   const Mock = SHOTS[shot] ?? MockHome;
-  // Phone native 720×1465; scale 0.85 → 612×1245 — fills vertical space, mock UI text reads clearly.
+  // Phone native 720×1465; scale 0.95 → 684×1392 — fills 1080 canvas vertically. Mock UI is now huge & legible.
   const phoneNode = (
     <div style={{ flexShrink: 0 }}>
-      <AppPhone delay={20} rotate={rotate} scale={0.85}>
+      <AppPhone delay={20} rotate={rotate} scale={0.7}>
         <Mock />
       </AppPhone>
     </div>
   );
   const textNode = (
-    <div style={{ maxWidth: 620 }}>
+    <div style={{ maxWidth: 580, flexShrink: 0 }}>
       <Eyebrow text={eyebrow} delay={5} color={COLORS.coral} />
       <div style={{ height: 22 }} />
       <KineticHeadline
-        text={title} delay={45} size={82} weight={700} serif italic={italicTitle}
+        text={title} delay={45} size={84} weight={700} serif italic={italicTitle}
         color={COLORS.ink} accentWord={accent} accentColor={COLORS.coral}
-        align="left" maxWidth={600} lineHeight={1.0}
+        align="left" maxWidth={560} lineHeight={1.0}
       />
       <div style={{ height: 26 }} />
       <div style={{
         fontFamily: "Inter, sans-serif", fontSize: 26, lineHeight: 1.45,
-        color: COLORS.inkSoft, fontWeight: 400, maxWidth: 560,
+        color: COLORS.inkSoft, fontWeight: 400, maxWidth: 540,
         opacity: bodyEnter, transform: `translateY(${(1 - bodyEnter) * 16}px)`,
       }}>{body}</div>
     </div>
@@ -71,10 +71,10 @@ export const FeatureScene: React.FC<{
   return (
     <AbsoluteFill style={{ opacity: op }}>
       <BackdropKinetic seed={seed} palette={palette} />
-      <Stickers seed={seed + 100} count={4} ink={palette.ink} />
+      <Stickers seed={seed + 100} count={3} ink={palette.ink} />
       <AbsoluteFill style={{
         display: "flex", alignItems: "center", justifyContent: "center",
-        gap: 60, padding: "0 60px",
+        gap: 56, padding: "0 50px",
         flexDirection: side === "left" ? "row" : "row-reverse",
       }}>
         {phoneNode}
