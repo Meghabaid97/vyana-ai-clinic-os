@@ -1,5 +1,6 @@
 import { useReveal } from "@/hooks/use-reveal";
 import { PhoneMock, MockStoryScreen, MockTrendsScreen, MockBriefingScreen } from "./PhoneMock";
+import painting from "@/assets/landing-howitworks-painting.jpg";
 
 type Step = {
   n: string;
