@@ -6,7 +6,6 @@ const sections = [
   { id: "story", label: "Film" },
   { id: "research", label: "Science" },
   { id: "how", label: "Method" },
-  { id: "contact", label: "Begin" },
 ];
 
 const SideRail = () => {
