@@ -3,7 +3,8 @@ import StatsStrip from "@/components/landing/StatsStrip";
 import DemoFilm from "@/components/landing/DemoFilm";
 import ResearchAndTeam from "@/components/landing/ResearchAndTeam";
 import HowItWorks from "@/components/landing/HowItWorks";
-import ClosingCTA from "@/components/landing/ClosingCTA";
+import Constellation from "@/components/landing/Constellation";
+import PortraitCTA from "@/components/landing/PortraitCTA";
 import SideRail from "@/components/landing/SideRail";
 import Navigation from "@/components/Navigation";
 
@@ -16,8 +17,10 @@ const Index = () => (
     <DemoFilm />
     <ResearchAndTeam />
     <HowItWorks />
-    <ClosingCTA />
+    <Constellation />
+    <PortraitCTA />
   </div>
 );
 
 export default Index;
+
