@@ -228,7 +228,7 @@ const WhyVyana = () => {
         {/* Footer */}
         <footer className="mt-20 pt-6 border-t text-center" style={{ borderColor: "hsl(22 20% 80% / 0.3)" }}>
           <p className="text-[11px] tracking-[0.15em] uppercase text-[hsl(22_15%_55%)]">
-            © 2025 Vyana · Built in Tirupur · Wharton · For Indian families
+            © 2025 Vyana · For Indian families
           </p>
         </footer>
       </article>

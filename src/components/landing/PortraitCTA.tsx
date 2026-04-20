@@ -102,8 +102,9 @@ const PortraitCTA = () => {
             boxShadow: "0 40px 100px -20px rgba(0,0,0,0.7)",
           }}
         >
-          <p className="text-[11px] tracking-[0.35em] uppercase text-primary font-semibold mb-6">
-            Try Vyana now
+          <p className="font-serif italic text-[14px] text-primary/90 mb-6">
+            <span className="font-mono not-italic text-[11px] tracking-wider mr-3">06 —</span>
+            Begin
           </p>
           <h2 className="font-serif text-[36px] sm:text-[52px] leading-[1.05] tracking-[-0.02em] text-white">
             Start your family's
@@ -150,9 +151,25 @@ const PortraitCTA = () => {
             </Button>
           </form>
 
-          <p className="mt-6 text-[11px] tracking-[0.15em] uppercase text-[hsl(36_15%_55%)]">
-            Built in Tirupur · Wharton · For Indian families
-          </p>
+          {/* Handwritten founder signature — personal letter close */}
+          <div className="mt-10 pt-6 border-t border-[hsl(36_25%_70%/0.15)] flex flex-col items-center gap-1.5">
+            <p className="text-[11px] tracking-[0.2em] uppercase text-[hsl(36_15%_55%)]">
+              With care,
+            </p>
+            <span
+              aria-label="Megha, founder"
+              className="text-[34px] sm:text-[38px] text-primary leading-none"
+              style={{
+                fontFamily: '"Caveat", "Dancing Script", "Brush Script MT", cursive',
+                transform: "rotate(-4deg)",
+              }}
+            >
+              Megha
+            </span>
+            <p className="text-[10px] tracking-[0.2em] uppercase text-[hsl(36_15%_45%)] mt-1">
+              Founder · Vyana
+            </p>
+          </div>
         </div>
       </div>
     </section>
