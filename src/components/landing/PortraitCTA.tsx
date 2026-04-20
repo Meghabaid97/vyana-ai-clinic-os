@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import heroPainting from "@/assets/landing-hero-painting.jpg";
 
 const PortraitCTA = () => {
   const [email, setEmail] = useState("");

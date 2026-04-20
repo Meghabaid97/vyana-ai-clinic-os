@@ -8,7 +8,7 @@ const EditorialHero = () => {
 
   return (
     <section id="hero" className="relative min-h-[100svh] w-full overflow-hidden">
-      {/* Full-bleed painting backdrop */}
+      {/* Full-bleed sepia painting backdrop */}
       <div className="absolute inset-0">
         <img
           src={heroPainting}
@@ -17,9 +17,11 @@ const EditorialHero = () => {
           width={1920}
           height={1280}
         />
-        {/* Warm wash for legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/50 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+        {/* Lighter ivory wash — lets the painting breathe */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-background/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/55 via-transparent to-transparent" />
+        {/* Bottom fade into next section */}
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent" />
       </div>
 
       {/* Content */}
