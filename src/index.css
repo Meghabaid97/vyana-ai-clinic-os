@@ -154,6 +154,33 @@
   }
 }
 
+/* ============================================================
+   LANDING WARM PALETTE — museum-grade ivory / walnut / terracotta
+   Applied only to the public landing page (.landing-warm) so the
+   in-app Notion-clean aesthetic stays untouched.
+   ============================================================ */
+.landing-warm {
+  --background: 36 30% 96%;        /* warm ivory */
+  --foreground: 22 22% 14%;        /* deep walnut */
+  --card: 36 30% 96%;
+  --card-foreground: 22 22% 14%;
+  --primary: 14 62% 54%;           /* terracotta */
+  --primary-foreground: 36 40% 97%;
+  --secondary: 34 22% 90%;
+  --secondary-foreground: 22 22% 14%;
+  --muted: 34 22% 90%;
+  --muted-foreground: 22 14% 38%;
+  --accent: 34 22% 90%;
+  --accent-foreground: 22 22% 14%;
+  --border: 30 18% 84%;
+  --input: 30 18% 84%;
+  --ring: 14 62% 54%;
+}
+.landing-warm body, .landing-warm {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
 /* Safe areas for native app */
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0px);
