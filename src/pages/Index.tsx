@@ -1,4 +1,5 @@
 import EditorialHero from "@/components/landing/EditorialHero";
+import StatsStrip from "@/components/landing/StatsStrip";
 import DemoFilm from "@/components/landing/DemoFilm";
 import ResearchAndTeam from "@/components/landing/ResearchAndTeam";
 import HowItWorks from "@/components/landing/HowItWorks";
@@ -11,6 +12,7 @@ const Index = () => (
     <Navigation />
     <SideRail />
     <EditorialHero />
+    <StatsStrip />
     <DemoFilm />
     <ResearchAndTeam />
     <HowItWorks />
@@ -19,3 +21,4 @@ const Index = () => (
 );
 
 export default Index;
+
