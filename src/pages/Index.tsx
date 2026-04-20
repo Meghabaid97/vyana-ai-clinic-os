@@ -1,18 +1,22 @@
+import EditorialHero from "@/components/landing/EditorialHero";
+import DemoFilm from "@/components/landing/DemoFilm";
+import ResearchStrip from "@/components/landing/ResearchStrip";
+import HowItWorks from "@/components/landing/HowItWorks";
+import TeamSection from "@/components/landing/TeamSection";
+import ClosingCTA from "@/components/landing/ClosingCTA";
+import SideRail from "@/components/landing/SideRail";
 import Navigation from "@/components/Navigation";
-import Hero from "@/components/Hero";
-import About from "@/components/About";
-import Features from "@/components/Features";
-import Mission from "@/components/Mission";
-import Contact from "@/components/Contact";
 
 const Index = () => (
   <div className="min-h-screen bg-background">
     <Navigation />
-    <Hero />
-    <About />
-    <Features />
-    <Mission />
-    <Contact />
+    <SideRail />
+    <EditorialHero />
+    <DemoFilm />
+    <ResearchStrip />
+    <HowItWorks />
+    <TeamSection />
+    <ClosingCTA />
   </div>
 );
 
