@@ -90,31 +90,35 @@ const Constellation = () => {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent" />
       </div>
 
-      {/* Floating amber particles — same motif as How It Works */}
+      {/* Starfield — dense field of tiny ivory specks like the reference */}
       <div className="absolute inset-0 pointer-events-none">
-        {[
-          { top: "10%", left: "8%", delay: "0s", size: 1.5 },
-          { top: "22%", left: "85%", delay: "1.4s", size: 2 },
-          { top: "48%", left: "14%", delay: "2.6s", size: 1 },
-          { top: "65%", left: "76%", delay: "0.7s", size: 1.5 },
-          { top: "82%", left: "32%", delay: "3.1s", size: 2 },
-          { top: "92%", left: "62%", delay: "1.1s", size: 1 },
-          { top: "30%", left: "48%", delay: "2.2s", size: 1 },
-        ].map((p, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-primary/70 animate-soft-float"
-            style={{
-              top: p.top,
-              left: p.left,
-              width: `${p.size * 4}px`,
-              height: `${p.size * 4}px`,
-              animationDelay: p.delay,
-              filter: "blur(0.5px)",
-              boxShadow: "0 0 12px hsl(14 62% 54% / 0.6)",
-            }}
-          />
-        ))}
+        {Array.from({ length: 60 }).map((_, i) => {
+          // Deterministic pseudo-random so it doesn't reshuffle on re-render
+          const seed = (i * 9301 + 49297) % 233280;
+          const top = (seed % 100);
+          const left = ((seed * 7) % 100);
+          const size = ((seed % 3) + 1) * 0.6;
+          const delay = (seed % 40) / 10;
+          const isAmber = i % 7 === 0;
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full animate-soft-float"
+              style={{
+                top: `${top}%`,
+                left: `${left}%`,
+                width: `${size * 2}px`,
+                height: `${size * 2}px`,
+                background: isAmber ? "hsl(14 62% 60%)" : "hsl(36 30% 88%)",
+                opacity: isAmber ? 0.85 : 0.55,
+                animationDelay: `${delay}s`,
+                boxShadow: isAmber
+                  ? "0 0 8px hsl(14 62% 54% / 0.7)"
+                  : "0 0 4px hsl(36 30% 90% / 0.4)",
+              }}
+            />
+          );
+        })}
       </div>
 
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12 pt-28 pb-32">
