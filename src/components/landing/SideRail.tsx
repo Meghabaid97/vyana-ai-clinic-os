@@ -48,31 +48,20 @@ const SideRail = () => {
     >
       {/* Italic word-ladder — no dots, no roman numerals, no track */}
       <ul className="flex flex-col gap-3">
-        {sections.map((s, i) => {
+        {sections.map((s) => {
           const isActive = active === s.id;
           return (
             <li key={s.id}>
               <a
                 href={`#${s.id}`}
                 onClick={(e) => handleClick(e, s.id)}
-                className="group flex items-baseline gap-3 cursor-pointer"
+                className={`group flex items-baseline cursor-pointer font-serif italic text-[14px] leading-none transition-all duration-300 ${
+                  isActive
+                    ? "text-foreground translate-x-1"
+                    : "text-foreground/35 group-hover:text-foreground/70 group-hover:translate-x-0.5"
+                }`}
               >
-                <span
-                  className={`font-mono text-[10px] tabular-nums tracking-wider transition-colors duration-300 ${
-                    isActive ? "text-primary" : "text-foreground/30 group-hover:text-foreground/55"
-                  }`}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span
-                  className={`font-serif italic text-[14px] leading-none transition-all duration-300 ${
-                    isActive
-                      ? "text-foreground translate-x-1"
-                      : "text-foreground/35 group-hover:text-foreground/70 group-hover:translate-x-0.5"
-                  }`}
-                >
-                  {s.label}
-                </span>
+                {s.label}
               </a>
             </li>
           );

@@ -61,7 +61,6 @@ const QuoteWall = () => {
           }`}
         >
           <p className="font-serif italic text-[15px] text-foreground/65 mb-4">
-            <span className="font-mono not-italic text-[11px] tracking-wider text-primary mr-3">02 —</span>
             Voices · Why this exists
           </p>
           <h2 className="font-serif text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-foreground">
