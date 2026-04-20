@@ -2,19 +2,19 @@ import { useReveal } from "@/hooks/use-reveal";
 
 const stats = [
   {
-    value: "0",
-    unit: "records",
-    body: "the average Indian family carries into an emergency room visit",
+    value: "75",
+    unit: "pages",
+    body: "of scattered prescriptions, labs, and discharge summaries no one ever reads",
+  },
+  {
+    value: "5",
+    unit: "minutes",
+    body: "to explain a lifetime of medical history to a doctor who has never seen you before",
   },
   {
     value: "33+",
     unit: "vitals",
-    body: "Vyana plots across years, the slow signals doctors rarely see",
-  },
-  {
-    value: "80%",
-    unit: "of care",
-    body: "is coordinated by family caregivers without any clinical record",
+    body: "tracked across years, surfacing the slow signals a fifteen-minute consult cannot see",
   },
 ];
 
