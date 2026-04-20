@@ -99,11 +99,22 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-feature-settings: "ss01", "cv11";
   }
 }
 
 @layer utilities {
+  /* Editorial serif — for headers, big numbers, narrative accents */
+  .font-display {
+    font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+  .font-numeral {
+    font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+    font-feature-settings: "lnum", "tnum";
+    letter-spacing: -0.02em;
+  }
   .animate-fade-in {
     animation: fadeIn 0.4s ease-out forwards;
   }

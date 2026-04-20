@@ -64,11 +64,11 @@ const AppShell = () => {
               className="-ml-1 inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-foreground hover:bg-muted transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
-              <span className="text-sm font-semibold truncate">{subTitle || "Back"}</span>
+              <span className="font-display text-lg truncate">{subTitle || "Back"}</span>
             </button>
           ) : (
-            <span className="text-lg font-semibold text-foreground tracking-tight">
-              V<span className="text-primary">yana</span>
+            <span className="font-display text-2xl text-foreground tracking-tight leading-none">
+              V<span className="text-primary italic">yana</span>
             </span>
           )}
           <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{patientName.split(" ")[0]}</span>
