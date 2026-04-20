@@ -60,7 +60,8 @@ const QuoteWall = () => {
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
-          <p className="text-[11px] tracking-[0.3em] uppercase text-primary font-semibold mb-5">
+          <p className="font-serif italic text-[15px] text-foreground/65 mb-4">
+            <span className="font-mono not-italic text-[11px] tracking-wider text-primary mr-3">02 —</span>
             Voices · Why this exists
           </p>
           <h2 className="font-serif text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-foreground">
