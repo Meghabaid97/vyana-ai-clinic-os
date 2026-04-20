@@ -1,5 +1,5 @@
 import { useReveal } from "@/hooks/use-reveal";
-import { Upload, LineChart, FileText } from "lucide-react";
+import { Upload, LineChart, FileText, Smartphone, Activity, Stethoscope, Lock } from "lucide-react";
 import bg from "@/assets/landing-steps-statue.jpg";
 
 type Step = {
@@ -8,6 +8,10 @@ type Step = {
   title: string;
   italic: string;
   body: string;
+  pillIcon: typeof Smartphone;
+  pillLabel: string;
+  calloutTitle: string;
+  calloutBody: string;
   mockup: "upload" | "trends" | "briefing";
 };
 
@@ -18,6 +22,10 @@ const steps: Step[] = [
     title: "Hand us the paper.",
     italic: "Every yellowed prescription, every lab from a clinic you've forgotten the name of.",
     body: "Snap a photo. Drop a PDF. Forward the email. We read handwritten Hindi, printed Tamil, smudged Bengali — five languages, twelve formats, one calm record.",
+    pillIcon: Smartphone,
+    pillLabel: "Mobile First",
+    calloutTitle: "Private by default.",
+    calloutBody: "Your records never train AI models. Encrypted at rest, only ever shared on your explicit consent.",
     mockup: "upload",
   },
   {
@@ -26,6 +34,10 @@ const steps: Step[] = [
     title: "Watch the story emerge.",
     italic: "Thirty-three vitals, gathered patiently, year after year.",
     body: "HbA1c climbing in slow degrees. BP nudging upward each winter. The signals a fifteen-minute consult cannot see — finally where you can see them too.",
+    pillIcon: Activity,
+    pillLabel: "33 Vitals Tracked",
+    calloutTitle: "Patterns, not predictions.",
+    calloutBody: "We surface what's drifting and where to ask. Diagnosis stays with your doctor — always.",
     mockup: "trends",
   },
   {
@@ -34,6 +46,10 @@ const steps: Step[] = [
     title: "Walk in already understood.",
     italic: "One page. Thirty seconds. Your doctor reads it before you sit down.",
     body: "Diagnoses, medications, allergies, recent labs, last consult. A WhatsApp link the doctor opens on the way to the clinic — so the consultation begins with answers, not paperwork.",
+    pillIcon: Stethoscope,
+    pillLabel: "Doctor Ready",
+    calloutTitle: "Shareable for 24 hours.",
+    calloutBody: "Single-use links expire automatically. The doctor reads the briefing once and access closes itself.",
     mockup: "briefing",
   },
 ];
@@ -214,8 +230,28 @@ const StepRow = ({ step, index }: { step: Step; index: number }) => {
         </p>
       </div>
 
-      {/* Mockup */}
-      <div className={reverse ? "lg:order-1" : ""}>
+      {/* Mockup column */}
+      <div className={`${reverse ? "lg:order-1" : ""} space-y-5`}>
+        {/* Centered colored pill — like "iPad First" in the reference */}
+        <div className="flex justify-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-[12px] font-medium shadow-lg shadow-primary/30">
+            <PillIcon className="w-3.5 h-3.5" />
+            {step.pillLabel}
+          </div>
+        </div>
+
+        {/* Ivory callout banner — like the TestFlight callout in the reference */}
+        <div className="max-w-[460px] mx-auto rounded-xl bg-[hsl(36_30%_96%)] px-4 py-3 flex items-start gap-3 shadow-xl">
+          <div className="w-7 h-7 rounded-md bg-[hsl(22_28%_9%)] flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Lock className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <p className="text-[12.5px] text-[hsl(22_28%_15%)] leading-[1.5]">
+            <span className="font-semibold">{step.calloutTitle}</span>{" "}
+            <span className="text-[hsl(22_15%_40%)]">{step.calloutBody}</span>
+          </p>
+        </div>
+
+        {/* The mockup itself */}
         <div
           className="max-w-[460px] mx-auto"
           style={{ filter: "drop-shadow(0 30px 60px rgba(0,0,0,0.55))" }}
