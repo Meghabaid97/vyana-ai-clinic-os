@@ -1,4 +1,5 @@
 import backdrop from "@/assets/landing-howitworks-painting.jpg";
+import whartonLogo from "@/assets/wharton-logo.png";
 
 const citations = [
   {
@@ -137,14 +138,12 @@ const ResearchAndTeam = () => {
             {/* Logos row — Wharton on white pill */}
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex-1 min-w-[160px] rounded-lg bg-white px-6 py-5 flex items-center justify-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)]">
-                <div className="text-center">
-                  <div className="font-serif text-xl text-[hsl(212_85%_25%)] tracking-wide leading-none">
-                    Wharton
-                  </div>
-                  <div className="text-[8px] tracking-[0.25em] uppercase text-[hsl(212_85%_25%)] mt-1.5">
-                    University of Pennsylvania
-                  </div>
-                </div>
+                <img
+                  src={whartonLogo}
+                  alt="Wharton School, University of Pennsylvania"
+                  className="h-16 w-auto object-contain"
+                  loading="lazy"
+                />
               </div>
               <div className="flex-1 min-w-[160px] rounded-lg bg-white px-6 py-5 flex items-center justify-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)]">
                 <div className="text-center">
