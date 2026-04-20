@@ -10,22 +10,22 @@ const quotes: Quote[] = [
   {
     body: "We had five minutes to explain everything. We didn't even know where to start.",
     attribution: "A daughter",
-    context: "Tirupur · about her mother's last admission",
+    context: "Chennai · about her mother's last admission",
   },
   {
     body: "Every new doctor sends us back for the same blood tests. We have a folder this thick. Nobody reads it.",
     attribution: "A son",
-    context: "Coimbatore · caring for his diabetic father",
+    context: "Bengaluru · caring for his diabetic father",
   },
   {
     body: "Appa's surgery was at 2 AM. I was holding three prescriptions and a CT scan from a hospital in another city.",
     attribution: "A founder",
-    context: "Wharton · the night Vyana was born",
+    context: "Delhi · the night Vyana was born",
   },
   {
     body: "I just want one place where his whole story lives. So the next doctor doesn't start from zero again.",
     attribution: "A wife",
-    context: "Chennai · twelve years of cardiology visits",
+    context: "Mumbai · twelve years of cardiology visits",
   },
 ];
 
