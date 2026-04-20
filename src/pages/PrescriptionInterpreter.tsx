@@ -173,10 +173,43 @@ const PrescriptionInterpreter = () => {
         body: { imageData: imagePreview, sourceType },
       });
       if (error) throw error;
-      setResult(data);
+      // Defensive: backend can return partial / null fields. Normalize before render so we never crash on missing keys.
+      const safeConf = (c: any): "high" | "medium" | "low" | "illegible" =>
+        c === "high" || c === "medium" || c === "low" || c === "illegible" ? c : "low";
+      const normalized: PrescriptionResult = {
+        detected_languages: Array.isArray(data?.detected_languages) ? data.detected_languages : [],
+        doctor_name: data?.doctor_name ?? null,
+        patient_name: data?.patient_name ?? null,
+        date: data?.date ?? null,
+        diagnosis: data?.diagnosis ?? null,
+        medications: Array.isArray(data?.medications)
+          ? data.medications.map((m: any) => ({
+              name: m?.name ?? "Unknown",
+              name_original: m?.name_original ?? null,
+              brand_name: m?.brand_name ?? null,
+              dosage: m?.dosage ?? null,
+              route: m?.route ?? "oral",
+              frequency: m?.frequency ?? "once_daily",
+              frequency_original: m?.frequency_original ?? null,
+              duration: m?.duration ?? null,
+              timing: m?.timing ?? null,
+              instructions: m?.instructions ?? null,
+              instructions_original: m?.instructions_original ?? null,
+              confidence: safeConf(m?.confidence),
+              confidence_notes: m?.confidence_notes ?? null,
+              possible_alternatives: Array.isArray(m?.possible_alternatives) ? m.possible_alternatives : [],
+            }))
+          : [],
+        additional_instructions: data?.additional_instructions ?? null,
+        illegible_sections: Array.isArray(data?.illegible_sections) ? data.illegible_sections : [],
+        overall_confidence: (data?.overall_confidence === "high" || data?.overall_confidence === "medium" || data?.overall_confidence === "low") ? data.overall_confidence : "low",
+        warnings: Array.isArray(data?.warnings) ? data.warnings : [],
+        disclaimer: data?.disclaimer,
+      };
+      setResult(normalized);
       // Auto-select high-confidence meds
       const autoSelected = new Set<number>();
-      (data.medications || []).forEach((med: ExtractedMedication, i: number) => {
+      normalized.medications.forEach((med, i) => {
         if (med.confidence === "high" || med.confidence === "medium") autoSelected.add(i);
       });
       setSelectedMeds(autoSelected);

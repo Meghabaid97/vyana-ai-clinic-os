@@ -214,14 +214,13 @@ const AppHome = () => {
 
         <div className="space-y-2.5">
           {[
-            { icon: FileText, title: "Upload anything", desc: "Prescriptions, lab reports, summaries — extracted and organized.", path: "/app/records", badge: stats.healthRecords || undefined },
+            { icon: FileText, title: "Upload anything", desc: "Prescriptions, lab reports, summaries, extracted and organized.", path: "/app/records", badge: stats.healthRecords || undefined },
             { icon: TrendingUp, title: "Track what matters", desc: "HbA1c, BP, cholesterol tracked over time. Changes flagged early.", path: "/app/trends" },
-            { icon: Activity, title: "Your timeline", desc: "Every visit, diagnosis, and vital — connected in one view.", path: "/app/timeline" },
-            { icon: Zap, title: "30-second summary", desc: "One screen. Complete history. A doctor sees everything instantly.", path: "/patient-medical-history", badge: stats.consultations || undefined },
+            { icon: Activity, title: "Your timeline", desc: "Every visit, diagnosis, and vital, connected in one view.", path: "/app/timeline" },
             { icon: Link2, title: "Share with any doctor", desc: "Secure link. 24 hours. No app needed on their end.", path: "/app/share", badge: stats.doctors || undefined },
-            { icon: Shield, title: "Emergency access", desc: "Family safety net. Share your records instantly in emergencies.", path: "/emergency-contacts" },
-            { icon: ScanLine, title: "Prescription reader", desc: "Photograph any prescription — AI reads it in 5 languages.", path: "/app/prescription-reader" },
-            { icon: IndianRupee, title: "Claim Assistant", desc: "Upload discharge summary — get insurance claim data, medication reminders, and medical summary.", path: "/app/recovery" },
+            { icon: Shield, title: "Emergency access", desc: "Family safety net. Share your records instantly in emergencies.", path: "/app/emergency-contacts" },
+            { icon: ScanLine, title: "Prescription reader", desc: "Photograph any prescription, AI reads it in 5 languages.", path: "/app/prescription-reader" },
+            { icon: IndianRupee, title: "Claim Assistant", desc: "Upload discharge summary, get insurance claim data, medication reminders, and medical summary.", path: "/app/recovery" },
           ].map((f, i) => (
             <button
               key={i}
