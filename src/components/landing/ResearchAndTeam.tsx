@@ -1,3 +1,4 @@
+import { useReveal } from "@/hooks/use-reveal";
 import backdrop from "@/assets/landing-research-backdrop.jpg";
 
 const citations = [
@@ -24,13 +25,17 @@ const citations = [
 ];
 
 const ResearchAndTeam = () => {
+  const header = useReveal<HTMLDivElement>();
+  const left = useReveal<HTMLDivElement>();
+  const right = useReveal<HTMLDivElement>();
+
   return (
     <section
       id="research"
       className="relative py-24 lg:py-36 overflow-hidden"
     >
       {/* Painting backdrop */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         <img
           src={backdrop}
           alt=""
@@ -38,7 +43,7 @@ const ResearchAndTeam = () => {
           loading="lazy"
           width={1920}
           height={1280}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover animate-ken-burns"
         />
         {/* Warm sepia veil to unify cards over backdrop */}
         <div className="absolute inset-0 bg-[hsl(30_25%_18%/0.55)]" />
@@ -46,7 +51,7 @@ const ResearchAndTeam = () => {
 
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         {/* Section header */}
-        <div className="max-w-[640px] mb-14">
+        <div ref={header.ref} className={`reveal ${header.visible ? "is-visible" : ""} max-w-[640px] mb-14`}>
           <p className="text-[11px] tracking-[0.25em] uppercase text-[hsl(30_30%_85%)] font-medium mb-4">
             III &nbsp;·&nbsp; The science
           </p>
@@ -64,11 +69,11 @@ const ResearchAndTeam = () => {
         {/* Two-column composition: cream citation cards | team strip */}
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-10">
           {/* LEFT: cream cards */}
-          <div className="space-y-6">
+          <div ref={left.ref} className="space-y-6">
             {citations.map((c, i) => (
               <article
                 key={i}
-                className="rounded-xl px-7 py-7 sm:px-9 sm:py-8 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)]"
+                className={`reveal reveal-delay-${i + 1} ${left.visible ? "is-visible" : ""} rounded-xl px-7 py-7 sm:px-9 sm:py-8 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.4)] transition-transform duration-500 hover:-translate-y-1 hover:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)]`}
                 style={{
                   background:
                     "linear-gradient(135deg, hsl(36 50% 92%) 0%, hsl(34 45% 84%) 100%)",
@@ -89,7 +94,7 @@ const ResearchAndTeam = () => {
           </div>
 
           {/* RIGHT: built-by strip */}
-          <div className="space-y-6 lg:pl-4">
+          <div ref={right.ref} className={`reveal reveal-delay-2 ${right.visible ? "is-visible" : ""} space-y-6 lg:pl-4`}>
             {/* Built by header card */}
             <div className="text-center lg:text-left">
               <h3 className="font-serif text-2xl sm:text-3xl text-white leading-tight">
