@@ -13,19 +13,17 @@ const EditorialHero = () => {
   return (
     <section id="hero" className="relative min-h-[100svh] w-full overflow-hidden">
       {/* Full-bleed painting backdrop */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0">
         <img
           src={heroPainting}
           alt="A daughter sits beside her elderly father, holding his hand"
-          className="w-full h-full object-cover animate-ken-burns"
+          className="w-full h-full object-cover"
           width={1920}
           height={1280}
         />
+        {/* Warm wash for legibility */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
-        <div className="absolute top-1/4 right-1/4 w-2 h-2 rounded-full bg-primary/60 animate-soft-float" style={{ animationDelay: "0s" }} />
-        <div className="absolute top-2/3 right-1/3 w-1.5 h-1.5 rounded-full bg-primary/50 animate-soft-float" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-1/2 right-[15%] w-1 h-1 rounded-full bg-primary/40 animate-soft-float" style={{ animationDelay: "4s" }} />
       </div>
 
       {/* Content */}

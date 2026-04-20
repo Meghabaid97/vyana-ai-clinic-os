@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * useReveal — adds an `is-visible` class once the element scrolls into view.
+ * useReveal — adds an `is-visible` flag once the element scrolls into view.
  * Pair with the `.reveal` utility in index.css for a soft fade-up.
  */
 export function useReveal<T extends HTMLElement = HTMLDivElement>(

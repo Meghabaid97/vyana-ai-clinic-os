@@ -1,13 +1,8 @@
-import { useReveal } from "@/hooks/use-reveal";
-
 const DemoFilm = () => {
-  const header = useReveal<HTMLDivElement>();
-  const frame = useReveal<HTMLDivElement>();
-
   return (
     <section id="story" className="py-24 lg:py-32 bg-background">
       <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
-        <div ref={header.ref} className={`reveal ${header.visible ? "is-visible" : ""} max-w-[640px] mb-12`}>
+        <div className="max-w-[640px] mb-12">
           <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-4">
             II &nbsp;·&nbsp; A 90-second film
           </p>
@@ -18,10 +13,7 @@ const DemoFilm = () => {
           </h2>
         </div>
 
-        <div
-          ref={frame.ref}
-          className={`reveal reveal-delay-1 ${frame.visible ? "is-visible" : ""} relative rounded-2xl overflow-hidden border border-border shadow-[0_30px_80px_-20px_rgba(0,0,0,0.25)] bg-muted/20`}
-        >
+        <div className="relative rounded-2xl overflow-hidden border border-border shadow-[0_30px_80px_-20px_rgba(0,0,0,0.25)] bg-muted/20">
           <video
             src="/vyana-demo.mp4"
             controls

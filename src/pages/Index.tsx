@@ -8,7 +8,7 @@ import SideRail from "@/components/landing/SideRail";
 import Navigation from "@/components/Navigation";
 
 const Index = () => (
-  <div className="min-h-screen bg-background">
+  <div className="landing-warm min-h-screen bg-background">
     <Navigation />
     <SideRail />
     <EditorialHero />
@@ -21,4 +21,3 @@ const Index = () => (
 );
 
 export default Index;
-

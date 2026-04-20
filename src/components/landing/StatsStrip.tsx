@@ -29,7 +29,7 @@ const StatsStrip = () => {
           className={`reveal ${visible ? "is-visible" : ""} rounded-2xl backdrop-blur-md shadow-[0_30px_80px_-30px_rgba(0,0,0,0.45)] overflow-hidden`}
           style={{ background: "hsl(20 18% 10% / 0.82)" }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/8">
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
             {stats.map((s, i) => (
               <div
                 key={i}
