@@ -45,13 +45,9 @@ const WhyVyana = () => {
             <Button
               size="sm"
               className="h-8 px-4 text-[13px] rounded-full"
-              onClick={() => {
-                const el = document.getElementById("contact");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-                else navigate("/");
-              }}
+              onClick={() => navigate("/auth")}
             >
-              Get Early Access
+              Try Vyana now
             </Button>
           </div>
         </nav>

@@ -19,7 +19,7 @@ const PortraitCTA = () => {
     setSubmitting(true);
     // Light-touch: just show success. Real wiring can be added later.
     await new Promise((r) => setTimeout(r, 600));
-    toast.success("You're on the waitlist. We'll be in touch.");
+    toast.success("Welcome to Vyana. Let's get started.");
     setEmail("");
     setCity("");
     setRelation("");
