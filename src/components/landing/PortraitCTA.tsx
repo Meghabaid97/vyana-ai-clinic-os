@@ -32,24 +32,24 @@ const PortraitCTA = () => {
       id="contact"
       className="relative overflow-hidden bg-[hsl(22_25%_8%)] py-32 lg:py-40"
     >
-      {/* Sepia portrait backdrop */}
+      {/* Family portrait backdrop — gentle, honest, warm */}
       <div className="absolute inset-0 overflow-hidden">
         <img
           src={portrait}
-          alt=""
-          aria-hidden
+          alt="A family — grandparents with grandchildren"
           loading="lazy"
           width={1920}
           height={1280}
-          className="w-full h-full object-cover animate-ken-burns opacity-95"
+          className="w-full h-full object-cover animate-ken-burns"
         />
-        <div className="absolute inset-0 bg-[hsl(22_25%_8%/0.55)]" />
-        {/* Center darkening for card legibility */}
+        {/* Soft warm wash for legibility — not heavy */}
+        <div className="absolute inset-0 bg-[hsl(22_25%_8%/0.35)]" />
+        {/* Center darkening behind the card only */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 35% 45% at 50% 50%, hsl(22 25% 6% / 0.55) 0%, transparent 70%)",
+              "radial-gradient(ellipse 38% 48% at 50% 50%, hsl(22 25% 6% / 0.65) 0%, transparent 70%)",
           }}
         />
         {/* Top fade into previous section */}
