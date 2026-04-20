@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import heroBg from "@/assets/landing-hero-painting.jpg";
+import familyPhoto from "@/assets/family-tirupur-2005.jpg";
 
 const WhyVyana = () => {
   const navigate = useNavigate();
@@ -104,6 +105,21 @@ const WhyVyana = () => {
             <p className="font-serif italic text-[20px] text-[hsl(22_20%_14%)] leading-[1.5]">
               It wasn't. We lost both of them.
             </p>
+
+            {/* Family photo thumbnail */}
+            <div className="pt-4">
+              <img
+                src={familyPhoto}
+                alt="Family photo from Tirupur, 2005"
+                loading="lazy"
+                width={120}
+                height={120}
+                className="w-28 h-28 sm:w-32 sm:h-32 rounded-lg object-cover border-2 border-[hsl(22_20%_80%/0.4)] shadow-md"
+              />
+              <p className="text-[11px] text-[hsl(22_15%_50%)] mt-2 italic">
+                Tirupur, 2005
+              </p>
+            </div>
           </section>
 
           {/* Section 2 */}
