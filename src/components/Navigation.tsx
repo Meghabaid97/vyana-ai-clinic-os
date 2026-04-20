@@ -45,10 +45,10 @@ const Navigation = () => {
         <div className="flex items-center gap-2">
           <LanguageSelector />
           <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="text-[13px] text-foreground/70">
-            {tLanding("nav.signIn")}
+            Try Vyana
           </Button>
           <Button size="sm" onClick={() => scrollTo("contact")} className="text-[13px] h-8 px-4 rounded-full">
-            Join waitlist
+            Try Vyana now
           </Button>
         </div>
       </div>
