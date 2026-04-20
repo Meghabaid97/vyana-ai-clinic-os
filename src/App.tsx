@@ -33,6 +33,7 @@ import PrescriptionInterpreter from "./pages/PrescriptionInterpreter";
 import ShareRecords from "./pages/ShareRecords";
 import ClaimAssistant from "./pages/RecoveryHub";
 import Legal from "./pages/Legal";
+import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,10 @@ const App = () => (
             <Route path="share" element={<ShareRecords />} />
             <Route path="briefing" element={<PatientBriefing />} />
             <Route path="recovery" element={<ClaimAssistant />} />
+            <Route path="support" element={<Support />} />
+            <Route path="medical-history" element={<PatientMedicalHistory />} />
+            <Route path="emergency-contacts" element={<EmergencyContacts />} />
+            <Route path="find-doctors" element={<FindDoctors />} />
           </Route>
 
           {/* Patient standalone pages */}
