@@ -2,7 +2,13 @@ import React from "react";
 import { COLORS } from "../theme";
 import { FeatureScene } from "./FeatureScene";
 
-// All phones sit upright (rotate=0) — no tilting, no floating.
+// Real app screen recordings live in public/screens/ (cropped of the QuickTime/iOS recording chip).
+// Map them to scenes that match the captured screen.
+//   s1 → Records (empty state + upload affordance)
+//   s2 → Photos picker (used as Records/Rx upload moment)
+//   s3 → Home dashboard (story + trends preview + promises)
+//   s4 → Emergency contacts setup
+//   s5 → Trends / Clinical intelligence (ASCVD, Diabetes, eGFR, Thyroid)
 
 export const K5Home = () => (
   <FeatureScene shot="home" eyebrow="One app · Your story"
@@ -10,6 +16,7 @@ export const K5Home = () => (
     body="Every prescription, every report, every visit — gathered in one warm, continuous record."
     palette={{ bg: COLORS.cream, blob1: COLORS.peach, blob2: COLORS.amber + "55", blob3: COLORS.coral + "33", ink: COLORS.coral }}
     seed={5} side="left"
+    realSrc="screens/s3.mp4"
   />
 );
 
@@ -19,6 +26,7 @@ export const K6Records = () => (
     body="Snap a photo of any lab report. Vyana extracts vitals, dates, and trends — automatically."
     palette={{ bg: COLORS.mint, blob1: COLORS.sage + "55", blob2: COLORS.amber + "44", blob3: COLORS.coral + "33", ink: COLORS.sage }}
     seed={6} side="right"
+    realSrc="screens/s1.mp4"
   />
 );
 
@@ -28,6 +36,7 @@ export const K7Trends = () => (
     body="Sugar, pressure, thyroid, cholesterol — quietly tracked across years, not just one visit."
     palette={{ bg: COLORS.sky, blob1: COLORS.navy + "33", blob2: COLORS.sage + "44", blob3: COLORS.coral + "33", ink: COLORS.navy }}
     seed={7} side="left"
+    realSrc="screens/s5.mp4"
   />
 );
 
@@ -37,6 +46,7 @@ export const K8Rx = () => (
     body="Tamil, Hindi, Telugu, Bengali, English. Read, translated, reminded — every dose."
     palette={{ bg: COLORS.peach, blob1: COLORS.coral + "55", blob2: COLORS.amber + "55", blob3: COLORS.yellow + "44", ink: COLORS.coralDeep }}
     seed={8} side="right"
+    realSrc="screens/s2.mp4"
   />
 );
 
@@ -82,5 +92,6 @@ export const K11bEmergency = () => (
     body="Blood group, allergies, medications — instantly visible to family in an emergency."
     palette={{ bg: COLORS.sand, blob1: COLORS.coral + "55", blob2: COLORS.amber + "44", blob3: COLORS.navy + "22", ink: COLORS.coralDeep }}
     seed={14} side="left"
+    realSrc="screens/s4.mp4"
   />
 );
