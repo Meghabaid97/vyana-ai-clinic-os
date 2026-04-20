@@ -6,10 +6,6 @@ import heroPainting from "@/assets/landing-hero-painting.jpg";
 const EditorialHero = () => {
   const navigate = useNavigate();
 
-  const scrollToContact = () => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section id="hero" className="relative min-h-[100svh] w-full overflow-hidden">
       {/* Full-bleed painting backdrop */}
@@ -54,10 +50,10 @@ const EditorialHero = () => {
 
             <div className="flex items-center gap-3 pt-2">
               <Button
-                onClick={scrollToContact}
+                onClick={() => navigate("/auth")}
                 className="group h-11 px-6 text-[15px] rounded-full"
               >
-                Join the waitlist
+                Try Vyana now
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
               <Button
