@@ -88,16 +88,16 @@ const PatientProfileEdit = () => {
   }
 
   const menuItems = [
-    { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/patient-medical-history" },
-    { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/emergency-contacts" },
-    { icon: MapPin, label: "Find Doctors", desc: "Search doctors near you", path: "/find-doctors" },
+    { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/app/medical-history" },
+    { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/app/emergency-contacts" },
+    { icon: MapPin, label: "Find Doctors", desc: "Search doctors near you", path: "/app/find-doctors" },
     { icon: Bell, label: "Notifications", desc: "Manage notification preferences", path: null },
-    { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: null },
+    { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: "/legal" },
   ];
 
   const aboutItems = [
-    { icon: BookOpen, label: "Our Story", desc: "Why we built Vyana", path: "/why-vyana" },
-    { icon: HelpCircle, label: "Help Center", desc: "FAQs and support", path: null },
+    { icon: BookOpen, label: "Our Story", desc: "Why we built Vyana", path: "/app/story" },
+    { icon: HelpCircle, label: "Help & Support", desc: "Raise a ticket or report an issue", path: "/app/support" },
     { icon: Star, label: "Rate App", desc: "Rate Vyana on the store", path: null },
   ];
 

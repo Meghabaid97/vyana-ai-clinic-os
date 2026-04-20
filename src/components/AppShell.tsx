@@ -20,7 +20,11 @@ const subRouteTitles: Record<string, string> = {
   "/app/medications": "Medications",
   "/app/prescription-reader": "Prescription Reader",
   "/app/share": "Share Records",
-  "/app/story": "Why Vyana",
+  "/app/story": "Our Story",
+  "/app/support": "Help & Support",
+  "/app/medical-history": "Medical History",
+  "/app/emergency-contacts": "Emergency Contacts",
+  "/app/find-doctors": "Find Doctors",
 };
 
 const AppShell = () => {
