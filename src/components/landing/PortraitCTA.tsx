@@ -32,13 +32,24 @@ const PortraitCTA = () => {
       id="contact"
       className="relative overflow-hidden bg-[hsl(22_25%_8%)] py-32 lg:py-40"
     >
-      {/* Warm gradient backdrop — no photo */}
+      {/* Sepia painting backdrop — bookend to hero */}
       <div className="absolute inset-0 overflow-hidden">
+        <img
+          src={heroPainting}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          width={1920}
+          height={1280}
+          className="w-full h-full object-cover opacity-60"
+        />
+        {/* Deep walnut veil for legibility on dark CTA */}
+        <div className="absolute inset-0 bg-[hsl(22_25%_10%/0.78)]" />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 80% 60% at 50% 40%, hsl(14 62% 22%) 0%, hsl(22 30% 12%) 55%, hsl(22 25% 8%) 100%)",
+              "radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, hsl(22 25% 6% / 0.55) 100%)",
           }}
         />
         {/* Subtle warm grain */}
@@ -51,7 +62,7 @@ const PortraitCTA = () => {
             backgroundSize: "3px 3px",
           }}
         />
-        {/* Top fade into previous section */}
+        {/* Top fade into previous ivory section */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[hsl(36_30%_96%)] to-transparent" />
       </div>
 
