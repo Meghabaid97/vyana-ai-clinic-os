@@ -1,6 +1,5 @@
 import { useReveal } from "@/hooks/use-reveal";
 import { PhoneMock, MockStoryScreen, MockTrendsScreen, MockBriefingScreen } from "./PhoneMock";
-import painting from "@/assets/landing-howitworks-painting.jpg";
 
 type Step = {
   n: string;
@@ -90,23 +89,28 @@ const HowItWorks = () => {
   const header = useReveal<HTMLDivElement>();
 
   return (
-    <section id="how" className="relative overflow-hidden">
-      {/* Painting backdrop — locked behind entire section */}
+    <section id="how" className="relative overflow-hidden bg-[hsl(22_25%_10%)]">
+      {/* Warm walnut backdrop with soft radial glow + grain */}
       <div className="absolute inset-0 overflow-hidden">
-        <img
-          src={painting}
-          alt=""
-          aria-hidden
-          loading="lazy"
-          width={1920}
-          height={1080}
-          className="w-full h-full object-cover animate-ken-burns"
+        {/* Layered radial warmth — terracotta glows on walnut */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 50% at 20% 20%, hsl(14 62% 24% / 0.55), transparent 60%), radial-gradient(ellipse 60% 40% at 80% 70%, hsl(28 55% 22% / 0.5), transparent 60%), radial-gradient(ellipse 100% 60% at 50% 100%, hsl(14 50% 18% / 0.4), transparent 70%)",
+          }}
         />
-        {/* Deep sepia veil for legibility */}
-        <div className="absolute inset-0 bg-[hsl(22_25%_10%/0.78)]" />
+        {/* Subtle paper grain via SVG noise */}
+        <div
+          className="absolute inset-0 opacity-[0.08] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
         {/* Top + bottom fades into adjacent sections */}
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[hsl(22_25%_10%)] to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[hsl(22_25%_10%)] to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[hsl(36_30%_96%)] to-transparent opacity-30" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent opacity-30" />
       </div>
 
       {/* Floating amber particles */}
