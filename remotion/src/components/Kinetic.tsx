@@ -13,14 +13,13 @@ export type Palette = {
 };
 
 export const BackdropKinetic: React.FC<{ palette: Palette; seed?: number }> = ({ palette, seed = 1 }) => {
-  const frame = useCurrentFrame();
   return (
     <AbsoluteFill style={{ background: palette.bg }}>
-      {/* Soft moving blobs */}
+      {/* Static soft blobs — no motion, just color */}
       {[0, 1, 2].map((i) => {
         const r = random(`b${seed}-${i}`);
-        const x = 200 + r * 1500 + Math.sin((frame + i * 60) / 90) * 80;
-        const y = 100 + random(`y${seed}-${i}`) * 800 + Math.cos((frame + i * 45) / 110) * 60;
+        const x = 200 + r * 1500;
+        const y = 100 + random(`y${seed}-${i}`) * 800;
         const size = 600 + random(`s${seed}-${i}`) * 400;
         const color = [palette.blob1, palette.blob2, palette.blob3][i];
         return (
@@ -43,22 +42,20 @@ export const BackdropKinetic: React.FC<{ palette: Palette; seed?: number }> = ({
 
 // Floating decorative shapes (sticker accents)
 export const Stickers: React.FC<{ seed: number; count?: number; ink: string }> = ({ seed, count = 6, ink }) => {
-  const frame = useCurrentFrame();
   return (
     <AbsoluteFill style={{ pointerEvents: "none" }}>
       {Array.from({ length: count }).map((_, i) => {
         const r = random(`stk${seed}-${i}`);
         const x = r * 1920;
         const y = random(`sty${seed}-${i}`) * 1080;
-        const rot = (random(`str${seed}-${i}`) - 0.5) * 60 + frame * 0.3;
-        const drift = Math.sin((frame + i * 30) / 60) * 12;
+        const rot = (random(`str${seed}-${i}`) - 0.5) * 60;
         const size = 30 + r * 50;
         const shape = i % 4;
         return (
           <div key={i} style={{
-            position: "absolute", left: x, top: y + drift,
+            position: "absolute", left: x, top: y,
             transform: `rotate(${rot}deg)`,
-            opacity: 0.35,
+            opacity: 0.3,
           }}>
             {shape === 0 && <div style={{ width: size, height: size, borderRadius: "50%", border: `4px solid ${ink}` }} />}
             {shape === 1 && <div style={{ width: size, height: 4, background: ink }} />}
