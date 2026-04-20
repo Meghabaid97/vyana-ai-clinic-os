@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 
 const sections = [
   { id: "hero", label: "Home" },
+  { id: "voices", label: "Voices" },
   { id: "story", label: "Story" },
   { id: "research", label: "Science" },
   { id: "how", label: "How" },
-  { id: "voices", label: "Voices" },
   { id: "contact", label: "Access" },
 ];
 
@@ -15,11 +15,17 @@ const SideRail = () => {
 
   useEffect(() => {
     const onScroll = () => {
-      const y = window.scrollY + window.innerHeight * 0.4;
+      const probe = window.innerHeight * 0.4;
       let current = sections[0].id;
       for (const s of sections) {
         const el = document.getElementById(s.id);
-        if (el && el.offsetTop <= y) current = s.id;
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top;
+        if (top - probe <= 0) current = s.id;
+      }
+      // Snap to last section when near bottom of page
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+        current = sections[sections.length - 1].id;
       }
       setActive(current);
 
