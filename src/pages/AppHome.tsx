@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  ArrowRight, Upload, FileText, TrendingUp, Zap, Link2, Shield, Calendar,
+  ArrowRight, Upload, FileText, TrendingUp, Link2, Shield, Calendar,
   Heart, Droplets, Activity, Loader2, ScanLine, IndianRupee,
 } from "lucide-react";
 
