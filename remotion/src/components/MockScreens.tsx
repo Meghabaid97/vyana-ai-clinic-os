@@ -539,3 +539,49 @@ export const MockEmergency: React.FC = () => {
     </div>
   );
 };
+
+// ====================================================================
+// TIMELINE — chronological life graph
+// ====================================================================
+export const MockTimeline: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const head = spring({ frame: frame - 10, fps, config: { damping: 22 } });
+  const events = [
+    { y: "2019", t: "Diagnosed T2DM", c: COLORS.amber },
+    { y: "2021", t: "Started Metformin", c: COLORS.coral },
+    { y: "2023", t: "BP under control", c: COLORS.sage },
+    { y: "2024", t: "HbA1c 6.4", c: COLORS.sage },
+    { y: "2025", t: "HbA1c 6.2 ✓", c: COLORS.sage },
+  ];
+  const items = events.map((_, i) => spring({ frame: frame - 30 - i * 14, fps, config: { damping: 22 } }));
+
+  return (
+    <div style={{ width: "100%", height: "100%", background: "#FAFAF7", position: "relative", overflow: "hidden" }}>
+      <div style={{ padding: "24px 28px 0", opacity: head, transform: `translateY(${interpolate(head, [0, 1], [10, 0])}px)` }}>
+        <div style={{ fontFamily: "Inter", fontSize: 14, color: COLORS.inkSoft, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Timeline</div>
+        <div style={{ marginTop: 8, fontFamily: "Fraunces, serif", fontSize: 36, color: COLORS.ink, fontWeight: 500, letterSpacing: -0.8, lineHeight: 1.05 }}>
+          Your life, <em style={{ color: COLORS.coral, fontStyle: "italic" }}>in order</em>
+        </div>
+      </div>
+
+      <div style={{ position: "relative", margin: "30px 22px 0", paddingLeft: 30 }}>
+        <div style={{ position: "absolute", left: 38, top: 8, bottom: 8, width: 2, background: COLORS.border }} />
+        {events.map((e, i) => (
+          <div key={e.y} style={{
+            position: "relative", display: "flex", alignItems: "center", gap: 18, marginBottom: 22,
+            opacity: items[i], transform: `translateX(${interpolate(items[i], [0, 1], [-12, 0])}px)`,
+          }}>
+            <div style={{ width: 18, height: 18, borderRadius: 9, background: e.c, border: "3px solid #fff", boxShadow: `0 0 0 2px ${e.c}66`, flexShrink: 0, marginLeft: -1 }} />
+            <div style={{ flex: 1, padding: "14px 18px", background: "#fff", borderRadius: 16, border: `1px solid ${COLORS.border}` }}>
+              <div style={{ fontSize: 12, color: COLORS.inkSoft, fontWeight: 700, letterSpacing: 1.5 }}>{e.y}</div>
+              <div style={{ marginTop: 4, fontFamily: "Inter", fontSize: 16, color: COLORS.ink, fontWeight: 600 }}>{e.t}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Tabs active="home" />
+    </div>
+  );
+};
