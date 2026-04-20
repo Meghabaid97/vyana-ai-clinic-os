@@ -230,29 +230,30 @@ const StepsCinematic = () => {
   return (
     <section
       id="steps"
-      className="relative overflow-hidden bg-[hsl(22_25%_8%)]"
+      className="relative overflow-hidden bg-[hsl(22_28%_9%)]"
     >
-      {/* Sepia statue backdrop */}
-      <div className="absolute inset-0 overflow-hidden">
-        <img
-          src={bg}
-          alt=""
-          aria-hidden
-          loading="lazy"
-          width={1920}
-          height={1280}
-          className="w-full h-full object-cover animate-ken-burns opacity-90"
-        />
-        <div className="absolute inset-0 bg-[hsl(22_25%_8%/0.78)]" />
+      {/* Sepia backdrop — fixed parallax, heavy warm veil */}
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center 30%",
+          backgroundAttachment: "fixed",
+        }}
+        aria-hidden
+      >
+        <div className="absolute inset-0 bg-[hsl(22_28%_9%/0.9)]" />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, hsl(22 25% 6% / 0.65) 100%)",
+              "radial-gradient(ellipse 75% 65% at 50% 50%, transparent 0%, hsl(22 28% 6% / 0.55) 100%)",
           }}
         />
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[hsl(36_30%_96%)] to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent" />
+        {/* Seamless gradient transitions to neighbouring dark sections */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[hsl(22_28%_9%)] to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(22_28%_9%)] to-transparent" />
       </div>
 
       {/* Starfield */}
