@@ -21,8 +21,9 @@ export const COLORS = {
 
 export const FPS = 30;
 
-// 12 scenes × ~15s = 180s
-export const SCENE_SEC = 15;
-export const TOTAL_FRAMES = 12 * SCENE_SEC * FPS; // 5400
+// 13 scenes × ~14s = 182s (matches 180s music with tail fade)
+export const SCENE_SEC = 14;
+export const SCENE_COUNT = 13;
+export const TOTAL_FRAMES = SCENE_COUNT * SCENE_SEC * FPS; // 5460
 
 export const sec = (s: number) => Math.round(s * FPS);
