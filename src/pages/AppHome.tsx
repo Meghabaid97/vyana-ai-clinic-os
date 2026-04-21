@@ -333,6 +333,12 @@ const AppHome = () => {
           <span className="font-semibold text-foreground">Vyana</span> · Every patient deserves a doctor who knows their story.
         </p>
       </section>
+
+      <HowItWorksTour
+        open={tourOpen}
+        onOpenChange={setTourOpen}
+        onFinish={() => navigate("/app/records")}
+      />
     </div>
   );
 };
