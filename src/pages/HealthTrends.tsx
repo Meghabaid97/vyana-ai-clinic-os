@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/hover-card";
 import { useToast } from "@/hooks/use-toast";
 import ClinicalRiskDashboard from "@/components/ClinicalRiskDashboard";
+import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
@@ -75,6 +76,7 @@ const HealthTrends = () => {
   const [isAnalyzingTrends, setIsAnalyzingTrends] = useState(false);
   const [medications, setMedications] = useState<Array<{ medication_name: string; dosage: string | null; frequency: string; is_active: boolean }>>([]);
   const [patientAge, setPatientAge] = useState<number | null>(null);
+  const [patientId, setPatientId] = useState<string | null>(null);
   const autoProcessedRecordRef = useRef<string | null>(null);
   const { toast } = useToast();
 
@@ -108,6 +110,7 @@ const HealthTrends = () => {
 
     if (!patient) return;
     setPatientAge(patient.age ?? null);
+    setPatientId(patient.id);
 
     const { data: r } = await supabase
       .from("health_records")
@@ -431,12 +434,16 @@ const HealthTrends = () => {
 
   return (
     <div className="animate-fade-in">
-      <section className="px-5 pt-8 pb-4">
+      <section className="px-5 pt-8 pb-3">
         <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">Health Trends</h1>
         <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-          Your latest report is analyzed automatically and mapped into major vitals.
+          What changed since your last visit — at the top. All vitals below.
         </p>
       </section>
+
+      {/* Lead: What changed since last visit (the killer feature) */}
+      <DashboardChangesCard patientId={patientId} />
+
 
       {/* Preview insight card — shown until user has 2+ records */}
       {records.length < 2 && (

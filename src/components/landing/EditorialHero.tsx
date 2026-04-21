@@ -28,20 +28,21 @@ const EditorialHero = () => {
         <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-28 pb-20">
           <div className="max-w-[680px] space-y-8 animate-fade-in-slow">
             <p className="font-serif italic text-[15px] text-foreground/65">
-              A clinical memory system for every Indian family
+              The fastest way to explain your medical history
             </p>
 
             <h1 className="font-serif text-[44px] sm:text-[64px] lg:text-[84px] leading-[0.98] tracking-[-0.02em] text-foreground">
-              Every doctor visit
+              Never explain
               <br />
-              starts from zero.
+              your medical
               <br />
-              <em className="italic text-primary font-normal">Vyana fixes that.</em>
+              history{" "}
+              <em className="italic text-primary font-normal">again.</em>
             </h1>
 
             <p className="text-[17px] leading-[1.65] text-foreground/85 max-w-[560px]">
-              Build a continuous health memory from your reports, prescriptions
-              and tests, so doctors never make decisions without context again.
+              Upload your reports. Get a doctor-ready summary in 30 seconds.
+              Conditions, medications, recent changes — one screen any doctor can read instantly.
             </p>
 
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-2">
@@ -49,7 +50,7 @@ const EditorialHero = () => {
                 onClick={() => navigate("/auth")}
                 className="group h-11 px-6 text-[15px] rounded-full"
               >
-                Upload your first report
+                Try it free
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
               <Button
@@ -58,7 +59,7 @@ const EditorialHero = () => {
                 className="group text-[15px] text-foreground/70 hover:text-foreground h-11"
               >
                 <Play className="mr-2 h-4 w-4 fill-current" />
-                Watch how it works
+                See a sample brief
               </Button>
             </div>
           </div>

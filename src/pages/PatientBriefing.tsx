@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, Pill, FileText,
   Share2, Copy, CheckCircle2, Heart, Brain, Stethoscope,
-  ArrowUp, ArrowDown, Minus, Activity,
+  ArrowUp, ArrowDown, Minus, Activity, Play,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
@@ -24,9 +26,32 @@ const PatientBriefing = () => {
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
 
+  // Honour ?demo=1 deep link from home "Try sample data"
+  useEffect(() => {
+    if (searchParams.get("demo") === "1" && !briefing) {
+      setBriefing(SAMPLE_BRIEFING as unknown as Briefing);
+      setIsDemo(true);
+    }
+  }, [searchParams, briefing]);
+
+  const loadDemo = () => {
+    setBriefing(SAMPLE_BRIEFING as unknown as Briefing);
+    setIsDemo(true);
+    setSearchParams({ demo: "1" });
+  };
+
+  const clearDemo = () => {
+    setBriefing(null);
+    setIsDemo(false);
+    setSearchParams({});
+  };
+
   const generateBriefing = async () => {
+    setIsDemo(false);
     setIsLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -168,6 +193,30 @@ const PatientBriefing = () => {
               ) : (
                 <><Sparkles className="h-4 w-4 mr-2" /> Generate My Briefing</>
               )}
+            </Button>
+            <button
+              onClick={loadDemo}
+              className="mt-3 inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Play className="h-3 w-3 fill-current" />
+              Or preview with sample data
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Demo banner */}
+      {briefing && isDemo && (
+        <section className="px-5 pb-3">
+          <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 flex items-center justify-between gap-3">
+            <div className="flex items-start gap-2 min-w-0">
+              <Play className="h-3.5 w-3.5 text-yellow-700 mt-0.5 shrink-0 fill-current" />
+              <p className="text-[12px] text-foreground leading-snug">
+                <span className="font-semibold">Demo data</span> — sample patient (Ramesh, 58, T2 diabetic). Generate yours from real records.
+              </p>
+            </div>
+            <Button onClick={clearDemo} variant="outline" size="sm" className="shrink-0 h-7 text-[11px]">
+              Exit demo
             </Button>
           </div>
         </section>

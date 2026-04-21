@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  ArrowRight, Upload, FileText, TrendingUp, Link2, Shield, Calendar,
-  Heart, Droplets, Activity, Loader2, ScanLine, IndianRupee,
-} from "lucide-react";
-import WatchItWorkModal from "@/components/WatchItWorkModal";
-import { Play } from "lucide-react";
+import { ArrowRight, Upload, Link2, Shield } from "lucide-react";
+import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
+import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
 
 interface PatientProfile {
   id: string;
@@ -15,150 +12,69 @@ interface PatientProfile {
   national_health_id: string | null;
 }
 
-interface HomeVitals {
-  bp_systolic: number | null;
-  bp_diastolic: number | null;
-  fasting_blood_sugar: number | null;
-  total_cholesterol: number | null;
-  weight: number | null;
-}
-
 const AppHome = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<PatientProfile | null>(null);
-  const [stats, setStats] = useState({ consultations: 0, appointments: 0, healthRecords: 0, doctors: 0 });
+  const [recordCount, setRecordCount] = useState(0);
   const [recordDates, setRecordDates] = useState<string[]>([]);
-  const [homeVitals, setHomeVitals] = useState<HomeVitals | null>(null);
-  const [vitalsLoading, setVitalsLoading] = useState(false);
-  const [tourOpen, setTourOpen] = useState(false);
+  const [consultationCount, setConsultationCount] = useState(0);
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { void loadData(); }, []);
 
   const loadData = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    const { data: p } = await supabase.from("patients").select("*").eq("user_id", session.user.id).single();
+    const { data: p } = await supabase
+      .from("patients").select("*")
+      .eq("user_id", session.user.id).single();
     if (!p) return;
     setProfile(p);
 
-    let consultationsCount = 0, doctorsCount = 0;
+    const { data: r } = await supabase
+      .from("health_records")
+      .select("uploaded_at")
+      .eq("patient_id", p.id)
+      .order("uploaded_at", { ascending: true });
+    setRecordCount(r?.length || 0);
+    setRecordDates((r || []).map(x =>
+      new Date(x.uploaded_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+    ));
+
     if (p.national_health_id) {
-      const { data: c } = await supabase.from("consultations").select("doctor_id").eq("patient_national_health_id", p.national_health_id);
-      if (c) { consultationsCount = c.length; doctorsCount = new Set(c.map(x => x.doctor_id)).size; }
-    }
-
-    const { data: a } = await supabase.from("appointments").select("id").eq("patient_id", p.id);
-    const { data: r } = await supabase.from("health_records").select("id, uploaded_at, ai_summary, file_name").eq("patient_id", p.id).order("uploaded_at", { ascending: true });
-
-    setRecordDates((r || []).map(x => new Date(x.uploaded_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })));
-    setStats({ consultations: consultationsCount, appointments: a?.length || 0, healthRecords: r?.length || 0, doctors: doctorsCount });
-
-    // Auto-analyze latest record for home vitals
-    if (r && r.length > 0) {
-      const latest = r[r.length - 1];
-      if (latest.ai_summary) {
-        setVitalsLoading(true);
-        try {
-          const { data: analysis } = await supabase.functions.invoke("analyze-health-risks", {
-            body: {
-              records: [{ file_name: latest.file_name, ai_summary: latest.ai_summary }],
-              patientName: p.name,
-              patientAge: p.age,
-            },
-          });
-          if (analysis?.vitals) {
-            setHomeVitals(analysis.vitals);
-          }
-        } catch (err) {
-          console.error("Home vitals analysis error:", err);
-        } finally {
-          setVitalsLoading(false);
-        }
-      }
+      const { data: c } = await supabase
+        .from("consultations").select("id")
+        .eq("patient_national_health_id", p.national_health_id);
+      setConsultationCount(c?.length || 0);
     }
   };
 
   const firstName = profile?.name?.split(" ")[0] || "there";
-  const totalRecords = stats.healthRecords + stats.consultations;
-
-  const fmtVital = (val: number | null | undefined) => (val != null ? String(Math.round(val)) : "—");
+  const totalRecords = recordCount + consultationCount;
+  const hasRecords = totalRecords > 0;
 
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2">
-      {/* ── Hero ── */}
-      <section className="px-4 sm:px-5 pt-8 sm:pt-8 pb-5 sm:pb-6">
+      {/* ── Soft opener (KEEP) ── */}
+      <section className="px-4 sm:px-5 pt-8 pb-5">
         <div className="max-w-sm">
-          <p className="text-xs font-medium tracking-widest uppercase text-primary mb-4">
+          <p className="text-xs font-medium tracking-widest uppercase text-primary mb-3">
             Welcome back, {firstName}
           </p>
-          <h1 className="text-[clamp(1.8rem,8vw,2.4rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-foreground">
-            Your health story.{' '}
+          <h1 className="text-[clamp(1.7rem,7.5vw,2.2rem)] font-extrabold leading-[1.04] tracking-[-0.03em] text-foreground">
+            Your health story.{" "}
             <span className="block text-primary">Always with you.</span>
           </h1>
-          <p className="mt-3 max-w-[30ch] text-[14px] sm:text-[14px] text-muted-foreground leading-relaxed">
-            Every prescription, every lab report, every doctor visit builds your complete health picture. Quietly. Securely. So when you need it most, it is there.
+          <p className="mt-2.5 max-w-[32ch] text-[13.5px] text-muted-foreground leading-relaxed">
+            Never explain your medical history again. Doctor-ready in 30 seconds.
           </p>
         </div>
       </section>
 
-      {/* ── Action-first CTA (empty) or Stats (with data) ── */}
-      <section className="px-4 sm:px-5 pb-4 sm:pb-5">
-        {totalRecords === 0 ? (
-          <div className="space-y-2.5">
-            <button
-              onClick={() => navigate("/app/records")}
-              className="group flex w-full items-center gap-3 rounded-xl bg-primary p-4 text-left shadow-sm transition-transform active:scale-[0.99]"
-            >
-              <div className="h-11 w-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0">
-                <Upload className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[15px] font-semibold text-primary-foreground leading-tight">
-                  Upload your first report
-                </p>
-                <p className="text-[12px] text-primary-foreground/80 mt-0.5 leading-snug">
-                  Prescription, lab report, or discharge summary.
-                </p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-primary-foreground shrink-0 transition-transform group-hover:translate-x-0.5" />
-            </button>
-            <button
-              onClick={() => setTourOpen(true)}
-              className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left hover:border-primary/30 transition-colors"
-            >
-              <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <Play className="h-5 w-5 text-primary fill-current ml-0.5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[15px] font-semibold text-foreground leading-tight">
-                  Watch it work
-                </p>
-                <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">
-                  See Vyana in 60 seconds.
-                </p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {[
-              { value: stats.doctors, label: "Doctors" },
-              { value: stats.consultations, label: "Visits" },
-              { value: stats.appointments, label: "Appts" },
-              { value: stats.healthRecords, label: "Records" },
-            ].map((s) => (
-              <div key={s.label} className="rounded-xl border border-border bg-card p-2.5 sm:p-3 text-center">
-                <p className="text-lg sm:text-xl font-bold text-foreground">{s.value}</p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      {/* ── HERO: Briefing CTA (the wedge) ── */}
+      <DashboardBriefingHero hasRecords={hasRecords} />
 
-      {/* ── Story beats — emotional section ── */}
-      <section className="px-4 sm:px-5 pb-4 sm:pb-5">
+      {/* ── Your story so far (KEEP) ── */}
+      <section className="px-4 sm:px-5 pb-5">
         <h2 className="mb-1 text-lg font-bold text-foreground leading-tight">
           <span className="block sm:inline">Your story so far.</span>{" "}
           <span className="block sm:inline text-primary">Every detail matters.</span>
@@ -181,19 +97,18 @@ const AppHome = () => {
           ))}
         </div>
 
-        {/* Timeline or upload prompt */}
         <div className="mt-4 rounded-xl p-4 border border-border bg-muted/50">
           {totalRecords === 0 ? (
-              <button onClick={() => navigate("/app/records")} className="group flex items-center gap-3 text-primary w-full min-w-0">
+            <button onClick={() => navigate("/app/records")} className="group flex items-center gap-3 text-primary w-full min-w-0">
               <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <Upload className="h-4 w-4 text-primary" />
               </div>
-                <span className="min-w-0 font-medium text-sm text-left">Upload your first record. Your story starts here.</span>
+              <span className="min-w-0 font-medium text-sm text-left">Upload your first record. Your story starts here.</span>
               <ArrowRight className="h-4 w-4 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
           ) : (
             <div className="space-y-2">
-                <div className="relative flex items-center gap-3 overflow-x-auto pb-2">
+              <div className="relative flex items-center gap-3 overflow-x-auto pb-2">
                 <div className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 bg-border" />
                 {recordDates.map((date, i) => (
                   <div key={i} className="relative flex flex-col items-center shrink-0" style={{ minWidth: "48px" }}>
@@ -215,81 +130,30 @@ const AppHome = () => {
         </div>
       </section>
 
-      {/* ── Health Trends Preview ── */}
-      <section className="px-4 sm:px-5 pb-4 sm:pb-5">
-        <div className="flex items-baseline justify-between mb-3">
-          <h2 className="text-lg font-bold text-foreground">
-            Health trends
-          </h2>
-          <button onClick={() => navigate("/app/trends")} className="text-xs text-primary font-medium flex items-center gap-1">
-            View all <ArrowRight className="h-3 w-3" />
+      {/* ── What changed since last visit (NEW) ── */}
+      <DashboardChangesCard patientId={profile?.id ?? null} />
+
+      {/* ── Slim quick actions ── */}
+      <section className="px-4 sm:px-5 pb-5">
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => navigate("/app/share")}
+            className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
+          >
+            <Link2 className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-[12.5px] font-medium text-foreground truncate">Share with doctor</span>
+          </button>
+          <button
+            onClick={() => navigate("/app/emergency-contacts")}
+            className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
+          >
+            <Shield className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-[12.5px] font-medium text-foreground truncate">Emergency access</span>
           </button>
         </div>
-        <div className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2">
-          {[
-            { icon: Heart, label: "Blood Pressure", value: homeVitals?.bp_systolic != null && homeVitals?.bp_diastolic != null ? `${fmtVital(homeVitals.bp_systolic)}/${fmtVital(homeVitals.bp_diastolic)}` : (vitalsLoading ? "..." : "—") },
-            { icon: Droplets, label: "Blood Sugar", value: vitalsLoading ? "..." : fmtVital(homeVitals?.fasting_blood_sugar) },
-            { icon: Activity, label: "Cholesterol", value: vitalsLoading ? "..." : fmtVital(homeVitals?.total_cholesterol) },
-            { icon: TrendingUp, label: "Weight", value: vitalsLoading ? "..." : fmtVital(homeVitals?.weight) },
-          ].map((v, i) => (
-            <button
-              key={i}
-              onClick={() => navigate("/app/trends")}
-              className="min-w-0 rounded-xl border border-border bg-card p-3 text-left hover:border-primary/30 transition-colors"
-            >
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center mb-2">
-                <v.icon className="h-4 w-4 text-primary" />
-              </div>
-              <p className="text-[12px] text-muted-foreground">{v.label}</p>
-              <p className="mt-0.5 text-base sm:text-lg font-bold text-foreground break-words">{v.value}</p>
-            </button>
-          ))}
-        </div>
       </section>
 
-      {/* ── Promises / Features ── */}
-      <section className="px-4 sm:px-5 pb-4 sm:pb-5">
-        <h2 className="text-lg font-bold text-foreground mb-1">
-          Not features. <span className="text-primary">Promises.</span>
-        </h2>
-        <p className="text-[13px] text-muted-foreground mb-4">Six things we will never compromise on.</p>
-
-        <div className="space-y-2.5">
-          {[
-            { icon: FileText, title: "Upload anything", desc: "Prescriptions, lab reports, summaries, extracted and organized.", path: "/app/records", badge: stats.healthRecords || undefined },
-            { icon: TrendingUp, title: "Track what matters", desc: "HbA1c, BP, cholesterol tracked over time. Changes flagged early.", path: "/app/trends" },
-            { icon: Activity, title: "Your timeline", desc: "Every visit, diagnosis, and vital, connected in one view.", path: "/app/timeline" },
-            { icon: Link2, title: "Share with any doctor", desc: "Secure link. 24 hours. No app needed on their end.", path: "/app/share", badge: stats.doctors || undefined },
-            { icon: Shield, title: "Emergency access", desc: "Family safety net. Share your records instantly in emergencies.", path: "/app/emergency-contacts" },
-            { icon: ScanLine, title: "Prescription reader", desc: "Photograph any prescription, AI reads it in 5 languages.", path: "/app/prescription-reader" },
-            { icon: IndianRupee, title: "Claim Assistant", desc: "Upload discharge summary, get insurance claim data, medication reminders, and medical summary.", path: "/app/recovery" },
-          ].map((f, i) => (
-            <button
-              key={i}
-              onClick={() => navigate(f.path)}
-              className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 sm:p-4 text-left hover:border-primary/30 transition-colors"
-            >
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <f.icon className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-[14px] font-semibold text-foreground">{f.title}</h3>
-                  {f.badge && (
-                    <span className="h-5 min-w-[20px] px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                      {f.badge}
-                    </span>
-                  )}
-                </div>
-                <p className="text-muted-foreground text-[12px] leading-relaxed mt-0.5">{f.desc}</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Why Vyana / Our Story ── */}
+      {/* ── Why Vyana ── */}
       <section className="px-4 sm:px-5 pb-5">
         <div className="rounded-xl border border-border overflow-hidden">
           <div className="bg-primary/5 p-5">
@@ -316,7 +180,6 @@ const AppHome = () => {
         </div>
       </section>
 
-      {/* ── ABHA prompt ── */}
       {!profile?.national_health_id && (
         <section className="px-4 sm:px-5 pb-5">
           <div className="rounded-xl p-4 border border-primary/20 bg-primary/5">
@@ -328,14 +191,11 @@ const AppHome = () => {
         </section>
       )}
 
-      {/* ── Footer ── */}
       <section className="px-4 sm:px-5 pb-8 text-center">
         <p className="text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">Vyana</span> · Every patient deserves a doctor who knows their story.
+          <span className="font-semibold text-foreground">Vyana</span> · Never explain your medical history again.
         </p>
       </section>
-
-      <WatchItWorkModal open={tourOpen} onOpenChange={setTourOpen} />
     </div>
   );
 };
