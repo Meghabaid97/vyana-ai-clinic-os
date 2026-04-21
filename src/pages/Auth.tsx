@@ -408,6 +408,32 @@ const Auth = () => {
     } finally { setLoading(false); }
   };
 
+  /**
+   * Resolve the canonical web origin for OAuth.
+   *
+   * Why: Lovable's `/~oauth/*` proxy only resolves on hosts that are "Active"
+   * custom domains. If a user hits the apex (e.g. vyana.care) but only the
+   * `www` variant is wired up, `/~oauth/initiate` 404s mid-flow.
+   *
+   * Strategy:
+   *   1. If we're already on the canonical host, use it as-is.
+   *   2. If we're on the apex of a known custom domain, hop to `www`.
+   *   3. Otherwise, fall back to current origin (works for *.lovable.app and previews).
+   */
+  const resolveOAuthOrigin = (): string => {
+    const { protocol, host, origin } = window.location;
+
+    // Hosts known to be "Active" in Lovable for this project.
+    const PRIMARY_HOSTS = ["www.vyana.care"];
+    const APEX_TO_WWW: Record<string, string> = {
+      "vyana.care": "www.vyana.care",
+    };
+
+    if (PRIMARY_HOSTS.includes(host)) return origin;
+    if (APEX_TO_WWW[host]) return `${protocol}//${APEX_TO_WWW[host]}`;
+    return origin;
+  };
+
   const handleGoogleAuth = async () => {
     try {
       if (isSignUp) {
@@ -415,8 +441,22 @@ const Auth = () => {
       }
 
       const isNativeApp = Capacitor.isNativePlatform();
+
+      if (!isNativeApp) {
+        // Hop to the canonical host BEFORE starting OAuth so the full
+        // /~oauth/initiate → Google → /~oauth/callback round-trip happens
+        // on a single, fully-configured host.
+        const canonicalOrigin = resolveOAuthOrigin();
+        if (canonicalOrigin !== window.location.origin) {
+          window.location.replace(`${canonicalOrigin}/auth`);
+          return;
+        }
+      }
+
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: isNativeApp ? "lovable://oauth-callback/" : `${window.location.origin}/app`,
+        redirect_uri: isNativeApp
+          ? "lovable://oauth-callback/"
+          : `${resolveOAuthOrigin()}/app`,
       });
       if (result.error) {
         throw result.error;
