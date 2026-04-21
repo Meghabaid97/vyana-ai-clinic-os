@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Volume2, VolumeX, X } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { Volume2, VolumeX, X, Play } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -10,17 +11,24 @@ interface Props {
 const WatchItWorkModal = ({ open, onOpenChange }: Props) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (open) {
+      setHasError(false);
       v.currentTime = 0;
       v.muted = true;
       setIsMuted(true);
-      v.play().catch(() => {});
+      const p = v.play();
+      if (p && typeof p.then === "function") {
+        p.then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+      }
     } else {
       v.pause();
+      setIsPlaying(false);
     }
   }, [open]);
 
@@ -31,9 +39,22 @@ const WatchItWorkModal = ({ open, onOpenChange }: Props) => {
     setIsMuted(v.muted);
   };
 
+  const manualPlay = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.play().then(() => setIsPlaying(true)).catch(() => {});
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm p-0 gap-0 overflow-hidden border-border bg-background">
+        <VisuallyHidden>
+          <DialogTitle>Watch Vyana in action</DialogTitle>
+          <DialogDescription>
+            A short demo video showing how Vyana organizes your health records.
+          </DialogDescription>
+        </VisuallyHidden>
+
         <button
           onClick={() => onOpenChange(false)}
           aria-label="Close"
@@ -55,9 +76,7 @@ const WatchItWorkModal = ({ open, onOpenChange }: Props) => {
 
           {/* Phone mockup */}
           <div className="relative mx-auto" style={{ maxWidth: 240 }}>
-            <div
-              className="relative rounded-[36px] p-[8px] shadow-xl bg-foreground/90"
-            >
+            <div className="relative rounded-[36px] p-[8px] shadow-xl bg-foreground/90">
               <div
                 className="relative rounded-[30px] overflow-hidden bg-black"
                 style={{ aspectRatio: "9 / 19.5" }}
@@ -69,13 +88,41 @@ const WatchItWorkModal = ({ open, onOpenChange }: Props) => {
                   playsInline
                   muted
                   loop
-                  preload="metadata"
-                  className="w-full h-full object-cover"
+                  autoPlay
+                  preload="auto"
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onError={() => setHasError(true)}
+                  onLoadedData={() => {
+                    const v = videoRef.current;
+                    if (v && v.paused) v.play().catch(() => {});
+                  }}
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
+
+                {/* Tap-to-play overlay (autoplay blocked) */}
+                {!isPlaying && !hasError && (
+                  <button
+                    onClick={manualPlay}
+                    aria-label="Play video"
+                    className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 text-white"
+                  >
+                    <span className="h-14 w-14 rounded-full bg-white/95 text-foreground flex items-center justify-center">
+                      <Play className="h-6 w-6 fill-current ml-0.5" />
+                    </span>
+                  </button>
+                )}
+
+                {hasError && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black text-white text-[11px] px-4 text-center">
+                    Demo video could not load. Please refresh.
+                  </div>
+                )}
+
                 <button
                   onClick={toggleMute}
                   aria-label={isMuted ? "Unmute" : "Mute"}
-                  className="absolute bottom-2.5 right-2.5 z-20 h-8 w-8 rounded-full bg-black/55 border border-white/15 flex items-center justify-center text-white"
+                  className="absolute bottom-2.5 right-2.5 z-30 h-8 w-8 rounded-full bg-black/55 border border-white/15 flex items-center justify-center text-white"
                 >
                   {isMuted ? (
                     <VolumeX className="h-3.5 w-3.5" />
