@@ -34,15 +34,42 @@ const AppShell = () => {
   const [patientName, setPatientName] = useState("Patient");
 
   useEffect(() => {
-    const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/auth", { replace: true }); return; }
-      const { data } = await supabase.from("patients").select("name").eq("user_id", session.user.id).maybeSingle();
+    let cancelled = false;
+
+    const loadPatient = async (userId: string) => {
+      const { data } = await supabase.from("patients").select("name").eq("user_id", userId).maybeSingle();
+      if (cancelled) return;
       if (data) setPatientName(data.name);
-      // Touch last_app_open_at for re-engagement detection
-      await supabase.from("patients").update({ last_app_open_at: new Date().toISOString() }).eq("user_id", session.user.id);
+      await supabase.from("patients").update({ last_app_open_at: new Date().toISOString() }).eq("user_id", userId);
     };
-    load();
+
+    // Subscribe first to avoid race with session hydration after redirect from /auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+      if (session) {
+        void loadPatient(session.user.id);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled) return;
+      if (session) {
+        void loadPatient(session.user.id);
+      } else {
+        // Give Supabase a brief moment to hydrate before bouncing to /auth
+        setTimeout(async () => {
+          if (cancelled) return;
+          const { data: { session: retry } } = await supabase.auth.getSession();
+          if (cancelled) return;
+          if (!retry) navigate("/auth", { replace: true });
+        }, 400);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const activeTab = tabs.find(t =>
