@@ -70,7 +70,7 @@ const App = () => (
             <Route path="medications" element={<MedicationReminders />} />
             <Route path="prescription-reader" element={<PrescriptionInterpreter />} />
             <Route path="share" element={<ShareRecords />} />
-            <Route path="briefing" element={<PatientBriefing />} />
+            <Route path="briefing" element={<DoctorVisitMode />} />
             <Route path="visit" element={<DoctorVisitMode />} />
             <Route path="recovery" element={<ClaimAssistant />} />
             <Route path="support" element={<Support />} />
