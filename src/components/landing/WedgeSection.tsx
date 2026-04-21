@@ -29,9 +29,6 @@ const WedgeSection = () => {
           ref={header.ref}
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[820px] mb-20`}
         >
-          <p className="font-serif italic text-[15px] text-primary/90 mb-5">
-            The wedge
-          </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[80px] leading-[1.0] tracking-[-0.02em] text-surface-dark-foreground">
             Not a health records app.
             <br />
