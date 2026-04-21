@@ -312,37 +312,58 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     );
   }
 
+  const filteredRecords = records.filter(r => (r.category || "other") === activeCategory);
+  const countsByCategory = RECORD_CATEGORIES.reduce<Record<string, number>>((acc, c) => {
+    acc[c.id] = records.filter(r => (r.category || "other") === c.id).length;
+    return acc;
+  }, {});
+
   return (
     <div className="space-y-4">
-      {/* Header with upload */}
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
-        <div className="min-w-0">
-          <h2 className="text-base font-semibold text-foreground">Your records</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {records.length} document{records.length !== 1 ? "s" : ""} stored securely
-          </p>
+      {/* Header with category select + upload */}
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-foreground">Your records</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {records.length} document{records.length !== 1 ? "s" : ""} stored securely
+            </p>
+          </div>
+          <div className="shrink-0">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.webp"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              size="sm"
+              className="rounded-xl"
+            >
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4 mr-1.5" />
+              )}
+              Upload
+            </Button>
+          </div>
         </div>
-        <div className="shrink-0">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png,.webp"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            size="sm"
-            className="rounded-xl"
-          >
-            {isUploading ? (
-              <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4 mr-1.5" />
-            )}
-            Upload
-          </Button>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-muted-foreground shrink-0">Save as:</span>
+          <Select value={uploadCategory} onValueChange={(v) => setUploadCategory(v as RecordCategory)}>
+            <SelectTrigger className="h-8 rounded-lg text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {RECORD_CATEGORIES.map(c => (
+                <SelectItem key={c.id} value={c.id} className="text-xs">{c.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -354,113 +375,137 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         </span>
       </div>
 
-      {records.length === 0 ? (
-        <Card className="p-8 text-center rounded-2xl border-border bg-card shadow-none">
-          <div className="h-14 w-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
-            <FileText className="h-7 w-7 text-primary" />
-          </div>
-          <h3 className="text-base font-semibold text-foreground mb-1">No records yet</h3>
-          <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
-            Upload prescriptions, lab reports, or scans to keep them organized in one place.
-          </p>
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="outline"
-            className="rounded-xl"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Upload your first record
-          </Button>
-        </Card>
-      ) : (
-        <div className="space-y-2.5">
-          {records.map((record) => (
-            <Card key={record.id} className="p-3.5 rounded-2xl border-border bg-card shadow-none transition-colors hover:bg-muted/30">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-primary/10">
-                    {record.file_type.startsWith("image/") ? (
-                      <FileImage className="h-5 w-5 text-primary" />
-                    ) : (
-                      <FileText className="h-5 w-5 text-primary" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-foreground truncate">{record.file_name}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {formatFileSize(record.file_size)} • {formatDate(record.uploaded_at)}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {record.ai_summary && (
-                        <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0 h-5">
-                          <Sparkles className="h-2.5 w-2.5 mr-1" />
-                          Summary
-                        </Badge>
-                      )}
-                      {record.consent_shared_with && record.consent_shared_with.length > 0 && (
-                        <Badge variant="outline" className="rounded-full text-[10px] px-2 py-0 h-5">
-                          <Share2 className="h-2.5 w-2.5 mr-1" />
-                          Shared ({record.consent_shared_with.length})
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1 shrink-0">
-                  {record.ai_summary ? (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setViewingSummary(record);
-                        setShowSummaryDialog(true);
-                      }}
-                      className="h-8 w-8 rounded-full"
-                      aria-label="View summary"
-                    >
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => summarizeRecord(record)}
-                      disabled={isSummarizing === record.id}
-                      className="h-8 w-8 rounded-full"
-                      aria-label="Summarize"
-                    >
-                      {isSummarizing === record.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                      ) : (
-                        <Sparkles className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => openConsentDialog(record)}
-                    className="h-8 w-8 rounded-full"
-                    aria-label="Share"
-                  >
-                    <Share2 className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => deleteRecord(record)}
-                    className="h-8 w-8 rounded-full hover:bg-destructive/10"
-                    aria-label="Delete"
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
+      {/* Category Tabs */}
+      <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as RecordCategory)}>
+        <TabsList className="w-full h-auto flex flex-wrap gap-1 bg-muted/60 p-1 rounded-xl">
+          {RECORD_CATEGORIES.map(c => (
+            <TabsTrigger
+              key={c.id}
+              value={c.id}
+              className="flex-1 min-w-[68px] rounded-lg text-[11px] font-medium px-2 py-1.5 data-[state=active]:bg-background"
+            >
+              <c.icon className="h-3 w-3 mr-1" />
+              {c.shortLabel}
+              {countsByCategory[c.id] > 0 && (
+                <span className="ml-1 text-[10px] text-muted-foreground">({countsByCategory[c.id]})</span>
+              )}
+            </TabsTrigger>
           ))}
-        </div>
-      )}
+        </TabsList>
+
+        {RECORD_CATEGORIES.map(c => (
+          <TabsContent key={c.id} value={c.id} className="mt-3">
+            {filteredRecords.length === 0 ? (
+              <Card className="p-8 text-center rounded-2xl border-border bg-card shadow-none">
+                <div className="h-14 w-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+                  <c.icon className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="text-base font-semibold text-foreground mb-1">No {c.label.toLowerCase()} yet</h3>
+                <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
+                  Upload to keep this category organized and ready to share with doctors.
+                </p>
+                <Button
+                  onClick={() => { setUploadCategory(c.id); fileInputRef.current?.click(); }}
+                  variant="outline"
+                  className="rounded-xl"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload {c.shortLabel.toLowerCase()}
+                </Button>
+              </Card>
+            ) : (
+              <div className="space-y-2.5">
+                {filteredRecords.map((record) => (
+                  <Card key={record.id} className="p-3.5 rounded-2xl border-border bg-card shadow-none transition-colors hover:bg-muted/30">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-primary/10">
+                          {record.file_type.startsWith("image/") ? (
+                            <FileImage className="h-5 w-5 text-primary" />
+                          ) : (
+                            <FileText className="h-5 w-5 text-primary" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold text-foreground truncate">{record.file_name}</h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {formatFileSize(record.file_size)} • {formatDate(record.uploaded_at)}
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {record.ai_summary && (
+                              <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0 h-5">
+                                <Sparkles className="h-2.5 w-2.5 mr-1" />
+                                Summary
+                              </Badge>
+                            )}
+                            {record.consent_shared_with && record.consent_shared_with.length > 0 && (
+                              <Badge variant="outline" className="rounded-full text-[10px] px-2 py-0 h-5">
+                                <Share2 className="h-2.5 w-2.5 mr-1" />
+                                Shared ({record.consent_shared_with.length})
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0">
+                        {record.ai_summary ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setViewingSummary(record);
+                              setShowSummaryDialog(true);
+                            }}
+                            className="h-8 w-8 rounded-full"
+                            aria-label="View summary"
+                          >
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => summarizeRecord(record)}
+                            disabled={isSummarizing === record.id}
+                            className="h-8 w-8 rounded-full"
+                            aria-label="Summarize"
+                          >
+                            {isSummarizing === record.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                            ) : (
+                              <Sparkles className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openConsentDialog(record)}
+                          className="h-8 w-8 rounded-full"
+                          aria-label="Share"
+                        >
+                          <Share2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteRecord(record)}
+                          className="h-8 w-8 rounded-full hover:bg-destructive/10"
+                          aria-label="Delete"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
+
 
       {/* Consent Dialog */}
       <Dialog open={showConsentDialog} onOpenChange={setShowConsentDialog}>
