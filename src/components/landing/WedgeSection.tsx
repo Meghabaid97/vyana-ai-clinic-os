@@ -23,10 +23,7 @@ const WedgeSection = () => {
   const grid = useReveal<HTMLDivElement>();
 
   return (
-    <section
-      id="wedge"
-      className="relative py-32 lg:py-40 bg-[hsl(22_25%_10%)]"
-    >
+    <section id="wedge" className="relative py-32 lg:py-40 bg-surface-dark">
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
@@ -35,12 +32,12 @@ const WedgeSection = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             The wedge
           </p>
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[80px] leading-[1.0] tracking-[-0.02em] text-white">
+          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[80px] leading-[1.0] tracking-[-0.02em] text-surface-dark-foreground">
             Not a health records app.
             <br />
             <em className="italic text-primary font-normal">A clinical memory system.</em>
           </h2>
-          <p className="mt-8 text-[18px] leading-[1.65] text-[hsl(36_25%_85%)] max-w-[620px]">
+          <p className="mt-8 text-[18px] leading-[1.65] text-surface-dark-muted max-w-[620px]">
             Vyana doesn't just store files. It builds a continuous health
             graph, so doctors see your full story in seconds, not silos.
           </p>
@@ -58,10 +55,10 @@ const WedgeSection = () => {
               <div className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-6">
                 {p.n}
               </div>
-              <h3 className="font-serif text-[26px] leading-[1.15] text-white tracking-[-0.01em]">
+              <h3 className="font-serif text-[26px] leading-[1.15] text-surface-dark-foreground tracking-[-0.01em]">
                 {p.title}
               </h3>
-              <p className="mt-4 text-[15px] leading-[1.65] text-[hsl(36_25%_82%)]">
+              <p className="mt-4 text-[15px] leading-[1.65] text-surface-dark-muted">
                 {p.body}
               </p>
             </div>
