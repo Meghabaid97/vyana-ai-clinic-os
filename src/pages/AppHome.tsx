@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, Upload, Link2, Shield } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
-import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
+
 
 interface PatientProfile {
   id: string;
@@ -138,9 +138,6 @@ const AppHome = () => {
               )}
             </div>
           </section>
-
-          {/* ── What changed since last visit ── */}
-          <DashboardChangesCard patientId={profile?.id ?? null} />
         </div>
 
         {/* SIDE column (4 cols on desktop) */}
