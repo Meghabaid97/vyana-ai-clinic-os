@@ -91,7 +91,6 @@ const PatientProfileEdit = () => {
   const menuItems = [
     { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/app/medical-history" },
     { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/app/emergency-contacts" },
-    { icon: MapPin, label: "Find Doctors", desc: "Search doctors near you", path: "/app/find-doctors" },
     { icon: Bell, label: "Notifications", desc: "Manage notification preferences", path: null },
     { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: "/legal" },
   ];
