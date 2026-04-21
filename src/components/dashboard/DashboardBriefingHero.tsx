@@ -30,7 +30,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
 
           {/* Primary CTA */}
           <button
-            onClick={() => navigate("/app/visit")}
+            onClick={() => navigate("/app/briefing")}
             className="group mt-5 flex w-full items-center gap-3 rounded-2xl bg-primary p-4 text-left shadow-sm transition-transform active:scale-[0.99]"
           >
             <div className="h-11 w-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0">
@@ -57,7 +57,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
               <span className="text-[12px] font-medium text-foreground truncate">Full clinical brief</span>
             </button>
             <button
-              onClick={() => navigate("/app/visit?demo=1")}
+              onClick={() => navigate("/app/briefing?demo=1")}
               className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-left hover:border-primary/30 transition-colors min-w-0"
             >
               <Play className="h-4 w-4 text-primary fill-current shrink-0" />
