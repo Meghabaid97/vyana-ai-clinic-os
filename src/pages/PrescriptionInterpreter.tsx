@@ -211,6 +211,10 @@ const PrescriptionInterpreter = () => {
     if (!canvas) return;
     const dataUrl = canvas.toDataURL("image/png");
     setImagePreview(dataUrl);
+    // Convert dataURL to a File so it can be saved as a prescription record
+    canvas.toBlob((blob) => {
+      if (blob) setImageFile(new window.File([blob], `handwritten-rx-${Date.now()}.png`, { type: "image/png" }));
+    }, "image/png");
     setShowCanvas(false);
     setResult(null);
   };
@@ -226,6 +230,13 @@ const PrescriptionInterpreter = () => {
         body: { imageData: imagePreview, sourceType },
       });
       if (error) throw error;
+
+      // Persist this prescription to Health Records under the "prescription" category (background, non-blocking).
+      if (imageFile && patientCtx) {
+        saveToHealthRecords(imageFile, patientCtx.patientId, patientCtx.userId, "prescription")
+          .catch(err => console.error("Failed to save prescription to records:", err));
+      }
+
       // Defensive: backend can return partial / null fields. Normalize before render so we never crash on missing keys.
       const safeConf = (c: any): "high" | "medium" | "low" | "illegible" =>
         c === "high" || c === "medium" || c === "low" || c === "illegible" ? c : "low";
