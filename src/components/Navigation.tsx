@@ -31,8 +31,8 @@ const Navigation = () => {
       }`}
     >
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12 h-14 flex items-center justify-between">
-        <button onClick={() => navigate("/")} className="font-serif text-xl text-foreground tracking-tight">
-          Vyana
+        <button onClick={() => navigate("/")} className="font-display text-2xl text-foreground tracking-tight leading-none">
+          V<span className="text-primary italic">yana</span>
         </button>
 
         <div className="flex items-center gap-7">
