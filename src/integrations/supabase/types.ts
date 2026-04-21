@@ -359,6 +359,7 @@ export type Database = {
       health_records: {
         Row: {
           ai_summary: string | null
+          category: string
           consent_shared_with: string[] | null
           file_name: string
           file_path: string
@@ -371,6 +372,7 @@ export type Database = {
         }
         Insert: {
           ai_summary?: string | null
+          category?: string
           consent_shared_with?: string[] | null
           file_name: string
           file_path: string
@@ -383,6 +385,7 @@ export type Database = {
         }
         Update: {
           ai_summary?: string | null
+          category?: string
           consent_shared_with?: string[] | null
           file_name?: string
           file_path?: string
