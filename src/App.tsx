@@ -30,6 +30,7 @@ import ShareRecords from "./pages/ShareRecords";
 import ClaimAssistant from "./pages/RecoveryHub";
 import Legal from "./pages/Legal";
 import Support from "./pages/Support";
+import DomainChecklist from "./pages/DomainChecklist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const App = () => (
             <Route path="visit" element={<DoctorVisitMode />} />
             <Route path="recovery" element={<ClaimAssistant />} />
             <Route path="support" element={<Support />} />
+            <Route path="domain-checklist" element={<DomainChecklist />} />
             <Route path="medical-history" element={<PatientMedicalHistory />} />
             <Route path="emergency-contacts" element={<EmergencyContacts />} />
             <Route path="share-receive" element={<ShareReceive />} />
