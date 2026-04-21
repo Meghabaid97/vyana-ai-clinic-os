@@ -1,5 +1,4 @@
 import EditorialHero from "@/components/landing/EditorialHero";
-import WatchItWork from "@/components/landing/WatchItWork";
 import ProblemSection from "@/components/landing/ProblemSection";
 import QuoteWall from "@/components/landing/QuoteWall";
 import WedgeSection from "@/components/landing/WedgeSection";
@@ -15,7 +14,6 @@ const Index = () => (
     <Navigation />
     <SideRail />
     <EditorialHero />        {/* ivory */}
-    <WatchItWork />          {/* dark — instant product comprehension */}
     <ProblemSection />       {/* dark  */}
     <QuoteWall />            {/* ivory */}
     <WedgeSection />         {/* dark  */}
