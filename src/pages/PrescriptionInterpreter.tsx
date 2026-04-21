@@ -386,6 +386,19 @@ const PrescriptionInterpreter = () => {
               <p className="text-xs text-muted-foreground">Use the digital writing pad</p>
             </div>
           </button>
+
+          <button
+            onClick={openSavedRxPicker}
+            className="w-full rounded-xl border border-border bg-card p-5 flex items-center gap-4 hover:border-primary/30 transition-colors"
+          >
+            <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center shrink-0">
+              <FolderOpen className="h-5 w-5 text-foreground" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-foreground">Use saved prescription</p>
+              <p className="text-xs text-muted-foreground">Pick from your prescription records</p>
+            </div>
+          </button>
         </section>
       )}
 
@@ -399,7 +412,7 @@ const PrescriptionInterpreter = () => {
             <Button
               variant="outline"
               className="flex-1"
-              onClick={() => { setImagePreview(null); setResult(null); }}
+              onClick={() => { setImagePreview(null); setImageFile(null); setResult(null); }}
             >
               <Trash2 className="h-4 w-4 mr-2" /> Retake
             </Button>
