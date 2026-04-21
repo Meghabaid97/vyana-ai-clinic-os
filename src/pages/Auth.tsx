@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight, FileCheck } from "lucide-react";
+import { Mail, Lock, Chrome, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight, FileCheck, MapPin, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { validatePassword, validateEmail, validateHealthId } from "@/lib/validation";
@@ -26,6 +26,10 @@ type PendingSignupDraft = {
   healthId?: string;
   dateOfBirth?: string;
   weight?: string;
+  city?: string;
+  pincode?: string;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 const MAX_ATTEMPTS = 5;
@@ -67,6 +71,11 @@ const Auth = () => {
   const [healthId, setHealthId] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [weight, setWeight] = useState("");
+  const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [locating, setLocating] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
@@ -104,10 +113,35 @@ const Auth = () => {
         healthId: (healthId && !skipAbha) ? healthId : undefined,
         dateOfBirth: dateOfBirth || undefined,
         weight: weight || undefined,
+        city: city.trim() || undefined,
+        pincode: pincode.trim() || undefined,
+        latitude: latitude,
+        longitude: longitude,
       };
     },
-    [userRole, name, phone, healthId, dateOfBirth, weight, skipAbha],
+    [userRole, name, phone, healthId, dateOfBirth, weight, skipAbha, city, pincode, latitude, longitude],
   );
+
+  const detectLocation = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      toast({ title: "Not supported", description: "Your browser does not support location detection.", variant: "destructive" });
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLatitude(pos.coords.latitude);
+        setLongitude(pos.coords.longitude);
+        setLocating(false);
+        toast({ title: "Location captured", description: "We saved your coordinates to personalize care." });
+      },
+      (err) => {
+        setLocating(false);
+        toast({ title: "Couldn't get location", description: err.message || "Please enter your city and pincode manually.", variant: "destructive" });
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+    );
+  }, [toast]);
 
   const redirectBasedOnRole = useCallback(async (_userId: string, _fallbackRole?: UserRole | null) => {
     // Vyana is consumer-only: every signed-in user goes to the patient app.
@@ -157,6 +191,10 @@ const Auth = () => {
           date_of_birth: signupDraft?.dateOfBirth ?? null,
           weight: Number.isFinite(patientWeight) ? patientWeight : null,
           age: calculateAge(signupDraft?.dateOfBirth),
+          city: signupDraft?.city ?? null,
+          pincode: signupDraft?.pincode ?? null,
+          latitude: signupDraft?.latitude ?? null,
+          longitude: signupDraft?.longitude ?? null,
         });
 
         if (insertPatientError) throw insertPatientError;
@@ -568,7 +606,51 @@ const Auth = () => {
                         <Input id="weight" type="number" placeholder="e.g. 65" value={weight} onChange={(e) => setWeight(e.target.value)} min="1" max="300" className="bg-background/50" />
                       </div>
 
-                      {/* Consent Form */}
+                      {/* Location */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
+                            Location
+                          </Label>
+                          <button
+                            type="button"
+                            onClick={detectLocation}
+                            disabled={locating}
+                            className="text-xs text-primary hover:underline inline-flex items-center gap-1 disabled:opacity-50"
+                          >
+                            {locating ? (
+                              <><Loader2 className="h-3 w-3 animate-spin" /> Detecting…</>
+                            ) : latitude && longitude ? (
+                              <><CheckCircle2 className="h-3 w-3" /> Location captured</>
+                            ) : (
+                              <>Use my current location</>
+                            )}
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input
+                            id="city"
+                            placeholder="City"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            className="bg-background/50"
+                            maxLength={80}
+                          />
+                          <Input
+                            id="pincode"
+                            placeholder="Pincode"
+                            value={pincode}
+                            onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                            inputMode="numeric"
+                            className="bg-background/50"
+                          />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Helps us find nearby care and personalize alerts. Optional.
+                        </p>
+                      </div>
+
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                         <div className="flex items-start gap-2">
                           <FileCheck className="h-5 w-5 text-primary mt-0.5 shrink-0" />
