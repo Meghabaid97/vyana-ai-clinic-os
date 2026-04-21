@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 
 const sections = [
   { id: "hero", label: "Opening" },
+  { id: "problem", label: "Problem" },
   { id: "voices", label: "Voices" },
-  { id: "story", label: "Film" },
+  { id: "wedge", label: "Wedge" },
+  { id: "how", label: "How" },
+  { id: "output", label: "Outcome" },
   { id: "research", label: "Science" },
-  { id: "how", label: "Method" },
 ];
 
 const SideRail = () => {
@@ -45,7 +47,6 @@ const SideRail = () => {
       aria-label="Section navigation"
       className="hidden xl:block fixed left-5 top-1/2 -translate-y-1/2 z-40"
     >
-      {/* Italic word-ladder — no dots, no roman numerals, no track */}
       <ul className="flex flex-col gap-3">
         {sections.map((s) => {
           const isActive = active === s.id;
@@ -57,7 +58,7 @@ const SideRail = () => {
                 className={`group flex items-baseline cursor-pointer font-serif italic text-[14px] leading-none transition-all duration-300 ${
                   isActive
                     ? "text-foreground translate-x-1"
-                    : "text-foreground/35 group-hover:text-foreground/70 group-hover:translate-x-0.5"
+                    : "text-foreground/35 hover:text-foreground/70 hover:translate-x-0.5"
                 }`}
               >
                 {s.label}
