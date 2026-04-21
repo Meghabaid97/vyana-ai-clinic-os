@@ -723,8 +723,18 @@ const ClaimAssistant = () => {
                   <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">No health records found. Upload records in the Health Records tab first.</p>
                 </div>
-              ) : (
-                healthRecords.map(record => (
+              ) : (() => {
+                const targetCategory = mapDocCategoryToRecord(pickerCategory);
+                const filtered = healthRecords.filter(r => r.category === targetCategory || r.category === "other");
+                if (filtered.length === 0) {
+                  return (
+                    <div className="text-center py-8">
+                      <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">No matching records in this category. Upload one in Records first.</p>
+                    </div>
+                  );
+                }
+                return filtered.map(record => (
                   <button
                     key={record.id}
                     onClick={() => pickHealthRecord(record)}
@@ -750,8 +760,9 @@ const ClaimAssistant = () => {
                       <Check className="h-4 w-4 text-muted-foreground shrink-0" />
                     )}
                   </button>
-                ))
-              )}
+                ));
+              })()
+              }
             </div>
           </DialogContent>
         </Dialog>
