@@ -74,6 +74,7 @@ const App = () => (
             <Route path="visit" element={<DoctorVisitMode />} />
             <Route path="recovery" element={<ClaimAssistant />} />
             <Route path="support" element={<Support />} />
+            <Route path="domain-checklist" element={<DomainChecklist />} />
             <Route path="medical-history" element={<PatientMedicalHistory />} />
             <Route path="emergency-contacts" element={<EmergencyContacts />} />
             <Route path="share-receive" element={<ShareReceive />} />
