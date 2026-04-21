@@ -5,6 +5,7 @@ import {
   ArrowRight, Upload, FileText, TrendingUp, Link2, Shield, Calendar,
   Heart, Droplets, Activity, Loader2, ScanLine, IndianRupee,
 } from "lucide-react";
+import HowItWorksTour from "@/components/HowItWorksTour";
 
 interface PatientProfile {
   id: string;
@@ -28,6 +29,7 @@ const AppHome = () => {
   const [recordDates, setRecordDates] = useState<string[]>([]);
   const [homeVitals, setHomeVitals] = useState<HomeVitals | null>(null);
   const [vitalsLoading, setVitalsLoading] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
 
   useEffect(() => { loadData(); }, []);
 
@@ -120,7 +122,7 @@ const AppHome = () => {
               <ArrowRight className="h-4 w-4 text-primary-foreground shrink-0 transition-transform group-hover:translate-x-0.5" />
             </button>
             <button
-              onClick={() => navigate("/why-vyana")}
+              onClick={() => setTourOpen(true)}
               className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left hover:border-primary/30 transition-colors"
             >
               <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -331,6 +333,12 @@ const AppHome = () => {
           <span className="font-semibold text-foreground">Vyana</span> · Every patient deserves a doctor who knows their story.
         </p>
       </section>
+
+      <HowItWorksTour
+        open={tourOpen}
+        onOpenChange={setTourOpen}
+        onFinish={() => navigate("/app/records")}
+      />
     </div>
   );
 };
