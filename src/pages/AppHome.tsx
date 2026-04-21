@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, Upload, Link2, Shield } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
-import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
+import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
 
 interface PatientProfile {
   id: string;
@@ -82,6 +82,9 @@ const AppHome = () => {
       <div className="lg:grid lg:grid-cols-12 lg:gap-6 lg:mt-2">
         {/* MAIN column (8 cols on desktop) */}
         <div className="lg:col-span-8 lg:space-y-6">
+          {/* ── Latest vitals at a glance ── */}
+          <LatestVitalsStrip patientId={profile?.id ?? null} />
+
           {/* ── Your story so far (KEEP) ── */}
           <section className="px-4 sm:px-5 pb-5 lg:px-0 lg:pb-0">
             <h2 className="mb-1 text-lg lg:text-2xl font-bold text-foreground leading-tight">
@@ -139,8 +142,6 @@ const AppHome = () => {
             </div>
           </section>
 
-          {/* ── What changed since last visit ── */}
-          <DashboardChangesCard patientId={profile?.id ?? null} />
         </div>
 
         {/* SIDE column (4 cols on desktop) */}
