@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import heroPainting from "@/assets/landing-hero-painting.jpg";
+import WatchItWorkModal from "@/components/WatchItWorkModal";
 
 const EditorialHero = () => {
   const navigate = useNavigate();
+  const [demoOpen, setDemoOpen] = useState(false);
 
   return (
     <section id="hero" className="relative min-h-[100svh] w-full overflow-hidden">
@@ -51,15 +54,18 @@ const EditorialHero = () => {
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => navigate("/why-vyana")}
-                className="text-[15px] text-foreground/70 hover:text-foreground h-11"
+                onClick={() => setDemoOpen(true)}
+                className="group text-[15px] text-foreground/70 hover:text-foreground h-11"
               >
-                Read our story
+                <Play className="mr-2 h-4 w-4 fill-current" />
+                Watch how it works
               </Button>
             </div>
           </div>
         </div>
       </div>
+
+      <WatchItWorkModal open={demoOpen} onOpenChange={setDemoOpen} />
     </section>
   );
 };
