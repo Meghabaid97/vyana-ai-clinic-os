@@ -25,6 +25,7 @@ import {
   summarizeHealthRecord,
   createMedicationReminders,
 } from "@/lib/healthRecordsPipeline";
+import { mapDocCategoryToRecord } from "@/lib/recordCategories";
 
 // ─── Types ───
 
@@ -197,10 +198,11 @@ const ClaimAssistant = () => {
     setDocs(prev => [...prev, ...newDocs]);
     if (fileInputRef.current) fileInputRef.current.value = "";
 
-    // Auto-save each file to health records in background
+    // Auto-save each file to health records in background, tagged with the chosen category
     if (patientId && userId) {
       for (const doc of newDocs) {
-        saveToHealthRecords(doc.file, patientId, userId)
+        const recordCategory = mapDocCategoryToRecord(doc.category);
+        saveToHealthRecords(doc.file, patientId, userId, recordCategory)
           .then(async (result) => {
             if (!result) return;
             setSavedRecordIds(prev => new Set([...prev, doc.id]));
