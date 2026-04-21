@@ -638,7 +638,7 @@ const PrescriptionInterpreter = () => {
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => { setImagePreview(null); setResult(null); setSelectedMeds(new Set()); }}
+                onClick={() => { setImagePreview(null); setImageFile(null); setResult(null); setSelectedMeds(new Set()); }}
               >
                 Scan Another
               </Button>
@@ -650,6 +650,48 @@ const PrescriptionInterpreter = () => {
           )}
         </section>
       )}
+
+      {/* Saved Prescriptions Picker */}
+      <Dialog open={showRecordsPicker} onOpenChange={setShowRecordsPicker}>
+        <DialogContent className="max-w-md max-h-[70vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FolderOpen className="h-5 w-5 text-primary" /> Saved Prescriptions
+            </DialogTitle>
+            <DialogDescription>Pick a prescription record to interpret</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            {loadingSavedRx ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : savedRxRecords.length === 0 ? (
+              <div className="text-center py-8">
+                <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">No saved prescriptions yet. Upload one in Records under the Prescriptions tab.</p>
+              </div>
+            ) : (
+              savedRxRecords.map(rec => (
+                <button
+                  key={rec.id}
+                  onClick={() => pickSavedRx(rec)}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors text-left"
+                >
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{rec.file_name}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {new Date(rec.uploaded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </p>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
