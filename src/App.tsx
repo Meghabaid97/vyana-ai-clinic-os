@@ -61,7 +61,6 @@ const App = () => (
             <Route index element={<AppHome />} />
             <Route path="trends" element={<HealthTrends />} />
             <Route path="records" element={<PatientHealthRecords />} />
-            <Route path="appointments" element={<PatientAppointments />} />
             <Route path="story" element={<WhyVyana />} />
             <Route path="profile" element={<PatientProfileEdit />} />
             <Route path="timeline" element={<PatientTimeline />} />
@@ -74,25 +73,14 @@ const App = () => (
             <Route path="support" element={<Support />} />
             <Route path="medical-history" element={<PatientMedicalHistory />} />
             <Route path="emergency-contacts" element={<EmergencyContacts />} />
-            <Route path="find-doctors" element={<FindDoctors />} />
             <Route path="share-receive" element={<ShareReceive />} />
           </Route>
 
           {/* Patient standalone pages */}
-          <Route path="/consultation" element={<Consultation />} />
-          <Route path="/consultations" element={<ConsultationsList />} />
           <Route path="/patient-medical-history" element={<PatientMedicalHistory />} />
-          <Route path="/find-doctors" element={<FindDoctors />} />
           <Route path="/patient-profile-page" element={<PatientProfilePage />} />
           <Route path="/emergency-contacts" element={<EmergencyContacts />} />
           <Route path="/emergency-access/:token" element={<EmergencyAccess />} />
-
-          {/* Doctor */}
-          <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-          <Route path="/doctor-appointments" element={<DoctorAppointments />} />
-          <Route path="/doctor-profile-setup" element={<DoctorProfileSetup />} />
-          <Route path="/patient-view/:patientId" element={<DoctorPatientView />} />
-          <Route path="/shared-records" element={<SharedHealthRecords />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
