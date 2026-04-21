@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Volume2, VolumeX, X, Play } from "lucide-react";
 
 interface Props {
@@ -48,12 +47,10 @@ const WatchItWorkModal = ({ open, onOpenChange }: Props) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm p-0 gap-0 overflow-hidden border-border bg-background">
-        <VisuallyHidden>
-          <DialogTitle>Watch Vyana in action</DialogTitle>
-          <DialogDescription>
-            A short demo video showing how Vyana organizes your health records.
-          </DialogDescription>
-        </VisuallyHidden>
+        <DialogTitle className="sr-only">Watch Vyana in action</DialogTitle>
+        <DialogDescription className="sr-only">
+          A short demo video showing how Vyana organizes your health records.
+        </DialogDescription>
 
         <button
           onClick={() => onOpenChange(false)}
