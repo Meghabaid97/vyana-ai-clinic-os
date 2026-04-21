@@ -8,7 +8,6 @@ const EditorialHero = () => {
 
   return (
     <section id="hero" className="relative min-h-[100svh] w-full overflow-hidden">
-      {/* Full-bleed sepia painting backdrop */}
       <div className="absolute inset-0">
         <img
           src={heroPainting}
@@ -17,45 +16,43 @@ const EditorialHero = () => {
           width={1920}
           height={1280}
         />
-        {/* Lighter ivory wash — lets the painting breathe */}
-        <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-background/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/75 via-background/35 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/55 via-transparent to-transparent" />
-        {/* Bottom fade into next section */}
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent" />
       </div>
 
-      {/* Content */}
       <div className="relative z-10 min-h-[100svh] flex items-center">
         <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-28 pb-20">
-          <div className="max-w-[640px] space-y-8 animate-fade-in-slow">
+          <div className="max-w-[680px] space-y-8 animate-fade-in-slow">
             <p className="font-serif italic text-[15px] text-foreground/65">
-              A longitudinal health memory layer
+              A clinical memory system for every Indian family
             </p>
 
             <h1 className="font-serif text-[44px] sm:text-[64px] lg:text-[84px] leading-[0.98] tracking-[-0.02em] text-foreground">
-              Every patient deserves
+              Every doctor visit
               <br />
-              <em className="italic text-primary font-normal">a doctor who knows their story.</em>
+              starts from zero.
+              <br />
+              <em className="italic text-primary font-normal">Vyana fixes that.</em>
             </h1>
 
-            <p className="text-[17px] leading-[1.65] text-foreground/85 max-w-[520px] relative pl-14">
-              <span
-                className="absolute left-0 top-0 font-serif text-[64px] leading-[0.85] text-primary"
-                aria-hidden
-              >
-                V
-              </span>
-              yana turns scattered prescriptions, lab reports and hospital files
-              into one calm, doctor-ready record. So when it matters most, your
-              family is never starting from zero.
+            <p className="text-[17px] leading-[1.65] text-foreground/85 max-w-[560px]">
+              Build a continuous health memory from your reports, prescriptions
+              and tests, so doctors never make decisions without context again.
             </p>
+
+            <ul className="space-y-2 text-[15px] text-foreground/75 max-w-[520px]">
+              <li>— No more repeating your medical history</li>
+              <li>— No more lost reports</li>
+              <li>— No more unnecessary tests</li>
+            </ul>
 
             <div className="flex items-center gap-3 pt-2">
               <Button
                 onClick={() => navigate("/auth")}
                 className="group h-11 px-6 text-[15px] rounded-full"
               >
-                Try Vyana now
+                Upload your first report
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
               <Button
@@ -63,7 +60,7 @@ const EditorialHero = () => {
                 onClick={() => navigate("/why-vyana")}
                 className="text-[15px] text-foreground/70 hover:text-foreground h-11"
               >
-                Read our story
+                See the problem we solve
               </Button>
             </div>
           </div>
