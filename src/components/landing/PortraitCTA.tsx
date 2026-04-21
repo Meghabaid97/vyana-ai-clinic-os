@@ -102,9 +102,7 @@ const PortraitCTA = () => {
             boxShadow: "0 40px 100px -20px rgba(0,0,0,0.7)",
           }}
         >
-          <p className="font-serif italic text-[14px] text-primary/90 mb-6">
-            Begin
-          </p>
+          {/* eyebrow removed */}
           <h2 className="font-serif text-[36px] sm:text-[52px] leading-[1.05] tracking-[-0.02em] text-white">
             Start your family's
             <br />
