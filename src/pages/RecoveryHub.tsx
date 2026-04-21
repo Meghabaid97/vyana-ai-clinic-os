@@ -153,7 +153,7 @@ const ClaimAssistant = () => {
   // Health records picker
   const [showRecordsPicker, setShowRecordsPicker] = useState(false);
   const [pickerCategory, setPickerCategory] = useState<DocCategory>("discharge_summary");
-  const [healthRecords, setHealthRecords] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; file_size: number; uploaded_at: string }>>([]);
+  const [healthRecords, setHealthRecords] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; file_size: number; uploaded_at: string; category: string }>>([]);
   const [loadingRecords, setLoadingRecords] = useState(false);
   const [downloadingRecord, setDownloadingRecord] = useState<string | null>(null);
 
@@ -231,7 +231,7 @@ const ClaimAssistant = () => {
       try {
         const { data } = await supabase
           .from("health_records")
-          .select("id, file_name, file_path, file_type, file_size, uploaded_at")
+          .select("id, file_name, file_path, file_type, file_size, uploaded_at, category")
           .eq("patient_id", patientId)
           .order("uploaded_at", { ascending: false });
         setHealthRecords(data || []);
