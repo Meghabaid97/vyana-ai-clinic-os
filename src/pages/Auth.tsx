@@ -191,6 +191,10 @@ const Auth = () => {
           date_of_birth: signupDraft?.dateOfBirth ?? null,
           weight: Number.isFinite(patientWeight) ? patientWeight : null,
           age: calculateAge(signupDraft?.dateOfBirth),
+          city: signupDraft?.city ?? null,
+          pincode: signupDraft?.pincode ?? null,
+          latitude: signupDraft?.latitude ?? null,
+          longitude: signupDraft?.longitude ?? null,
         });
 
         if (insertPatientError) throw insertPatientError;
