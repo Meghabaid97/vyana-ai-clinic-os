@@ -14,7 +14,7 @@ import AppShell from "./components/AppShell";
 import AppHome from "./pages/AppHome";
 import HealthTrends from "./pages/HealthTrends";
 import PatientMedicalHistory from "./pages/PatientMedicalHistory";
-import PatientAppointments from "./pages/PatientAppointments";
+
 import PatientHealthRecords from "./pages/PatientHealthRecords";
 import PatientProfileEdit from "./pages/PatientProfileEdit";
 import PatientBriefing from "./pages/PatientBriefing";
