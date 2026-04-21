@@ -25,6 +25,27 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { RECORD_CATEGORIES, type RecordCategory } from "@/lib/recordCategories";
+
+interface HealthRecord {
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
+  ai_summary: string | null;
+  consent_shared_with: string[] | null;
+  uploaded_at: string;
+  category: string;
+}
 
 interface HealthRecord {
   id: string;
