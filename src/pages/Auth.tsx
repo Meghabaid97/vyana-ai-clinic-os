@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, Stethoscope, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight, FileCheck } from "lucide-react";
+import { Mail, Lock, Chrome, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight, FileCheck } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { validatePassword, validateEmail, validateHealthId } from "@/lib/validation";
@@ -15,7 +15,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import LanguageSelector from "@/components/LanguageSelector";
 import { t, useLanguage } from "@/lib/i18n";
 
-type UserRole = "doctor" | "patient";
+type UserRole = "patient";
 type AuthMode = "password" | "otp";
 type OtpMethod = "email" | "phone";
 
