@@ -1,16 +1,17 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Camera, Upload, Pen, Loader2, Sparkles, AlertTriangle, CheckCircle2,
-  XCircle, Pill, Clock, Plus, Trash2, Undo2, Info,
+  XCircle, Pill, Clock, Plus, Trash2, Undo2, Info, FolderOpen, FileText,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { saveToHealthRecords } from "@/lib/healthRecordsPipeline";
 
 interface ExtractedMedication {
   name: string;
@@ -72,21 +73,73 @@ const frequencyToTimeSlots: Record<string, string[]> = {
 
 const PrescriptionInterpreter = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isInterpreting, setIsInterpreting] = useState(false);
   const [result, setResult] = useState<PrescriptionResult | null>(null);
   const [showCanvas, setShowCanvas] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSavingReminders, setIsSavingReminders] = useState(false);
   const [selectedMeds, setSelectedMeds] = useState<Set<number>>(new Set());
+  const [showRecordsPicker, setShowRecordsPicker] = useState(false);
+  const [savedRxRecords, setSavedRxRecords] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; uploaded_at: string }>>([]);
+  const [loadingSavedRx, setLoadingSavedRx] = useState(false);
+  const [patientCtx, setPatientCtx] = useState<{ patientId: string; userId: string } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
   const { toast } = useToast();
 
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: patient } = await supabase
+        .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+      if (patient) setPatientCtx({ patientId: patient.id, userId: session.user.id });
+    })();
+  }, []);
+
+  const openSavedRxPicker = async () => {
+    setShowRecordsPicker(true);
+    if (savedRxRecords.length === 0 && patientCtx) {
+      setLoadingSavedRx(true);
+      try {
+        const { data } = await supabase
+          .from("health_records")
+          .select("id, file_name, file_path, file_type, uploaded_at")
+          .eq("patient_id", patientCtx.patientId)
+          .eq("category", "prescription")
+          .order("uploaded_at", { ascending: false });
+        setSavedRxRecords(data || []);
+      } finally {
+        setLoadingSavedRx(false);
+      }
+    }
+  };
+
+  const pickSavedRx = async (rec: { id: string; file_name: string; file_path: string; file_type: string }) => {
+    try {
+      const { data } = await supabase.storage.from("health-records").download(rec.file_path);
+      if (!data) throw new Error("Could not load record");
+      const file = new window.File([data], rec.file_name, { type: rec.file_type });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+        setImageFile(file);
+        setResult(null);
+        setShowRecordsPicker(false);
+      };
+      reader.readAsDataURL(data);
+    } catch (err: any) {
+      toast({ title: "Failed to load", description: err.message, variant: "destructive" });
+    }
+  };
+
   // Camera / file upload
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result as string);
