@@ -109,7 +109,7 @@ const AppHome = () => {
               ))}
             </div>
 
-            <div className="mt-4 rounded-2xl border border-border bg-gradient-to-br from-card via-card to-primary/[0.03] overflow-hidden">
+            <div className="mt-4 rounded-2xl border border-border bg-card overflow-hidden">
               {totalRecords === 0 ? (
                 <button onClick={() => navigate("/app/records")} className="group flex items-center gap-3 w-full min-w-0 p-4 text-left hover:bg-primary/5 transition-colors">
                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -122,65 +122,62 @@ const AppHome = () => {
                   <ArrowRight className="h-4 w-4 text-primary shrink-0 transition-transform group-hover:translate-x-0.5" />
                 </button>
               ) : (
-                <div className="p-4 sm:p-5">
-                  {/* Header row */}
-                  <div className="flex items-baseline justify-between mb-4">
-                    <div>
-                      <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground">Your timeline</p>
-                      <p className="mt-1 text-2xl lg:text-3xl font-bold text-foreground tracking-tight">
-                        {totalRecords} <span className="text-base font-medium text-muted-foreground">record{totalRecords !== 1 ? "s" : ""}</span>
-                      </p>
-                    </div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                      Growing
-                    </span>
-                  </div>
+                (() => {
+                  // Compute friendly stats
+                  const firstDate = recordDates[0];
+                  const lastDate = recordDates[recordDates.length - 1];
+                  const uniqueDays = new Set(recordDates).size;
+                  return (
+                    <button
+                      onClick={() => navigate("/app/records")}
+                      className="group block w-full text-left"
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                          </span>
+                          <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
+                            Your story so far
+                          </p>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                      </div>
 
-                  {/* Timeline rail */}
-                  {(() => {
-                    // Dedupe consecutive dates → show count badge
-                    const grouped: { date: string; count: number }[] = [];
-                    recordDates.forEach((d) => {
-                      const last = grouped[grouped.length - 1];
-                      if (last && last.date === d) last.count += 1;
-                      else grouped.push({ date: d, count: 1 });
-                    });
-                    return (
-                      <div className="relative -mx-1 overflow-x-auto pb-1">
-                        <div className="relative flex items-end gap-5 sm:gap-7 px-1 min-w-max">
-                          {/* Rail line */}
-                          <div className="absolute left-1 right-1 bottom-[26px] h-px bg-gradient-to-r from-border via-primary/30 to-primary" />
-                          {grouped.map((g, i) => (
-                            <div key={i} className="relative flex flex-col items-center shrink-0">
-                              <div className="relative">
-                                <div className="h-2.5 w-2.5 rounded-full bg-primary/70 ring-4 ring-background" />
-                                {g.count > 1 && (
-                                  <span className="absolute -top-2 -right-3 min-w-[16px] h-[16px] rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center px-1">
-                                    {g.count}
-                                  </span>
-                                )}
-                              </div>
-                              <span className="mt-2 text-[10px] whitespace-nowrap text-muted-foreground">{g.date}</span>
-                            </div>
-                          ))}
-                          {/* Today marker */}
-                          <div className="relative flex flex-col items-center shrink-0">
-                            <div className="relative">
-                              <div className="h-3.5 w-3.5 rounded-full bg-primary ring-4 ring-background shadow-[0_0_0_4px_hsl(var(--primary)/0.18)]" />
-                            </div>
-                            <span className="mt-2 text-[10px] font-semibold whitespace-nowrap text-primary">Today</span>
-                          </div>
+                      {/* Big number */}
+                      <div className="px-5">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-none">
+                            {totalRecords}
+                          </span>
+                          <span className="text-base font-medium text-muted-foreground">
+                            record{totalRecords !== 1 ? "s" : ""} held
+                          </span>
+                        </div>
+                        <p className="mt-2 text-[13px] text-foreground/80 leading-relaxed">
+                          Every detail you save is one less question your next doctor has to ask.
+                        </p>
+                      </div>
+
+                      {/* Stat tiles */}
+                      <div className="mt-4 grid grid-cols-3 divide-x divide-border border-t border-border bg-muted/30">
+                        <div className="px-4 py-3">
+                          <p className="text-[10px] font-medium tracking-wider uppercase text-muted-foreground">First</p>
+                          <p className="mt-0.5 text-sm font-semibold text-foreground">{firstDate}</p>
+                        </div>
+                        <div className="px-4 py-3">
+                          <p className="text-[10px] font-medium tracking-wider uppercase text-muted-foreground">Latest</p>
+                          <p className="mt-0.5 text-sm font-semibold text-foreground">{lastDate}</p>
+                        </div>
+                        <div className="px-4 py-3">
+                          <p className="text-[10px] font-medium tracking-wider uppercase text-muted-foreground">Active days</p>
+                          <p className="mt-0.5 text-sm font-semibold text-primary">{uniqueDays}</p>
                         </div>
                       </div>
-                    );
-                  })()}
-
-                  {/* Footer line */}
-                  <p className="mt-4 text-[12.5px] text-muted-foreground leading-relaxed">
-                    Every record adds context the next doctor will thank you for.
-                  </p>
-                </div>
+                    </button>
+                  );
+                })()
               )}
             </div>
           </section>
