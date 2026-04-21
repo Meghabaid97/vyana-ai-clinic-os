@@ -15,13 +15,13 @@ export const SAMPLE_BRIEFING = {
       "Recent chest pain workup",
     ],
     summary:
-      "58-year-old male with long-standing T2 diabetes and hypertension. HbA1c trending upward over last 6 months. Presented to ER 2 weeks ago with atypical chest pain — cardiac workup negative, discharged on revised statin dose.",
+      "58-year-old male with long-standing T2 diabetes and hypertension. HbA1c trending upward over last 6 months. Presented to ER 2 weeks ago with atypical chest pain, cardiac workup negative, discharged on revised statin dose.",
   },
   key_trends: [
     { vital: "HbA1c", direction: "increasing", detail: "7.2% → 7.6% → 8.1% over last 6 months", concern_level: "action_needed" },
     { vital: "Blood Pressure", direction: "decreasing", detail: "148/94 → 132/84 since amlodipine added", concern_level: "monitor" },
     { vital: "LDL Cholesterol", direction: "decreasing", detail: "142 → 98 mg/dL after statin uptitration", concern_level: "stable" },
-    { vital: "Creatinine", direction: "stable", detail: "1.1 mg/dL — kidney function preserved", concern_level: "stable" },
+    { vital: "Creatinine", direction: "stable", detail: "1.1 mg/dL, kidney function preserved", concern_level: "stable" },
   ],
   current_medications: [
     { name: "Metformin 1000mg BD", status: "active", note: "12 yrs, well tolerated" },
@@ -43,7 +43,7 @@ export const SAMPLE_BRIEFING = {
     },
   ],
   recent_changes: [
-    "ER visit 2 weeks ago — chest pain, cardiac workup negative",
+    "ER visit 2 weeks ago, chest pain, cardiac workup negative",
     "Statin uptitrated 20mg → 40mg",
     "Amlodipine 5mg added 6 weeks ago",
     "HbA1c rose from 7.6% to 8.1% at last visit",
@@ -55,7 +55,7 @@ export const SAMPLE_BRIEFING = {
     objective:
       "BP 132/84, HR 78, BMI 28.4. Recent labs: HbA1c 8.1, LDL 98, Cr 1.1, eGFR 72. ECG NSR. ER troponin x2 negative (2 wks ago).",
     assessment:
-      "1) T2DM — uncontrolled, rising HbA1c despite dual oral agents. 2) HTN — improved on amlodipine. 3) HLD — at goal on atorva 40. 4) S/p chest pain workup — non-cardiac.",
+      "1) T2DM, uncontrolled, rising HbA1c despite dual oral agents. 2) HTN, improved on amlodipine. 3) HLD, at goal on atorva 40. 4) S/p chest pain workup, non-cardiac.",
     plan:
       "Intensify diabetes therapy (consider GLP-1 RA). Continue current BP/lipid regimen. Repeat HbA1c in 3 months. Stress test if chest pain recurs. Diabetes educator referral.",
   },
@@ -72,5 +72,5 @@ export const SAMPLE_BRIEFING = {
     },
   ],
   disclaimer:
-    "This is a demo briefing using sample patient data. AI-generated content for illustration only — not real clinical data.",
+    "This is a demo briefing using sample patient data. AI-generated content for illustration only, not real clinical data.",
 } as const;

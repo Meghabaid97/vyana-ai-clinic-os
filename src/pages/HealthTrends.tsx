@@ -339,7 +339,7 @@ const HealthTrends = () => {
   const sourceFileName = records[0]?.file_name || latestHistory?.source_file_name || "Unknown";
 
   const fmt = (val: number | null | undefined, decimals = 0): string => {
-    if (val === null || val === undefined) return "—";
+    if (val === null || val === undefined) return "-";
     return decimals > 0 ? val.toFixed(decimals) : String(Math.round(val));
   };
 
@@ -370,9 +370,9 @@ const HealthTrends = () => {
     {
       title: "Cardiovascular",
       vitals: [
-        { icon: Heart, key: "bp_systolic", label: "BP (Systolic)", value: fmt(v.bp_systolic), unit: "mmHg", range: "90–120", status: getStatus(v.bp_systolic, 90, 120) },
-        { icon: Heart, key: "bp_diastolic", label: "BP (Diastolic)", value: fmt(v.bp_diastolic), unit: "mmHg", range: "60–80", status: getStatus(v.bp_diastolic, 60, 80) },
-        { icon: Activity, key: "heart_rate", label: "Heart Rate", value: fmt(v.heart_rate), unit: "bpm", range: "60–100", status: getStatus(v.heart_rate, 60, 100) },
+        { icon: Heart, key: "bp_systolic", label: "BP (Systolic)", value: fmt(v.bp_systolic), unit: "mmHg", range: "90-120", status: getStatus(v.bp_systolic, 90, 120) },
+        { icon: Heart, key: "bp_diastolic", label: "BP (Diastolic)", value: fmt(v.bp_diastolic), unit: "mmHg", range: "60-80", status: getStatus(v.bp_diastolic, 60, 80) },
+        { icon: Activity, key: "heart_rate", label: "Heart Rate", value: fmt(v.heart_rate), unit: "bpm", range: "60-100", status: getStatus(v.heart_rate, 60, 100) },
         { icon: Droplets, key: "total_cholesterol", label: "Total Cholesterol", value: fmt(v.total_cholesterol), unit: "mg/dL", range: "<200", status: getStatus(v.total_cholesterol, 0, 200) },
         { icon: Droplets, key: "hdl", label: "HDL Cholesterol", value: fmt(v.hdl), unit: "mg/dL", range: ">40", status: getStatus(v.hdl, 40, 999) },
         { icon: Droplets, key: "ldl", label: "LDL Cholesterol", value: fmt(v.ldl), unit: "mg/dL", range: "<100", status: getStatus(v.ldl, 0, 100) },
@@ -382,52 +382,52 @@ const HealthTrends = () => {
     {
       title: "Metabolic",
       vitals: [
-        { icon: Zap, key: "fasting_blood_sugar", label: "Fasting Blood Sugar", value: fmt(v.fasting_blood_sugar), unit: "mg/dL", range: "70–100", status: getStatus(v.fasting_blood_sugar, 70, 100) },
-        { icon: Zap, key: "hba1c", label: "HbA1c", value: fmt(v.hba1c, 1), unit: "%", range: "4.0–5.6", status: getStatus(v.hba1c, 4.0, 5.6) },
+        { icon: Zap, key: "fasting_blood_sugar", label: "Fasting Blood Sugar", value: fmt(v.fasting_blood_sugar), unit: "mg/dL", range: "70-100", status: getStatus(v.fasting_blood_sugar, 70, 100) },
+        { icon: Zap, key: "hba1c", label: "HbA1c", value: fmt(v.hba1c, 1), unit: "%", range: "4.0-5.6", status: getStatus(v.hba1c, 4.0, 5.6) },
         { icon: Zap, key: "post_prandial_glucose", label: "Post-Prandial Glucose", value: fmt(v.post_prandial_glucose), unit: "mg/dL", range: "<140", status: getStatus(v.post_prandial_glucose, 0, 140) },
         { icon: TrendingUp, key: "weight", label: "Weight", value: fmt(v.weight, 1), unit: "kg", range: "Patient record", status: "none" as const },
-        { icon: TrendingUp, key: "bmi", label: "BMI", value: fmt(v.bmi, 1), unit: "kg/m²", range: "18.5–24.9", status: getStatus(v.bmi, 18.5, 24.9) },
+        { icon: TrendingUp, key: "bmi", label: "BMI", value: fmt(v.bmi, 1), unit: "kg/m²", range: "18.5-24.9", status: getStatus(v.bmi, 18.5, 24.9) },
       ],
     },
     {
       title: "Blood & Immunity",
       vitals: [
-        { icon: Droplets, key: "hemoglobin", label: "Hemoglobin", value: fmt(v.hemoglobin, 1), unit: "g/dL", range: "12–17.5", status: getStatus(v.hemoglobin, 12, 17.5) },
-        { icon: Droplets, key: "wbc", label: "WBC Count", value: fmt(v.wbc), unit: "/μL", range: "4000–11000", status: getStatus(v.wbc, 4000, 11000) },
-        { icon: Droplets, key: "platelet_count", label: "Platelet Count", value: fmt(v.platelet_count), unit: "/μL", range: "150K–400K", status: getStatus(v.platelet_count, 150000, 400000) },
-        { icon: Droplets, key: "rbc", label: "RBC Count", value: fmt(v.rbc, 1), unit: "M/μL", range: "4.5–5.5", status: getStatus(v.rbc, 4.5, 5.5) },
-        { icon: Droplets, key: "esr", label: "ESR", value: fmt(v.esr), unit: "mm/hr", range: "0–20", status: getStatus(v.esr, 0, 20) },
+        { icon: Droplets, key: "hemoglobin", label: "Hemoglobin", value: fmt(v.hemoglobin, 1), unit: "g/dL", range: "12-17.5", status: getStatus(v.hemoglobin, 12, 17.5) },
+        { icon: Droplets, key: "wbc", label: "WBC Count", value: fmt(v.wbc), unit: "/μL", range: "4000-11000", status: getStatus(v.wbc, 4000, 11000) },
+        { icon: Droplets, key: "platelet_count", label: "Platelet Count", value: fmt(v.platelet_count), unit: "/μL", range: "150K-400K", status: getStatus(v.platelet_count, 150000, 400000) },
+        { icon: Droplets, key: "rbc", label: "RBC Count", value: fmt(v.rbc, 1), unit: "M/μL", range: "4.5-5.5", status: getStatus(v.rbc, 4.5, 5.5) },
+        { icon: Droplets, key: "esr", label: "ESR", value: fmt(v.esr), unit: "mm/hr", range: "0-20", status: getStatus(v.esr, 0, 20) },
       ],
     },
     {
       title: "Kidney & Liver",
       vitals: [
-        { icon: Bone, key: "creatinine", label: "Creatinine", value: fmt(v.creatinine, 1), unit: "mg/dL", range: "0.7–1.3", status: getStatus(v.creatinine, 0.7, 1.3) },
-        { icon: Bone, key: "bun", label: "BUN", value: fmt(v.bun), unit: "mg/dL", range: "7–20", status: getStatus(v.bun, 7, 20) },
-        { icon: Bone, key: "uric_acid", label: "Uric Acid", value: fmt(v.uric_acid, 1), unit: "mg/dL", range: "3.5–7.2", status: getStatus(v.uric_acid, 3.5, 7.2) },
-        { icon: Pill, key: "sgot", label: "SGOT (AST)", value: fmt(v.sgot), unit: "U/L", range: "8–33", status: getStatus(v.sgot, 8, 33) },
-        { icon: Pill, key: "sgpt", label: "SGPT (ALT)", value: fmt(v.sgpt), unit: "U/L", range: "4–36", status: getStatus(v.sgpt, 4, 36) },
-        { icon: Pill, key: "bilirubin", label: "Bilirubin", value: fmt(v.bilirubin, 1), unit: "mg/dL", range: "0.1–1.2", status: getStatus(v.bilirubin, 0.1, 1.2) },
-        { icon: Pill, key: "albumin", label: "Albumin", value: fmt(v.albumin, 1), unit: "g/dL", range: "3.5–5.5", status: getStatus(v.albumin, 3.5, 5.5) },
+        { icon: Bone, key: "creatinine", label: "Creatinine", value: fmt(v.creatinine, 1), unit: "mg/dL", range: "0.7-1.3", status: getStatus(v.creatinine, 0.7, 1.3) },
+        { icon: Bone, key: "bun", label: "BUN", value: fmt(v.bun), unit: "mg/dL", range: "7-20", status: getStatus(v.bun, 7, 20) },
+        { icon: Bone, key: "uric_acid", label: "Uric Acid", value: fmt(v.uric_acid, 1), unit: "mg/dL", range: "3.5-7.2", status: getStatus(v.uric_acid, 3.5, 7.2) },
+        { icon: Pill, key: "sgot", label: "SGOT (AST)", value: fmt(v.sgot), unit: "U/L", range: "8-33", status: getStatus(v.sgot, 8, 33) },
+        { icon: Pill, key: "sgpt", label: "SGPT (ALT)", value: fmt(v.sgpt), unit: "U/L", range: "4-36", status: getStatus(v.sgpt, 4, 36) },
+        { icon: Pill, key: "bilirubin", label: "Bilirubin", value: fmt(v.bilirubin, 1), unit: "mg/dL", range: "0.1-1.2", status: getStatus(v.bilirubin, 0.1, 1.2) },
+        { icon: Pill, key: "albumin", label: "Albumin", value: fmt(v.albumin, 1), unit: "g/dL", range: "3.5-5.5", status: getStatus(v.albumin, 3.5, 5.5) },
       ],
     },
     {
       title: "Thyroid & Hormones",
       vitals: [
-        { icon: Brain, key: "tsh", label: "TSH", value: fmt(v.tsh, 2), unit: "mIU/L", range: "0.4–4.0", status: getStatus(v.tsh, 0.4, 4.0) },
-        { icon: Brain, key: "t3", label: "T3", value: fmt(v.t3), unit: "ng/dL", range: "80–200", status: getStatus(v.t3, 80, 200) },
-        { icon: Brain, key: "t4", label: "T4", value: fmt(v.t4, 1), unit: "μg/dL", range: "5.1–14.1", status: getStatus(v.t4, 5.1, 14.1) },
+        { icon: Brain, key: "tsh", label: "TSH", value: fmt(v.tsh, 2), unit: "mIU/L", range: "0.4-4.0", status: getStatus(v.tsh, 0.4, 4.0) },
+        { icon: Brain, key: "t3", label: "T3", value: fmt(v.t3), unit: "ng/dL", range: "80-200", status: getStatus(v.t3, 80, 200) },
+        { icon: Brain, key: "t4", label: "T4", value: fmt(v.t4, 1), unit: "μg/dL", range: "5.1-14.1", status: getStatus(v.t4, 5.1, 14.1) },
       ],
     },
     {
       title: "Vitamins & Minerals",
       vitals: [
-        { icon: Thermometer, key: "vitamin_d", label: "Vitamin D", value: fmt(v.vitamin_d, 1), unit: "ng/mL", range: "30–100", status: getStatus(v.vitamin_d, 30, 100) },
-        { icon: Thermometer, key: "vitamin_b12", label: "Vitamin B12", value: fmt(v.vitamin_b12), unit: "pg/mL", range: "200–900", status: getStatus(v.vitamin_b12, 200, 900) },
-        { icon: Bone, key: "calcium", label: "Calcium", value: fmt(v.calcium, 1), unit: "mg/dL", range: "8.5–10.5", status: getStatus(v.calcium, 8.5, 10.5) },
-        { icon: Bone, key: "iron", label: "Iron", value: fmt(v.iron), unit: "μg/dL", range: "60–170", status: getStatus(v.iron, 60, 170) },
-        { icon: Bone, key: "ferritin", label: "Ferritin", value: fmt(v.ferritin), unit: "ng/mL", range: "12–300", status: getStatus(v.ferritin, 12, 300) },
-        { icon: Eye, key: "folate", label: "Folate", value: fmt(v.folate, 1), unit: "ng/mL", range: "2.7–17", status: getStatus(v.folate, 2.7, 17) },
+        { icon: Thermometer, key: "vitamin_d", label: "Vitamin D", value: fmt(v.vitamin_d, 1), unit: "ng/mL", range: "30-100", status: getStatus(v.vitamin_d, 30, 100) },
+        { icon: Thermometer, key: "vitamin_b12", label: "Vitamin B12", value: fmt(v.vitamin_b12), unit: "pg/mL", range: "200-900", status: getStatus(v.vitamin_b12, 200, 900) },
+        { icon: Bone, key: "calcium", label: "Calcium", value: fmt(v.calcium, 1), unit: "mg/dL", range: "8.5-10.5", status: getStatus(v.calcium, 8.5, 10.5) },
+        { icon: Bone, key: "iron", label: "Iron", value: fmt(v.iron), unit: "μg/dL", range: "60-170", status: getStatus(v.iron, 60, 170) },
+        { icon: Bone, key: "ferritin", label: "Ferritin", value: fmt(v.ferritin), unit: "ng/mL", range: "12-300", status: getStatus(v.ferritin, 12, 300) },
+        { icon: Eye, key: "folate", label: "Folate", value: fmt(v.folate, 1), unit: "ng/mL", range: "2.7-17", status: getStatus(v.folate, 2.7, 17) },
       ],
     },
   ];
@@ -437,7 +437,7 @@ const HealthTrends = () => {
       <section className="px-5 pt-8 pb-3">
         <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">Health Trends</h1>
         <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-          What changed since your last visit — at the top. All vitals below.
+          What changed since your last visit, at the top. All vitals below.
         </p>
       </section>
 
@@ -445,7 +445,7 @@ const HealthTrends = () => {
       <DashboardChangesCard patientId={patientId} />
 
 
-      {/* Preview insight card — shown until user has 2+ records */}
+      {/* Preview insight card, shown until user has 2+ records */}
       {records.length < 2 && (
         <section className="px-5 pb-5">
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
@@ -684,7 +684,7 @@ const HealthTrends = () => {
             {category.vitals.map((vital, vi) => {
               const timeline = getVitalTimeline(vital.key);
               const source = sources[vital.key];
-              const hasValue = vital.value !== "—";
+              const hasValue = vital.value !== "-";
               const trend = getVitalTrend(vital.key);
 
               return (

@@ -39,7 +39,7 @@ export const PhoneMock = ({
   </div>
 );
 
-/* ---------- Step 01 — Capture / Health Story screen ---------- */
+/* ---------- Step 01, Capture / Health Story screen ---------- */
 export const MockStoryScreen = () => (
   <div className="h-full flex flex-col" style={{ color: "hsl(22 22% 14%)" }}>
     <div className="px-5 pt-12 pb-3">
@@ -84,7 +84,7 @@ export const MockStoryScreen = () => (
   </div>
 );
 
-/* ---------- Step 02 — Trends / Risk dashboard ---------- */
+/* ---------- Step 02, Trends / Risk dashboard ---------- */
 export const MockTrendsScreen = () => (
   <div className="h-full flex flex-col" style={{ color: "hsl(22 22% 14%)" }}>
     <div className="px-5 pt-12 pb-3">
@@ -147,7 +147,7 @@ export const MockTrendsScreen = () => (
   </div>
 );
 
-/* ---------- Step 03 — Clinical briefing card ---------- */
+/* ---------- Step 03, Clinical briefing card ---------- */
 export const MockBriefingScreen = () => (
   <div className="h-full flex flex-col" style={{ color: "hsl(22 22% 14%)" }}>
     <div className="px-5 pt-12 pb-3">

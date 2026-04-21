@@ -42,7 +42,7 @@ const EditorialHero = () => {
 
             <p className="text-[17px] leading-[1.65] text-foreground/85 max-w-[560px]">
               Upload your reports. Get a doctor-ready summary in 30 seconds.
-              Conditions, medications, recent changes — one screen any doctor can read instantly.
+              Conditions, medications, recent changes, one screen any doctor can read instantly.
             </p>
 
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-2">

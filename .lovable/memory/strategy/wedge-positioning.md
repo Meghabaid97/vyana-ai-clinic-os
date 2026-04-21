@@ -12,9 +12,9 @@ type: feature
 The **briefing** is the product hero, not records or trends. Home (`/app`) and landing (`/`) both lead with the briefing CTA.
 
 ## Home screen (/app, AppHome.tsx) order
-1. Soft opener: "Welcome back, {name}. Your health story. Always with you." (KEEP — user love)
+1. Soft opener: "Welcome back, {name}. Your health story. Always with you." (KEEP, user love)
 2. Briefing hero card: "Seeing a doctor? Get ready in 30 seconds." → Generate / Upload / Try sample
-3. "Your story so far. Every detail matters." beats (KEEP — user love)
+3. "Your story so far. Every detail matters." beats (KEEP, user love)
 4. **What changed since your last visit** diff card (vital deltas, new meds, recent uploads). Falls back to SAMPLE_CHANGES for empty state.
 5. Slim 2-up: Share with doctor · Emergency access
 6. Why Vyana / Tirupur story
@@ -34,8 +34,8 @@ The **briefing** is the product hero, not records or trends. Home (`/app`) and l
 - `DashboardActions.tsx` 6-card "Promises" grid (dilutes focus)
 - Orphaned `PatientDashboard.tsx`, `DashboardStory.tsx`, `DashboardHero.tsx`, `DashboardStats.tsx`, `DashboardFooter.tsx`
 - Old AppHome "Promises" grid section
-- Health Trends opens with vitals — now opens with "What changed" diff
+- Health Trends opens with vitals, now opens with "What changed" diff
 
 ## Helpers
-- `src/lib/sampleBriefingData.ts` — SAMPLE_BRIEFING (Ramesh persona)
-- `src/lib/changesSinceLastVisit.ts` — `computeChangesSinceLastVisit(patientId)` compares two latest `vital_history` snapshots + new meds (30d) + new records (14d). Severity: alert/monitor/info.
+- `src/lib/sampleBriefingData.ts`, SAMPLE_BRIEFING (Ramesh persona)
+- `src/lib/changesSinceLastVisit.ts`, `computeChangesSinceLastVisit(patientId)` compares two latest `vital_history` snapshots + new meds (30d) + new records (14d). Severity: alert/monitor/info.

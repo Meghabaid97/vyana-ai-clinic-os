@@ -498,7 +498,7 @@ const PatientProfilePage = () => {
                     return (
                       <div key={c.id} className="text-sm py-1">
                         <span className="font-medium">{new Date(c.created_at).toLocaleDateString()}</span>
-                        <span className="text-muted-foreground"> — {diag || "Consultation"}</span>
+                        <span className="text-muted-foreground">, {diag || "Consultation"}</span>
                       </div>
                     );
                   })}

@@ -166,7 +166,7 @@ const EmergencyContacts = () => {
       `${contact.contact_name}, you have been added as my emergency contact on Vyana.\n\n` +
       `In case of an emergency, open this link to view my health records (medications, conditions, allergies, recent visits):\n${link}\n\n` +
       `Please save this message. The link works 24/7 and does not need an account.\n\n` +
-      `— ${patientName}`;
+      `- ${patientName}`;
     // If the contact has a phone number, prefill the recipient (E.164: strip non-digits, keep leading +)
     const cleanedPhone = contact.contact_phone.replace(/[^\d+]/g, "").replace(/^\++/, "+");
     const target = cleanedPhone.startsWith("+") ? cleanedPhone.slice(1) : cleanedPhone;
@@ -218,7 +218,7 @@ const EmergencyContacts = () => {
               </div>
               <div className="flex items-start gap-3">
                 <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 text-primary font-bold">2</div>
-                <p className="text-muted-foreground">Share their unique access link — no account needed.</p>
+                <p className="text-muted-foreground">Share their unique access link, no account needed.</p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 text-primary font-bold">3</div>

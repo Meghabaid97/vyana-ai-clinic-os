@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Vyana — Museum-warm: ivory canvas, walnut ink, terracotta accent */
+/* Vyana, Museum-warm: ivory canvas, walnut ink, terracotta accent */
 
 @layer base {
   :root {
@@ -15,7 +15,7 @@
     --popover: 36 35% 98%;
     --popover-foreground: 22 22% 14%;
 
-    /* Terracotta — warm, museum-grade accent */
+    /* Terracotta, warm, museum-grade accent */
     --primary: 14 62% 54%;
     --primary-foreground: 36 40% 97%;
 
@@ -37,7 +37,7 @@
 
     --radius: 0.5rem;
 
-    /* Dark walnut surface — alternating editorial sections */
+    /* Dark walnut surface, alternating editorial sections */
     --surface-dark: 22 25% 10%;
     --surface-dark-foreground: 36 30% 95%;
     --surface-dark-muted: 36 25% 75%;
@@ -111,7 +111,7 @@
 }
 
 @layer utilities {
-  /* Editorial serif — for headers, big numbers, narrative accents */
+  /* Editorial serif, for headers, big numbers, narrative accents */
   .font-display {
     font-family: 'Instrument Serif', ui-serif, Georgia, serif;
     letter-spacing: -0.01em;
@@ -171,7 +171,7 @@
   }
 }
 
-/* (Landing warm palette removed — root tokens are now museum-warm globally) */
+/* (Landing warm palette removed, root tokens are now museum-warm globally) */
 
 /* Safe areas for native app */
 .safe-area-top {

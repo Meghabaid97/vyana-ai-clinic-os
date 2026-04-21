@@ -18,6 +18,7 @@ import PatientMedicalHistory from "./pages/PatientMedicalHistory";
 import PatientHealthRecords from "./pages/PatientHealthRecords";
 import PatientProfileEdit from "./pages/PatientProfileEdit";
 import PatientBriefing from "./pages/PatientBriefing";
+import DoctorVisitMode from "./pages/DoctorVisitMode";
 import PatientProfilePage from "./pages/PatientProfilePage";
 import EmergencyContacts from "./pages/EmergencyContacts";
 import EmergencyAccess from "./pages/EmergencyAccess";
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="prescription-reader" element={<PrescriptionInterpreter />} />
             <Route path="share" element={<ShareRecords />} />
             <Route path="briefing" element={<PatientBriefing />} />
+            <Route path="visit" element={<DoctorVisitMode />} />
             <Route path="recovery" element={<ClaimAssistant />} />
             <Route path="support" element={<Support />} />
             <Route path="medical-history" element={<PatientMedicalHistory />} />

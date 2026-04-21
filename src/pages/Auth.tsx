@@ -453,7 +453,7 @@ const Auth = () => {
             </div>
           )}
 
-          {/* Vyana is consumer-only — no role selection. */}
+          {/* Vyana is consumer-only, no role selection. */}
 
           {/* Auth Mode Toggle (login only) */}
           {!isSignUp && (

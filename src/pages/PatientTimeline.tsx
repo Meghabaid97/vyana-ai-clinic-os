@@ -136,7 +136,7 @@ const PatientTimeline = () => {
         id: `appt-${a.id}`,
         date: new Date(a.requested_date).toISOString(),
         type: "appointment",
-        title: `Appointment — ${a.status}`,
+        title: `Appointment, ${a.status}`,
         subtitle: a.reason || a.requested_time_slot,
         icon: Calendar,
         color: a.status === "completed"
@@ -181,7 +181,7 @@ const PatientTimeline = () => {
           Your Health Timeline
         </h1>
         <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-          Every visit, report, and vital — connected in one view.
+          Every visit, report, and vital, connected in one view.
         </p>
       </section>
 

@@ -45,7 +45,7 @@ const has = (v: VitalsMap, ...keys: string[]): boolean =>
 
 const val = (v: VitalsMap, key: string): number => (v[key] as number) ?? 0;
 
-// ─── 1. ASCVD 10-Year Risk (Pooled Cohort Equations — simplified) ────────────
+// ─── 1. ASCVD 10-Year Risk (Pooled Cohort Equations, simplified) ────────────
 
 export function computeASCVD(
   vitals: VitalsMap,
@@ -60,7 +60,7 @@ export function computeASCVD(
     const v = vitals[key];
     inputs.push({
       name: `${name}`,
-      value: v != null ? `${v} ${unit}` : "—",
+      value: v != null ? `${v} ${unit}` : "-",
       status: v != null ? "normal" : "missing",
     });
   };
@@ -194,9 +194,9 @@ export function computeDiabetesRisk(vitals: VitalsMap, vitalHistory: Array<{ vit
   const fbs = vitals.fasting_blood_sugar;
   const ppg = vitals.post_prandial_glucose;
 
-  inputs.push({ name: "HbA1c", value: hba1c != null ? `${hba1c}%` : "—", status: hba1c != null ? (hba1c > 6.5 ? "critical" : hba1c > 5.7 ? "warning" : "normal") : "missing" });
-  inputs.push({ name: "Fasting Glucose", value: fbs != null ? `${fbs} mg/dL` : "—", status: fbs != null ? (fbs > 126 ? "critical" : fbs > 100 ? "warning" : "normal") : "missing" });
-  inputs.push({ name: "Post-Prandial", value: ppg != null ? `${ppg} mg/dL` : "—", status: ppg != null ? (ppg > 200 ? "critical" : ppg > 140 ? "warning" : "normal") : "missing" });
+  inputs.push({ name: "HbA1c", value: hba1c != null ? `${hba1c}%` : "-", status: hba1c != null ? (hba1c > 6.5 ? "critical" : hba1c > 5.7 ? "warning" : "normal") : "missing" });
+  inputs.push({ name: "Fasting Glucose", value: fbs != null ? `${fbs} mg/dL` : "-", status: fbs != null ? (fbs > 126 ? "critical" : fbs > 100 ? "warning" : "normal") : "missing" });
+  inputs.push({ name: "Post-Prandial", value: ppg != null ? `${ppg} mg/dL` : "-", status: ppg != null ? (ppg > 200 ? "critical" : ppg > 140 ? "warning" : "normal") : "missing" });
 
   if (hba1c == null && fbs == null) {
     return {
@@ -278,9 +278,9 @@ export function computeKidneyRisk(vitals: VitalsMap, age: number | null, isMale:
   const bun = vitals.bun;
   const uricAcid = vitals.uric_acid;
 
-  inputs.push({ name: "Creatinine", value: creatinine != null ? `${creatinine} mg/dL` : "—", status: creatinine != null ? (creatinine > 1.3 ? "warning" : "normal") : "missing" });
-  inputs.push({ name: "BUN", value: bun != null ? `${bun} mg/dL` : "—", status: bun != null ? (bun > 20 ? "warning" : "normal") : "missing" });
-  inputs.push({ name: "Uric Acid", value: uricAcid != null ? `${uricAcid} mg/dL` : "—", status: uricAcid != null ? (uricAcid > 7.2 ? "warning" : "normal") : "missing" });
+  inputs.push({ name: "Creatinine", value: creatinine != null ? `${creatinine} mg/dL` : "-", status: creatinine != null ? (creatinine > 1.3 ? "warning" : "normal") : "missing" });
+  inputs.push({ name: "BUN", value: bun != null ? `${bun} mg/dL` : "-", status: bun != null ? (bun > 20 ? "warning" : "normal") : "missing" });
+  inputs.push({ name: "Uric Acid", value: uricAcid != null ? `${uricAcid} mg/dL` : "-", status: uricAcid != null ? (uricAcid > 7.2 ? "warning" : "normal") : "missing" });
 
   if (creatinine == null || age == null) {
     return {
@@ -350,7 +350,7 @@ export function computeKidneyRisk(vitals: VitalsMap, age: number | null, isMale:
 
   return {
     id: "kidney", title: "Kidney Function (eGFR)", category: "Kidney",
-    score, level, label: `CKD Stage ${stage} — eGFR ${eGFR}`,
+    score, level, label: `CKD Stage ${stage}, eGFR ${eGFR}`,
     detail: `Estimated GFR: ${eGFR} mL/min/1.73m². CKD Stage: ${stage}.`,
     inputs, recommendations: recs,
   };
@@ -365,9 +365,9 @@ export function computeThyroidRisk(vitals: VitalsMap): RiskScore {
   const t3 = vitals.t3;
   const t4 = vitals.t4;
 
-  inputs.push({ name: "TSH", value: tsh != null ? `${tsh} mIU/L` : "—", status: tsh != null ? (tsh > 10 || tsh < 0.1 ? "critical" : tsh > 4.0 || tsh < 0.4 ? "warning" : "normal") : "missing" });
-  inputs.push({ name: "T3", value: t3 != null ? `${t3} ng/dL` : "—", status: t3 != null ? (t3 > 200 || t3 < 80 ? "warning" : "normal") : "missing" });
-  inputs.push({ name: "T4", value: t4 != null ? `${t4} μg/dL` : "—", status: t4 != null ? (t4 > 14.1 || t4 < 5.1 ? "warning" : "normal") : "missing" });
+  inputs.push({ name: "TSH", value: tsh != null ? `${tsh} mIU/L` : "-", status: tsh != null ? (tsh > 10 || tsh < 0.1 ? "critical" : tsh > 4.0 || tsh < 0.4 ? "warning" : "normal") : "missing" });
+  inputs.push({ name: "T3", value: t3 != null ? `${t3} ng/dL` : "-", status: t3 != null ? (t3 > 200 || t3 < 80 ? "warning" : "normal") : "missing" });
+  inputs.push({ name: "T4", value: t4 != null ? `${t4} μg/dL` : "-", status: t4 != null ? (t4 > 14.1 || t4 < 5.1 ? "warning" : "normal") : "missing" });
 
   if (tsh == null) {
     return {

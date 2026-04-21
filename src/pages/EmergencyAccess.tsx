@@ -137,7 +137,7 @@ const EmergencyAccess = () => {
         </Button>
         <div className="flex items-center gap-2 min-w-0">
           <Shield className="h-4 w-4 shrink-0" />
-          <span className="text-sm font-medium truncate">Emergency Records — Vyana</span>
+          <span className="text-sm font-medium truncate">Emergency Records, Vyana</span>
         </div>
       </header>
 
