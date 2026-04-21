@@ -606,7 +606,51 @@ const Auth = () => {
                         <Input id="weight" type="number" placeholder="e.g. 65" value={weight} onChange={(e) => setWeight(e.target.value)} min="1" max="300" className="bg-background/50" />
                       </div>
 
-                      {/* Consent Form */}
+                      {/* Location */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
+                            Location
+                          </Label>
+                          <button
+                            type="button"
+                            onClick={detectLocation}
+                            disabled={locating}
+                            className="text-xs text-primary hover:underline inline-flex items-center gap-1 disabled:opacity-50"
+                          >
+                            {locating ? (
+                              <><Loader2 className="h-3 w-3 animate-spin" /> Detecting…</>
+                            ) : latitude && longitude ? (
+                              <><CheckCircle2 className="h-3 w-3" /> Location captured</>
+                            ) : (
+                              <>Use my current location</>
+                            )}
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input
+                            id="city"
+                            placeholder="City"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            className="bg-background/50"
+                            maxLength={80}
+                          />
+                          <Input
+                            id="pincode"
+                            placeholder="Pincode"
+                            value={pincode}
+                            onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                            inputMode="numeric"
+                            className="bg-background/50"
+                          />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Helps us find nearby care and personalize alerts. Optional.
+                        </p>
+                      </div>
+
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                         <div className="flex items-start gap-2">
                           <FileCheck className="h-5 w-5 text-primary mt-0.5 shrink-0" />
