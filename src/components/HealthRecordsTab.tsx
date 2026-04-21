@@ -198,6 +198,11 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         description: "AI has analyzed your health record",
       });
 
+      // Trigger insight detection (non-blocking)
+      supabase.functions.invoke("detect-insights", {
+        body: { mode: "on-upload", recordId: record.id },
+      }).catch((e) => console.error("detect-insights failed", e));
+
       loadRecords();
     } catch (error: any) {
       console.error("Error summarizing record:", error);

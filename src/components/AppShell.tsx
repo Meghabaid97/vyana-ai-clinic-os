@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { Home, TrendingUp, FolderOpen, Stethoscope, User, Heart, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import NotificationBell from "@/components/NotificationBell";
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
@@ -38,6 +39,8 @@ const AppShell = () => {
       if (!session) { navigate("/auth", { replace: true }); return; }
       const { data } = await supabase.from("patients").select("name").eq("user_id", session.user.id).maybeSingle();
       if (data) setPatientName(data.name);
+      // Touch last_app_open_at for re-engagement detection
+      await supabase.from("patients").update({ last_app_open_at: new Date().toISOString() }).eq("user_id", session.user.id);
     };
     load();
   }, [navigate]);
@@ -71,7 +74,10 @@ const AppShell = () => {
               V<span className="text-primary italic">yana</span>
             </span>
           )}
-          <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{patientName.split(" ")[0]}</span>
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{patientName.split(" ")[0]}</span>
+          </div>
         </div>
       </header>
 
