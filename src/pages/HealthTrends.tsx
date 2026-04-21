@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   TrendingUp, TrendingDown, Activity, Heart, Droplets, Thermometer, Eye,
@@ -690,7 +691,7 @@ const HealthTrends = () => {
               return (
                 <HoverCard key={vi} openDelay={200}>
                   <HoverCardTrigger asChild>
-                    <div className="rounded-xl border border-border bg-card p-3.5 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors">
+                    <div id={`vital-${vital.key}`} className="rounded-xl border border-border bg-card p-3.5 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors scroll-mt-24">
                       <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${vital.status === "warning" ? "bg-destructive/10" : "bg-primary/10"}`}>
                         <vital.icon className={`h-4 w-4 ${vital.status === "warning" ? "text-destructive" : "text-primary"}`} />
                       </div>
