@@ -442,27 +442,16 @@ const Auth = () => {
 
       const isNativeApp = Capacitor.isNativePlatform();
 
-      if (!isNativeApp) {
-        // Hop to the canonical host BEFORE starting OAuth so the full
-        // /~oauth/initiate → Google → /~oauth/callback round-trip happens
-        // on a single, fully-configured host.
-        const canonicalOrigin = resolveOAuthOrigin();
-        if (canonicalOrigin !== window.location.origin) {
-          window.location.replace(`${canonicalOrigin}/auth`);
-          return;
-        }
-      }
+      const redirectTo = isNativeApp
+        ? "lovable://oauth-callback/"
+        : `${window.location.origin}/app`;
 
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: isNativeApp
-          ? "lovable://oauth-callback/"
-          : `${resolveOAuthOrigin()}/app`,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
       });
-      if (result.error) {
-        throw result.error;
-      }
-      if (result.redirected) {
-        return;
+      if (error) {
+        throw error;
       }
     } catch (error: any) {
       toast({ title: "Authentication Error", description: error.message, variant: "destructive" });
