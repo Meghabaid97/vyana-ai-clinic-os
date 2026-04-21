@@ -50,7 +50,7 @@ const EditorialHero = () => {
                 onClick={() => navigate("/auth")}
                 className="group h-11 px-6 text-[15px] rounded-full"
               >
-                Try it free
+                Upload your first record
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
               <Button
