@@ -779,24 +779,6 @@ const HealthTrends = () => {
         </section>
       ))}
 
-      {records.length > 0 && (
-        <section className="px-5 pb-8">
-          <h2 className="text-[15px] font-bold text-foreground mb-3">Latest uploads</h2>
-          <div className="space-y-2">
-            {records.slice(0, 5).map((rec) => (
-              <div key={rec.id} className="rounded-xl border border-border bg-card p-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">{rec.file_name}</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {new Date(rec.uploaded_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                  </p>
-                </div>
-                <span className="text-[11px] text-muted-foreground uppercase">{rec.file_type?.split("/")[1] || "file"}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 };

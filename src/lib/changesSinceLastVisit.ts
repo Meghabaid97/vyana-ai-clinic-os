@@ -104,26 +104,6 @@ export async function computeChangesSinceLastVisit(patientId: string, limit = 6)
     });
   });
 
-  // New records in last 14 days
-  const since14 = new Date(Date.now() - 14 * 86400000).toISOString();
-  const { data: recs } = await supabase
-    .from("health_records")
-    .select("file_name, uploaded_at, category")
-    .eq("patient_id", patientId)
-    .gte("uploaded_at", since14)
-    .order("uploaded_at", { ascending: false })
-    .limit(3);
-
-  (recs || []).forEach((r) => {
-    changes.push({
-      kind: "new_record",
-      severity: "info",
-      label: "New record",
-      detail: r.file_name,
-      when: relativeWhen(r.uploaded_at),
-    });
-  });
-
   // Sort: alerts first, then monitor, then info
   const rank: Record<ChangeSeverity, number> = { alert: 0, monitor: 1, info: 2 };
   changes.sort((a, b) => rank[a.severity] - rank[b.severity]);
