@@ -30,6 +30,7 @@ import ShareRecords from "./pages/ShareRecords";
 import ClaimAssistant from "./pages/RecoveryHub";
 import Legal from "./pages/Legal";
 import Support from "./pages/Support";
+import DomainChecklist from "./pages/DomainChecklist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
