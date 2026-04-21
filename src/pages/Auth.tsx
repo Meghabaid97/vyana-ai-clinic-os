@@ -71,6 +71,11 @@ const Auth = () => {
   const [healthId, setHealthId] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [weight, setWeight] = useState("");
+  const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [locating, setLocating] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
