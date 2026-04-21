@@ -40,15 +40,8 @@ const DashboardActions = ({ stats }: Props) => {
       emoji: "🔗",
       title: "Share with any doctor",
       description: "Secure link. 24 hours. No app needed on their end. Just a clean summary that could save a life.",
-      path: "/find-doctors",
-      badge: stats.doctors > 0 ? stats.doctors : undefined,
-    },
-    {
-      emoji: "📅",
-      title: "Book appointments",
-      description: "Find doctors near you. Book visits. Get reminders. Your health, on your schedule.",
-      path: "/patient-appointments",
-      badge: stats.appointments > 0 ? stats.appointments : undefined,
+      path: "/app/share",
+      badge: undefined,
     },
     {
       emoji: "🛡️",
