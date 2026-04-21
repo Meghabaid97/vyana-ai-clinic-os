@@ -4,6 +4,8 @@ import { Home, TrendingUp, FolderOpen, Stethoscope, User, Heart, ArrowLeft, Sear
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
+import LanguageSelector from "@/components/LanguageSelector";
+import HeaderLocationSelector from "@/components/HeaderLocationSelector";
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
