@@ -25,7 +25,6 @@ const subRouteTitles: Record<string, string> = {
   "/app/support": "Help & Support",
   "/app/medical-history": "Medical History",
   "/app/emergency-contacts": "Emergency Contacts",
-  "/app/find-doctors": "Find Doctors",
 };
 
 const AppShell = () => {
