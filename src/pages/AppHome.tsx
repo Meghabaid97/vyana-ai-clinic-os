@@ -5,6 +5,7 @@ import {
   ArrowRight, Upload, FileText, TrendingUp, Link2, Shield, Calendar,
   Heart, Droplets, Activity, Loader2, ScanLine, IndianRupee,
 } from "lucide-react";
+import HowItWorksTour from "@/components/HowItWorksTour";
 
 interface PatientProfile {
   id: string;
@@ -28,6 +29,7 @@ const AppHome = () => {
   const [recordDates, setRecordDates] = useState<string[]>([]);
   const [homeVitals, setHomeVitals] = useState<HomeVitals | null>(null);
   const [vitalsLoading, setVitalsLoading] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
 
   useEffect(() => { loadData(); }, []);
 
