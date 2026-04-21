@@ -139,9 +139,24 @@ const PatientBriefing = () => {
               <Stethoscope className="h-7 w-7 text-primary" />
             </div>
             <h2 className="text-lg font-bold text-foreground mb-2">Doctor-Ready Summary</h2>
-            <p className="text-sm text-muted-foreground mb-5 max-w-xs mx-auto">
+            <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
               AI analyzes your records, vitals, and medications to create a summary any doctor can read in 30 seconds.
             </p>
+            <div className="text-left max-w-xs mx-auto mb-5 rounded-lg bg-background/60 border border-border p-3">
+              <p className="text-[12px] font-semibold text-foreground mb-2">Your summary will include:</p>
+              <ul className="space-y-1.5">
+                {[
+                  "Conditions & diagnoses",
+                  "Medications history",
+                  "Key vitals & trends",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-[12px] text-muted-foreground">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <Button
               onClick={generateBriefing}
               disabled={isLoading}

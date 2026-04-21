@@ -438,6 +438,35 @@ const HealthTrends = () => {
         </p>
       </section>
 
+      {/* Preview insight card — shown until user has 2+ records */}
+      {records.length < 2 && (
+        <section className="px-5 pb-5">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <h2 className="text-[14px] font-semibold text-foreground">What you'll see here</h2>
+            </div>
+            <div className="space-y-2 mb-4">
+              <div className="flex items-start gap-2 rounded-lg bg-background/60 p-2.5">
+                <ArrowUp className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                <p className="text-[12px] text-foreground leading-snug">
+                  Your HbA1c increased from <span className="font-semibold">5.4 → 5.8</span> over 3 months
+                </p>
+              </div>
+              <div className="flex items-start gap-2 rounded-lg bg-background/60 p-2.5">
+                <ArrowDown className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                <p className="text-[12px] text-foreground leading-snug">
+                  Cholesterol improved after medication change
+                </p>
+              </div>
+            </div>
+            <p className="text-[12px] font-medium text-primary">
+              Upload {records.length === 0 ? "2 reports" : "1 more report"} to unlock your trends
+            </p>
+          </div>
+        </section>
+      )}
+
       <section className="px-5 pb-5">
         <div className="flex gap-2">
           <div className="flex-1 rounded-xl border border-border bg-card p-3 text-center">
