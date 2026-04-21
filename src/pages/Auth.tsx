@@ -113,10 +113,35 @@ const Auth = () => {
         healthId: (healthId && !skipAbha) ? healthId : undefined,
         dateOfBirth: dateOfBirth || undefined,
         weight: weight || undefined,
+        city: city.trim() || undefined,
+        pincode: pincode.trim() || undefined,
+        latitude: latitude,
+        longitude: longitude,
       };
     },
-    [userRole, name, phone, healthId, dateOfBirth, weight, skipAbha],
+    [userRole, name, phone, healthId, dateOfBirth, weight, skipAbha, city, pincode, latitude, longitude],
   );
+
+  const detectLocation = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      toast({ title: "Not supported", description: "Your browser does not support location detection.", variant: "destructive" });
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLatitude(pos.coords.latitude);
+        setLongitude(pos.coords.longitude);
+        setLocating(false);
+        toast({ title: "Location captured", description: "We saved your coordinates to personalize care." });
+      },
+      (err) => {
+        setLocating(false);
+        toast({ title: "Couldn't get location", description: err.message || "Please enter your city and pincode manually.", variant: "destructive" });
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+    );
+  }, [toast]);
 
   const redirectBasedOnRole = useCallback(async (_userId: string, _fallbackRole?: UserRole | null) => {
     // Vyana is consumer-only: every signed-in user goes to the patient app.
