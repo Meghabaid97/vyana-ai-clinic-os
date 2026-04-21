@@ -28,15 +28,15 @@ const PortraitCTA = () => {
   return (
     <section
       id="contact"
-      className="relative bg-[hsl(22_25%_10%)] py-28 lg:py-36"
+      className="relative bg-surface-dark py-28 lg:py-36"
     >
       <div className="relative z-10 max-w-[640px] mx-auto px-6 text-center">
-        <h2 className="font-serif text-[40px] sm:text-[60px] leading-[1.02] tracking-[-0.02em] text-white">
+        <h2 className="font-serif text-[40px] sm:text-[60px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
           Start your family's
           <br />
           <em className="italic text-primary font-normal">health memory today.</em>
         </h2>
-        <p className="mt-6 text-[16px] text-[hsl(36_25%_82%)] leading-relaxed max-w-[480px] mx-auto">
+        <p className="mt-6 text-[16px] text-surface-dark-muted leading-relaxed max-w-[480px] mx-auto">
           Free to start. Upload your first report in thirty seconds.
         </p>
 
@@ -47,7 +47,7 @@ const PortraitCTA = () => {
             placeholder="Your email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-12 bg-white/[0.04] border-white/15 text-white placeholder:text-[hsl(36_15%_55%)] focus-visible:ring-primary"
+            className="h-12 bg-white/[0.04] border-white/15 text-surface-dark-foreground placeholder:text-surface-dark-muted/70 focus-visible:ring-primary"
           />
           <div className="grid grid-cols-2 gap-3">
             <Input
@@ -55,14 +55,14 @@ const PortraitCTA = () => {
               placeholder="Who you care for"
               value={relation}
               onChange={(e) => setRelation(e.target.value)}
-              className="h-12 bg-white/[0.04] border-white/15 text-white placeholder:text-[hsl(36_15%_55%)] focus-visible:ring-primary"
+              className="h-12 bg-white/[0.04] border-white/15 text-surface-dark-foreground placeholder:text-surface-dark-muted/70 focus-visible:ring-primary"
             />
             <Input
               type="text"
               placeholder="City"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="h-12 bg-white/[0.04] border-white/15 text-white placeholder:text-[hsl(36_15%_55%)] focus-visible:ring-primary"
+              className="h-12 bg-white/[0.04] border-white/15 text-surface-dark-foreground placeholder:text-surface-dark-muted/70 focus-visible:ring-primary"
             />
           </div>
           <Button
@@ -77,7 +77,7 @@ const PortraitCTA = () => {
         </form>
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col items-center gap-1.5">
-          <p className="text-[11px] tracking-[0.2em] uppercase text-[hsl(36_15%_55%)]">
+          <p className="text-[11px] tracking-[0.2em] uppercase text-surface-dark-muted/80">
             With care,
           </p>
           <span
@@ -91,7 +91,7 @@ const PortraitCTA = () => {
           >
             Megha
           </span>
-          <p className="text-[10px] tracking-[0.2em] uppercase text-[hsl(36_15%_45%)] mt-1">
+          <p className="text-[10px] tracking-[0.2em] uppercase text-surface-dark-muted/60 mt-1">
             Founder · Vyana
           </p>
         </div>

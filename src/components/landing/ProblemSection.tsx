@@ -13,7 +13,7 @@ const ProblemSection = () => {
   const grid = useReveal<HTMLDivElement>();
 
   return (
-    <section id="problem" className="relative bg-background py-28 lg:py-36 border-t border-border/60">
+    <section id="problem" className="relative bg-surface-dark py-28 lg:py-36">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
@@ -22,12 +22,12 @@ const ProblemSection = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             The problem
           </p>
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.02] tracking-[-0.02em] text-foreground">
+          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
             Healthcare is broken in
             <br />
             <em className="italic text-primary font-normal">one simple way.</em>
           </h2>
-          <p className="mt-8 text-[18px] leading-[1.65] text-foreground/75 max-w-[560px]">
+          <p className="mt-8 text-[18px] leading-[1.65] text-surface-dark-muted max-w-[560px]">
             Every time you visit a new doctor, you start from scratch. Your
             history sits in folders, drawers and inboxes nobody reads.
           </p>
@@ -40,12 +40,12 @@ const ProblemSection = () => {
           {stats.map((s, i) => (
             <div
               key={i}
-              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl border border-border bg-card p-8`}
+              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl border border-white/10 bg-white/[0.03] p-8`}
             >
               <div className="font-serif text-[42px] leading-none text-primary tracking-[-0.02em]">
                 {s.k}
               </div>
-              <p className="mt-5 text-[15px] leading-[1.65] text-foreground/75">
+              <p className="mt-5 text-[15px] leading-[1.65] text-surface-dark-muted">
                 {s.v}
               </p>
             </div>
@@ -53,20 +53,20 @@ const ProblemSection = () => {
         </div>
 
         <div className="max-w-[760px]">
-          <p className="text-[12px] tracking-[0.3em] uppercase text-foreground/55 mb-4">
+          <p className="text-[12px] tracking-[0.3em] uppercase text-surface-dark-muted/70 mb-4">
             This leads to
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
             {consequences.map((c) => (
               <span
                 key={c}
-                className="rounded-full border border-border px-4 py-2 text-[14px] text-foreground/80 bg-card"
+                className="rounded-full border border-white/15 px-4 py-2 text-[14px] text-surface-dark-foreground/85 bg-white/[0.03]"
               >
                 {c}
               </span>
             ))}
           </div>
-          <p className="font-serif italic text-[20px] sm:text-[24px] leading-[1.5] text-foreground/85 max-w-[620px]">
+          <p className="font-serif italic text-[20px] sm:text-[24px] leading-[1.5] text-surface-dark-foreground/90 max-w-[620px]">
             This isn't a productivity problem. It's a life problem. In
             emergencies, families have minutes to explain years of history,
             and patients pay the price.
