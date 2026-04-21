@@ -26,6 +26,10 @@ type PendingSignupDraft = {
   healthId?: string;
   dateOfBirth?: string;
   weight?: string;
+  city?: string;
+  pincode?: string;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 const MAX_ATTEMPTS = 5;
