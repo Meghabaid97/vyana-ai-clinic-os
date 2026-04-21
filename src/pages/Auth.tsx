@@ -126,22 +126,16 @@ const Auth = () => {
         .eq("user_id", userId)
         .maybeSingle();
 
-      if (!profile || !profile.is_profile_complete) navigate("/doctor-profile-setup");
-      else navigate("/doctor-dashboard");
+      if (!profile || !profile.is_profile_complete) navigate("/doctor-profile-setup", { replace: true });
+      else navigate("/doctor-dashboard", { replace: true });
       return;
     }
 
-    if (role === "patient") {
-      navigate("/app");
-      return;
-    }
-
-    toast({
-      title: "Account setup incomplete",
-      description: "Please choose whether you're signing up as a doctor or patient and try again.",
-      variant: "destructive",
-    });
-  }, [navigate, toast]);
+    // Default any signed-in user without an explicit doctor role to the patient app.
+    // Prevents users getting stranded on /auth or bouncing to the landing page when
+    // the role row hasn't propagated yet (Google OAuth first sign-in, etc.).
+    navigate("/app", { replace: true });
+  }, [navigate]);
 
   const ensureAccountSetup = useCallback(async (userId: string, metadata?: Record<string, any>) => {
     const signupDraft = getStoredSignupDraft();
