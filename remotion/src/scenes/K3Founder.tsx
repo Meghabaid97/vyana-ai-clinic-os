@@ -15,7 +15,7 @@ export const K3Founder: React.FC = () => {
       <BackdropKinetic seed={3} palette={{ bg: COLORS.mint, blob1: COLORS.sage + "55", blob2: COLORS.amber + "44", blob3: COLORS.coral + "33", ink: COLORS.ink }} />
       <Stickers seed={3} count={6} ink={COLORS.sage} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 100, flexDirection: "column" }}>
-        <Eyebrow text="So we built one thing" delay={5} color={COLORS.sage} />
+        <Eyebrow text="We built one thing" delay={5} color={COLORS.sage} />
         <div style={{ height: 40 }} />
         <KineticHeadline
           text="A quiet, lifelong place"
