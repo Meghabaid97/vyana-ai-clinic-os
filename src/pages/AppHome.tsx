@@ -53,25 +53,33 @@ const AppHome = () => {
   const hasRecords = totalRecords > 0;
 
   return (
-    <div className="animate-fade-in overflow-x-hidden pb-2">
-      {/* ── Soft opener (KEEP) ── */}
-      <section className="px-4 sm:px-5 pt-8 pb-5">
-        <div className="max-w-sm">
-          <p className="text-xs font-medium tracking-widest uppercase text-primary mb-3">
-            Welcome back, {firstName}
-          </p>
-          <h1 className="text-[clamp(1.7rem,7.5vw,2.2rem)] font-extrabold leading-[1.04] tracking-[-0.03em] text-foreground">
-            Your health story.{" "}
-            <span className="block text-primary">Always with you.</span>
-          </h1>
-          <p className="mt-2.5 max-w-[32ch] text-[13.5px] text-muted-foreground leading-relaxed">
-            Never explain your medical history again. Doctor-ready in 30 seconds.
-          </p>
-        </div>
-      </section>
+    <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
+      {/* ============ DESKTOP: 2-column hero band ============ */}
+      <div className="lg:grid lg:grid-cols-12 lg:gap-6">
+        {/* Soft opener — spans full width on mobile, 7 cols on desktop */}
+        <section className="px-4 sm:px-5 pt-8 pb-5 lg:col-span-7 lg:px-0 lg:pt-2">
+          <div className="max-w-sm lg:max-w-2xl">
+            <p className="text-xs font-medium tracking-widest uppercase text-primary mb-3">
+              Welcome back, {firstName}
+            </p>
+            <h1 className="text-[clamp(1.7rem,7.5vw,2.2rem)] lg:text-5xl xl:text-6xl font-extrabold leading-[1.04] tracking-[-0.03em] text-foreground">
+              Your health story.{" "}
+              <span className="block text-primary">Always with you.</span>
+            </h1>
+            <p className="mt-2.5 lg:mt-4 max-w-[32ch] lg:max-w-[44ch] text-[13.5px] lg:text-base text-muted-foreground leading-relaxed">
+              Never explain your medical history again. Doctor-ready in 30 seconds.
+            </p>
+          </div>
+        </section>
 
-      {/* ── HERO: Briefing CTA (the wedge) ── */}
-      <DashboardBriefingHero hasRecords={hasRecords} />
+        {/* HERO: Briefing CTA — full width on mobile, 5 cols on desktop */}
+        <div className="lg:col-span-5 lg:pb-0">
+          <DashboardBriefingHero hasRecords={hasRecords} />
+        </div>
+      </div>
+
+      {/* ============ DESKTOP: 2-column body grid ============ */}
+      <div className="lg:grid lg:grid-cols-12 lg:gap-6 lg:mt-2">
 
       {/* ── Your story so far (KEEP) ── */}
       <section className="px-4 sm:px-5 pb-5">
