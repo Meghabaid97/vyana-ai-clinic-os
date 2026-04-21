@@ -109,33 +109,76 @@ const AppHome = () => {
               ))}
             </div>
 
-            <div className="mt-4 rounded-xl p-4 border border-border bg-muted/50">
+            <div className="mt-4 rounded-2xl border border-border bg-gradient-to-br from-card via-card to-primary/[0.03] overflow-hidden">
               {totalRecords === 0 ? (
-                <button onClick={() => navigate("/app/records")} className="group flex items-center gap-3 text-primary w-full min-w-0">
-                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <button onClick={() => navigate("/app/records")} className="group flex items-center gap-3 w-full min-w-0 p-4 text-left hover:bg-primary/5 transition-colors">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                     <Upload className="h-4 w-4 text-primary" />
                   </div>
-                  <span className="min-w-0 font-medium text-sm text-left">Upload your first record. Your story starts here.</span>
-                  <ArrowRight className="h-4 w-4 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm text-foreground">Upload your first record</p>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">Your story starts here.</p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-primary shrink-0 transition-transform group-hover:translate-x-0.5" />
                 </button>
               ) : (
-                <div className="space-y-2">
-                  <div className="relative flex items-center gap-3 overflow-x-auto pb-2">
-                    <div className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 bg-border" />
-                    {recordDates.map((date, i) => (
-                      <div key={i} className="relative flex flex-col items-center shrink-0" style={{ minWidth: "48px" }}>
-                        <div className="h-2.5 w-2.5 rounded-full z-10 bg-primary" />
-                        <span className="mt-1 text-[10px] whitespace-nowrap text-muted-foreground">{date}</span>
-                      </div>
-                    ))}
-                    <div className="relative flex flex-col items-center shrink-0" style={{ minWidth: "48px" }}>
-                      <div className="h-3.5 w-3.5 rounded-full z-10 bg-primary ring-3 ring-primary/20" />
-                      <span className="mt-1 text-[10px] font-semibold whitespace-nowrap text-primary">Today</span>
+                <div className="p-4 sm:p-5">
+                  {/* Header row */}
+                  <div className="flex items-baseline justify-between mb-4">
+                    <div>
+                      <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground">Your timeline</p>
+                      <p className="mt-1 text-2xl lg:text-3xl font-bold text-foreground tracking-tight">
+                        {totalRecords} <span className="text-base font-medium text-muted-foreground">record{totalRecords !== 1 ? "s" : ""}</span>
+                      </p>
                     </div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                      Growing
+                    </span>
                   </div>
-                  <p className="text-sm text-foreground">
-                    {totalRecords} record{totalRecords !== 1 ? "s" : ""} held.{" "}
-                    <span className="text-primary font-medium">Your story is growing.</span>
+
+                  {/* Timeline rail */}
+                  {(() => {
+                    // Dedupe consecutive dates → show count badge
+                    const grouped: { date: string; count: number }[] = [];
+                    recordDates.forEach((d) => {
+                      const last = grouped[grouped.length - 1];
+                      if (last && last.date === d) last.count += 1;
+                      else grouped.push({ date: d, count: 1 });
+                    });
+                    return (
+                      <div className="relative -mx-1 overflow-x-auto pb-1">
+                        <div className="relative flex items-end gap-5 sm:gap-7 px-1 min-w-max">
+                          {/* Rail line */}
+                          <div className="absolute left-1 right-1 bottom-[26px] h-px bg-gradient-to-r from-border via-primary/30 to-primary" />
+                          {grouped.map((g, i) => (
+                            <div key={i} className="relative flex flex-col items-center shrink-0">
+                              <div className="relative">
+                                <div className="h-2.5 w-2.5 rounded-full bg-primary/70 ring-4 ring-background" />
+                                {g.count > 1 && (
+                                  <span className="absolute -top-2 -right-3 min-w-[16px] h-[16px] rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center px-1">
+                                    {g.count}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="mt-2 text-[10px] whitespace-nowrap text-muted-foreground">{g.date}</span>
+                            </div>
+                          ))}
+                          {/* Today marker */}
+                          <div className="relative flex flex-col items-center shrink-0">
+                            <div className="relative">
+                              <div className="h-3.5 w-3.5 rounded-full bg-primary ring-4 ring-background shadow-[0_0_0_4px_hsl(var(--primary)/0.18)]" />
+                            </div>
+                            <span className="mt-2 text-[10px] font-semibold whitespace-nowrap text-primary">Today</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Footer line */}
+                  <p className="mt-4 text-[12.5px] text-muted-foreground leading-relaxed">
+                    Every record adds context the next doctor will thank you for.
                   </p>
                 </div>
               )}
