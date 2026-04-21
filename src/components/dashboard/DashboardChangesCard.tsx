@@ -76,7 +76,7 @@ const DashboardChangesCard = ({ patientId }: Props) => {
 
       {isDemo && (
         <p className="mb-2.5 text-[11px] text-muted-foreground italic">
-          Demo data — your real changes appear here once you upload reports.
+          Demo data. Your real changes appear here once you upload reports.
         </p>
       )}
 

@@ -103,7 +103,7 @@ const PatientProfileEdit = () => {
 
   return (
     <div className="animate-fade-in">
-      {/* Profile Header — Nykaa style */}
+      {/* Profile Header, Nykaa style */}
       <section className="bg-primary/5 px-5 pt-8 pb-6">
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
@@ -120,7 +120,7 @@ const PatientProfileEdit = () => {
           {[
             { value: stats.totalConsultations, label: "Visits" },
             { value: stats.totalDoctors, label: "Doctors" },
-            { value: stats.lastVisit ? new Date(stats.lastVisit).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "—", label: "Last Visit" },
+            { value: stats.lastVisit ? new Date(stats.lastVisit).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "-", label: "Last Visit" },
           ].map((s, i) => (
             <div key={i} className="flex-1 rounded-xl bg-card border border-border p-3 text-center">
               <p className="text-lg font-bold text-foreground">{s.value}</p>
@@ -160,7 +160,7 @@ const PatientProfileEdit = () => {
         </section>
       )}
 
-      {/* Next doctor visit — drives pre-visit notification */}
+      {/* Next doctor visit, drives pre-visit notification */}
       <section className="px-5 pt-4">
         <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3 mb-2">
@@ -229,7 +229,7 @@ const PatientProfileEdit = () => {
         )}
       </section>
 
-      {/* Menu Items — Nykaa style */}
+      {/* Menu Items, Nykaa style */}
       <section className="px-5 pt-2">
         {menuItems.map((item, i) => (
           <button
@@ -249,7 +249,7 @@ const PatientProfileEdit = () => {
         ))}
       </section>
 
-      {/* About Vyana — like Nykaa's footer section */}
+      {/* About Vyana, like Nykaa's footer section */}
       <section className="px-5 pt-6">
         <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">About Vyana</p>
         {aboutItems.map((item, i) => (
@@ -281,7 +281,7 @@ const PatientProfileEdit = () => {
         </button>
       </section>
 
-      {/* App version footer — like Nykaa */}
+      {/* App version footer, like Nykaa */}
       <section className="pb-10 text-center">
         <p className="text-lg font-semibold text-foreground">V<span className="text-primary">yana</span></p>
         <p className="text-[11px] text-muted-foreground mt-1">ver 1.0.0</p>

@@ -1064,9 +1064,9 @@ const ClaimAssistant = () => {
                   role: "assistant",
                   content: `I've reviewed your claim details. Here's what I can help with:\n\n${
                     missingItems.length > 0
-                      ? `⚠️ **${missingItems.length} items still missing** — I can guide you on where to get them.\n\n`
+                      ? `⚠️ **${missingItems.length} items still missing**, I can guide you on where to get them.\n\n`
                       : "✅ All required items look complete!\n\n"
-                  }- **Filing process** — step-by-step for ${insurance.claimType || "your claim type"}\n- **Document corrections** — if anything extracted looks wrong\n- **Timeframes** — IRDA deadlines you should know\n- **TPA process** — how to follow up\n\nWhat would you like help with?`
+                  }- **Filing process**, step-by-step for ${insurance.claimType || "your claim type"}\n- **Document corrections**, if anything extracted looks wrong\n- **Timeframes**, IRDA deadlines you should know\n- **TPA process**, how to follow up\n\nWhat would you like help with?`
                 }]);
               }
               setStep("chat");

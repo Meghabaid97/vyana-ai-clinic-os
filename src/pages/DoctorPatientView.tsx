@@ -399,7 +399,7 @@ const DoctorPatientView = () => {
     const medLines = prescription.medications.split("\n").filter(Boolean);
     const medications = medLines.map(med => {
       // Try to parse medication line (format: "MedicationName - Dosage - Instructions")
-      const parts = med.split(/[-–]/).map(p => p.trim());
+      const parts = med.split(/[--]/).map(p => p.trim());
       return {
         name: parts[0] || med,
         dose: parts[1] || "As prescribed",

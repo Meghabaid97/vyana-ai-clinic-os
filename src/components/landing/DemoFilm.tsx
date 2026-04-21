@@ -90,7 +90,7 @@ const DemoFilm = () => {
             onClick={togglePlay}
           />
 
-          {/* Bottom controls bar — minimal, only on hover */}
+          {/* Bottom controls bar, minimal, only on hover */}
           <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-5 py-4 bg-gradient-to-t from-black/55 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={togglePlay}

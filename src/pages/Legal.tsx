@@ -115,11 +115,11 @@ const Legal = () => {
               <h3 className="text-lg font-semibold">1. Applicability & Regulatory Framework</h3>
               <p>This policy is designed in accordance with:</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>Digital Personal Data Protection Act, 2023 (DPDPA)</strong> — India's primary data protection legislation governing digital personal data.</li>
-                <li><strong>Information Technology Act, 2000</strong> and <strong>IT (Reasonable Security Practices and Procedures) Rules, 2011</strong> — classifying health data as "Sensitive Personal Data or Information" (SPDI) requiring heightened protection.</li>
-                <li><strong>Digital Information Security in Healthcare Act (DISHA)</strong> (proposed) — anticipated legislation for electronic health data. We proactively adopt DISHA-aligned practices.</li>
-                <li><strong>Ayushman Bharat Digital Mission (ABDM)</strong> — for ABHA Health ID integration and health data interoperability standards.</li>
-                <li><strong>HIPAA (reference standard)</strong> — while not legally binding in India, we adopt HIPAA-aligned security practices as a best-practice benchmark for health data protection.</li>
+                <li><strong>Digital Personal Data Protection Act, 2023 (DPDPA)</strong>, India's primary data protection legislation governing digital personal data.</li>
+                <li><strong>Information Technology Act, 2000</strong> and <strong>IT (Reasonable Security Practices and Procedures) Rules, 2011</strong>, classifying health data as "Sensitive Personal Data or Information" (SPDI) requiring heightened protection.</li>
+                <li><strong>Digital Information Security in Healthcare Act (DISHA)</strong> (proposed), anticipated legislation for electronic health data. We proactively adopt DISHA-aligned practices.</li>
+                <li><strong>Ayushman Bharat Digital Mission (ABDM)</strong>, for ABHA Health ID integration and health data interoperability standards.</li>
+                <li><strong>HIPAA (reference standard)</strong>, while not legally binding in India, we adopt HIPAA-aligned security practices as a best-practice benchmark for health data protection.</li>
               </ul>
 
               <h3 className="text-lg font-semibold">2. Data We Collect</h3>
@@ -130,7 +130,7 @@ const Legal = () => {
                 <li>Mobile number (primary unique identifier)</li>
                 <li>Email address</li>
                 <li>ABHA Health ID (14-digit national identifier, optional)</li>
-                <li>Location data (city, pincode — if provided)</li>
+                <li>Location data (city, pincode, if provided)</li>
               </ul>
 
               <h4 className="text-base font-medium">2.2 Health Information (Sensitive Personal Data)</h4>

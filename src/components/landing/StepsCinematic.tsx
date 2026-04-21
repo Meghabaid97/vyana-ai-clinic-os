@@ -218,7 +218,7 @@ const StepRow = ({ step, index }: { step: Step; index: number }) => {
           <Icon className="w-5 h-5 text-primary" />
         </div>
         <p className="font-mono text-[11px] tracking-wider text-primary mb-5">
-          {step.eyebrow.replace(/^Step\s*0?/, "0").replace(/^0(\d)/, "0$1 —")}
+          {step.eyebrow.replace(/^Step\s*0?/, "0").replace(/^0(\d)/, "0$1 -")}
         </p>
         <h3 className="font-serif text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.02em] text-white mb-5">
           {step.title}
@@ -233,7 +233,7 @@ const StepRow = ({ step, index }: { step: Step; index: number }) => {
 
       {/* Mockup column */}
       <div className={`${reverse ? "lg:order-1" : ""} space-y-5`}>
-        {/* Centered colored pill — like "iPad First" in the reference */}
+        {/* Centered colored pill, like "iPad First" in the reference */}
         <div className="flex justify-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-[12px] font-medium shadow-lg shadow-primary/30">
             <PillIcon className="w-3.5 h-3.5" />
@@ -241,7 +241,7 @@ const StepRow = ({ step, index }: { step: Step; index: number }) => {
           </div>
         </div>
 
-        {/* Ivory callout banner — like the TestFlight callout in the reference */}
+        {/* Ivory callout banner, like the TestFlight callout in the reference */}
         <div className="max-w-[460px] mx-auto rounded-xl bg-[hsl(36_30%_96%)] px-4 py-3 flex items-start gap-3 shadow-xl">
           <div className="w-7 h-7 rounded-md bg-[hsl(22_28%_9%)] flex items-center justify-center flex-shrink-0 mt-0.5">
             <Lock className="w-3.5 h-3.5 text-primary" />
@@ -272,7 +272,7 @@ const StepsCinematic = () => {
       id="steps"
       className="relative overflow-hidden bg-[hsl(22_28%_9%)]"
     >
-      {/* Sepia statue backdrop — fixed parallax, warm veil */}
+      {/* Sepia statue backdrop, fixed parallax, warm veil */}
       <div
         className="absolute inset-0 overflow-hidden"
         style={{

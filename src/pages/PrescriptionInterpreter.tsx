@@ -342,7 +342,7 @@ const PrescriptionInterpreter = () => {
           Prescription Reader
         </h1>
         <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-          Photograph or write a prescription — AI interprets it across English, Hindi, Tamil, Telugu & Bengali.
+          Photograph or write a prescription, AI interprets it across English, Hindi, Tamil, Telugu & Bengali.
         </p>
       </section>
 
@@ -438,7 +438,7 @@ const PrescriptionInterpreter = () => {
             <DialogTitle className="flex items-center gap-2">
               <Pen className="h-5 w-5 text-primary" /> Write Prescription
             </DialogTitle>
-            <DialogDescription>Write in any language — English, Hindi, Tamil, Telugu, Bengali</DialogDescription>
+            <DialogDescription>Write in any language, English, Hindi, Tamil, Telugu, Bengali</DialogDescription>
           </DialogHeader>
           <div className="rounded-lg border border-border overflow-hidden bg-background">
             <canvas

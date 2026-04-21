@@ -20,7 +20,7 @@ const nodes: Node[] = [
     kind: "powered",
     eyebrow: "Powered by",
     title: "Vision AI extraction",
-    body: "Snap any prescription, lab report or discharge summary. We pull vitals, meds and diagnoses — handwritten or printed, in five Indian languages.",
+    body: "Snap any prescription, lab report or discharge summary. We pull vitals, meds and diagnoses, handwritten or printed, in five Indian languages.",
   },
   {
     x: 32, y: 70,
@@ -48,7 +48,7 @@ const nodes: Node[] = [
     kind: "experience",
     eyebrow: "Experience",
     title: "Risk flags that listen",
-    body: "ASCVD, ADA diabetes staging, KDIGO kidney scores. Computed from your real numbers — never speculation.",
+    body: "ASCVD, ADA diabetes staging, KDIGO kidney scores. Computed from your real numbers, never speculation.",
   },
 ];
 
@@ -90,7 +90,7 @@ const Constellation = () => {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent" />
       </div>
 
-      {/* Starfield — dense field of tiny ivory specks like the reference */}
+      {/* Starfield, dense field of tiny ivory specks like the reference */}
       <div className="absolute inset-0 pointer-events-none">
         {Array.from({ length: 60 }).map((_, i) => {
           // Deterministic pseudo-random so it doesn't reshuffle on re-render
@@ -143,7 +143,7 @@ const Constellation = () => {
 
         {/* Constellation viewport */}
         <div className="relative w-full aspect-[16/10] hidden lg:block">
-          {/* Connecting SVG lines — pivot in middle, branches to each card */}
+          {/* Connecting SVG lines, pivot in middle, branches to each card */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none"
             viewBox="0 0 1000 625"
@@ -207,7 +207,7 @@ const Constellation = () => {
           {/* Floating cards */}
           {nodes.map((n, i) => {
             const k = kindStyle[n.kind];
-            // Card placement offset from its dot — alternate so they don't sit on top of each other
+            // Card placement offset from its dot, alternate so they don't sit on top of each other
             const xOffset = n.x < 50 ? "translate(-105%, -50%)" : "translate(5%, -50%)";
             return (
               <article

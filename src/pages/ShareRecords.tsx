@@ -115,9 +115,9 @@ const ShareRecords = () => {
           <h2 className="text-[14px] font-bold text-foreground mb-2">How it works</h2>
           <div className="space-y-2">
             {[
-              { icon: Link2, text: "Create a secure link — valid for 24 hours" },
+              { icon: Link2, text: "Create a secure link, valid for 24 hours" },
               { icon: Share2, text: "Share it with your doctor via WhatsApp, email, or in person" },
-              { icon: CheckCircle, text: "Doctor opens the link and sees your records — no app needed" },
+              { icon: CheckCircle, text: "Doctor opens the link and sees your records, no app needed" },
             ].map((step, i) => (
               <div key={i} className="flex items-center gap-2">
                 <step.icon className="h-4 w-4 text-primary shrink-0" />

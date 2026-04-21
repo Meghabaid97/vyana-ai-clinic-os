@@ -193,7 +193,7 @@ export async function generateClaimPdf(params: ClaimPdfParams) {
     ic.billingItems.forEach(b => {
       checkPage(6);
       doc.text(b.item, MARGIN, y);
-      doc.text(b.amount || "—", MARGIN + 120, y);
+      doc.text(b.amount || "-", MARGIN + 120, y);
       y += 5;
     });
     doc.setDrawColor(0);
@@ -215,7 +215,7 @@ export async function generateClaimPdf(params: ClaimPdfParams) {
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100);
-  doc.text("For future doctor visits — extracted from discharge summary", MARGIN, y);
+  doc.text("For future doctor visits, extracted from discharge summary", MARGIN, y);
   doc.setTextColor(0);
   y += 10;
 
