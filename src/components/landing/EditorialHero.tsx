@@ -44,7 +44,7 @@ const EditorialHero = () => {
               and tests, so doctors never make decisions without context again.
             </p>
 
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-2">
               <Button
                 onClick={() => navigate("/auth")}
                 className="group h-11 px-6 text-[15px] rounded-full"
