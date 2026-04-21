@@ -58,8 +58,8 @@ const SideRail = () => {
                 onClick={(e) => handleClick(e, s.id)}
                 className={`group flex items-baseline cursor-pointer font-serif italic text-[14px] leading-none transition-all duration-300 ${
                   isActive
-                    ? "text-foreground translate-x-1"
-                    : "text-foreground/35 hover:text-foreground/70 hover:translate-x-0.5"
+                    ? "text-primary translate-x-1"
+                    : "text-primary/40 hover:text-primary/80 hover:translate-x-0.5"
                 }`}
               >
                 {s.label}
