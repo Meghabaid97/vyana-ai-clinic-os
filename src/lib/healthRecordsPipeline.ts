@@ -69,6 +69,11 @@ export async function summarizeHealthRecord(
     .update({ ai_summary: data.summary })
     .eq("id", recordId);
 
+  // Trigger insight detection (non-blocking)
+  supabase.functions.invoke("detect-insights", {
+    body: { mode: "on-upload", recordId },
+  }).catch((e) => console.error("detect-insights failed", e));
+
   return data.summary;
 }
 

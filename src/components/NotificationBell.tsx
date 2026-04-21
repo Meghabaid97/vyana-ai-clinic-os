@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 
 interface Notification {
   id: string;
@@ -17,51 +19,97 @@ interface Notification {
   type: string;
   is_read: boolean;
   created_at: string;
+  related_entity_type: string | null;
+  related_entity_id: string | null;
 }
 
+const routeFor = (n: Notification): string | null => {
+  switch (n.related_entity_type) {
+    case "health_record":
+    case "abnormal_signal":
+    case "comparison":
+      return "/app/trends";
+    case "pre_visit":
+      return "/app/briefing";
+    case "re_engagement":
+      return "/app/records";
+    default:
+      return null;
+  }
+};
+
 const NotificationBell = () => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const userIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    loadNotifications();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      userIdRef.current = session.user.id;
+      await loadNotifications();
+
+      channel = supabase
+        .channel(`notifications:${session.user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${session.user.id}`,
+          },
+          (payload) => {
+            const n = payload.new as Notification;
+            setNotifications((prev) => [n, ...prev].slice(0, 20));
+            toast(n.title, { description: n.message });
+          },
+        )
+        .subscribe();
+    };
+    init();
+
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadNotifications = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
+    if (!userIdRef.current) return;
     const { data } = await supabase
       .from("notifications")
       .select("*")
-      .eq("user_id", session.user.id)
+      .eq("user_id", userIdRef.current)
       .order("created_at", { ascending: false })
-      .limit(10);
-
-    setNotifications(data || []);
+      .limit(20);
+    setNotifications((data as Notification[]) || []);
   };
 
   const markAsRead = async (id: string) => {
-    await supabase
-      .from("notifications")
-      .update({ is_read: true })
-      .eq("id", id);
-    
+    await supabase.from("notifications").update({ is_read: true }).eq("id", id);
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
     );
   };
 
-  const markAllAsRead = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+  const handleClick = async (n: Notification) => {
+    if (!n.is_read) await markAsRead(n.id);
+    const route = routeFor(n);
+    setIsOpen(false);
+    if (route) navigate(route);
+  };
 
+  const markAllAsRead = async () => {
+    if (!userIdRef.current) return;
     await supabase
       .from("notifications")
       .update({ is_read: true })
-      .eq("user_id", session.user.id)
+      .eq("user_id", userIdRef.current)
       .eq("is_read", false);
-
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
   };
 
@@ -108,7 +156,7 @@ const NotificationBell = () => {
               {notifications.map((notification) => (
                 <button
                   key={notification.id}
-                  onClick={() => markAsRead(notification.id)}
+                  onClick={() => handleClick(notification)}
                   className={`w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors ${
                     !notification.is_read ? "bg-primary/5" : ""
                   }`}
@@ -116,7 +164,7 @@ const NotificationBell = () => {
                   <div className="flex items-start gap-3">
                     <div className={`h-2 w-2 rounded-full mt-2 ${getTypeColor(notification.type)}`} />
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{notification.title}</p>
+                      <p className="font-medium text-sm">{notification.title}</p>
                       <p className="text-xs text-muted-foreground line-clamp-2">{notification.message}</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
