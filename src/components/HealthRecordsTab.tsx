@@ -47,17 +47,6 @@ interface HealthRecord {
   category: string;
 }
 
-interface HealthRecord {
-  id: string;
-  file_name: string;
-  file_path: string;
-  file_type: string;
-  file_size: number;
-  ai_summary: string | null;
-  consent_shared_with: string[] | null;
-  uploaded_at: string;
-}
-
 interface DoctorForConsent {
   doctor_id: string;
   lastVisit: string;
@@ -79,6 +68,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [selectedDoctors, setSelectedDoctors] = useState<Set<string>>(new Set());
   const [showSummaryDialog, setShowSummaryDialog] = useState(false);
   const [viewingSummary, setViewingSummary] = useState<HealthRecord | null>(null);
+  const [activeCategory, setActiveCategory] = useState<RecordCategory>("discharge_summary");
+  const [uploadCategory, setUploadCategory] = useState<RecordCategory>("discharge_summary");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
