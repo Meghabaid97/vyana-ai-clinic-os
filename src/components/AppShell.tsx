@@ -34,14 +34,18 @@ const AppShell = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [patientName, setPatientName] = useState("Patient");
+  const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
 
   useEffect(() => {
     let cancelled = false;
 
     const loadPatient = async (userId: string) => {
-      const { data } = await supabase.from("patients").select("name").eq("user_id", userId).maybeSingle();
+      const { data } = await supabase.from("patients").select("name, pincode, city").eq("user_id", userId).maybeSingle();
       if (cancelled) return;
-      if (data) setPatientName(data.name);
+      if (data) {
+        setPatientName(data.name);
+        setLocation_({ pincode: data.pincode, city: data.city });
+      }
       await supabase.from("patients").update({ last_app_open_at: new Date().toISOString() }).eq("user_id", userId);
     };
 
@@ -87,6 +91,18 @@ const AppShell = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/auth", { replace: true });
+  };
+
+  const handleLocationChange = async (newLocation: { pincode: string; city: string; latitude?: number; longitude?: number }) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from("patients").update({
+      pincode: newLocation.pincode,
+      city: newLocation.city,
+      latitude: newLocation.latitude ?? null,
+      longitude: newLocation.longitude ?? null,
+    }).eq("user_id", session.user.id);
+    setLocation_({ pincode: newLocation.pincode, city: newLocation.city });
   };
 
   return (
