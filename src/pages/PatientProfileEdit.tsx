@@ -17,6 +17,7 @@ interface PatientProfileData {
   age: number | null;
   phone: string | null;
   national_health_id: string | null;
+  next_visit_date: string | null;
 }
 
 const PatientProfileEdit = () => {
@@ -160,7 +161,32 @@ const PatientProfileEdit = () => {
         </section>
       )}
 
-      {/* Edit Profile */}
+      {/* Next doctor visit — drives pre-visit notification */}
+      <section className="px-5 pt-4">
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="flex items-center gap-3 mb-2">
+            <Calendar className="h-5 w-5 text-primary" />
+            <div className="flex-1">
+              <p className="text-[15px] font-medium text-foreground">Next doctor visit</p>
+              <p className="text-xs text-muted-foreground">We'll prep your summary the day before</p>
+            </div>
+          </div>
+          <Input
+            type="date"
+            value={profile?.next_visit_date || ""}
+            min={new Date().toISOString().slice(0, 10)}
+            onChange={async (e) => {
+              if (!profile) return;
+              const v = e.target.value || null;
+              const { error } = await supabase.from("patients").update({ next_visit_date: v }).eq("id", profile.id);
+              if (!error) {
+                setProfile({ ...profile, next_visit_date: v });
+                toast({ title: v ? "Visit saved" : "Visit cleared", description: v ? "We'll remind you the day before." : "" });
+              }
+            }}
+          />
+        </div>
+      </section>
       <section className="px-5 pt-5">
         <button
           onClick={() => setEditMode(!editMode)}
