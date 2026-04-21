@@ -19,7 +19,7 @@ const OutcomeSection = () => {
   const flips = useReveal<HTMLDivElement>();
 
   return (
-    <section id="output" className="relative py-28 lg:py-36 bg-surface-dark">
+    <section id="output" className="relative py-28 lg:py-36 bg-background">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12 space-y-24">
         <div>
           <div
@@ -29,7 +29,7 @@ const OutcomeSection = () => {
             <p className="font-serif italic text-[15px] text-primary/90 mb-5">
               What you walk in with
             </p>
-            <h2 className="font-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
+            <h2 className="font-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.02] tracking-[-0.02em] text-foreground">
               Your next appointment,
               <br />
               <em className="italic text-primary font-normal">already prepared.</em>
@@ -42,10 +42,10 @@ const OutcomeSection = () => {
             {outputs.map((o, i) => (
               <div
                 key={i}
-                className={`reveal reveal-delay-${i + 1} ${out.visible ? "is-visible" : ""} flex items-start gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-5`}
+                className={`reveal reveal-delay-${i + 1} ${out.visible ? "is-visible" : ""} flex items-start gap-4 rounded-xl border border-border bg-card p-5`}
               >
                 <span className="font-serif text-primary text-[22px] leading-none mt-0.5">·</span>
-                <span className="text-[15px] leading-[1.55] text-surface-dark-foreground/90">{o}</span>
+                <span className="text-[15px] leading-[1.55] text-foreground/90">{o}</span>
               </div>
             ))}
           </div>
@@ -62,12 +62,12 @@ const OutcomeSection = () => {
             {outcomes.map((o, i) => (
               <div
                 key={i}
-                className={`reveal reveal-delay-${i + 1} ${flips.visible ? "is-visible" : ""} rounded-2xl border border-white/10 bg-white/[0.03] p-7`}
+                className={`reveal reveal-delay-${i + 1} ${flips.visible ? "is-visible" : ""} rounded-2xl border border-border bg-card p-7`}
               >
-                <p className="text-[14px] text-surface-dark-muted/70 line-through">
+                <p className="text-[14px] text-foreground/45 line-through">
                   {o.stop}
                 </p>
-                <p className="mt-3 font-serif text-[26px] leading-[1.15] text-surface-dark-foreground tracking-[-0.01em]">
+                <p className="mt-3 font-serif text-[26px] leading-[1.15] text-foreground tracking-[-0.01em]">
                   <em className="italic text-primary font-normal">{o.gain}</em>
                 </p>
               </div>

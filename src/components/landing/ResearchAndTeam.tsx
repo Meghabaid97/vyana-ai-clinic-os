@@ -30,7 +30,7 @@ const ResearchAndTeam = () => {
   const right = useReveal<HTMLDivElement>();
 
   return (
-    <section id="research" className="relative bg-background py-28 lg:py-36 border-t border-border/60">
+    <section id="research" className="relative bg-surface-dark py-28 lg:py-36">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
@@ -39,12 +39,12 @@ const ResearchAndTeam = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             The science
           </p>
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.02] tracking-[-0.02em] text-foreground">
+          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
             Built on the same protocols
             <br />
             <em className="italic text-primary font-normal">your doctor already trusts.</em>
           </h2>
-          <p className="mt-6 text-[17px] text-foreground/75 leading-[1.65] max-w-[560px]">
+          <p className="mt-6 text-[17px] text-surface-dark-muted leading-[1.65] max-w-[560px]">
             Every flag, score and warning in Vyana is a faithful implementation
             of a published clinical guideline. Not generative guesswork.
           </p>
@@ -58,15 +58,15 @@ const ResearchAndTeam = () => {
             {citations.map((c, i) => (
               <article
                 key={i}
-                className={`reveal reveal-delay-${i + 1} ${left.visible ? "is-visible" : ""} rounded-2xl border border-border bg-card p-7`}
+                className={`reveal reveal-delay-${i + 1} ${left.visible ? "is-visible" : ""} rounded-2xl border border-white/10 bg-white/[0.03] p-7`}
               >
-                <h3 className="font-serif text-[22px] text-foreground leading-tight mb-2">
+                <h3 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-2">
                   {c.title}
                 </h3>
-                <p className="font-serif italic text-[12.5px] text-foreground/55 leading-relaxed mb-4">
+                <p className="font-serif italic text-[12.5px] text-surface-dark-muted/80 leading-relaxed mb-4">
                   {c.cite}
                 </p>
-                <p className="text-[14.5px] text-foreground/80 leading-[1.65]">
+                <p className="text-[14.5px] text-surface-dark-foreground/85 leading-[1.65]">
                   {c.line}
                 </p>
               </article>
@@ -77,12 +77,12 @@ const ResearchAndTeam = () => {
             ref={right.ref}
             className={`reveal ${right.visible ? "is-visible" : ""} space-y-5`}
           >
-            <div className="rounded-2xl border border-border bg-card p-7">
-              <p className="text-[11px] tracking-[0.3em] uppercase text-foreground/55 mb-5">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+              <p className="text-[11px] tracking-[0.3em] uppercase text-surface-dark-muted/80 mb-5">
                 Built by founders from
               </p>
               <div className="grid grid-cols-2 gap-4">
-                <div className="h-24 rounded-lg border border-border bg-background flex items-center justify-center">
+                <div className="h-24 rounded-lg bg-white flex items-center justify-center">
                   <img
                     src={whartonLogo}
                     alt="Wharton School, University of Pennsylvania"
@@ -90,7 +90,7 @@ const ResearchAndTeam = () => {
                     loading="lazy"
                   />
                 </div>
-                <div className="h-24 rounded-lg border border-border bg-background flex items-center justify-center text-center px-4">
+                <div className="h-24 rounded-lg bg-white flex items-center justify-center text-center px-4">
                   <div>
                     <div className="font-serif text-[15px] text-foreground leading-tight">
                       Clinical Advisors
@@ -103,14 +103,14 @@ const ResearchAndTeam = () => {
               </div>
             </div>
 
-            <article className="rounded-2xl border border-border bg-card p-7">
-              <h4 className="font-serif text-[22px] text-foreground leading-tight mb-1">
+            <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+              <h4 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-1">
                 Megha Baid
               </h4>
               <p className="text-[13px] text-primary font-medium mb-4">
                 Founder · CS Major · Ex-FAANG · Wharton MBA
               </p>
-              <p className="text-[14.5px] text-foreground/75 leading-[1.7]">
+              <p className="text-[14.5px] text-surface-dark-muted leading-[1.7]">
                 Megha is pursuing her MBA at Wharton, focused on healthcare and
                 applied AI. She lost both grandparents to medical emergencies
                 in Tirupur 2005 where doctors had no clinical history, and
@@ -120,14 +120,14 @@ const ResearchAndTeam = () => {
               </p>
             </article>
 
-            <article className="rounded-2xl border border-border bg-card p-7">
-              <h4 className="font-serif text-[22px] text-foreground leading-tight mb-1">
+            <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+              <h4 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-1">
                 Clinical Advisory Board
               </h4>
               <p className="text-[13px] text-primary font-medium mb-4">
                 The trust
               </p>
-              <p className="text-[14.5px] text-foreground/75 leading-[1.7]">
+              <p className="text-[14.5px] text-surface-dark-muted leading-[1.7]">
                 Practising physicians from Indian tertiary hospitals contribute
                 to our risk engine, briefing protocols and the clinical safety
                 rules that govern every AI-generated insight in Vyana.
