@@ -503,10 +503,12 @@ export type Database = {
           created_at: string
           date_of_birth: string | null
           id: string
+          last_app_open_at: string | null
           latitude: number | null
           longitude: number | null
           name: string
           national_health_id: string | null
+          next_visit_date: string | null
           phone: string | null
           pincode: string | null
           updated_at: string
@@ -519,10 +521,12 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           id?: string
+          last_app_open_at?: string | null
           latitude?: number | null
           longitude?: number | null
           name: string
           national_health_id?: string | null
+          next_visit_date?: string | null
           phone?: string | null
           pincode?: string | null
           updated_at?: string
@@ -535,10 +539,12 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           id?: string
+          last_app_open_at?: string | null
           latitude?: number | null
           longitude?: number | null
           name?: string
           national_health_id?: string | null
+          next_visit_date?: string | null
           phone?: string | null
           pincode?: string | null
           updated_at?: string
