@@ -82,59 +82,62 @@ const AppShell = () => {
   const subTitle = subRouteTitles[location.pathname];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
-      {/* Top bar */}
-      <header className="bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm">
-        <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between gap-2">
-          {isSubRoute ? (
-            <button
-              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
-              aria-label="Go back"
-              className="-ml-1 inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-foreground hover:bg-muted transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span className="font-display text-lg truncate">{subTitle || "Back"}</span>
-            </button>
-          ) : (
-            <span className="font-display text-2xl text-foreground tracking-tight leading-none">
-              V<span className="text-primary italic">yana</span>
-            </span>
-          )}
-          <div className="flex items-center gap-1">
-            <NotificationBell />
-            <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{patientName.split(" ")[0]}</span>
-          </div>
-        </div>
-      </header>
-
-      {/* Content area */}
-      <main className="flex-1 overflow-y-auto pb-20 sm:pb-24">
-        <Outlet />
-      </main>
-
-      {/* Bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background/95 border-t border-border z-50 safe-area-bottom backdrop-blur-sm">
-        <div className="grid grid-cols-6 items-center h-14 sm:h-16 max-w-lg mx-auto px-0.5 sm:px-1">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
+    <div className="min-h-screen bg-muted/40 sm:bg-muted/60 flex justify-center overflow-x-hidden">
+      {/* Phone-frame container: full-bleed on mobile, centered card on tablet/desktop */}
+      <div className="relative w-full sm:max-w-[440px] min-h-screen bg-background sm:my-4 sm:rounded-[28px] sm:shadow-2xl sm:shadow-foreground/10 sm:border sm:border-border sm:overflow-hidden flex flex-col">
+        {/* Top bar */}
+        <header className="bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm sm:rounded-t-[28px]">
+          <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between gap-2">
+            {isSubRoute ? (
               <button
-                key={tab.id}
-                onClick={() => navigate(tab.path)}
-                aria-label={tab.label}
-                className={cn(
-                  "flex min-w-0 flex-col items-center justify-center gap-0.5 sm:gap-1 h-full rounded-xl px-0.5 sm:px-1 transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground"
-                )}
+                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
+                aria-label="Go back"
+                className="-ml-1 inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-foreground hover:bg-muted transition-colors"
               >
-                <tab.icon className={cn("h-4.5 w-4.5 sm:h-5 sm:w-5", isActive && "stroke-[2.5]")} />
-                <span className="hidden min-[361px]:block truncate text-[10px] font-medium leading-none">{tab.label}</span>
-                <span className="block min-[361px]:hidden truncate text-[9px] font-medium leading-none">{tab.shortLabel}</span>
+                <ArrowLeft className="h-5 w-5" />
+                <span className="font-display text-lg truncate">{subTitle || "Back"}</span>
               </button>
-            );
-          })}
-        </div>
-      </nav>
+            ) : (
+              <span className="font-display text-2xl text-foreground tracking-tight leading-none">
+                V<span className="text-primary italic">yana</span>
+              </span>
+            )}
+            <div className="flex items-center gap-1">
+              <NotificationBell />
+              <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{patientName.split(" ")[0]}</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Content area */}
+        <main className="flex-1 overflow-y-auto pb-20 sm:pb-24">
+          <Outlet />
+        </main>
+
+        {/* Bottom tab bar: pinned to viewport on mobile, pinned to frame on desktop */}
+        <nav className="fixed sm:absolute bottom-0 left-0 right-0 bg-background/95 border-t border-border z-50 safe-area-bottom backdrop-blur-sm sm:rounded-b-[28px]">
+          <div className="grid grid-cols-6 items-center h-14 sm:h-16 max-w-lg mx-auto px-0.5 sm:px-1">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => navigate(tab.path)}
+                  aria-label={tab.label}
+                  className={cn(
+                    "flex min-w-0 flex-col items-center justify-center gap-0.5 sm:gap-1 h-full rounded-xl px-0.5 sm:px-1 transition-colors",
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  <tab.icon className={cn("h-4.5 w-4.5 sm:h-5 sm:w-5", isActive && "stroke-[2.5]")} />
+                  <span className="hidden min-[361px]:block truncate text-[10px] font-medium leading-none">{tab.label}</span>
+                  <span className="block min-[361px]:hidden truncate text-[9px] font-medium leading-none">{tab.shortLabel}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
     </div>
   );
 };
