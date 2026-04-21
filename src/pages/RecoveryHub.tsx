@@ -25,6 +25,7 @@ import {
   summarizeHealthRecord,
   createMedicationReminders,
 } from "@/lib/healthRecordsPipeline";
+import { mapDocCategoryToRecord } from "@/lib/recordCategories";
 
 // ─── Types ───
 
@@ -152,7 +153,7 @@ const ClaimAssistant = () => {
   // Health records picker
   const [showRecordsPicker, setShowRecordsPicker] = useState(false);
   const [pickerCategory, setPickerCategory] = useState<DocCategory>("discharge_summary");
-  const [healthRecords, setHealthRecords] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; file_size: number; uploaded_at: string }>>([]);
+  const [healthRecords, setHealthRecords] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; file_size: number; uploaded_at: string; category: string }>>([]);
   const [loadingRecords, setLoadingRecords] = useState(false);
   const [downloadingRecord, setDownloadingRecord] = useState<string | null>(null);
 
@@ -197,10 +198,11 @@ const ClaimAssistant = () => {
     setDocs(prev => [...prev, ...newDocs]);
     if (fileInputRef.current) fileInputRef.current.value = "";
 
-    // Auto-save each file to health records in background
+    // Auto-save each file to health records in background, tagged with the chosen category
     if (patientId && userId) {
       for (const doc of newDocs) {
-        saveToHealthRecords(doc.file, patientId, userId)
+        const recordCategory = mapDocCategoryToRecord(doc.category);
+        saveToHealthRecords(doc.file, patientId, userId, recordCategory)
           .then(async (result) => {
             if (!result) return;
             setSavedRecordIds(prev => new Set([...prev, doc.id]));
@@ -229,7 +231,7 @@ const ClaimAssistant = () => {
       try {
         const { data } = await supabase
           .from("health_records")
-          .select("id, file_name, file_path, file_type, file_size, uploaded_at")
+          .select("id, file_name, file_path, file_type, file_size, uploaded_at, category")
           .eq("patient_id", patientId)
           .order("uploaded_at", { ascending: false });
         setHealthRecords(data || []);
@@ -721,8 +723,18 @@ const ClaimAssistant = () => {
                   <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">No health records found. Upload records in the Health Records tab first.</p>
                 </div>
-              ) : (
-                healthRecords.map(record => (
+              ) : (() => {
+                const targetCategory = mapDocCategoryToRecord(pickerCategory);
+                const filtered = healthRecords.filter(r => r.category === targetCategory || r.category === "other");
+                if (filtered.length === 0) {
+                  return (
+                    <div className="text-center py-8">
+                      <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">No matching records in this category. Upload one in Records first.</p>
+                    </div>
+                  );
+                }
+                return filtered.map(record => (
                   <button
                     key={record.id}
                     onClick={() => pickHealthRecord(record)}
@@ -748,8 +760,9 @@ const ClaimAssistant = () => {
                       <Check className="h-4 w-4 text-muted-foreground shrink-0" />
                     )}
                   </button>
-                ))
-              )}
+                ));
+              })()
+              }
             </div>
           </DialogContent>
         </Dialog>

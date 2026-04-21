@@ -1,0 +1,2 @@
+ALTER TABLE public.health_records ADD COLUMN IF NOT EXISTS category TEXT NOT NULL DEFAULT 'other';
+CREATE INDEX IF NOT EXISTS idx_health_records_category ON public.health_records(patient_id, category);

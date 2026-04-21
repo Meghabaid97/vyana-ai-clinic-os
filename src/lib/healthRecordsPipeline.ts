@@ -8,6 +8,7 @@ export async function saveToHealthRecords(
   file: File,
   patientId: string,
   userId: string,
+  category: string = "other",
 ): Promise<{ recordId: string; filePath: string } | null> {
   const filePath = `${userId}/${Date.now()}_${file.name}`;
 
@@ -24,6 +25,7 @@ export async function saveToHealthRecords(
       file_path: filePath,
       file_type: file.type,
       file_size: file.size,
+      category,
     })
     .select("id")
     .single();
