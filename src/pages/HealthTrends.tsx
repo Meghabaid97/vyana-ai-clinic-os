@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   TrendingUp, TrendingDown, Activity, Heart, Droplets, Thermometer, Eye,
@@ -79,10 +80,27 @@ const HealthTrends = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const autoProcessedRecordRef = useRef<string | null>(null);
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     void loadTrends();
   }, []);
+
+  // Deep-link: scroll to a specific vital when ?vital=key is present
+  useEffect(() => {
+    const target = searchParams.get("vital");
+    if (!target) return;
+    // Wait a tick for vitals to render
+    const t = setTimeout(() => {
+      const el = document.getElementById(`vital-${target}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("ring-2", "ring-primary/40");
+        setTimeout(() => el.classList.remove("ring-2", "ring-primary/40"), 2000);
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchParams, vitalHistory]);
 
   useEffect(() => {
     if (!records.length) {
@@ -690,7 +708,7 @@ const HealthTrends = () => {
               return (
                 <HoverCard key={vi} openDelay={200}>
                   <HoverCardTrigger asChild>
-                    <div className="rounded-xl border border-border bg-card p-3.5 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors">
+                    <div id={`vital-${vital.key}`} className="rounded-xl border border-border bg-card p-3.5 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors scroll-mt-24">
                       <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${vital.status === "warning" ? "bg-destructive/10" : "bg-primary/10"}`}>
                         <vital.icon className={`h-4 w-4 ${vital.status === "warning" ? "text-destructive" : "text-primary"}`} />
                       </div>
