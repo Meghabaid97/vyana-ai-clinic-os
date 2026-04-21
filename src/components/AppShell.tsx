@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Home, TrendingUp, FolderOpen, Stethoscope, User, Heart, ArrowLeft } from "lucide-react";
+import { Home, TrendingUp, FolderOpen, Stethoscope, User, Heart, ArrowLeft, Search, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
@@ -25,6 +25,7 @@ const subRouteTitles: Record<string, string> = {
   "/app/support": "Help & Support",
   "/app/medical-history": "Medical History",
   "/app/emergency-contacts": "Emergency Contacts",
+  "/app/visit": "Doctor Visit Mode",
 };
 
 const AppShell = () => {
@@ -42,7 +43,6 @@ const AppShell = () => {
       await supabase.from("patients").update({ last_app_open_at: new Date().toISOString() }).eq("user_id", userId);
     };
 
-    // Subscribe first to avoid race with session hydration after redirect from /auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (cancelled) return;
       if (session) {
@@ -55,7 +55,6 @@ const AppShell = () => {
       if (session) {
         void loadPatient(session.user.id);
       } else {
-        // Give Supabase a brief moment to hydrate before bouncing to /auth
         setTimeout(async () => {
           if (cancelled) return;
           const { data: { session: retry } } = await supabase.auth.getSession();
@@ -81,63 +80,186 @@ const AppShell = () => {
   const isSubRoute = !tabPaths.has(location.pathname) && location.pathname.startsWith("/app");
   const subTitle = subRouteTitles[location.pathname];
 
+  const firstName = patientName.split(" ")[0];
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth", { replace: true });
+  };
+
   return (
-    <div className="min-h-screen bg-muted/40 sm:bg-muted/60 flex justify-center overflow-x-hidden">
-      {/* Phone-frame container: full-bleed on mobile, centered card on tablet/desktop */}
-      <div className="relative w-full sm:max-w-[440px] min-h-screen bg-background sm:my-4 sm:rounded-[28px] sm:shadow-2xl sm:shadow-foreground/10 sm:border sm:border-border sm:overflow-hidden flex flex-col">
-        {/* Top bar */}
-        <header className="bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm sm:rounded-t-[28px]">
-          <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between gap-2">
-            {isSubRoute ? (
-              <button
-                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
-                aria-label="Go back"
-                className="-ml-1 inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-foreground hover:bg-muted transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="font-display text-lg truncate">{subTitle || "Back"}</span>
-              </button>
-            ) : (
-              <span className="font-display text-2xl text-foreground tracking-tight leading-none">
-                V<span className="text-primary italic">yana</span>
-              </span>
-            )}
-            <div className="flex items-center gap-1">
-              <NotificationBell />
-              <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{patientName.split(" ")[0]}</span>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* ============ MOBILE TOP BAR (hidden on lg+) ============ */}
+      <header className="lg:hidden bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm">
+        <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between gap-2">
+          {isSubRoute ? (
+            <button
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
+              aria-label="Go back"
+              className="-ml-1 inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-foreground hover:bg-muted transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="font-display text-lg truncate">{subTitle || "Back"}</span>
+            </button>
+          ) : (
+            <span className="font-display text-2xl text-foreground tracking-tight leading-none">
+              V<span className="text-primary italic">yana</span>
+            </span>
+          )}
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{firstName}</span>
+          </div>
+        </div>
+      </header>
+
+      {/* ============ DESKTOP TOP BAR (lg+) — Amazon-style full-width ============ */}
+      <header className="hidden lg:block bg-background border-b border-border sticky top-0 z-50">
+        {/* Primary row */}
+        <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center gap-6">
+          <button
+            onClick={() => navigate("/app")}
+            className="font-display text-3xl text-foreground tracking-tight leading-none shrink-0"
+            aria-label="Vyana home"
+          >
+            V<span className="text-primary italic">yana</span>
+          </button>
+
+          {/* Search */}
+          <div className="flex-1 max-w-2xl">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="search"
+                placeholder="Search records, medications, conditions..."
+                className="w-full h-10 pl-10 pr-4 rounded-full border border-border bg-muted/40 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:bg-background transition-all"
+              />
             </div>
           </div>
-        </header>
 
-        {/* Content area */}
-        <main className="flex-1 overflow-y-auto pb-20 sm:pb-24">
-          <Outlet />
-        </main>
+          {/* Doctor Visit CTA — the wedge, surfaced on desktop */}
+          <button
+            onClick={() => navigate("/app/visit")}
+            className="hidden xl:inline-flex items-center gap-2 rounded-full bg-primary px-4 h-10 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+          >
+            <Stethoscope className="h-4 w-4" />
+            Doctor visit mode
+          </button>
 
-        {/* Bottom tab bar: pinned to viewport on mobile, pinned to frame on desktop */}
-        <nav className="fixed sm:absolute bottom-0 left-0 right-0 bg-background/95 border-t border-border z-50 safe-area-bottom backdrop-blur-sm sm:rounded-b-[28px]">
-          <div className="grid grid-cols-6 items-center h-14 sm:h-16 max-w-lg mx-auto px-0.5 sm:px-1">
+          <div className="flex items-center gap-2 shrink-0">
+            <NotificationBell />
+            <button
+              onClick={() => navigate("/app/profile")}
+              className="flex items-center gap-2 rounded-full px-3 h-10 hover:bg-muted transition-colors"
+            >
+              <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-bold text-primary">
+                {firstName.charAt(0).toUpperCase()}
+              </div>
+              <div className="text-left leading-tight">
+                <div className="text-[10px] text-muted-foreground">Account</div>
+                <div className="text-xs font-semibold text-foreground max-w-[8rem] truncate">{firstName}</div>
+              </div>
+            </button>
+            <button
+              onClick={handleSignOut}
+              aria-label="Sign out"
+              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Secondary nav row */}
+        <div className="border-t border-border bg-muted/30">
+          <div className="max-w-[1400px] mx-auto px-6 h-11 flex items-center gap-1">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
-                  aria-label={tab.label}
                   className={cn(
-                    "flex min-w-0 flex-col items-center justify-center gap-0.5 sm:gap-1 h-full rounded-xl px-0.5 sm:px-1 transition-colors",
-                    isActive ? "text-primary" : "text-muted-foreground"
+                    "inline-flex items-center gap-2 px-3.5 h-8 rounded-full text-[13px] font-medium transition-colors",
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground hover:bg-muted"
                   )}
                 >
-                  <tab.icon className={cn("h-4.5 w-4.5 sm:h-5 sm:w-5", isActive && "stroke-[2.5]")} />
-                  <span className="hidden min-[361px]:block truncate text-[10px] font-medium leading-none">{tab.label}</span>
-                  <span className="block min-[361px]:hidden truncate text-[9px] font-medium leading-none">{tab.shortLabel}</span>
+                  <tab.icon className="h-3.5 w-3.5" />
+                  {tab.label}
                 </button>
               );
             })}
           </div>
-        </nav>
-      </div>
+        </div>
+
+        {/* Sub-route breadcrumb */}
+        {isSubRoute && (
+          <div className="border-t border-border">
+            <div className="max-w-[1400px] mx-auto px-6 h-10 flex items-center gap-2">
+              <button
+                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Back
+              </button>
+              <span className="text-muted-foreground/50 text-xs">/</span>
+              <span className="text-xs font-semibold text-foreground">{subTitle || "Page"}</span>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* ============ CONTENT ============ */}
+      {/* Mobile: full-bleed scroll. Desktop: centered max-width container */}
+      <main className="flex-1 overflow-y-auto pb-20 lg:pb-10">
+        <div className="lg:max-w-[1400px] lg:mx-auto lg:px-6 lg:py-6">
+          <Outlet />
+        </div>
+      </main>
+
+      {/* ============ MOBILE BOTTOM TAB BAR (hidden on lg+) ============ */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 border-t border-border z-50 safe-area-bottom backdrop-blur-sm">
+        <div className="grid grid-cols-6 items-center h-14 sm:h-16 max-w-lg mx-auto px-0.5 sm:px-1">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => navigate(tab.path)}
+                aria-label={tab.label}
+                className={cn(
+                  "flex min-w-0 flex-col items-center justify-center gap-0.5 sm:gap-1 h-full rounded-xl px-0.5 sm:px-1 transition-colors",
+                  isActive ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                <tab.icon className={cn("h-4.5 w-4.5 sm:h-5 sm:w-5", isActive && "stroke-[2.5]")} />
+                <span className="hidden min-[361px]:block truncate text-[10px] font-medium leading-none">{tab.label}</span>
+                <span className="block min-[361px]:hidden truncate text-[9px] font-medium leading-none">{tab.shortLabel}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* ============ DESKTOP FOOTER ============ */}
+      <footer className="hidden lg:block border-t border-border bg-muted/30">
+        <div className="max-w-[1400px] mx-auto px-6 py-6 flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span className="font-display text-base text-foreground">
+              V<span className="text-primary italic">yana</span>
+            </span>
+            <span>Never explain your medical history again.</span>
+          </div>
+          <div className="flex items-center gap-5">
+            <button onClick={() => navigate("/app/support")} className="hover:text-foreground transition-colors">Support</button>
+            <button onClick={() => navigate("/legal")} className="hover:text-foreground transition-colors">Privacy</button>
+            <button onClick={() => navigate("/why-vyana")} className="hover:text-foreground transition-colors">Our story</button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
