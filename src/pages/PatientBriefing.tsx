@@ -194,6 +194,30 @@ const PatientBriefing = () => {
                 <><Sparkles className="h-4 w-4 mr-2" /> Generate My Briefing</>
               )}
             </Button>
+            <button
+              onClick={loadDemo}
+              className="mt-3 inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Play className="h-3 w-3 fill-current" />
+              Or preview with sample data
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Demo banner */}
+      {briefing && isDemo && (
+        <section className="px-5 pb-3">
+          <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 flex items-center justify-between gap-3">
+            <div className="flex items-start gap-2 min-w-0">
+              <Play className="h-3.5 w-3.5 text-yellow-700 mt-0.5 shrink-0 fill-current" />
+              <p className="text-[12px] text-foreground leading-snug">
+                <span className="font-semibold">Demo data</span> — sample patient (Ramesh, 58, T2 diabetic). Generate yours from real records.
+              </p>
+            </div>
+            <Button onClick={clearDemo} variant="outline" size="sm" className="shrink-0 h-7 text-[11px]">
+              Exit demo
+            </Button>
           </div>
         </section>
       )}
