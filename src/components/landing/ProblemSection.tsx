@@ -1,24 +1,19 @@
 import { useReveal } from "@/hooks/use-reveal";
 
-const symptoms = [
-  { k: "75 pages", v: "of scattered reports across hospitals, clinics and labs" },
-  { k: "No history", v: "every new doctor starts from a blank page" },
-  { k: "Time pressure", v: "decisions made in 12 minutes with incomplete data" },
+const stats = [
+  { k: "75 pages", v: "of scattered reports across hospitals, clinics and labs." },
+  { k: "5 minutes", v: "to explain a lifetime of history to a doctor who has never seen you." },
+  { k: "0 context", v: "every new specialist starts from a blank page." },
 ];
 
-const consequences = [
-  "Repeated tests",
-  "Missed patterns",
-  "Delayed diagnoses",
-];
+const consequences = ["Repeated tests", "Missed patterns", "Delayed diagnoses"];
 
 const ProblemSection = () => {
   const header = useReveal<HTMLDivElement>();
   const grid = useReveal<HTMLDivElement>();
-  const tail = useReveal<HTMLDivElement>();
 
   return (
-    <section id="problem" className="relative bg-background py-28 lg:py-36">
+    <section id="problem" className="relative bg-background py-28 lg:py-36 border-t border-border/60">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
@@ -40,14 +35,14 @@ const ProblemSection = () => {
 
         <div
           ref={grid.ref}
-          className={`reveal ${grid.visible ? "is-visible" : ""} grid md:grid-cols-3 gap-6 lg:gap-8`}
+          className={`reveal ${grid.visible ? "is-visible" : ""} grid md:grid-cols-3 gap-6 lg:gap-8 mb-16`}
         >
-          {symptoms.map((s, i) => (
+          {stats.map((s, i) => (
             <div
               key={i}
               className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl border border-border bg-card p-8`}
             >
-              <div className="font-serif text-[34px] leading-none text-primary tracking-[-0.02em]">
+              <div className="font-serif text-[42px] leading-none text-primary tracking-[-0.02em]">
                 {s.k}
               </div>
               <p className="mt-5 text-[15px] leading-[1.65] text-foreground/75">
@@ -57,14 +52,11 @@ const ProblemSection = () => {
           ))}
         </div>
 
-        <div
-          ref={tail.ref}
-          className={`reveal ${tail.visible ? "is-visible" : ""} mt-16 max-w-[760px]`}
-        >
+        <div className="max-w-[760px]">
           <p className="text-[12px] tracking-[0.3em] uppercase text-foreground/55 mb-4">
             This leads to
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 mb-10">
             {consequences.map((c) => (
               <span
                 key={c}
@@ -74,7 +66,7 @@ const ProblemSection = () => {
               </span>
             ))}
           </div>
-          <p className="mt-10 font-serif italic text-[20px] sm:text-[24px] leading-[1.5] text-foreground/85 max-w-[620px]">
+          <p className="font-serif italic text-[20px] sm:text-[24px] leading-[1.5] text-foreground/85 max-w-[620px]">
             This isn't a productivity problem. It's a life problem. In
             emergencies, families have minutes to explain years of history,
             and patients pay the price.

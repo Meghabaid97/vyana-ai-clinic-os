@@ -16,9 +16,9 @@ const EditorialHero = () => {
           width={1920}
           height={1280}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/75 via-background/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/55 via-transparent to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[hsl(36_30%_96%)] to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
       </div>
 
       <div className="relative z-10 min-h-[100svh] flex items-center">
@@ -41,12 +41,6 @@ const EditorialHero = () => {
               and tests, so doctors never make decisions without context again.
             </p>
 
-            <ul className="space-y-2 text-[15px] text-foreground/75 max-w-[520px]">
-              <li>— No more repeating your medical history</li>
-              <li>— No more lost reports</li>
-              <li>— No more unnecessary tests</li>
-            </ul>
-
             <div className="flex items-center gap-3 pt-2">
               <Button
                 onClick={() => navigate("/auth")}
@@ -60,7 +54,7 @@ const EditorialHero = () => {
                 onClick={() => navigate("/why-vyana")}
                 className="text-[15px] text-foreground/70 hover:text-foreground h-11"
               >
-                See the problem we solve
+                Read our story
               </Button>
             </div>
           </div>

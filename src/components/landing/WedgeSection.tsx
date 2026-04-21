@@ -4,7 +4,7 @@ const pillars = [
   {
     n: "01",
     title: "Tracks conditions over time",
-    body: "HbA1c, BP, kidney function, thyroid — the slow signals plotted across years, not visits.",
+    body: "HbA1c, BP, kidney function, thyroid. The slow signals plotted across years, not visits.",
   },
   {
     n: "02",
@@ -25,11 +25,8 @@ const WedgeSection = () => {
   return (
     <section
       id="wedge"
-      className="relative py-32 lg:py-40 bg-[hsl(22_25%_10%)] overflow-hidden"
+      className="relative py-32 lg:py-40 bg-[hsl(22_25%_10%)]"
     >
-      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-background to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
-
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
@@ -56,7 +53,7 @@ const WedgeSection = () => {
           {pillars.map((p, i) => (
             <div
               key={p.n}
-              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-8`}
+              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl border border-white/10 bg-white/[0.03] p-8`}
             >
               <div className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-6">
                 {p.n}
