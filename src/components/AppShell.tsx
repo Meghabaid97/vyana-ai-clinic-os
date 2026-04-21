@@ -125,8 +125,9 @@ const AppShell = () => {
             </span>
           )}
           <div className="flex items-center gap-1">
+            <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
+            <LanguageSelector />
             <NotificationBell />
-            <span className="max-w-[7rem] truncate text-xs sm:text-sm text-muted-foreground">{firstName}</span>
           </div>
         </div>
       </header>
@@ -156,6 +157,8 @@ const AppShell = () => {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
+            <LanguageSelector />
             <NotificationBell />
             <button
               onClick={() => navigate("/app/profile")}
