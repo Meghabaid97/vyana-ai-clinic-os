@@ -37,6 +37,12 @@
 
     --radius: 0.5rem;
 
+    /* Dark walnut surface — alternating editorial sections */
+    --surface-dark: 22 25% 10%;
+    --surface-dark-foreground: 36 30% 95%;
+    --surface-dark-muted: 36 25% 75%;
+    --surface-dark-border: 36 25% 70%;
+
     --sidebar-background: 36 30% 96%;
     --sidebar-foreground: 22 22% 14%;
     --sidebar-primary: 14 62% 54%;
