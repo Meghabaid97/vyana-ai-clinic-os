@@ -73,7 +73,7 @@ const Auth = () => {
   const [skipAbha, setSkipAbha] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [userRole, setUserRole] = useState<UserRole>("doctor");
+  const [userRole] = useState<UserRole>("patient");
   const [emailError, setEmailError] = useState("");
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [healthIdError, setHealthIdError] = useState("");
@@ -109,31 +109,8 @@ const Auth = () => {
     [userRole, name, phone, healthId, dateOfBirth, weight, skipAbha],
   );
 
-  const redirectBasedOnRole = useCallback(async (userId: string, fallbackRole?: UserRole | "admin" | null) => {
-    const { data: roles, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-
-    if (error) throw error;
-
-    const role = roles?.[0]?.role ?? fallbackRole;
-
-    if (role === "doctor" || role === "admin") {
-      const { data: profile } = await supabase
-        .from("doctor_profiles")
-        .select("is_profile_complete")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (!profile || !profile.is_profile_complete) navigate("/doctor-profile-setup", { replace: true });
-      else navigate("/doctor-dashboard", { replace: true });
-      return;
-    }
-
-    // Default any signed-in user without an explicit doctor role to the patient app.
-    // Prevents users getting stranded on /auth or bouncing to the landing page when
-    // the role row hasn't propagated yet (Google OAuth first sign-in, etc.).
+  const redirectBasedOnRole = useCallback(async (_userId: string, _fallbackRole?: UserRole | null) => {
+    // Vyana is consumer-only: every signed-in user goes to the patient app.
     navigate("/app", { replace: true });
   }, [navigate]);
 
@@ -367,9 +344,7 @@ const Auth = () => {
         toast({
           title: "Account created!",
           description: data.session
-            ? userRole === "doctor"
-              ? "Please complete your profile."
-              : "You're signed in now."
+            ? "You're signed in now."
             : "Check your email, verify your account, then sign in.",
         });
         setIsSignUp(false);
@@ -478,21 +453,7 @@ const Auth = () => {
             </div>
           )}
 
-          {/* Role Selection - Only show during sign up */}
-          {isSignUp && (
-            <Tabs value={userRole} onValueChange={(v) => setUserRole(v as UserRole)} className="mb-6">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="doctor" className="flex items-center gap-2">
-                  <Stethoscope className="h-4 w-4" />
-                  {t("auth.doctor")}
-                </TabsTrigger>
-                <TabsTrigger value="patient" className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  {t("auth.patient")}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          )}
+          {/* Vyana is consumer-only — no role selection. */}
 
           {/* Auth Mode Toggle (login only) */}
           {!isSignUp && (
@@ -655,7 +616,7 @@ const Auth = () => {
               )}
 
               <Button type="submit" variant="gradient" className="w-full" disabled={loading || isLockedOut}>
-                {loading ? t("common.loading") : isSignUp ? `${t("auth.signUpBtn")} as ${userRole === "doctor" ? t("auth.doctor") : t("auth.patient")}` : t("auth.signInBtn")}
+                {loading ? t("common.loading") : isSignUp ? t("auth.signUpBtn") : t("auth.signInBtn")}
               </Button>
             </form>
           )}
