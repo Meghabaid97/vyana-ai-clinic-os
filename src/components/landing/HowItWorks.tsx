@@ -49,10 +49,10 @@ const StepChapter = ({ s, index }: { s: Step; index: number }) => {
         <div className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-5">
           Step {s.n}
         </div>
-        <h3 className="font-serif text-[36px] sm:text-[52px] lg:text-[64px] leading-[1.02] tracking-[-0.02em] text-foreground">
+        <h3 className="font-serif text-[36px] sm:text-[52px] lg:text-[64px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
           {s.title}
         </h3>
-        <p className="mt-6 text-[17px] leading-[1.65] text-foreground/75 max-w-[520px]">
+        <p className="mt-6 text-[17px] leading-[1.65] text-surface-dark-muted max-w-[520px]">
           {s.body}
         </p>
       </div>
@@ -73,7 +73,7 @@ const HowItWorks = () => {
   const header = useReveal<HTMLDivElement>();
 
   return (
-    <section id="how" className="relative bg-background py-28 lg:py-36 border-t border-border/60">
+    <section id="how" className="relative bg-surface-dark py-28 lg:py-36">
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
@@ -82,14 +82,14 @@ const HowItWorks = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             How it works
           </p>
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.02] tracking-[-0.02em] text-foreground">
+          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
             Three quiet steps.
             <br />
             <em className="italic text-primary font-normal">A lifetime of context.</em>
           </h2>
         </div>
 
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-white/10">
           {steps.map((s, i) => (
             <StepChapter key={s.n} s={s} index={i} />
           ))}
