@@ -172,8 +172,8 @@ const Auth = () => {
 
   const handleAuthenticatedUser = useCallback(async (userId: string, metadata?: Record<string, any>) => {
     try {
-      const role = await ensureAccountSetup(userId, metadata);
-      await redirectBasedOnRole(userId, role);
+      await ensureAccountSetup(userId, metadata);
+      await redirectBasedOnRole(userId);
     } catch (error: any) {
       toast({
         title: "Login failed",
