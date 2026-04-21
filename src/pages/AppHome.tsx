@@ -98,21 +98,60 @@ const AppHome = () => {
         </div>
       </section>
 
-      {/* ── Stats ── */}
+      {/* ── Action-first CTA (empty) or Stats (with data) ── */}
       <section className="px-4 sm:px-5 pb-4 sm:pb-5">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {[
-            { value: stats.doctors, label: "Doctors" },
-            { value: stats.consultations, label: "Visits" },
-            { value: stats.appointments, label: "Appts" },
-            { value: stats.healthRecords, label: "Records" },
-          ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-border bg-card p-2.5 sm:p-3 text-center">
-              <p className="text-lg sm:text-xl font-bold text-foreground">{s.value}</p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">{s.label}</p>
-            </div>
-          ))}
-        </div>
+        {totalRecords === 0 ? (
+          <div className="space-y-2.5">
+            <button
+              onClick={() => navigate("/app/records")}
+              className="group flex w-full items-center gap-3 rounded-xl bg-primary p-4 text-left shadow-sm transition-transform active:scale-[0.99]"
+            >
+              <div className="h-11 w-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0">
+                <Upload className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] font-semibold text-primary-foreground leading-tight">
+                  Upload your first report
+                </p>
+                <p className="text-[12px] text-primary-foreground/80 mt-0.5 leading-snug">
+                  Prescription, lab report, or discharge summary.
+                </p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-primary-foreground shrink-0 transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              onClick={() => navigate("/why-vyana")}
+              className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left hover:border-primary/30 transition-colors"
+            >
+              <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] font-semibold text-foreground leading-tight">
+                  See how it works
+                </p>
+                <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">
+                  A 60-second tour of your health memory.
+                </p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {[
+              { value: stats.doctors, label: "Doctors" },
+              { value: stats.consultations, label: "Visits" },
+              { value: stats.appointments, label: "Appts" },
+              { value: stats.healthRecords, label: "Records" },
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl border border-border bg-card p-2.5 sm:p-3 text-center">
+                <p className="text-lg sm:text-xl font-bold text-foreground">{s.value}</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ── Story beats — emotional section ── */}
