@@ -135,6 +135,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           file_path: filePath,
           file_type: file.type,
           file_size: file.size,
+          category: uploadCategory,
         })
         .select()
         .single();
