@@ -1,8 +1,11 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { initShareIntent } from "@/lib/shareIntent";
+import ShareReceive from "./pages/ShareReceive";
 import Splash from "./pages/Splash";
 import Index from "./pages/Index";
 import WhyVyana from "./pages/WhyVyana";
@@ -38,12 +41,21 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const ShareIntentBridge = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    void initShareIntent((path) => navigate(path));
+  }, [navigate]);
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ShareIntentBridge />
         <Routes>
           {/* Public */}
           <Route path="/" element={<Index />} />
@@ -71,6 +83,7 @@ const App = () => (
             <Route path="medical-history" element={<PatientMedicalHistory />} />
             <Route path="emergency-contacts" element={<EmergencyContacts />} />
             <Route path="find-doctors" element={<FindDoctors />} />
+            <Route path="share-receive" element={<ShareReceive />} />
           </Route>
 
           {/* Patient standalone pages */}
