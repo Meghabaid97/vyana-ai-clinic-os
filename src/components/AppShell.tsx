@@ -137,15 +137,6 @@ const AppShell = () => {
             </div>
           </div>
 
-          {/* Doctor Visit CTA — the wedge, surfaced on desktop */}
-          <button
-            onClick={() => navigate("/app/visit")}
-            className="hidden xl:inline-flex items-center gap-2 rounded-full bg-primary px-4 h-10 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
-          >
-            <Stethoscope className="h-4 w-4" />
-            Doctor visit mode
-          </button>
-
           <div className="flex items-center gap-2 shrink-0">
             <NotificationBell />
             <button
