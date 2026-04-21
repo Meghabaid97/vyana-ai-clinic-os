@@ -5,7 +5,8 @@ import {
   ArrowRight, Upload, FileText, TrendingUp, Link2, Shield, Calendar,
   Heart, Droplets, Activity, Loader2, ScanLine, IndianRupee,
 } from "lucide-react";
-import HowItWorksTour from "@/components/HowItWorksTour";
+import WatchItWorkModal from "@/components/WatchItWorkModal";
+import { Play } from "lucide-react";
 
 interface PatientProfile {
   id: string;
@@ -126,14 +127,14 @@ const AppHome = () => {
               className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left hover:border-primary/30 transition-colors"
             >
               <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <FileText className="h-5 w-5 text-primary" />
+                <Play className="h-5 w-5 text-primary fill-current ml-0.5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[15px] font-semibold text-foreground leading-tight">
-                  See how it works
+                  Watch it work
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">
-                  A 60-second tour of your health memory.
+                  See Vyana in 60 seconds.
                 </p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
@@ -334,11 +335,7 @@ const AppHome = () => {
         </p>
       </section>
 
-      <HowItWorksTour
-        open={tourOpen}
-        onOpenChange={setTourOpen}
-        onFinish={() => navigate("/app/records")}
-      />
+      <WatchItWorkModal open={tourOpen} onOpenChange={setTourOpen} />
     </div>
   );
 };
