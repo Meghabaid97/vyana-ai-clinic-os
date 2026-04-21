@@ -80,10 +80,27 @@ const HealthTrends = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const autoProcessedRecordRef = useRef<string | null>(null);
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     void loadTrends();
   }, []);
+
+  // Deep-link: scroll to a specific vital when ?vital=key is present
+  useEffect(() => {
+    const target = searchParams.get("vital");
+    if (!target) return;
+    // Wait a tick for vitals to render
+    const t = setTimeout(() => {
+      const el = document.getElementById(`vital-${target}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("ring-2", "ring-primary/40");
+        setTimeout(() => el.classList.remove("ring-2", "ring-primary/40"), 2000);
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchParams, vitalHistory]);
 
   useEffect(() => {
     if (!records.length) {
