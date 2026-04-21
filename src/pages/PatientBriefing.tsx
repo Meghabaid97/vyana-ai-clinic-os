@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, Pill, FileText,
   Share2, Copy, CheckCircle2, Heart, Brain, Stethoscope,
-  ArrowUp, ArrowDown, Minus, Activity,
+  ArrowUp, ArrowDown, Minus, Activity, Play,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
@@ -24,9 +26,32 @@ const PatientBriefing = () => {
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
 
+  // Honour ?demo=1 deep link from home "Try sample data"
+  useEffect(() => {
+    if (searchParams.get("demo") === "1" && !briefing) {
+      setBriefing(SAMPLE_BRIEFING as unknown as Briefing);
+      setIsDemo(true);
+    }
+  }, [searchParams, briefing]);
+
+  const loadDemo = () => {
+    setBriefing(SAMPLE_BRIEFING as unknown as Briefing);
+    setIsDemo(true);
+    setSearchParams({ demo: "1" });
+  };
+
+  const clearDemo = () => {
+    setBriefing(null);
+    setIsDemo(false);
+    setSearchParams({});
+  };
+
   const generateBriefing = async () => {
+    setIsDemo(false);
     setIsLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
