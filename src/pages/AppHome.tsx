@@ -122,7 +122,7 @@ const AppHome = () => {
               <ArrowRight className="h-4 w-4 text-primary-foreground shrink-0 transition-transform group-hover:translate-x-0.5" />
             </button>
             <button
-              onClick={() => navigate("/why-vyana")}
+              onClick={() => setTourOpen(true)}
               className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left hover:border-primary/30 transition-colors"
             >
               <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
