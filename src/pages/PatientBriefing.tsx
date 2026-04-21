@@ -182,25 +182,27 @@ const PatientBriefing = () => {
                 ))}
               </ul>
             </div>
-            <Button
-              onClick={generateBriefing}
-              disabled={isLoading}
-              className="w-full max-w-xs"
-              size="lg"
-            >
-              {isLoading ? (
-                <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Generating...</>
-              ) : (
-                <><Sparkles className="h-4 w-4 mr-2" /> Generate My Briefing</>
-              )}
-            </Button>
-            <button
-              onClick={loadDemo}
-              className="mt-3 inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
-            >
-              <Play className="h-3 w-3 fill-current" />
-              Or preview with sample data
-            </button>
+            <div className="flex flex-col items-center gap-3 max-w-xs mx-auto">
+              <Button
+                onClick={generateBriefing}
+                disabled={isLoading}
+                className="w-full"
+                size="lg"
+              >
+                {isLoading ? (
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Generating...</>
+                ) : (
+                  <><Sparkles className="h-4 w-4 mr-2" /> Generate My Briefing</>
+                )}
+              </Button>
+              <button
+                onClick={loadDemo}
+                className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Play className="h-3 w-3 fill-current" />
+                Or preview with sample data
+              </button>
+            </div>
           </div>
         </section>
       )}
