@@ -18,18 +18,18 @@ const FAQSection = () => {
   }));
 
   return (
-    <section id="faq" className="py-28 lg:py-36 bg-background">
-      <div className="max-w-[900px] mx-auto px-6 lg:px-12">
+    <section id="faq" className="py-24 lg:py-32 bg-background border-t border-border">
+      <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
-          className={`mb-14 transition-all duration-700 ${
+          className={`max-w-[640px] mb-14 transition-all duration-700 ${
             header.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
           }`}
         >
           <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-5">
             VI &nbsp;·&nbsp; {t("faq.eyebrow")}
           </p>
-          <h2 className="font-serif text-[36px] sm:text-[52px] lg:text-[60px] leading-[1.04] tracking-[-0.02em] text-foreground">
+          <h2 className="font-serif text-[32px] sm:text-[44px] lg:text-[52px] leading-[1.05] tracking-[-0.02em] text-foreground">
             {t("faq.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("faq.title.l2")}</em>
