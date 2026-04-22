@@ -68,6 +68,38 @@ const AppHome = () => {
 
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
+      {/* Profile completion nudge — shown to users who signed up via Google or skipped optional fields */}
+      {showProfileBanner && (
+        <div className="px-4 sm:px-5 pt-4">
+          <div className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+              <UserCog className="h-4.5 w-4.5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13.5px] font-semibold text-foreground leading-tight">
+                Finish setting up your profile
+              </p>
+              <p className="text-[11.5px] text-muted-foreground mt-0.5 leading-snug">
+                Add your phone, date of birth, and ABHA ID so we can personalize your care.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/app/profile")}
+              className="text-[12px] font-medium text-primary hover:underline whitespace-nowrap px-2"
+            >
+              Complete →
+            </button>
+            <button
+              onClick={dismissBanner}
+              aria-label="Dismiss"
+              className="text-muted-foreground hover:text-foreground p-1 -mr-1"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ============ DESKTOP: 2-column hero band ============ */}
       <div className="lg:grid lg:grid-cols-12 lg:gap-6">
         {/* Soft opener — spans full width on mobile, 7 cols on desktop */}
