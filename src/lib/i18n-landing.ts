@@ -1,333 +1,800 @@
+import { useEffect, useState } from "react";
 import type { Language } from "./i18n";
+import { getLanguage } from "./i18n";
 
-// Landing page translations, kept separate to avoid bloating the main i18n file
+// Comprehensive landing-page translations across 5 Indian languages.
+// Keep keys flat under `landing.*` so components can stay simple.
 const landingTranslations: Record<Language, Record<string, string>> = {
   en: {
-    "landing.badge": "Born from loss. Built with love.",
-    "landing.headline1": "Your health story.",
-    "landing.headline2": "Always with you.",
-    "landing.subtext": "Every new doctor starts from zero. No records. No history. No context. Families explain a lifetime in five minutes flat.",
-    "landing.subtextBold": "Vyana exists so that never happens again.",
-    "landing.cta": "Start Your Health Story",
-    "landing.whyCta": "Why We Built This",
-    "landing.stat": "Indian families spend ₹10,000+ a year on repeated tests because no one tracks the full picture.",
-
-    "landing.problemTitle": "The problem is",
-    "landing.problemHighlight": "personal",
-    "landing.problemSub": "Not a tech problem. A human one. What happens when the system forgets, and families pay the price.",
-    "landing.beat1Title": "Five minutes. A lifetime of history.",
-    "landing.beat1Text": "A family rushes to the ER. They get five minutes to explain decades of medical history to a stranger. No records. No context. Just fear.",
-    "landing.beat2Title": "75 pages. Zero continuity.",
-    "landing.beat2Text": "Patients carry thick folders of scattered reports. Every new doctor orders fresh blood tests. The clock resets. The bill climbs. Nothing connects.",
-    "landing.beat3Title": "Caught too late.",
-    "landing.beat3Text": "Nobody tracks the slow changes. Conditions worsen quietly. By the time they are caught, prevention is off the table.",
-    "landing.vyanaHolds": "Vyana holds your complete medical history, quietly and securely, so when you need it most,",
-    "landing.itsThere": "it's there",
-
-    "landing.featuresTitle": "Not features.",
-    "landing.featuresHighlight": "Promises.",
-    "landing.featuresSub": "Six things we will never compromise on.",
-    "landing.f1Title": "Upload anything",
-    "landing.f1Desc": "Prescriptions, lab reports, discharge summaries. Photo or PDF. We extract the data so you never explain it twice.",
-    "landing.f2Title": "Track what matters",
-    "landing.f2Desc": "HbA1c, blood pressure, cholesterol, tracked over time. We flag changes early so you can act before it is too late.",
-    "landing.f3Title": "30-second summary",
-    "landing.f3Desc": "One screen. Complete history. Conditions, medications, allergies, visits. A doctor sees everything in half a minute.",
-    "landing.f4Title": "Share with any doctor",
-    "landing.f4Desc": "Secure link. 24 hours. No app needed on their end. Just a clean summary that could save a life.",
-    "landing.f5Title": "Your data. Your rules.",
-    "landing.f5Desc": "ABHA-linked. ABDM compliant. You decide who sees what. Consent is granular and always revocable.",
-    "landing.f6Title": "Built for Indian families",
-    "landing.f6Desc": "Multilingual. Works on any phone. For the daughter managing her father's meds. For the son in the ER at midnight.",
-
-    "landing.missionTitle1": "Building the",
-    "landing.missionHighlight": "health memory",
-    "landing.missionTitle2": "India never had",
-    "landing.missionText": "Every patient deserves a doctor who knows the full story. Not because they explained it in five panicked minutes, but because the system remembered it for them.",
-    "landing.stat1Value": "30s",
-    "landing.stat1Label": "For any doctor to see your full history",
-    "landing.stat2Value": "₹0",
-    "landing.stat2Label": "Wasted on repeated tests",
-    "landing.stat3Value": "1",
-    "landing.stat3Label": "Screen for a doctor to see everything",
-    "landing.readStory": "Read the full story behind Vyana",
-
-    "landing.contactTitle": "Help us build",
-    "landing.contactHighlight": "what should have always existed",
-    "landing.contactText": "Early patients. Forward-thinking doctors. Anyone who has sat in a hospital corridor wishing they had better records. We are looking for you.",
-    "landing.getAccess": "Get Early Access",
-    "landing.connectLinkedin": "Connect on LinkedIn",
-    "landing.footer": "Every patient deserves a doctor who knows their story.",
-
-    "nav.about": "About",
-    "nav.features": "Features",
-    "nav.ourStory": "Our Story",
+    // Nav
+    "nav.story": "Story",
+    "nav.research": "Research",
+    "nav.how": "How it works",
     "nav.contact": "Contact",
-    "nav.signIn": "Sign In",
-    "nav.getStarted": "Get Started",
+    "nav.try": "Try Vyana now",
+
+    // Hero
+    "hero.eyebrow": "Your health story, always with you",
+    "hero.h1.l1": "Never explain",
+    "hero.h1.l2": "your medical",
+    "hero.h1.l3": "history",
+    "hero.h1.again": "again.",
+    "hero.sub":
+      "Upload your reports. Get a doctor-ready summary in 30 seconds. Conditions, medications, recent changes, one screen any doctor can read instantly.",
+    "hero.cta.primary": "Upload your first record",
+    "hero.cta.secondary": "See a sample brief",
+
+    // Problem
+    "problem.eyebrow": "The problem",
+    "problem.title.l1": "Healthcare is broken in",
+    "problem.title.l2": "one simple way.",
+    "problem.sub":
+      "Every time you visit a new doctor, you start from scratch. Your history sits in folders, drawers and inboxes nobody reads.",
+    "problem.stat1.k": "75 pages",
+    "problem.stat1.v": "of scattered reports across hospitals, clinics and labs.",
+    "problem.stat2.k": "5 minutes",
+    "problem.stat2.v": "to explain a lifetime of history to a doctor who has never seen you.",
+    "problem.stat3.k": "0 context",
+    "problem.stat3.v": "every new specialist starts from a blank page.",
+    "problem.consequences": "This leads to",
+    "problem.tag.repeat": "Repeated tests",
+    "problem.tag.miss": "Missed patterns",
+    "problem.tag.delay": "Delayed diagnoses",
+    "problem.closer":
+      "This isn't a productivity problem. It's a life problem. In emergencies, families have minutes to explain years of history, and patients pay the price.",
+
+    // Voices
+    "voices.eyebrow": "Voices",
+    "voices.title.l1": "Every Indian family",
+    "voices.title.l2": "has a version of this story.",
+    "voices.q1.body":
+      "We had five minutes to explain everything. We didn't even know where to start.",
+    "voices.q1.who": "A daughter",
+    "voices.q1.ctx": "Chennai · about her mother's last admission",
+    "voices.q2.body":
+      "Every new doctor sends us back for the same blood tests. We have a folder this thick. Nobody reads it.",
+    "voices.q2.who": "A son",
+    "voices.q2.ctx": "Bengaluru · caring for his diabetic father",
+    "voices.q3.body":
+      "Appa's surgery was at 2 AM. I was holding three prescriptions and a CT scan from a hospital in another city.",
+    "voices.q3.who": "A founder",
+    "voices.q3.ctx": "Delhi · the night Vyana was born",
+
+    // Wedge
+    "wedge.title.l1": "Not a health records app.",
+    "wedge.title.l2": "A clinical memory system.",
+    "wedge.sub":
+      "Vyana doesn't just store files. It builds a continuous health graph, so doctors see your full story in seconds, not silos.",
+    "wedge.p1.title": "Tracks conditions over time",
+    "wedge.p1.body": "HbA1c, BP, kidney function, thyroid. The slow signals plotted across years, not visits.",
+    "wedge.p2.title": "Connects the dots",
+    "wedge.p2.body": "Tests, medications and symptoms linked into one continuous graph, not scattered files.",
+    "wedge.p3.title": "Surfaces what changed",
+    "wedge.p3.body": "Abnormal patterns and shifts highlighted before they become emergencies.",
+
+    // How it works
+    "how.eyebrow": "How it works",
+    "how.title.l1": "Three quiet steps.",
+    "how.title.l2": "A lifetime of context.",
+    "how.step": "Step",
+    "how.s1.title": "Upload anything.",
+    "how.s1.body":
+      "Snap a prescription. Drop a PDF. Forward a discharge summary. We read handwritten Hindi, printed Tamil, smudged Bengali. Five languages, every format.",
+    "how.s2.title": "AI extracts everything.",
+    "how.s2.body":
+      "Vitals, diagnoses, medications, timelines. Thirty-three clinical signals plotted across years, so the slow patterns finally become visible.",
+    "how.s3.title": "Walk in prepared.",
+    "how.s3.body":
+      "A one-page clinical briefing any doctor can read in thirty seconds. Conditions, medications, recent flags. Share on WhatsApp before the appointment.",
+
+    // Outcome
+    "out.eyebrow": "What you walk in with",
+    "out.title.l1": "Your next appointment,",
+    "out.title.l2": "already prepared.",
+    "out.list1": "A one-screen medical summary",
+    "out.list2": "Trends across time (BP, HbA1c, eGFR)",
+    "out.list3": "Medication and diagnosis history",
+    "out.list4": "Abnormal signals highlighted",
+    "out.flips.eyebrow": "What it actually does for you",
+    "out.flip1.stop": "Stop repeating tests",
+    "out.flip1.gain": "Save money",
+    "out.flip2.stop": "Stop guessing history",
+    "out.flip2.gain": "Better care",
+    "out.flip3.stop": "Stop losing reports",
+    "out.flip3.gain": "Stay in control",
+
+    // Trust
+    "trust.eyebrow": "Trust",
+    "trust.title.l1": "Your records belong to you.",
+    "trust.title.l2": "We never sell them. Ever.",
+    "trust.sub":
+      "Vyana is built on India's national health standards and protected by the same encryption banks use. You can export everything, share with any doctor, or delete it all in one tap.",
+    "trust.b1.label": "End-to-end encrypted",
+    "trust.b1.sub": "AES-256 at rest",
+    "trust.b2.label": "ABDM-aligned",
+    "trust.b2.sub": "India's national health stack",
+    "trust.b3.label": "DPDPA 2023 compliant",
+    "trust.b3.sub": "Indian data law",
+    "trust.b4.label": "Your data, your control",
+    "trust.b4.sub": "Delete anytime",
+    "trust.b5.label": "Built at Wharton",
+    "trust.b5.sub": "Healthcare & AI research",
+    "trust.note":
+      "A note on ABDM: Vyana follows India's Ayushman Bharat Digital Mission standards for health records and identity. Full sandbox certification is in progress.",
+
+    // FAQ
+    "faq.eyebrow": "Questions",
+    "faq.title.l1": "Things families",
+    "faq.title.l2": "ask us first.",
+    "faq.q1.q": "Is this approved by India's national health system?",
+    "faq.q1.a":
+      "Yes. Vyana is built to align with the Ayushman Bharat Digital Mission (ABDM), the same framework Apollo, Max, and government hospitals use. Your records can travel across any ABDM-connected clinic in India.",
+    "faq.q2.q": "Who can actually see my records?",
+    "faq.q2.a":
+      "Only you. Doctors see what you choose to share, for as long as you choose. Every share creates a 24-hour link that expires automatically. We never sell your data, never share it with insurers, and never use it to train public AI models.",
+    "faq.q3.q": "Does Vyana work in my language?",
+    "faq.q3.a":
+      "Yes. The app speaks English, Hindi, Tamil, Telugu, and Bengali. Your prescriptions are read in any of these scripts, including handwritten notes. More languages are added based on family requests.",
+    "faq.q4.q": "Will my doctor actually accept the briefing?",
+    "faq.q4.a":
+      "We generate a clean, one-page clinical summary in standard SOAP format that any doctor can read in 30 seconds. It also exports as a structured FHIR file, the global standard hospitals already use. No new app for the doctor to download.",
+    "faq.q5.q": "What if I delete my account?",
+    "faq.q5.a":
+      "Everything goes. Within 30 days every record, vital, prescription, and note is permanently erased from our systems. You can also export all your data as a single download before you leave.",
+    "faq.q6.q": "How much does this cost?",
+    "faq.q6.a":
+      "Free to start. You can upload, organize, and share unlimited records on the free plan. Paid plans add advanced AI features like longitudinal trend analysis and faster support.",
+    "faq.q7.q": "Who is this really for?",
+    "faq.q7.a":
+      "Families managing chronic conditions, adult children caring for elderly parents, anyone juggling specialists across cities, and patients tired of repeating their history every visit. If you've ever lost a prescription, this is for you.",
+    "faq.q8.q": "Is the AI making medical decisions?",
+    "faq.q8.a":
+      "No. Vyana is clinical decision support, not a diagnosis engine. We surface patterns, flag drug interactions, and prepare your history for the doctor. Every medical decision stays with your doctor, where it belongs.",
+    "faq.footer.pre": "Still wondering something?",
+    "faq.footer.link": "Write to Megha directly",
+
+    // CTA
+    "cta.title.l1": "Start your family's",
+    "cta.title.l2": "health memory today.",
+    "cta.sub": "Free to start. Upload your first report in thirty seconds.",
+    "cta.email": "Your email address",
+    "cta.relation": "Who you care for",
+    "cta.city": "City",
+    "cta.button": "Get started",
+    "cta.signoff": "With care,",
+    "cta.role": "Founder · Vyana",
+
+    // Legacy keys still used elsewhere
+    "landing.getAccess": "Get Early Access",
   },
+
   hi: {
-    "landing.badge": "हानि से जन्मा। उद्देश्य से बना।",
-    "landing.headline1": "आपकी स्वास्थ्य कहानी।",
-    "landing.headline2": "हमेशा आपके साथ।",
-    "landing.subtext": "भारत में, हर नया डॉक्टर शून्य से शुरू करता है। कोई रिकॉर्ड नहीं, कोई इतिहास नहीं, कोई संदर्भ नहीं। परिवार पांच मिनट में एक अजनबी डॉक्टर को सब कुछ समझाता है।",
-    "landing.subtextBold": "Vyana इसलिए बना है ताकि ऐसा फिर कभी न हो।",
-    "landing.cta": "अपनी स्वास्थ्य कहानी शुरू करें",
-    "landing.whyCta": "हमने यह क्यों बनाया",
-    "landing.stat": "हर साल, भारतीय परिवार दोहराई गई जांचों पर ₹10,000+ खर्च करते हैं क्योंकि कोई दीर्घकालिक तस्वीर नहीं देखता।",
-
-    "landing.problemTitle": "समस्या है",
-    "landing.problemHighlight": "निजी",
-    "landing.problemSub": "यह तकनीक के बारे में नहीं है। यह इस बारे में है कि जब सिस्टम में याददाश्त नहीं होती तो परिवारों के साथ क्या होता है।",
-    "landing.beat1Title": "एक जिंदगी बताने के लिए पांच मिनट",
-    "landing.beat1Text": "जब परिवार ER में भागता है, उन्हें दशकों का मेडिकल इतिहास एक अजनबी डॉक्टर को पांच मिनट में बताना होता है। कोई रिकॉर्ड नहीं। कोई संदर्भ नहीं। बस घबराहट।",
-    "landing.beat2Title": "75 पन्ने जो कोई नहीं पढ़ता",
-    "landing.beat2Text": "मरीज़ बिखरी रिपोर्ट्स के मोटे फ़ोल्डर लेकर आते हैं। हर नया डॉक्टर फिर से वही ब्लड टेस्ट करवाता है क्योंकि उसे पिछली लैब पर भरोसा नहीं।",
-    "landing.beat3Title": "पुरानी बीमारी बहुत देर से पकड़ी",
-    "landing.beat3Text": "कोई दीर्घकालिक तस्वीर नहीं देखता। स्थितियां धीरे-धीरे बिगड़ती हैं। जब तक पता चलता है, रोकथाम संभव नहीं रहती।",
-    "landing.vyanaHolds": "Vyana आपका पूरा मेडिकल इतिहास रखता है, चुपचाप, सुरक्षित, ताकि जब आपको सबसे ज़्यादा ज़रूरत हो,",
-    "landing.itsThere": "यह वहां हो",
-
-    "landing.featuresTitle": "फ़ीचर्स नहीं।",
-    "landing.featuresHighlight": "वादे।",
-    "landing.featuresSub": "Vyana आपके और आपके परिवार के लिए क्या करता है।",
-    "landing.f1Title": "कुछ भी अपलोड करें",
-    "landing.f1Desc": "प्रिस्क्रिप्शन, लैब रिपोर्ट, डिस्चार्ज समरी, फ़ोटो या PDF। हम डेटा निकालते हैं ताकि आपको दोबारा समझाना न पड़े।",
-    "landing.f2Title": "जो मायने रखता है वो ट्रैक करें",
-    "landing.f2Desc": "HbA1c, ब्लड प्रेशर, कोलेस्ट्रॉल, समय के साथ ट्रैक। कुछ बदले तो हम बताते हैं।",
-    "landing.f3Title": "30-सेकंड सारांश",
-    "landing.f3Desc": "एक स्क्रीन डॉक्टर को आपका पूरा इतिहास दिखाती है। सक्रिय स्थितियां, दवाइयां, एलर्जी, हाल के दौरे।",
-    "landing.f4Title": "किसी भी डॉक्टर के साथ साझा करें",
-    "landing.f4Desc": "24 घंटे के लिए एक सुरक्षित लिंक बनाएं। उनके पास ऐप की ज़रूरत नहीं। बस एक साफ़ सारांश।",
-    "landing.f5Title": "आपका डेटा, आपका नियंत्रण",
-    "landing.f5Desc": "ABHA-लिंक्ड, ABDM अनुपालन। आप तय करें कौन डॉक्टर क्या देखे। सहमति हमेशा वापस ली जा सकती है।",
-    "landing.f6Title": "भारतीय परिवारों के लिए बना",
-    "landing.f6Desc": "बहुभाषी। किसी भी फ़ोन पर चलता है। उस बेटी के लिए बना जो पिता की दवाइयां ट्रैक करती है।",
-
-    "landing.missionTitle1": "बना रहे हैं वो",
-    "landing.missionHighlight": "स्वास्थ्य स्मृति",
-    "landing.missionTitle2": "जो भारत के पास कभी नहीं थी",
-    "landing.missionText": "भारत में हर मरीज़ एक ऐसे डॉक्टर का हक़दार है जो उसकी पूरी कहानी जानता हो। इसलिए नहीं कि उसने घबराहट में पांच मिनट में बताई, बल्कि इसलिए कि सिस्टम ने याद रखी।",
-    "landing.stat1Value": "30s",
-    "landing.stat1Label": "किसी भी डॉक्टर को पूरा इतिहास देखने के लिए",
-    "landing.stat2Value": "₹0",
-    "landing.stat2Label": "दोहराई गई जांचों पर बर्बाद",
-    "landing.stat3Value": "1",
-    "landing.stat3Label": "स्क्रीन पर डॉक्टर को सब कुछ दिखे",
-    "landing.readStory": "Vyana की पूरी कहानी पढ़ें",
-
-    "landing.contactTitle": "बनाने में मदद करें",
-    "landing.contactHighlight": "जो हमेशा से होना चाहिए था",
-    "landing.contactText": "हम शुरुआती मरीज़ों, आगे की सोच रखने वाले डॉक्टरों, और हर उस इंसान की तलाश में हैं जो कभी हॉस्पिटल के गलियारे में बेहतर रिकॉर्ड की कामना करते बैठा हो।",
-    "landing.getAccess": "अर्ली एक्सेस पाएं",
-    "landing.connectLinkedin": "LinkedIn पर जुड़ें",
-    "landing.footer": "हर मरीज़ एक ऐसे डॉक्टर का हक़दार है जो उसकी कहानी जानता हो।",
-
-    "nav.about": "परिचय",
-    "nav.features": "सुविधाएं",
-    "nav.ourStory": "हमारी कहानी",
+    "nav.story": "कहानी",
+    "nav.research": "रिसर्च",
+    "nav.how": "यह कैसे काम करता है",
     "nav.contact": "संपर्क",
-    "nav.signIn": "साइन इन",
-    "nav.getStarted": "शुरू करें",
+    "nav.try": "अभी Vyana आज़माएं",
+
+    "hero.eyebrow": "आपकी स्वास्थ्य कहानी, हमेशा आपके साथ",
+    "hero.h1.l1": "अपना मेडिकल",
+    "hero.h1.l2": "इतिहास कभी",
+    "hero.h1.l3": "दोबारा मत",
+    "hero.h1.again": "समझाइए।",
+    "hero.sub":
+      "अपनी रिपोर्ट अपलोड करें। 30 सेकंड में डॉक्टर के लिए तैयार सारांश पाएं। बीमारियाँ, दवाइयाँ, हाल के बदलाव, एक स्क्रीन जो कोई भी डॉक्टर तुरंत पढ़ सके।",
+    "hero.cta.primary": "अपनी पहली रिपोर्ट अपलोड करें",
+    "hero.cta.secondary": "एक नमूना सारांश देखें",
+
+    "problem.eyebrow": "समस्या",
+    "problem.title.l1": "हेल्थकेयर एक",
+    "problem.title.l2": "साधारण तरीके से टूटा है।",
+    "problem.sub":
+      "हर बार जब आप किसी नए डॉक्टर के पास जाते हैं, सब कुछ शून्य से शुरू होता है। आपका इतिहास फ़ोल्डरों और दराज़ों में पड़ा रहता है, जिन्हें कोई नहीं पढ़ता।",
+    "problem.stat1.k": "75 पन्ने",
+    "problem.stat1.v": "अस्पतालों, क्लीनिकों और लैब्स में बिखरी रिपोर्टों के।",
+    "problem.stat2.k": "5 मिनट",
+    "problem.stat2.v": "एक डॉक्टर को पूरे जीवन का इतिहास समझाने के लिए, जिसने आपको पहले कभी नहीं देखा।",
+    "problem.stat3.k": "0 संदर्भ",
+    "problem.stat3.v": "हर नया विशेषज्ञ खाली पन्ने से शुरू करता है।",
+    "problem.consequences": "इसका नतीजा",
+    "problem.tag.repeat": "दोहराई गई जाँचें",
+    "problem.tag.miss": "छूटे हुए पैटर्न",
+    "problem.tag.delay": "देरी से निदान",
+    "problem.closer":
+      "यह उत्पादकता की समस्या नहीं है। यह जीवन की समस्या है। आपात स्थिति में, परिवारों के पास सालों का इतिहास समझाने के लिए मिनट होते हैं, और कीमत मरीज़ चुकाते हैं।",
+
+    "voices.eyebrow": "आवाज़ें",
+    "voices.title.l1": "हर भारतीय परिवार के पास",
+    "voices.title.l2": "इस कहानी का अपना संस्करण है।",
+    "voices.q1.body":
+      "हमारे पास सब कुछ समझाने के लिए पाँच मिनट थे। हमें पता ही नहीं था कि कहाँ से शुरू करें।",
+    "voices.q1.who": "एक बेटी",
+    "voices.q1.ctx": "चेन्नई · अपनी माँ की आख़िरी भर्ती के बारे में",
+    "voices.q2.body":
+      "हर नया डॉक्टर हमें वही ब्लड टेस्ट दोबारा कराने भेजता है। हमारे पास इतनी मोटी फ़ाइल है। कोई नहीं पढ़ता।",
+    "voices.q2.who": "एक बेटा",
+    "voices.q2.ctx": "बेंगलुरु · अपने डायबिटिक पिता की देखभाल करते हुए",
+    "voices.q3.body":
+      "पापा की सर्जरी रात 2 बजे थी। मेरे हाथ में तीन पर्चे और दूसरे शहर के अस्पताल का एक CT स्कैन था।",
+    "voices.q3.who": "एक संस्थापक",
+    "voices.q3.ctx": "दिल्ली · वह रात जब Vyana का जन्म हुआ",
+
+    "wedge.title.l1": "कोई हेल्थ रिकॉर्ड ऐप नहीं।",
+    "wedge.title.l2": "एक क्लिनिकल मेमोरी सिस्टम।",
+    "wedge.sub":
+      "Vyana सिर्फ़ फ़ाइलें नहीं रखता। यह एक निरंतर हेल्थ ग्राफ़ बनाता है, ताकि डॉक्टर आपकी पूरी कहानी सेकंडों में देख सकें।",
+    "wedge.p1.title": "समय के साथ बीमारियों को ट्रैक करता है",
+    "wedge.p1.body": "HbA1c, BP, किडनी फ़ंक्शन, थायरॉइड। धीमे संकेत वर्षों में, मुलाक़ातों में नहीं।",
+    "wedge.p2.title": "बिंदुओं को जोड़ता है",
+    "wedge.p2.body": "टेस्ट, दवाइयाँ और लक्षण एक निरंतर ग्राफ़ में, बिखरी फ़ाइलों में नहीं।",
+    "wedge.p3.title": "जो बदला है उसे सामने लाता है",
+    "wedge.p3.body": "असामान्य पैटर्न और बदलाव आपातकाल बनने से पहले हाइलाइट हो जाते हैं।",
+
+    "how.eyebrow": "यह कैसे काम करता है",
+    "how.title.l1": "तीन शांत कदम।",
+    "how.title.l2": "जीवन भर का संदर्भ।",
+    "how.step": "कदम",
+    "how.s1.title": "कुछ भी अपलोड करें।",
+    "how.s1.body":
+      "एक पर्ची की फ़ोटो लें। PDF भेजें। डिस्चार्ज समरी फ़ॉरवर्ड करें। हम हस्तलिखित हिंदी, छपी तमिल, धुंधली बंगाली पढ़ते हैं। पाँच भाषाएँ, हर फ़ॉर्मैट।",
+    "how.s2.title": "AI सब कुछ निकालता है।",
+    "how.s2.body":
+      "वाइटल्स, निदान, दवाइयाँ, टाइमलाइन। तैंतीस क्लिनिकल संकेत वर्षों में प्लॉट किए जाते हैं, ताकि धीमे पैटर्न आख़िरकार दिखाई दें।",
+    "how.s3.title": "तैयार होकर अंदर जाइए।",
+    "how.s3.body":
+      "एक पन्ने का क्लिनिकल ब्रीफ़िंग जिसे कोई भी डॉक्टर तीस सेकंड में पढ़ सकता है। अपॉइंटमेंट से पहले WhatsApp पर शेयर करें।",
+
+    "out.eyebrow": "आप जो लेकर अंदर जाते हैं",
+    "out.title.l1": "आपकी अगली अपॉइंटमेंट,",
+    "out.title.l2": "पहले से तैयार।",
+    "out.list1": "एक स्क्रीन का मेडिकल सारांश",
+    "out.list2": "समय के साथ रुझान (BP, HbA1c, eGFR)",
+    "out.list3": "दवाइयों और निदान का इतिहास",
+    "out.list4": "असामान्य संकेत हाइलाइट किए गए",
+    "out.flips.eyebrow": "यह वास्तव में आपके लिए क्या करता है",
+    "out.flip1.stop": "टेस्ट दोहराना बंद करें",
+    "out.flip1.gain": "पैसा बचाएँ",
+    "out.flip2.stop": "इतिहास का अंदाज़ा लगाना बंद करें",
+    "out.flip2.gain": "बेहतर देखभाल",
+    "out.flip3.stop": "रिपोर्ट खोना बंद करें",
+    "out.flip3.gain": "नियंत्रण में रहें",
+
+    "trust.eyebrow": "विश्वास",
+    "trust.title.l1": "आपके रिकॉर्ड आपके हैं।",
+    "trust.title.l2": "हम उन्हें कभी नहीं बेचते।",
+    "trust.sub":
+      "Vyana भारत के राष्ट्रीय हेल्थ मानकों पर बना है और उसी एन्क्रिप्शन से सुरक्षित है जिसका उपयोग बैंक करते हैं। आप सब कुछ एक्सपोर्ट कर सकते हैं, किसी भी डॉक्टर से शेयर कर सकते हैं, या एक टैप में सब हटा सकते हैं।",
+    "trust.b1.label": "एंड-टू-एंड एन्क्रिप्टेड",
+    "trust.b1.sub": "AES-256",
+    "trust.b2.label": "ABDM-संगत",
+    "trust.b2.sub": "भारत का राष्ट्रीय हेल्थ स्टैक",
+    "trust.b3.label": "DPDPA 2023 अनुपालन",
+    "trust.b3.sub": "भारतीय डेटा क़ानून",
+    "trust.b4.label": "आपका डेटा, आपका नियंत्रण",
+    "trust.b4.sub": "कभी भी हटाएँ",
+    "trust.b5.label": "Wharton में बना",
+    "trust.b5.sub": "हेल्थकेयर और AI रिसर्च",
+    "trust.note":
+      "ABDM के बारे में: Vyana भारत के आयुष्मान भारत डिजिटल मिशन मानकों का पालन करता है। पूर्ण सैंडबॉक्स प्रमाणन प्रगति पर है।",
+
+    "faq.eyebrow": "सवाल",
+    "faq.title.l1": "जो परिवार",
+    "faq.title.l2": "हमसे पहले पूछते हैं।",
+    "faq.q1.q": "क्या यह भारत के राष्ट्रीय हेल्थ सिस्टम द्वारा अनुमोदित है?",
+    "faq.q1.a":
+      "हाँ। Vyana आयुष्मान भारत डिजिटल मिशन (ABDM) के अनुरूप बनाया गया है, वही ढाँचा जो Apollo, Max और सरकारी अस्पताल इस्तेमाल करते हैं। आपके रिकॉर्ड किसी भी ABDM-कनेक्टेड क्लिनिक में जा सकते हैं।",
+    "faq.q2.q": "मेरे रिकॉर्ड वास्तव में कौन देख सकता है?",
+    "faq.q2.a":
+      "केवल आप। डॉक्टर वही देखते हैं जो आप शेयर करते हैं, जब तक आप चाहें। हर शेयर 24 घंटे का लिंक बनाता है जो अपने आप समाप्त हो जाता है। हम आपका डेटा कभी नहीं बेचते, बीमा कंपनियों को नहीं देते, और सार्वजनिक AI मॉडल को ट्रेन करने के लिए उपयोग नहीं करते।",
+    "faq.q3.q": "क्या Vyana मेरी भाषा में काम करता है?",
+    "faq.q3.a":
+      "हाँ। ऐप अंग्रेज़ी, हिंदी, तमिल, तेलुगु और बंगाली बोलता है। आपकी पर्चियाँ इन सभी लिपियों में पढ़ी जाती हैं, हस्तलिखित नोट्स सहित।",
+    "faq.q4.q": "क्या मेरा डॉक्टर वास्तव में ब्रीफ़िंग स्वीकार करेगा?",
+    "faq.q4.a":
+      "हम मानक SOAP फ़ॉर्मैट में एक साफ़, एक-पन्ने का क्लिनिकल सारांश तैयार करते हैं जिसे कोई भी डॉक्टर 30 सेकंड में पढ़ सकता है। यह एक संरचित FHIR फ़ाइल के रूप में भी एक्सपोर्ट होता है, वही वैश्विक मानक जो अस्पताल पहले से उपयोग करते हैं।",
+    "faq.q5.q": "अगर मैं अपना खाता हटा दूँ तो क्या होगा?",
+    "faq.q5.a":
+      "सब कुछ चला जाता है। 30 दिनों के भीतर हर रिकॉर्ड, वाइटल, पर्ची और नोट हमारे सिस्टम से स्थायी रूप से मिटा दिया जाता है। आप जाने से पहले अपना सारा डेटा एक डाउनलोड के रूप में एक्सपोर्ट भी कर सकते हैं।",
+    "faq.q6.q": "इसकी क़ीमत कितनी है?",
+    "faq.q6.a":
+      "शुरू करना मुफ़्त है। आप मुफ़्त प्लान पर असीमित रिकॉर्ड अपलोड, व्यवस्थित और शेयर कर सकते हैं। पेड प्लान में लंबी अवधि के ट्रेंड विश्लेषण और तेज़ सपोर्ट जैसी एडवांस AI सुविधाएँ शामिल हैं।",
+    "faq.q7.q": "यह वास्तव में किसके लिए है?",
+    "faq.q7.a":
+      "पुरानी बीमारियों का प्रबंधन करने वाले परिवार, बुज़ुर्ग माता-पिता की देखभाल करने वाले बच्चे, शहरों भर में विशेषज्ञों के बीच जूझने वाले लोग, और हर बार अपना इतिहास दोहराने से थके मरीज़।",
+    "faq.q8.q": "क्या AI मेडिकल फ़ैसले ले रहा है?",
+    "faq.q8.a":
+      "नहीं। Vyana क्लिनिकल डिसीज़न सपोर्ट है, निदान इंजन नहीं। हम पैटर्न सामने लाते हैं, दवाओं की प्रतिक्रियाओं को फ़्लैग करते हैं, और आपका इतिहास डॉक्टर के लिए तैयार करते हैं। हर मेडिकल फ़ैसला आपके डॉक्टर के पास रहता है।",
+    "faq.footer.pre": "अभी भी कुछ पूछना है?",
+    "faq.footer.link": "मेघा को सीधे लिखें",
+
+    "cta.title.l1": "अपने परिवार की",
+    "cta.title.l2": "स्वास्थ्य स्मृति आज शुरू करें।",
+    "cta.sub": "शुरू करना मुफ़्त है। अपनी पहली रिपोर्ट तीस सेकंड में अपलोड करें।",
+    "cta.email": "आपका ईमेल पता",
+    "cta.relation": "आप किसकी देखभाल करते हैं",
+    "cta.city": "शहर",
+    "cta.button": "शुरू करें",
+    "cta.signoff": "स्नेह सहित,",
+    "cta.role": "संस्थापक · Vyana",
+
+    "landing.getAccess": "अर्ली एक्सेस पाएँ",
   },
+
   ta: {
-    "landing.badge": "இழப்பில் பிறந்தது. நோக்கத்தோடு கட்டப்பட்டது.",
-    "landing.headline1": "உங்கள் சுகாதார கதை.",
-    "landing.headline2": "எப்போதும் உங்களுடன்.",
-    "landing.subtext": "இந்தியாவில், ஒவ்வொரு புதிய மருத்துவரும் பூஜ்ஜியத்திலிருந்து தொடங்குகிறார். பதிவுகள் இல்லை, வரலாறு இல்லை, சூழல் இல்லை. குடும்பங்கள் ஐந்து நிமிடங்களில் அனைத்தையும் விளக்குகின்றன.",
-    "landing.subtextBold": "இனி அது நடக்கக்கூடாது என்பதற்காக Vyana உருவாக்கப்பட்டது.",
-    "landing.cta": "உங்கள் சுகாதார கதையை ஆரம்பியுங்கள்",
-    "landing.whyCta": "நாங்கள் ஏன் இதை உருவாக்கினோம்",
-    "landing.stat": "ஒவ்வொரு ஆண்டும், இந்தியக் குடும்பங்கள் மீண்டும் மீண்டும் செய்யப்படும் மருத்துவ பரிசோதனைகளுக்கு ₹10,000+ செலவிடுகின்றன.",
-
-    "landing.problemTitle": "பிரச்சனை",
-    "landing.problemHighlight": "தனிப்பட்டது",
-    "landing.problemSub": "இது தொழில்நுட்பம் பற்றியது அல்ல. அமைப்புக்கு நினைவாற்றல் இல்லாதபோது குடும்பங்களுக்கு என்ன நடக்கிறது என்பது பற்றியது.",
-    "landing.beat1Title": "வாழ்நாளை விளக்க ஐந்து நிமிடங்கள்",
-    "landing.beat1Text": "ER-க்கு குடும்பம் ஓடும்போது, பல தசாப்த மருத்துவ வரலாற்றை ஐந்து நிமிடங்களில் விளக்க வேண்டும். பதிவுகள் இல்லை. சூழல் இல்லை. பீதி மட்டுமே.",
-    "landing.beat2Title": "யாரும் படிக்காத 75 பக்கங்கள்",
-    "landing.beat2Text": "நோயாளிகள் சிதறிய அறிக்கைகளின் தடிமனான கோப்புகளை சுமக்கிறார்கள். ஒவ்வொரு புதிய மருத்துவரும் முந்தைய ஆய்வகத்தை நம்பாததால் அதே இரத்த பரிசோதனைகளை மீண்டும் செய்விக்கிறார்.",
-    "landing.beat3Title": "நாள்பட்ட நோய் மிகவும் தாமதமாக கண்டுபிடிக்கப்படுகிறது",
-    "landing.beat3Text": "யாரும் நீண்டகால படத்தை கண்காணிப்பதில்லை. நிலைமைகள் படிப்படியாக மோசமடைகின்றன. கண்டறியப்படும்போது, தடுப்பு சாத்தியமில்லை.",
-    "landing.vyanaHolds": "Vyana உங்கள் முழு மருத்துவ வரலாற்றை வைத்திருக்கிறது, அமைதியாக, பாதுகாப்பாக, எப்போது மிகவும் தேவையோ,",
-    "landing.itsThere": "அது அங்கே இருக்கும்",
-
-    "landing.featuresTitle": "அம்சங்கள் அல்ல.",
-    "landing.featuresHighlight": "வாக்குறுதிகள்.",
-    "landing.featuresSub": "Vyana உங்களுக்கும் உங்கள் குடும்பத்துக்கும் என்ன செய்கிறது.",
-    "landing.f1Title": "எதையும் பதிவேற்றுங்கள்",
-    "landing.f1Desc": "மருந்துச்சீட்டுகள், ஆய்வக அறிக்கைகள், டிஸ்சார்ஜ் சுருக்கங்கள், புகைப்படம் அல்லது PDF.",
-    "landing.f2Title": "முக்கியமானதை கண்காணியுங்கள்",
-    "landing.f2Desc": "HbA1c, இரத்த அழுத்தம், கொலஸ்ட்ரால், காலப்போக்கில் கண்காணிக்கப்படுகிறது.",
-    "landing.f3Title": "30-வினாடி சுருக்கம்",
-    "landing.f3Desc": "ஒரு திரையில் மருத்துவர் உங்கள் முழு வரலாற்றையும் பார்க்கலாம்.",
-    "landing.f4Title": "எந்த மருத்துவருடனும் பகிருங்கள்",
-    "landing.f4Desc": "24 மணி நேரத்திற்கு செல்லுபடியாகும் பாதுகாப்பான இணைப்பை உருவாக்குங்கள்.",
-    "landing.f5Title": "உங்கள் தரவு, உங்கள் கட்டுப்பாடு",
-    "landing.f5Desc": "ABHA-இணைக்கப்பட்ட, ABDM இணக்கமான. எந்த மருத்துவர் எதை பார்க்க வேண்டும் என்பதை நீங்கள் தீர்மானிக்கிறீர்கள்.",
-    "landing.f6Title": "இந்தியக் குடும்பங்களுக்காக உருவாக்கப்பட்டது",
-    "landing.f6Desc": "பல மொழிகள். எந்த தொலைபேசியிலும் வேலை செய்யும்.",
-
-    "landing.missionTitle1": "உருவாக்குகிறோம்",
-    "landing.missionHighlight": "சுகாதார நினைவகம்",
-    "landing.missionTitle2": "இந்தியாவிடம் ஒருபோதும் இல்லாத",
-    "landing.missionText": "இந்தியாவில் ஒவ்வொரு நோயாளியும் தன் முழு கதையை அறிந்த மருத்துவருக்கு தகுதியானவர்.",
-    "landing.stat1Value": "30s",
-    "landing.stat1Label": "எந்த மருத்துவரும் முழு வரலாற்றை பார்க்க",
-    "landing.stat2Value": "₹0",
-    "landing.stat2Label": "மீண்டும் செய்யப்பட்ட பரிசோதனைகளுக்கு வீணடிக்கப்பட்டது",
-    "landing.stat3Value": "1",
-    "landing.stat3Label": "மருத்துவர் அனைத்தையும் பார்க்க ஒரு திரை",
-    "landing.readStory": "Vyana-ன் முழு கதையை படியுங்கள்",
-
-    "landing.contactTitle": "உருவாக்க உதவுங்கள்",
-    "landing.contactHighlight": "எப்போதும் இருந்திருக்க வேண்டியது",
-    "landing.contactText": "ஆரம்ப நோயாளிகள், முன்னோக்கி சிந்திக்கும் மருத்துவர்கள், சிறந்த பதிவுகளை விரும்பிய அனைவரையும் தேடுகிறோம்.",
-    "landing.getAccess": "முன்கூட்டி அணுகல் பெறுங்கள்",
-    "landing.connectLinkedin": "LinkedIn-ல் இணையுங்கள்",
-    "landing.footer": "ஒவ்வொரு நோயாளியும் தன் கதையை அறிந்த மருத்துவருக்கு தகுதியானவர்.",
-
-    "nav.about": "பற்றி",
-    "nav.features": "அம்சங்கள்",
-    "nav.ourStory": "எங்கள் கதை",
+    "nav.story": "கதை",
+    "nav.research": "ஆராய்ச்சி",
+    "nav.how": "எப்படி வேலை செய்கிறது",
     "nav.contact": "தொடர்பு",
-    "nav.signIn": "உள்நுழை",
-    "nav.getStarted": "தொடங்குங்கள்",
+    "nav.try": "இப்போதே Vyana-ஐ முயற்சிக்கவும்",
+
+    "hero.eyebrow": "உங்கள் ஆரோக்கியக் கதை, எப்போதும் உங்களுடன்",
+    "hero.h1.l1": "உங்கள் மருத்துவ",
+    "hero.h1.l2": "வரலாற்றை மீண்டும்",
+    "hero.h1.l3": "விளக்க வேண்டாம்",
+    "hero.h1.again": "மீண்டும்.",
+    "hero.sub":
+      "உங்கள் அறிக்கைகளை பதிவேற்றவும். 30 விநாடிகளில் மருத்துவருக்குத் தயாரான சுருக்கம். நிலைகள், மருந்துகள், சமீபத்திய மாற்றங்கள், எந்த மருத்துவரும் உடனே படிக்கக்கூடிய ஒரு திரை.",
+    "hero.cta.primary": "உங்கள் முதல் பதிவை பதிவேற்றவும்",
+    "hero.cta.secondary": "மாதிரிச் சுருக்கத்தைக் காண்க",
+
+    "problem.eyebrow": "பிரச்சினை",
+    "problem.title.l1": "சுகாதாரம் ஒரே",
+    "problem.title.l2": "எளிய வழியில் உடைந்துள்ளது.",
+    "problem.sub":
+      "ஒவ்வொரு புதிய மருத்துவரிடமும் நீங்கள் பூஜ்ஜியத்திலிருந்து தொடங்குகிறீர்கள். உங்கள் வரலாறு யாரும் படிக்காத கோப்புகளில் கிடக்கிறது.",
+    "problem.stat1.k": "75 பக்கங்கள்",
+    "problem.stat1.v": "மருத்துவமனைகள், கிளினிக்குகள் மற்றும் ஆய்வகங்களில் சிதறிய அறிக்கைகள்.",
+    "problem.stat2.k": "5 நிமிடங்கள்",
+    "problem.stat2.v": "உங்களை முன்பு பார்த்திராத மருத்துவரிடம் வாழ்நாள் வரலாற்றை விளக்க.",
+    "problem.stat3.k": "0 சூழல்",
+    "problem.stat3.v": "ஒவ்வொரு புதிய நிபுணரும் வெற்றுப் பக்கத்திலிருந்து தொடங்குகிறார்.",
+    "problem.consequences": "இதன் விளைவு",
+    "problem.tag.repeat": "மீண்டும் செய்யப்பட்ட சோதனைகள்",
+    "problem.tag.miss": "தவறவிட்ட வடிவங்கள்",
+    "problem.tag.delay": "தாமதமான நோயறிதல்கள்",
+    "problem.closer":
+      "இது உற்பத்தித்திறன் பிரச்சினை அல்ல. இது வாழ்க்கைப் பிரச்சினை. அவசர நிலையில், குடும்பங்களுக்கு ஆண்டுகளின் வரலாற்றை விளக்க சில நிமிடங்களே உள்ளன, விலையை நோயாளிகள் கொடுக்கிறார்கள்.",
+
+    "voices.eyebrow": "குரல்கள்",
+    "voices.title.l1": "ஒவ்வொரு இந்தியக் குடும்பத்திற்கும்",
+    "voices.title.l2": "இந்தக் கதையின் ஒரு பதிப்பு உள்ளது.",
+    "voices.q1.body":
+      "எல்லாவற்றையும் விளக்க எங்களுக்கு ஐந்து நிமிடங்கள் இருந்தன. எங்கிருந்து தொடங்குவது என்று கூட தெரியவில்லை.",
+    "voices.q1.who": "ஒரு மகள்",
+    "voices.q1.ctx": "சென்னை · அவளது அம்மாவின் கடைசி அனுமதி பற்றி",
+    "voices.q2.body":
+      "ஒவ்வொரு புதிய மருத்துவரும் அதே ரத்தப் பரிசோதனைக்கு எங்களை அனுப்புகிறார். எங்களிடம் இவ்வளவு தடிமனான கோப்பு உள்ளது. யாரும் படிப்பதில்லை.",
+    "voices.q2.who": "ஒரு மகன்",
+    "voices.q2.ctx": "பெங்களூரு · சர்க்கரை நோயுள்ள தந்தையை கவனித்து",
+    "voices.q3.body":
+      "அப்பாவின் அறுவை சிகிச்சை இரவு 2 மணிக்கு. என் கையில் மூன்று மருந்துச் சீட்டுகளும் வேறு நகரத்து CT ஸ்கேனும் இருந்தன.",
+    "voices.q3.who": "ஒரு நிறுவனர்",
+    "voices.q3.ctx": "டெல்லி · Vyana பிறந்த இரவு",
+
+    "wedge.title.l1": "இது ஒரு மருத்துவ பதிவுகள் ஆப் அல்ல.",
+    "wedge.title.l2": "ஒரு மருத்துவ நினைவு அமைப்பு.",
+    "wedge.sub":
+      "Vyana வெறும் கோப்புகளை சேமிக்கவில்லை. தொடர்ச்சியான ஆரோக்கிய வரைபடத்தை உருவாக்குகிறது, மருத்துவர்கள் உங்கள் முழுக் கதையையும் வினாடிகளில் காண்கிறார்கள்.",
+    "wedge.p1.title": "காலப்போக்கில் நிலைகளைக் கண்காணிக்கிறது",
+    "wedge.p1.body": "HbA1c, BP, சிறுநீரக செயல்பாடு, தைராய்டு. ஆண்டுகளில் பதிக்கப்பட்ட மெதுவான சமிக்ஞைகள்.",
+    "wedge.p2.title": "புள்ளிகளை இணைக்கிறது",
+    "wedge.p2.body": "சோதனைகள், மருந்துகள், அறிகுறிகள் ஒரு தொடர்ச்சியான வரைபடத்தில் இணைக்கப்படுகின்றன.",
+    "wedge.p3.title": "மாறியதை வெளிப்படுத்துகிறது",
+    "wedge.p3.body": "அசாதாரண வடிவங்கள் அவசரநிலையாக மாறுவதற்கு முன்பே சிறப்பிக்கப்படுகின்றன.",
+
+    "how.eyebrow": "எப்படி வேலை செய்கிறது",
+    "how.title.l1": "மூன்று அமைதியான படிகள்.",
+    "how.title.l2": "வாழ்நாள் சூழல்.",
+    "how.step": "படி",
+    "how.s1.title": "எதையும் பதிவேற்றவும்.",
+    "how.s1.body":
+      "ஒரு மருந்துச் சீட்டை புகைப்படம் எடுக்கவும். PDF அனுப்பவும். டிஸ்சார்ஜ் சுருக்கத்தை அனுப்பவும். கையெழுத்து இந்தி, அச்சிட்ட தமிழ், மங்கலான பெங்காலி படிக்கிறோம்.",
+    "how.s2.title": "AI அனைத்தையும் பிரித்தெடுக்கிறது.",
+    "how.s2.body":
+      "வைட்டல்கள், நோயறிதல்கள், மருந்துகள், காலவரிசை. முப்பத்து மூன்று மருத்துவ சமிக்ஞைகள் ஆண்டுகளில் வரையப்படுகின்றன.",
+    "how.s3.title": "தயாராக உள்ளே செல்லுங்கள்.",
+    "how.s3.body":
+      "எந்த மருத்துவரும் முப்பது விநாடிகளில் படிக்கக்கூடிய ஒரு பக்க சுருக்கம். சந்திப்புக்கு முன் WhatsApp-ல் பகிரவும்.",
+
+    "out.eyebrow": "நீங்கள் எடுத்துச் செல்வது",
+    "out.title.l1": "உங்கள் அடுத்த சந்திப்பு,",
+    "out.title.l2": "ஏற்கனவே தயார்.",
+    "out.list1": "ஒரு திரையில் மருத்துவ சுருக்கம்",
+    "out.list2": "காலப்போக்கில் போக்குகள் (BP, HbA1c, eGFR)",
+    "out.list3": "மருந்து மற்றும் நோயறிதல் வரலாறு",
+    "out.list4": "அசாதாரண சமிக்ஞைகள் சிறப்பிக்கப்பட்டுள்ளன",
+    "out.flips.eyebrow": "இது உண்மையில் உங்களுக்கு என்ன செய்கிறது",
+    "out.flip1.stop": "சோதனைகளை மீண்டும் செய்வதை நிறுத்துங்கள்",
+    "out.flip1.gain": "பணத்தை சேமிக்கவும்",
+    "out.flip2.stop": "வரலாற்றை யூகிப்பதை நிறுத்துங்கள்",
+    "out.flip2.gain": "சிறந்த பராமரிப்பு",
+    "out.flip3.stop": "அறிக்கைகளை இழப்பதை நிறுத்துங்கள்",
+    "out.flip3.gain": "கட்டுப்பாட்டில் இருங்கள்",
+
+    "trust.eyebrow": "நம்பிக்கை",
+    "trust.title.l1": "உங்கள் பதிவுகள் உங்களுக்கே சொந்தம்.",
+    "trust.title.l2": "நாங்கள் அதை விற்பதில்லை. ஒருபோதும்.",
+    "trust.sub":
+      "Vyana இந்தியாவின் தேசிய சுகாதார தரநிலைகளில் கட்டப்பட்டு வங்கிகள் பயன்படுத்தும் அதே என்க்ரிப்ஷனால் பாதுகாக்கப்படுகிறது.",
+    "trust.b1.label": "எண்ட்-டு-எண்ட் என்க்ரிப்ட்",
+    "trust.b1.sub": "AES-256",
+    "trust.b2.label": "ABDM-இணக்கம்",
+    "trust.b2.sub": "இந்தியாவின் தேசிய சுகாதார ஸ்டாக்",
+    "trust.b3.label": "DPDPA 2023",
+    "trust.b3.sub": "இந்திய தரவுச் சட்டம்",
+    "trust.b4.label": "உங்கள் தரவு, உங்கள் கட்டுப்பாடு",
+    "trust.b4.sub": "எந்த நேரத்திலும் நீக்கவும்",
+    "trust.b5.label": "Wharton-ல் கட்டப்பட்டது",
+    "trust.b5.sub": "சுகாதாரம் & AI ஆராய்ச்சி",
+    "trust.note":
+      "ABDM குறிப்பு: Vyana இந்தியாவின் ஆயுஷ்மான் பாரத் டிஜிட்டல் மிஷன் தரநிலைகளைப் பின்பற்றுகிறது. முழுமையான சான்றிதழ் முன்னேற்றத்தில் உள்ளது.",
+
+    "faq.eyebrow": "கேள்விகள்",
+    "faq.title.l1": "குடும்பங்கள்",
+    "faq.title.l2": "எங்களிடம் முதலில் கேட்பவை.",
+    "faq.q1.q": "இது இந்தியாவின் தேசிய சுகாதார அமைப்பால் அங்கீகரிக்கப்பட்டதா?",
+    "faq.q1.a":
+      "ஆம். Vyana ஆயுஷ்மான் பாரத் டிஜிட்டல் மிஷன் (ABDM)-உடன் இணங்க கட்டப்பட்டுள்ளது, இதே அமைப்பை Apollo, Max மற்றும் அரசு மருத்துவமனைகள் பயன்படுத்துகின்றன.",
+    "faq.q2.q": "என் பதிவுகளை யார் உண்மையில் பார்க்க முடியும்?",
+    "faq.q2.a":
+      "நீங்கள் மட்டுமே. மருத்துவர்கள் நீங்கள் பகிர்வதை மட்டுமே, நீங்கள் விரும்பும் காலம் வரை பார்க்கிறார்கள். ஒவ்வொரு பகிர்வும் 24-மணி நேர இணைப்பாக இருக்கும். நாங்கள் உங்கள் தரவை விற்பதில்லை.",
+    "faq.q3.q": "Vyana என் மொழியில் வேலை செய்கிறதா?",
+    "faq.q3.a":
+      "ஆம். ஆப் ஆங்கிலம், இந்தி, தமிழ், தெலுங்கு மற்றும் பெங்காலி பேசுகிறது. கையெழுத்து குறிப்புகள் உட்பட எல்லா எழுத்துக்களிலும் மருந்துச் சீட்டுகள் படிக்கப்படுகின்றன.",
+    "faq.q4.q": "என் மருத்துவர் ப்ரீஃபிங்கை ஏற்றுக்கொள்வாரா?",
+    "faq.q4.a":
+      "எந்த மருத்துவரும் 30 விநாடிகளில் படிக்கக்கூடிய நிலையான SOAP வடிவில் ஒரு பக்க சுருக்கத்தை உருவாக்குகிறோம். FHIR கோப்பாகவும் ஏற்றுமதி செய்கிறது.",
+    "faq.q5.q": "என் கணக்கை நீக்கினால் என்ன ஆகும்?",
+    "faq.q5.a":
+      "எல்லாமே போய்விடும். 30 நாட்களுக்குள் ஒவ்வொரு பதிவும் எங்கள் அமைப்புகளிலிருந்து நிரந்தரமாக அழிக்கப்படுகிறது.",
+    "faq.q6.q": "இது எவ்வளவு செலவாகும்?",
+    "faq.q6.a":
+      "தொடங்க இலவசம். இலவசத் திட்டத்தில் வரம்பற்ற பதிவுகளை பதிவேற்றலாம். கட்டண திட்டங்களில் மேம்பட்ட AI அம்சங்கள் உள்ளன.",
+    "faq.q7.q": "இது உண்மையில் யாருக்காக?",
+    "faq.q7.a":
+      "நாள்பட்ட நிலைகளை நிர்வகிக்கும் குடும்பங்கள், முதியோரை கவனிக்கும் வயது வந்த குழந்தைகள், ஒவ்வொரு வருகையிலும் வரலாற்றை மீண்டும் சொல்வதில் சோர்வடைந்த நோயாளிகள்.",
+    "faq.q8.q": "AI மருத்துவ முடிவுகளை எடுக்கிறதா?",
+    "faq.q8.a":
+      "இல்லை. Vyana மருத்துவ முடிவுக்கான ஆதரவு, நோயறிதல் இயந்திரம் அல்ல. ஒவ்வொரு மருத்துவ முடிவும் உங்கள் மருத்துவருடன் இருக்கிறது.",
+    "faq.footer.pre": "இன்னும் ஏதேனும் சந்தேகமா?",
+    "faq.footer.link": "மேகாவுக்கு நேரடியாக எழுதுங்கள்",
+
+    "cta.title.l1": "உங்கள் குடும்பத்தின்",
+    "cta.title.l2": "ஆரோக்கிய நினைவை இன்றே தொடங்குங்கள்.",
+    "cta.sub": "தொடங்க இலவசம். உங்கள் முதல் அறிக்கையை முப்பது விநாடிகளில் பதிவேற்றவும்.",
+    "cta.email": "உங்கள் மின்னஞ்சல் முகவரி",
+    "cta.relation": "நீங்கள் யாரை கவனிக்கிறீர்கள்",
+    "cta.city": "நகரம்",
+    "cta.button": "தொடங்கு",
+    "cta.signoff": "அன்புடன்,",
+    "cta.role": "நிறுவனர் · Vyana",
+
+    "landing.getAccess": "ஆரம்ப அணுகலைப் பெறுங்கள்",
   },
+
   te: {
-    "landing.badge": "నష్టం నుండి పుట్టింది. ఉద్దేశ్యంతో నిర్మించబడింది.",
-    "landing.headline1": "మీ ఆరోగ్య కథ.",
-    "landing.headline2": "ఎల్లప్పుడూ మీతో.",
-    "landing.subtext": "భారతదేశంలో, ప్రతి కొత్త డాక్టర్ సున్నా నుండి ప్రారంభిస్తారు. రికార్డులు లేవు, చరిత్ర లేదు, సందర్భం లేదు.",
-    "landing.subtextBold": "ఇది మళ్ళీ జరగకూడదని Vyana ఉనికిలో ఉంది.",
-    "landing.cta": "మీ ఆరోగ్య కథ ప్రారంభించండి",
-    "landing.whyCta": "మేము దీన్ని ఎందుకు నిర్మించాము",
-    "landing.stat": "ప్రతి సంవత్సరం, భారతీయ కుటుంబాలు పునరావృత వైద్య పరీక్షలపై ₹10,000+ ఖర్చు చేస్తాయి.",
-
-    "landing.problemTitle": "సమస్య",
-    "landing.problemHighlight": "వ్యక్తిగతమైనది",
-    "landing.problemSub": "ఇది సాంకేతికత గురించి కాదు. సిస్టమ్‌కు జ్ఞాపకశక్తి లేనప్పుడు కుటుంబాలకు ఏమి జరుగుతుందో అది.",
-    "landing.beat1Title": "జీవితకాలాన్ని వివరించడానికి ఐదు నిమిషాలు",
-    "landing.beat1Text": "ER కు కుటుంబం పరుగెత్తినప్పుడు, దశాబ్దాల వైద్య చరిత్రను ఐదు నిమిషాల్లో వివరించాలి.",
-    "landing.beat2Title": "ఎవరూ చదవని 75 పేజీలు",
-    "landing.beat2Text": "రోగులు చెదరిన నివేదికల మందపాటి ఫోల్డర్‌లను మోస్తారు. ప్రతి కొత్త డాక్టర్ అదే రక్త పరీక్షలు మళ్ళీ చేయిస్తారు.",
-    "landing.beat3Title": "దీర్ఘకాలిక వ్యాధి చాలా ఆలస్యంగా గుర్తించబడింది",
-    "landing.beat3Text": "ఎవరూ దీర్ఘకాలిక చిత్రాన్ని ట్రాక్ చేయరు. పరిస్థితులు క్రమంగా దిగజారుతాయి.",
-    "landing.vyanaHolds": "Vyana మీ పూర్తి వైద్య చరిత్రను నిశ్శబ్దంగా, సురక్షితంగా ఉంచుతుంది -",
-    "landing.itsThere": "అది అక్కడ ఉంటుంది",
-
-    "landing.featuresTitle": "ఫీచర్లు కాదు.",
-    "landing.featuresHighlight": "వాగ్దానాలు.",
-    "landing.featuresSub": "Vyana మీకు మరియు మీ కుటుంబానికి ఏమి చేస్తుంది.",
-    "landing.f1Title": "ఏదైనా అప్‌లోడ్ చేయండి",
-    "landing.f1Desc": "ప్రిస్క్రిప్షన్లు, ల్యాబ్ రిపోర్టులు, డిశ్చార్జ్ సమ్మరీలు, ఫోటో లేదా PDF.",
-    "landing.f2Title": "ముఖ్యమైనది ట్రాక్ చేయండి",
-    "landing.f2Desc": "HbA1c, రక్తపోటు, కొలెస్ట్రాల్, కాలక్రమంలో ట్రాక్ చేయబడుతుంది.",
-    "landing.f3Title": "30-సెకన్ల సారాంశం",
-    "landing.f3Desc": "ఒక స్క్రీన్‌లో డాక్టర్ మీ పూర్తి చరిత్రను చూడగలరు.",
-    "landing.f4Title": "ఏ డాక్టర్‌తోనైనా షేర్ చేయండి",
-    "landing.f4Desc": "24 గంటలు చెల్లుబాటు అయ్యే సురక్షిత లింక్ సృష్టించండి.",
-    "landing.f5Title": "మీ డేటా, మీ నియంత్రణ",
-    "landing.f5Desc": "ABHA-లింక్డ్, ABDM అనుకూలం. ఏ డాక్టర్ ఏమి చూడాలో మీరు నిర్ణయిస్తారు.",
-    "landing.f6Title": "భారతీయ కుటుంబాల కోసం నిర్మించబడింది",
-    "landing.f6Desc": "బహుభాషా. ఏ ఫోన్‌లోనైనా పని చేస్తుంది.",
-
-    "landing.missionTitle1": "నిర్మిస్తున్నాము",
-    "landing.missionHighlight": "ఆరోగ్య జ్ఞాపకశక్తి",
-    "landing.missionTitle2": "భారతదేశానికి ఎప్పుడూ లేనిది",
-    "landing.missionText": "భారతదేశంలో ప్రతి రోగి తన పూర్తి కథను తెలిసిన డాక్టర్‌కు అర్హులు.",
-    "landing.stat1Value": "30s",
-    "landing.stat1Label": "ఏ డాక్టర్ అయినా పూర్తి చరిత్ర చూడడానికి",
-    "landing.stat2Value": "₹0",
-    "landing.stat2Label": "పునరావృత పరీక్షలపై వృధా",
-    "landing.stat3Value": "1",
-    "landing.stat3Label": "డాక్టర్ అన్నీ చూడడానికి ఒక స్క్రీన్",
-    "landing.readStory": "Vyana పూర్తి కథ చదవండి",
-
-    "landing.contactTitle": "నిర్మించడంలో సహాయించండి",
-    "landing.contactHighlight": "ఎల్లప్పుడూ ఉండాల్సింది",
-    "landing.contactText": "ప్రారంభ రోగులు, ముందుచూపు ఉన్న డాక్టర్లు, మెరుగైన రికార్డులు కోరుకున్న ప్రతి ఒక్కరినీ వెతుకుతున్నాము.",
-    "landing.getAccess": "ముందస్తు యాక్సెస్ పొందండి",
-    "landing.connectLinkedin": "LinkedIn లో కనెక్ట్ అవ్వండి",
-    "landing.footer": "ప్రతి రోగి తన కథ తెలిసిన డాక్టర్‌కు అర్హులు.",
-
-    "nav.about": "గురించి",
-    "nav.features": "ఫీచర్లు",
-    "nav.ourStory": "మా కథ",
+    "nav.story": "కథ",
+    "nav.research": "పరిశోధన",
+    "nav.how": "ఎలా పని చేస్తుంది",
     "nav.contact": "సంప్రదించండి",
-    "nav.signIn": "సైన్ ఇన్",
-    "nav.getStarted": "ప్రారంభించండి",
+    "nav.try": "ఇప్పుడు Vyana ప్రయత్నించండి",
+
+    "hero.eyebrow": "మీ ఆరోగ్య కథ, ఎల్లప్పుడూ మీతో",
+    "hero.h1.l1": "మీ వైద్య",
+    "hero.h1.l2": "చరిత్రను మళ్ళీ",
+    "hero.h1.l3": "వివరించాల్సిన",
+    "hero.h1.again": "అవసరం లేదు.",
+    "hero.sub":
+      "మీ నివేదికలను అప్‌లోడ్ చేయండి. 30 సెకన్లలో డాక్టర్‌కు సిద్ధంగా ఉన్న సారాంశం పొందండి. పరిస్థితులు, మందులు, ఇటీవలి మార్పులు, ఏ డాక్టర్ అయినా వెంటనే చదవగలిగే ఒక స్క్రీన్.",
+    "hero.cta.primary": "మీ మొదటి రికార్డును అప్‌లోడ్ చేయండి",
+    "hero.cta.secondary": "నమూనా సారాంశం చూడండి",
+
+    "problem.eyebrow": "సమస్య",
+    "problem.title.l1": "ఆరోగ్య సంరక్షణ ఒకే",
+    "problem.title.l2": "సాధారణ మార్గంలో విరిగింది.",
+    "problem.sub":
+      "మీరు కొత్త డాక్టర్‌ను సందర్శించిన ప్రతిసారీ, శూన్యం నుండి ప్రారంభిస్తారు. మీ చరిత్ర ఎవరూ చదవని ఫోల్డర్లలో ఉంటుంది.",
+    "problem.stat1.k": "75 పేజీలు",
+    "problem.stat1.v": "ఆసుపత్రులు, క్లినిక్‌లు, ల్యాబ్‌లలో చెల్లాచెదురైన నివేదికలు.",
+    "problem.stat2.k": "5 నిమిషాలు",
+    "problem.stat2.v": "మిమ్మల్ని ముందు చూడని డాక్టర్‌కు జీవితకాల చరిత్రను వివరించడానికి.",
+    "problem.stat3.k": "0 సందర్భం",
+    "problem.stat3.v": "ప్రతి కొత్త నిపుణుడు ఖాళీ పేజీ నుండి ప్రారంభిస్తాడు.",
+    "problem.consequences": "దీని ఫలితం",
+    "problem.tag.repeat": "పునరావృత పరీక్షలు",
+    "problem.tag.miss": "తప్పిపోయిన నమూనాలు",
+    "problem.tag.delay": "ఆలస్యమైన నిర్ధారణలు",
+    "problem.closer":
+      "ఇది ఉత్పాదకత సమస్య కాదు. ఇది జీవిత సమస్య. అత్యవసర పరిస్థితుల్లో, కుటుంబాలకు సంవత్సరాల చరిత్రను వివరించడానికి నిమిషాలే ఉంటాయి.",
+
+    "voices.eyebrow": "గాత్రాలు",
+    "voices.title.l1": "ప్రతి భారతీయ కుటుంబానికి",
+    "voices.title.l2": "ఈ కథకు ఒక సంస్కరణ ఉంది.",
+    "voices.q1.body":
+      "మాకు అన్నీ వివరించడానికి ఐదు నిమిషాలు ఉన్నాయి. ఎక్కడ నుండి ప్రారంభించాలో కూడా తెలియదు.",
+    "voices.q1.who": "ఒక కుమార్తె",
+    "voices.q1.ctx": "చెన్నై · తన తల్లి చివరి అడ్మిషన్ గురించి",
+    "voices.q2.body":
+      "ప్రతి కొత్త డాక్టర్ అదే రక్త పరీక్షల కోసం మమ్మల్ని తిరిగి పంపుతాడు. మాకు ఇంత మందమైన ఫైల్ ఉంది.",
+    "voices.q2.who": "ఒక కుమారుడు",
+    "voices.q2.ctx": "బెంగళూరు · తన మధుమేహ తండ్రిని చూసుకుంటూ",
+    "voices.q3.body":
+      "నాన్న శస్త్రచికిత్స రాత్రి 2 గంటలకు. నా చేతిలో మూడు ప్రిస్క్రిప్షన్‌లు మరియు మరో నగరం ఆసుపత్రి CT స్కాన్ ఉన్నాయి.",
+    "voices.q3.who": "ఒక వ్యవస్థాపకురాలు",
+    "voices.q3.ctx": "ఢిల్లీ · Vyana పుట్టిన రాత్రి",
+
+    "wedge.title.l1": "ఇది ఆరోగ్య రికార్డుల యాప్ కాదు.",
+    "wedge.title.l2": "ఒక క్లినికల్ మెమరీ సిస్టమ్.",
+    "wedge.sub":
+      "Vyana కేవలం ఫైళ్లను నిల్వ చేయదు. ఇది నిరంతర ఆరోగ్య గ్రాఫ్‌ను నిర్మిస్తుంది, కాబట్టి డాక్టర్లు మీ పూర్తి కథను సెకన్లలో చూస్తారు.",
+    "wedge.p1.title": "కాలక్రమేణా పరిస్థితులను ట్రాక్ చేస్తుంది",
+    "wedge.p1.body": "HbA1c, BP, కిడ్నీ ఫంక్షన్, థైరాయిడ్. సంవత్సరాల్లో మెల్లగా వచ్చే సంకేతాలు.",
+    "wedge.p2.title": "బిందువులను కలుపుతుంది",
+    "wedge.p2.body": "పరీక్షలు, మందులు మరియు లక్షణాలు ఒక నిరంతర గ్రాఫ్‌లో కలుపుతాయి.",
+    "wedge.p3.title": "మారినదాన్ని వెల్లడిస్తుంది",
+    "wedge.p3.body": "అసాధారణ నమూనాలు అత్యవసర పరిస్థితులుగా మారడానికి ముందే హైలైట్ చేయబడతాయి.",
+
+    "how.eyebrow": "ఎలా పని చేస్తుంది",
+    "how.title.l1": "మూడు నిశ్శబ్ద దశలు.",
+    "how.title.l2": "జీవితకాల సందర్భం.",
+    "how.step": "దశ",
+    "how.s1.title": "ఏదైనా అప్‌లోడ్ చేయండి.",
+    "how.s1.body":
+      "ప్రిస్క్రిప్షన్ ఫోటో తీయండి. PDF పంపండి. డిశ్చార్జ్ సారాంశం ఫార్వర్డ్ చేయండి. చేతిరాత హిందీ, ముద్రిత తమిళం, మసకబారిన బెంగాలీ చదువుతాము.",
+    "how.s2.title": "AI అన్నీ సేకరిస్తుంది.",
+    "how.s2.body":
+      "వైటల్స్, నిర్ధారణలు, మందులు, టైమ్‌లైన్‌లు. ముప్పై మూడు క్లినికల్ సంకేతాలు సంవత్సరాల్లో ప్లాట్ చేయబడతాయి.",
+    "how.s3.title": "సిద్ధంగా లోపలకు వెళ్ళండి.",
+    "how.s3.body":
+      "ఏ డాక్టర్ అయినా ముప్పై సెకన్లలో చదవగలిగే ఒక పేజీ క్లినికల్ సారాంశం. అపాయింట్‌మెంట్‌కు ముందు WhatsApp-లో షేర్ చేయండి.",
+
+    "out.eyebrow": "మీరు తీసుకువెళ్ళేది",
+    "out.title.l1": "మీ తదుపరి అపాయింట్‌మెంట్,",
+    "out.title.l2": "ఇప్పటికే సిద్ధం.",
+    "out.list1": "ఒక స్క్రీన్ వైద్య సారాంశం",
+    "out.list2": "కాలక్రమేణా ధోరణులు (BP, HbA1c, eGFR)",
+    "out.list3": "మందులు మరియు నిర్ధారణ చరిత్ర",
+    "out.list4": "అసాధారణ సంకేతాలు హైలైట్ చేయబడ్డాయి",
+    "out.flips.eyebrow": "ఇది మీ కోసం నిజంగా ఏమి చేస్తుంది",
+    "out.flip1.stop": "పరీక్షలను పునరావృతం చేయడం ఆపండి",
+    "out.flip1.gain": "డబ్బు ఆదా చేయండి",
+    "out.flip2.stop": "చరిత్రను ఊహించడం ఆపండి",
+    "out.flip2.gain": "మెరుగైన సంరక్షణ",
+    "out.flip3.stop": "నివేదికలను కోల్పోవడం ఆపండి",
+    "out.flip3.gain": "నియంత్రణలో ఉండండి",
+
+    "trust.eyebrow": "నమ్మకం",
+    "trust.title.l1": "మీ రికార్డులు మీవే.",
+    "trust.title.l2": "మేము వాటిని ఎప్పుడూ అమ్మము.",
+    "trust.sub":
+      "Vyana భారతదేశ జాతీయ ఆరోగ్య ప్రమాణాలపై నిర్మించబడింది మరియు బ్యాంకులు ఉపయోగించే అదే ఎన్‌క్రిప్షన్‌తో రక్షించబడింది.",
+    "trust.b1.label": "ఎండ్-టు-ఎండ్ ఎన్‌క్రిప్టెడ్",
+    "trust.b1.sub": "AES-256",
+    "trust.b2.label": "ABDM-అనుకూలం",
+    "trust.b2.sub": "భారత జాతీయ ఆరోగ్య స్టాక్",
+    "trust.b3.label": "DPDPA 2023",
+    "trust.b3.sub": "భారత డేటా చట్టం",
+    "trust.b4.label": "మీ డేటా, మీ నియంత్రణ",
+    "trust.b4.sub": "ఎప్పుడైనా తొలగించండి",
+    "trust.b5.label": "Wharton-లో నిర్మించబడింది",
+    "trust.b5.sub": "ఆరోగ్యం & AI పరిశోధన",
+    "trust.note":
+      "ABDM గురించి: Vyana భారతదేశ ఆయుష్మాన్ భారత్ డిజిటల్ మిషన్ ప్రమాణాలను అనుసరిస్తుంది. పూర్తి సర్టిఫికేషన్ ప్రగతిలో ఉంది.",
+
+    "faq.eyebrow": "ప్రశ్నలు",
+    "faq.title.l1": "కుటుంబాలు",
+    "faq.title.l2": "మాకు మొదట అడిగేవి.",
+    "faq.q1.q": "ఇది భారతదేశ జాతీయ ఆరోగ్య వ్యవస్థచే ఆమోదించబడిందా?",
+    "faq.q1.a":
+      "అవును. Vyana ఆయుష్మాన్ భారత్ డిజిటల్ మిషన్ (ABDM) తో అనుగుణంగా నిర్మించబడింది, Apollo, Max మరియు ప్రభుత్వ ఆసుపత్రులు ఉపయోగించే అదే ఫ్రేమ్‌వర్క్.",
+    "faq.q2.q": "నా రికార్డులను ఎవరు చూడగలరు?",
+    "faq.q2.a":
+      "మీరు మాత్రమే. మీరు షేర్ చేసేదానిని, మీరు ఎంచుకున్న సమయం వరకు డాక్టర్లు చూస్తారు. ప్రతి షేర్ 24-గంటల లింక్ సృష్టిస్తుంది. మేము మీ డేటాను ఎప్పుడూ అమ్మము.",
+    "faq.q3.q": "Vyana నా భాషలో పని చేస్తుందా?",
+    "faq.q3.a":
+      "అవును. యాప్ ఇంగ్లీష్, హిందీ, తమిళం, తెలుగు మరియు బెంగాలీ మాట్లాడుతుంది. చేతిరాత నోట్‌లతో సహా మీ ప్రిస్క్రిప్షన్‌లు ఈ లిపులలో చదవబడతాయి.",
+    "faq.q4.q": "నా డాక్టర్ సారాంశాన్ని అంగీకరిస్తాడా?",
+    "faq.q4.a":
+      "ఏ డాక్టర్ అయినా 30 సెకన్లలో చదవగలిగే ప్రామాణిక SOAP ఫార్మాట్‌లో ఒక పేజీ సారాంశాన్ని తయారు చేస్తాము. FHIR ఫైల్‌గా కూడా ఎగుమతి అవుతుంది.",
+    "faq.q5.q": "నా ఖాతాను తొలగిస్తే ఏమవుతుంది?",
+    "faq.q5.a":
+      "అన్నీ పోతాయి. 30 రోజుల్లో ప్రతి రికార్డ్ మా సిస్టమ్‌ల నుండి శాశ్వతంగా తొలగించబడుతుంది.",
+    "faq.q6.q": "ఇది ఎంత ఖరీదు?",
+    "faq.q6.a":
+      "ప్రారంభించడం ఉచితం. ఉచిత ప్లాన్‌లో అపరిమిత రికార్డులను అప్‌లోడ్ చేయవచ్చు. చెల్లింపు ప్లాన్లలో అధునాతన AI ఫీచర్‌లు ఉన్నాయి.",
+    "faq.q7.q": "ఇది నిజంగా ఎవరికోసం?",
+    "faq.q7.a":
+      "దీర్ఘకాలిక పరిస్థితులను నిర్వహించే కుటుంబాలు, వృద్ధ తల్లిదండ్రులను చూసుకునే పిల్లలు, ప్రతి సందర్శనలో చరిత్రను పునరావృతం చేయడంలో అలసిపోయిన రోగులు.",
+    "faq.q8.q": "AI వైద్య నిర్ణయాలు తీసుకుంటోందా?",
+    "faq.q8.a":
+      "లేదు. Vyana క్లినికల్ నిర్ణయ మద్దతు, నిర్ధారణ యంత్రం కాదు. ప్రతి వైద్య నిర్ణయం మీ డాక్టర్‌తో ఉంటుంది.",
+    "faq.footer.pre": "ఇంకా ఏదైనా సందేహమా?",
+    "faq.footer.link": "మేఘకు నేరుగా రాయండి",
+
+    "cta.title.l1": "మీ కుటుంబ",
+    "cta.title.l2": "ఆరోగ్య జ్ఞాపకాన్ని ఈరోజు ప్రారంభించండి.",
+    "cta.sub": "ప్రారంభించడం ఉచితం. మీ మొదటి నివేదికను ముప్పై సెకన్లలో అప్‌లోడ్ చేయండి.",
+    "cta.email": "మీ ఇమెయిల్ చిరునామా",
+    "cta.relation": "మీరు ఎవరిని చూసుకుంటారు",
+    "cta.city": "నగరం",
+    "cta.button": "ప్రారంభించండి",
+    "cta.signoff": "ప్రేమతో,",
+    "cta.role": "వ్యవస్థాపకురాలు · Vyana",
+
+    "landing.getAccess": "ముందస్తు యాక్సెస్ పొందండి",
   },
+
   bn: {
-    "landing.badge": "ক্ষতি থেকে জন্ম। উদ্দেশ্য নিয়ে তৈরি।",
-    "landing.headline1": "আপনার স্বাস্থ্য গল্প।",
-    "landing.headline2": "সর্বদা আপনার সাথে।",
-    "landing.subtext": "ভারতে, প্রতিটি নতুন ডাক্তার শূন্য থেকে শুরু করেন। কোনো রেকর্ড নেই, কোনো ইতিহাস নেই, কোনো প্রসঙ্গ নেই।",
-    "landing.subtextBold": "Vyana এই কারণে তৈরি হয়েছে যাতে এটি আর কখনো না ঘটে।",
-    "landing.cta": "আপনার স্বাস্থ্য গল্প শুরু করুন",
-    "landing.whyCta": "আমরা কেন এটি তৈরি করেছি",
-    "landing.stat": "প্রতি বছর, ভারতীয় পরিবারগুলি পুনরাবৃত্ত চিকিৎসা পরীক্ষায় ₹10,000+ খরচ করে।",
-
-    "landing.problemTitle": "সমস্যাটি",
-    "landing.problemHighlight": "ব্যক্তিগত",
-    "landing.problemSub": "এটি প্রযুক্তি সম্পর্কে নয়। সিস্টেমের স্মৃতি না থাকলে পরিবারগুলির কী হয় তা নিয়ে।",
-    "landing.beat1Title": "একটি জীবন ব্যাখ্যা করতে পাঁচ মিনিট",
-    "landing.beat1Text": "পরিবার যখন ER-এ ছুটে যায়, দশকের চিকিৎসা ইতিহাস পাঁচ মিনিটে ব্যাখ্যা করতে হয়।",
-    "landing.beat2Title": "৭৫ পৃষ্ঠা যা কেউ পড়ে না",
-    "landing.beat2Text": "রোগীরা ছড়িয়ে ছিটিয়ে থাকা রিপোর্টের মোটা ফোল্ডার বহন করেন। প্রতিটি নতুন ডাক্তার আবার একই রক্ত পরীক্ষা করান।",
-    "landing.beat3Title": "দীর্ঘস্থায়ী রোগ খুব দেরিতে ধরা পড়ে",
-    "landing.beat3Text": "কেউ দীর্ঘমেয়াদী চিত্র ট্র্যাক করে না। অবস্থা ধীরে ধীরে খারাপ হয়।",
-    "landing.vyanaHolds": "Vyana আপনার সম্পূর্ণ চিকিৎসা ইতিহাস ধরে রাখে, নীরবে, নিরাপদে -",
-    "landing.itsThere": "এটি সেখানে থাকবে",
-
-    "landing.featuresTitle": "বৈশিষ্ট্য নয়।",
-    "landing.featuresHighlight": "প্রতিশ্রুতি।",
-    "landing.featuresSub": "Vyana আপনার এবং আপনার পরিবারের জন্য কী করে।",
-    "landing.f1Title": "যেকোনো কিছু আপলোড করুন",
-    "landing.f1Desc": "প্রেসক্রিপশন, ল্যাব রিপোর্ট, ডিসচার্জ সারাংশ, ফটো বা PDF।",
-    "landing.f2Title": "যা গুরুত্বপূর্ণ তা ট্র্যাক করুন",
-    "landing.f2Desc": "HbA1c, রক্তচাপ, কোলেস্টেরল, সময়ের সাথে ট্র্যাক করা হয়।",
-    "landing.f3Title": "৩০-সেকেন্ড সারাংশ",
-    "landing.f3Desc": "একটি স্ক্রিনে ডাক্তার আপনার সম্পূর্ণ ইতিহাস দেখতে পারেন।",
-    "landing.f4Title": "যেকোনো ডাক্তারের সাথে শেয়ার করুন",
-    "landing.f4Desc": "২৪ ঘণ্টার জন্য বৈধ একটি নিরাপদ লিঙ্ক তৈরি করুন।",
-    "landing.f5Title": "আপনার ডেটা, আপনার নিয়ন্ত্রণ",
-    "landing.f5Desc": "ABHA-লিঙ্কড, ABDM সম্মত। কোন ডাক্তার কী দেখবেন তা আপনি ঠিক করেন।",
-    "landing.f6Title": "ভারতীয় পরিবারের জন্য তৈরি",
-    "landing.f6Desc": "বহু ভাষা। যেকোনো ফোনে কাজ করে।",
-
-    "landing.missionTitle1": "তৈরি করছি সেই",
-    "landing.missionHighlight": "স্বাস্থ্য স্মৃতি",
-    "landing.missionTitle2": "যা ভারতের কখনো ছিল না",
-    "landing.missionText": "ভারতে প্রতিটি রোগী এমন একজন ডাক্তারের যোগ্য যিনি তার পুরো গল্প জানেন।",
-    "landing.stat1Value": "30s",
-    "landing.stat1Label": "যেকোনো ডাক্তার সম্পূর্ণ ইতিহাস দেখতে",
-    "landing.stat2Value": "₹0",
-    "landing.stat2Label": "পুনরাবৃত্ত পরীক্ষায় অপচয়",
-    "landing.stat3Value": "1",
-    "landing.stat3Label": "ডাক্তার সব দেখতে একটি স্ক্রিন",
-    "landing.readStory": "Vyana-র পুরো গল্প পড়ুন",
-
-    "landing.contactTitle": "তৈরি করতে সাহায্য করুন",
-    "landing.contactHighlight": "যা সবসময় থাকা উচিত ছিল",
-    "landing.contactText": "প্রাথমিক রোগী, দূরদর্শী ডাক্তার, এবং যারা হাসপাতালের করিডোরে বসে ভালো রেকর্ডের জন্য প্রার্থনা করেছেন তাদের খুঁজছি।",
-    "landing.getAccess": "আর্লি অ্যাক্সেস পান",
-    "landing.connectLinkedin": "LinkedIn-এ যুক্ত হন",
-    "landing.footer": "প্রতিটি রোগী এমন ডাক্তারের যোগ্য যিনি তার গল্প জানেন।",
-
-    "nav.about": "সম্পর্কে",
-    "nav.features": "বৈশিষ্ট্য",
-    "nav.ourStory": "আমাদের গল্প",
+    "nav.story": "গল্প",
+    "nav.research": "গবেষণা",
+    "nav.how": "কীভাবে কাজ করে",
     "nav.contact": "যোগাযোগ",
-    "nav.signIn": "সাইন ইন",
-    "nav.getStarted": "শুরু করুন",
+    "nav.try": "এখনই Vyana চেষ্টা করুন",
+
+    "hero.eyebrow": "আপনার স্বাস্থ্য কাহিনি, সর্বদা আপনার সাথে",
+    "hero.h1.l1": "আপনার চিকিৎসা",
+    "hero.h1.l2": "ইতিহাস কখনো",
+    "hero.h1.l3": "আবার ব্যাখ্যা",
+    "hero.h1.again": "করবেন না।",
+    "hero.sub":
+      "আপনার রিপোর্ট আপলোড করুন। 30 সেকেন্ডে ডাক্তারের জন্য প্রস্তুত সারাংশ পান। অবস্থা, ওষুধ, সাম্প্রতিক পরিবর্তন, একটি স্ক্রিন যা যেকোনো ডাক্তার তৎক্ষণাৎ পড়তে পারেন।",
+    "hero.cta.primary": "আপনার প্রথম রেকর্ড আপলোড করুন",
+    "hero.cta.secondary": "একটি নমুনা সারাংশ দেখুন",
+
+    "problem.eyebrow": "সমস্যা",
+    "problem.title.l1": "স্বাস্থ্যসেবা একটি",
+    "problem.title.l2": "সহজ উপায়ে ভেঙে গেছে।",
+    "problem.sub":
+      "প্রতিবার নতুন ডাক্তারের কাছে গেলে, আপনি শূন্য থেকে শুরু করেন। আপনার ইতিহাস ফাইলে পড়ে থাকে যা কেউ পড়ে না।",
+    "problem.stat1.k": "75 পৃষ্ঠা",
+    "problem.stat1.v": "হাসপাতাল, ক্লিনিক ও ল্যাবে ছড়িয়ে থাকা রিপোর্ট।",
+    "problem.stat2.k": "5 মিনিট",
+    "problem.stat2.v": "যিনি আপনাকে আগে কখনো দেখেননি এমন ডাক্তারকে জীবনকালের ইতিহাস ব্যাখ্যা করতে।",
+    "problem.stat3.k": "0 প্রসঙ্গ",
+    "problem.stat3.v": "প্রতিটি নতুন বিশেষজ্ঞ একটি ফাঁকা পৃষ্ঠা থেকে শুরু করেন।",
+    "problem.consequences": "এর ফলাফল",
+    "problem.tag.repeat": "পুনরাবৃত্ত পরীক্ষা",
+    "problem.tag.miss": "মিস করা প্যাটার্ন",
+    "problem.tag.delay": "দেরি হওয়া রোগ নির্ণয়",
+    "problem.closer":
+      "এটি উৎপাদনশীলতার সমস্যা নয়। এটি জীবনের সমস্যা। জরুরি অবস্থায়, পরিবারের কাছে বছরের ইতিহাস ব্যাখ্যা করার জন্য মিনিট থাকে, এবং রোগী মূল্য দেন।",
+
+    "voices.eyebrow": "কণ্ঠস্বর",
+    "voices.title.l1": "প্রতিটি ভারতীয় পরিবারের",
+    "voices.title.l2": "এই গল্পের একটি সংস্করণ আছে।",
+    "voices.q1.body":
+      "সব কিছু ব্যাখ্যা করতে আমাদের পাঁচ মিনিট ছিল। কোথা থেকে শুরু করব তাও জানতাম না।",
+    "voices.q1.who": "এক কন্যা",
+    "voices.q1.ctx": "চেন্নাই · তার মায়ের শেষ ভর্তি সম্পর্কে",
+    "voices.q2.body":
+      "প্রতিটি নতুন ডাক্তার একই রক্ত পরীক্ষার জন্য আমাদের ফেরত পাঠায়। আমাদের কাছে এত মোটা ফাইল আছে।",
+    "voices.q2.who": "এক ছেলে",
+    "voices.q2.ctx": "বেঙ্গালুরু · তার ডায়াবেটিক বাবার যত্ন নিয়ে",
+    "voices.q3.body":
+      "বাবার অস্ত্রোপচার রাত 2টায়। আমার হাতে তিনটি প্রেসক্রিপশন এবং অন্য শহরের হাসপাতালের একটি CT স্ক্যান ছিল।",
+    "voices.q3.who": "এক প্রতিষ্ঠাতা",
+    "voices.q3.ctx": "দিল্লি · যে রাতে Vyana জন্ম নিয়েছিল",
+
+    "wedge.title.l1": "এটি স্বাস্থ্য রেকর্ড অ্যাপ নয়।",
+    "wedge.title.l2": "এটি একটি ক্লিনিকাল মেমরি সিস্টেম।",
+    "wedge.sub":
+      "Vyana শুধু ফাইল সংরক্ষণ করে না। এটি একটি ক্রমাগত স্বাস্থ্য গ্রাফ তৈরি করে, যাতে ডাক্তাররা আপনার পুরো গল্প সেকেন্ডে দেখেন।",
+    "wedge.p1.title": "সময়ের সাথে অবস্থা ট্র্যাক করে",
+    "wedge.p1.body": "HbA1c, BP, কিডনি ফাংশন, থাইরয়েড। ধীর সংকেত বছরের পর বছর প্লট করা।",
+    "wedge.p2.title": "বিন্দুগুলি সংযুক্ত করে",
+    "wedge.p2.body": "পরীক্ষা, ওষুধ এবং উপসর্গ একটি ক্রমাগত গ্রাফে সংযুক্ত।",
+    "wedge.p3.title": "যা পরিবর্তিত হয়েছে তা প্রকাশ করে",
+    "wedge.p3.body": "অস্বাভাবিক প্যাটার্ন জরুরি অবস্থা হওয়ার আগেই হাইলাইট হয়।",
+
+    "how.eyebrow": "কীভাবে কাজ করে",
+    "how.title.l1": "তিনটি শান্ত পদক্ষেপ।",
+    "how.title.l2": "জীবনকালের প্রসঙ্গ।",
+    "how.step": "ধাপ",
+    "how.s1.title": "যে কোনো কিছু আপলোড করুন।",
+    "how.s1.body":
+      "একটি প্রেসক্রিপশনের ছবি তুলুন। PDF পাঠান। ডিসচার্জ সারাংশ ফরওয়ার্ড করুন। আমরা হাতে লেখা হিন্দি, মুদ্রিত তামিল, ঝাপসা বাংলা পড়ি।",
+    "how.s2.title": "AI সব কিছু বের করে।",
+    "how.s2.body":
+      "ভাইটাল, রোগ নির্ণয়, ওষুধ, টাইমলাইন। তেত্রিশটি ক্লিনিকাল সংকেত বছরের পর বছর প্লট করা।",
+    "how.s3.title": "প্রস্তুত হয়ে ভিতরে যান।",
+    "how.s3.body":
+      "এক পৃষ্ঠার ক্লিনিকাল ব্রিফিং যা যেকোনো ডাক্তার ত্রিশ সেকেন্ডে পড়তে পারেন। অ্যাপয়েন্টমেন্টের আগে WhatsApp-এ শেয়ার করুন।",
+
+    "out.eyebrow": "আপনি যা নিয়ে যান",
+    "out.title.l1": "আপনার পরবর্তী অ্যাপয়েন্টমেন্ট,",
+    "out.title.l2": "ইতিমধ্যেই প্রস্তুত।",
+    "out.list1": "এক স্ক্রিন চিকিৎসা সারাংশ",
+    "out.list2": "সময়ের সাথে প্রবণতা (BP, HbA1c, eGFR)",
+    "out.list3": "ওষুধ এবং রোগ নির্ণয়ের ইতিহাস",
+    "out.list4": "অস্বাভাবিক সংকেত হাইলাইট",
+    "out.flips.eyebrow": "এটি আসলে আপনার জন্য কী করে",
+    "out.flip1.stop": "পরীক্ষা পুনরাবৃত্তি বন্ধ করুন",
+    "out.flip1.gain": "টাকা সাশ্রয় করুন",
+    "out.flip2.stop": "ইতিহাস অনুমান করা বন্ধ করুন",
+    "out.flip2.gain": "ভাল যত্ন",
+    "out.flip3.stop": "রিপোর্ট হারানো বন্ধ করুন",
+    "out.flip3.gain": "নিয়ন্ত্রণে থাকুন",
+
+    "trust.eyebrow": "বিশ্বাস",
+    "trust.title.l1": "আপনার রেকর্ড আপনার।",
+    "trust.title.l2": "আমরা সেগুলি কখনো বিক্রি করি না।",
+    "trust.sub":
+      "Vyana ভারতের জাতীয় স্বাস্থ্য মান অনুসারে নির্মিত এবং ব্যাংক যে এনক্রিপশন ব্যবহার করে তা দ্বারা সুরক্ষিত।",
+    "trust.b1.label": "এন্ড-টু-এন্ড এনক্রিপ্টেড",
+    "trust.b1.sub": "AES-256",
+    "trust.b2.label": "ABDM-সংগত",
+    "trust.b2.sub": "ভারতের জাতীয় স্বাস্থ্য স্ট্যাক",
+    "trust.b3.label": "DPDPA 2023",
+    "trust.b3.sub": "ভারতীয় ডেটা আইন",
+    "trust.b4.label": "আপনার ডেটা, আপনার নিয়ন্ত্রণ",
+    "trust.b4.sub": "যে কোনো সময় মুছুন",
+    "trust.b5.label": "Wharton-এ নির্মিত",
+    "trust.b5.sub": "স্বাস্থ্যসেবা ও AI গবেষণা",
+    "trust.note":
+      "ABDM সম্পর্কে: Vyana ভারতের আয়ুষ্মান ভারত ডিজিটাল মিশন মান অনুসরণ করে। সম্পূর্ণ সার্টিফিকেশন প্রক্রিয়াধীন।",
+
+    "faq.eyebrow": "প্রশ্ন",
+    "faq.title.l1": "পরিবারগুলি",
+    "faq.title.l2": "আমাদের প্রথমে যা জিজ্ঞাসা করে।",
+    "faq.q1.q": "এটি কি ভারতের জাতীয় স্বাস্থ্য ব্যবস্থা দ্বারা অনুমোদিত?",
+    "faq.q1.a":
+      "হ্যাঁ। Vyana আয়ুষ্মান ভারত ডিজিটাল মিশন (ABDM)-এর সাথে সঙ্গতিপূর্ণভাবে নির্মিত, একই ফ্রেমওয়ার্ক যা Apollo, Max এবং সরকারি হাসপাতাল ব্যবহার করে।",
+    "faq.q2.q": "আমার রেকর্ড কে দেখতে পারে?",
+    "faq.q2.a":
+      "শুধু আপনি। আপনি যা শেয়ার করেন, যতক্ষণ চান ডাক্তাররা ততক্ষণ দেখেন। প্রতিটি শেয়ার 24-ঘণ্টার লিঙ্ক তৈরি করে। আমরা আপনার ডেটা কখনো বিক্রি করি না।",
+    "faq.q3.q": "Vyana কি আমার ভাষায় কাজ করে?",
+    "faq.q3.a":
+      "হ্যাঁ। অ্যাপটি ইংরেজি, হিন্দি, তামিল, তেলুগু এবং বাংলা বলে। হাতে লেখা নোট সহ এই সব লিপিতে আপনার প্রেসক্রিপশন পড়া হয়।",
+    "faq.q4.q": "আমার ডাক্তার কি ব্রিফিং গ্রহণ করবে?",
+    "faq.q4.a":
+      "যেকোনো ডাক্তার 30 সেকেন্ডে পড়তে পারেন এমন স্ট্যান্ডার্ড SOAP ফরম্যাটে এক পৃষ্ঠার সারাংশ তৈরি করি। FHIR ফাইল হিসাবেও এক্সপোর্ট হয়।",
+    "faq.q5.q": "আমি যদি অ্যাকাউন্ট মুছে ফেলি?",
+    "faq.q5.a":
+      "সব চলে যায়। 30 দিনের মধ্যে প্রতিটি রেকর্ড আমাদের সিস্টেম থেকে স্থায়ীভাবে মুছে ফেলা হয়।",
+    "faq.q6.q": "এটির খরচ কত?",
+    "faq.q6.a":
+      "শুরু করা বিনামূল্যে। ফ্রি প্ল্যানে অসীমিত রেকর্ড আপলোড করতে পারেন। পেইড প্ল্যানে উন্নত AI বৈশিষ্ট্য রয়েছে।",
+    "faq.q7.q": "এটি আসলে কাদের জন্য?",
+    "faq.q7.a":
+      "দীর্ঘস্থায়ী রোগ পরিচালনাকারী পরিবার, বয়স্ক বাবা-মায়ের যত্ন নেওয়া সন্তান, প্রতিটি পরিদর্শনে ইতিহাস পুনরাবৃত্তি করতে ক্লান্ত রোগী।",
+    "faq.q8.q": "AI কি চিকিৎসা সিদ্ধান্ত নিচ্ছে?",
+    "faq.q8.a":
+      "না। Vyana ক্লিনিকাল সিদ্ধান্ত সমর্থন, রোগ নির্ণয় ইঞ্জিন নয়। প্রতিটি চিকিৎসা সিদ্ধান্ত আপনার ডাক্তারের কাছেই থাকে।",
+    "faq.footer.pre": "এখনও কিছু জিজ্ঞাসা করার আছে?",
+    "faq.footer.link": "মেঘাকে সরাসরি লিখুন",
+
+    "cta.title.l1": "আপনার পরিবারের",
+    "cta.title.l2": "স্বাস্থ্য স্মৃতি আজই শুরু করুন।",
+    "cta.sub": "শুরু করা বিনামূল্যে। আপনার প্রথম রিপোর্ট ত্রিশ সেকেন্ডে আপলোড করুন।",
+    "cta.email": "আপনার ইমেল ঠিকানা",
+    "cta.relation": "আপনি কার যত্ন নেন",
+    "cta.city": "শহর",
+    "cta.button": "শুরু করুন",
+    "cta.signoff": "ভালোবাসা সহ,",
+    "cta.role": "প্রতিষ্ঠাতা · Vyana",
+
+    "landing.getAccess": "আর্লি অ্যাক্সেস পান",
   },
 };
 
+// Synchronous fetch using current localStorage value (kept for legacy callers)
 export function tLanding(key: string): string {
-  // Import dynamically to avoid circular deps
-  const lang = (localStorage.getItem("vyana-lang") as Language) || "en";
+  const lang = getLanguage();
   return landingTranslations[lang]?.[key] || landingTranslations.en[key] || key;
+}
+
+// React hook that re-renders on language change. Prefer this in components.
+export function useLandingT() {
+  const [lang, setLang] = useState<Language>(getLanguage());
+
+  useEffect(() => {
+    const handler = (e: Event) => setLang((e as CustomEvent).detail);
+    window.addEventListener("vyana-lang-change", handler);
+    return () => window.removeEventListener("vyana-lang-change", handler);
+  }, []);
+
+  return (key: string) =>
+    landingTranslations[lang]?.[key] || landingTranslations.en[key] || key;
 }
 
 export default landingTranslations;
