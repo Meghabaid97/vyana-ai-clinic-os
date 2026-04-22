@@ -398,6 +398,10 @@ const Auth = () => {
           },
         });
         if (error) throw error;
+        // Mark invite token as used (best effort)
+        if (inviteToken) {
+          await supabase.rpc("consume_invite_token", { _token: inviteToken });
+        }
         if (data.session && data.user) {
           await handleAuthenticatedUser(data.user.id, data.user.user_metadata);
         }
@@ -700,11 +704,26 @@ const Auth = () => {
             Google
           </Button>
 
-          <div className="mt-6 text-center">
-            <button type="button" onClick={() => { setIsSignUp(!isSignUp); setAuthMode("password"); setOtpSent(false); }} className="text-sm text-primary hover:underline">
-              {isSignUp ? t("auth.hasAccount") : t("auth.noAccount")}
-            </button>
-          </div>
+          {/* Toggle: only show if user has valid invite (signup) or is currently signing up */}
+          {(tokenValid || !isSignUp) && (
+            <div className="mt-6 text-center">
+              {isSignUp ? (
+                <button type="button" onClick={() => { setIsSignUp(false); setAuthMode("password"); setOtpSent(false); }} className="text-sm text-primary hover:underline">
+                  {t("auth.hasAccount")}
+                </button>
+              ) : (
+                tokenValid ? (
+                  <button type="button" onClick={() => { setIsSignUp(true); }} className="text-sm text-primary hover:underline">
+                    {t("auth.noAccount")}
+                  </button>
+                ) : (
+                  <Link to="/request-access" className="text-sm text-primary hover:underline">
+                    Don't have an account? Request access →
+                  </Link>
+                )
+              )}
+            </div>
+          )}
         </div>
 
         <div className="mt-6 text-center">
