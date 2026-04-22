@@ -147,16 +147,20 @@ const AppShell = () => {
             V<span className="text-primary italic">yana</span>
           </button>
 
-          {/* Search */}
+          {/* Ask Vyana — grounded medical Q&A */}
           <div className="flex-1 max-w-2xl">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="Search records, medications, conditions..."
-                className="w-full h-10 pl-10 pr-4 rounded-full border border-border bg-muted/40 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:bg-background transition-all"
-              />
-            </div>
+            <button
+              onClick={() => { setAskInitial(""); setAskOpen(true); }}
+              className="group w-full h-10 pl-4 pr-3 rounded-full border border-border bg-muted/40 hover:bg-background hover:border-primary/40 hover:shadow-sm flex items-center gap-3 text-left transition-all"
+            >
+              <Sparkles className="h-4 w-4 text-primary shrink-0" />
+              <span className="flex-1 text-sm text-muted-foreground truncate">
+                Ask Vyana anything about your health…
+              </span>
+              <span className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground bg-background border border-border rounded px-1.5 py-0.5 group-hover:border-primary/30 group-hover:text-primary transition-colors">
+                Cited
+              </span>
+            </button>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
