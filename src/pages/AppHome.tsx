@@ -58,6 +58,13 @@ const AppHome = () => {
   const firstName = profile?.name?.split(" ")[0] || "there";
   const totalRecords = recordCount + consultationCount;
   const hasRecords = totalRecords > 0;
+  const profileIncomplete = !!profile && (!profile.phone || !profile.date_of_birth || !profile.national_health_id);
+  const showProfileBanner = profileIncomplete && !bannerDismissed;
+
+  const dismissBanner = () => {
+    localStorage.setItem(PROFILE_BANNER_DISMISSED_KEY, "1");
+    setBannerDismissed(true);
+  };
 
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
