@@ -7,6 +7,8 @@ import WedgeSection from "@/components/landing/WedgeSection";
 import HowItWorks from "@/components/landing/HowItWorks";
 import OutcomeSection from "@/components/landing/OutcomeSection";
 import ResearchAndTeam from "@/components/landing/ResearchAndTeam";
+import TrustStrip from "@/components/landing/TrustStrip";
+import FAQSection from "@/components/landing/FAQSection";
 import PortraitCTA from "@/components/landing/PortraitCTA";
 import SideRail from "@/components/landing/SideRail";
 import Navigation from "@/components/Navigation";
@@ -57,6 +59,8 @@ const Index = () => {
       <HowItWorks />
       <OutcomeSection />
       <ResearchAndTeam />
+      <TrustStrip />
+      <FAQSection />
       <PortraitCTA />
     </div>
   );

@@ -9,6 +9,8 @@ const sections = [
   { id: "how", label: "How" },
   { id: "output", label: "Outcome" },
   { id: "research", label: "Science" },
+  { id: "trust", label: "Trust" },
+  { id: "faq", label: "Questions" },
 ];
 
 const SideRail = () => {
