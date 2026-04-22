@@ -1,26 +1,16 @@
 import { useReveal } from "@/hooks/use-reveal";
-
-const pillars = [
-  {
-    n: "01",
-    title: "Tracks conditions over time",
-    body: "HbA1c, BP, kidney function, thyroid. The slow signals plotted across years, not visits.",
-  },
-  {
-    n: "02",
-    title: "Connects the dots",
-    body: "Tests, medications and symptoms linked into one continuous graph, not scattered files.",
-  },
-  {
-    n: "03",
-    title: "Surfaces what changed",
-    body: "Abnormal patterns and shifts highlighted before they become emergencies.",
-  },
-];
+import { useLandingT } from "@/lib/i18n-landing";
 
 const WedgeSection = () => {
+  const t = useLandingT();
   const header = useReveal<HTMLDivElement>();
   const grid = useReveal<HTMLDivElement>();
+
+  const pillars = [
+    { n: "01", title: t("wedge.p1.title"), body: t("wedge.p1.body") },
+    { n: "02", title: t("wedge.p2.title"), body: t("wedge.p2.body") },
+    { n: "03", title: t("wedge.p3.title"), body: t("wedge.p3.body") },
+  ];
 
   return (
     <section id="wedge" className="relative py-32 lg:py-40 bg-surface-dark">
@@ -30,13 +20,12 @@ const WedgeSection = () => {
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[820px] mb-20`}
         >
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[80px] leading-[1.0] tracking-[-0.02em] text-surface-dark-foreground">
-            Not a health records app.
+            {t("wedge.title.l1")}
             <br />
-            <em className="italic text-primary font-normal">A clinical memory system.</em>
+            <em className="italic text-primary font-normal">{t("wedge.title.l2")}</em>
           </h2>
           <p className="mt-8 text-[18px] leading-[1.65] text-surface-dark-muted max-w-[620px]">
-            Vyana doesn't just store files. It builds a continuous health
-            graph, so doctors see your full story in seconds, not silos.
+            {t("wedge.sub")}
           </p>
         </div>
 

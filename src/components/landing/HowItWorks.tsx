@@ -1,5 +1,6 @@
 import { useReveal } from "@/hooks/use-reveal";
 import { PhoneMock, MockStoryScreen, MockTrendsScreen, MockBriefingScreen } from "./PhoneMock";
+import { useLandingT } from "@/lib/i18n-landing";
 
 type Step = {
   n: string;
@@ -9,31 +10,7 @@ type Step = {
   rotate: number;
 };
 
-const steps: Step[] = [
-  {
-    n: "01",
-    title: "Upload anything.",
-    body: "Snap a prescription. Drop a PDF. Forward a discharge summary. We read handwritten Hindi, printed Tamil, smudged Bengali. Five languages, every format.",
-    mock: <MockStoryScreen />,
-    rotate: -3,
-  },
-  {
-    n: "02",
-    title: "AI extracts everything.",
-    body: "Vitals, diagnoses, medications, timelines. Thirty-three clinical signals plotted across years, so the slow patterns finally become visible.",
-    mock: <MockTrendsScreen />,
-    rotate: 2,
-  },
-  {
-    n: "03",
-    title: "Walk in prepared.",
-    body: "A one-page clinical briefing any doctor can read in thirty seconds. Conditions, medications, recent flags. Share on WhatsApp before the appointment.",
-    mock: <MockBriefingScreen />,
-    rotate: -2,
-  },
-];
-
-const StepChapter = ({ s, index }: { s: Step; index: number }) => {
+const StepChapter = ({ s, index, stepLabel }: { s: Step; index: number; stepLabel: string }) => {
   const text = useReveal<HTMLDivElement>();
   const phone = useReveal<HTMLDivElement>();
   const reverse = index % 2 === 1;
@@ -47,7 +24,7 @@ const StepChapter = ({ s, index }: { s: Step; index: number }) => {
         }`}
       >
         <div className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-5">
-          Step {s.n}
+          {stepLabel} {s.n}
         </div>
         <h3 className="font-serif text-[36px] sm:text-[52px] lg:text-[64px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
           {s.title}
@@ -70,7 +47,14 @@ const StepChapter = ({ s, index }: { s: Step; index: number }) => {
 };
 
 const HowItWorks = () => {
+  const t = useLandingT();
   const header = useReveal<HTMLDivElement>();
+
+  const steps: Step[] = [
+    { n: "01", title: t("how.s1.title"), body: t("how.s1.body"), mock: <MockStoryScreen />, rotate: -3 },
+    { n: "02", title: t("how.s2.title"), body: t("how.s2.body"), mock: <MockTrendsScreen />, rotate: 2 },
+    { n: "03", title: t("how.s3.title"), body: t("how.s3.body"), mock: <MockBriefingScreen />, rotate: -2 },
+  ];
 
   return (
     <section id="how" className="relative bg-surface-dark py-28 lg:py-36">
@@ -80,18 +64,18 @@ const HowItWorks = () => {
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[760px] mb-8`}
         >
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
-            How it works
+            {t("how.eyebrow")}
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
-            Three quiet steps.
+            {t("how.title.l1")}
             <br />
-            <em className="italic text-primary font-normal">A lifetime of context.</em>
+            <em className="italic text-primary font-normal">{t("how.title.l2")}</em>
           </h2>
         </div>
 
         <div className="divide-y divide-white/10">
           {steps.map((s, i) => (
-            <StepChapter key={s.n} s={s} index={i} />
+            <StepChapter key={s.n} s={s} index={i} stepLabel={t("how.step")} />
           ))}
         </div>
       </div>

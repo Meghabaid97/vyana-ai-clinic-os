@@ -1,28 +1,16 @@
 import { useReveal } from "@/hooks/use-reveal";
-
-type Quote = { body: string; attribution: string; context: string };
-
-const quotes: Quote[] = [
-  {
-    body: "We had five minutes to explain everything. We didn't even know where to start.",
-    attribution: "A daughter",
-    context: "Chennai · about her mother's last admission",
-  },
-  {
-    body: "Every new doctor sends us back for the same blood tests. We have a folder this thick. Nobody reads it.",
-    attribution: "A son",
-    context: "Bengaluru · caring for his diabetic father",
-  },
-  {
-    body: "Appa's surgery was at 2 AM. I was holding three prescriptions and a CT scan from a hospital in another city.",
-    attribution: "A founder",
-    context: "Delhi · the night Vyana was born",
-  },
-];
+import { useLandingT } from "@/lib/i18n-landing";
 
 const QuoteWall = () => {
+  const t = useLandingT();
   const header = useReveal<HTMLDivElement>();
   const grid = useReveal<HTMLDivElement>();
+
+  const quotes = [
+    { body: t("voices.q1.body"), attribution: t("voices.q1.who"), context: t("voices.q1.ctx") },
+    { body: t("voices.q2.body"), attribution: t("voices.q2.who"), context: t("voices.q2.ctx") },
+    { body: t("voices.q3.body"), attribution: t("voices.q3.who"), context: t("voices.q3.ctx") },
+  ];
 
   return (
     <section
@@ -35,12 +23,12 @@ const QuoteWall = () => {
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[640px] mb-16`}
         >
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
-            Voices
+            {t("voices.eyebrow")}
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.02] tracking-[-0.02em] text-foreground">
-            Every Indian family
+            {t("voices.title.l1")}
             <br />
-            <em className="italic text-primary font-normal">has a version of this story.</em>
+            <em className="italic text-primary font-normal">{t("voices.title.l2")}</em>
           </h2>
         </div>
 

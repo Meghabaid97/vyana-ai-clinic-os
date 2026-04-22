@@ -1,17 +1,19 @@
 import { Shield, Lock, FileCheck, Heart, GraduationCap } from "lucide-react";
 import { useReveal } from "@/hooks/use-reveal";
-
-const badges = [
-  { icon: Lock, label: "End-to-end encrypted", sub: "AES-256 at rest" },
-  { icon: Shield, label: "ABDM-aligned", sub: "India's national health stack" },
-  { icon: FileCheck, label: "DPDPA 2023 compliant", sub: "Indian data law" },
-  { icon: Heart, label: "Your data, your control", sub: "Delete anytime" },
-  { icon: GraduationCap, label: "Built at Wharton", sub: "Healthcare & AI research" },
-];
+import { useLandingT } from "@/lib/i18n-landing";
 
 const TrustStrip = () => {
+  const t = useLandingT();
   const header = useReveal<HTMLDivElement>();
   const grid = useReveal<HTMLDivElement>();
+
+  const badges = [
+    { icon: Lock, label: t("trust.b1.label"), sub: t("trust.b1.sub") },
+    { icon: Shield, label: t("trust.b2.label"), sub: t("trust.b2.sub") },
+    { icon: FileCheck, label: t("trust.b3.label"), sub: t("trust.b3.sub") },
+    { icon: Heart, label: t("trust.b4.label"), sub: t("trust.b4.sub") },
+    { icon: GraduationCap, label: t("trust.b5.label"), sub: t("trust.b5.sub") },
+  ];
 
   return (
     <section id="trust" className="py-24 lg:py-32 bg-background border-t border-border">
@@ -23,17 +25,15 @@ const TrustStrip = () => {
           }`}
         >
           <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-5">
-            V &nbsp;·&nbsp; Trust
+            V &nbsp;·&nbsp; {t("trust.eyebrow")}
           </p>
           <h2 className="font-serif text-[32px] sm:text-[44px] lg:text-[52px] leading-[1.05] tracking-[-0.02em] text-foreground">
-            Your records belong to you.
+            {t("trust.title.l1")}
             <br />
-            <em className="italic text-primary font-normal">We never sell them. Ever.</em>
+            <em className="italic text-primary font-normal">{t("trust.title.l2")}</em>
           </h2>
           <p className="mt-6 text-[15.5px] leading-[1.75] text-muted-foreground">
-            Vyana is built on India's national health standards and protected by
-            the same encryption banks use. You can export everything, share with
-            any doctor, or delete it all in one tap.
+            {t("trust.sub")}
           </p>
         </div>
 
@@ -64,9 +64,7 @@ const TrustStrip = () => {
         </div>
 
         <p className="mt-10 text-[13px] italic text-muted-foreground/80 max-w-[620px]">
-          A note on ABDM: Vyana follows India's Ayushman Bharat Digital Mission
-          standards for health records and identity. Full sandbox certification
-          is in progress.
+          {t("trust.note")}
         </p>
       </div>
     </section>
