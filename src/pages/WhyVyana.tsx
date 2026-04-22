@@ -603,7 +603,7 @@ const WhyVyana = () => {
                 className="text-[10px] tracking-[0.3em] uppercase mt-2"
                 style={{ color: inkMuted }}
               >
-                Founder · Vyana
+                Founder, Vyana
               </p>
             </div>
 
