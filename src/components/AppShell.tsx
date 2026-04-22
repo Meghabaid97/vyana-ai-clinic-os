@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut } from "lucide-react";
+import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 import LanguageSelector from "@/components/LanguageSelector";
 import HeaderLocationSelector from "@/components/HeaderLocationSelector";
 import AskVyanaModal from "@/components/AskVyanaModal";
+import SpotlightTour, { hasSeenTour } from "@/components/SpotlightTour";
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
@@ -38,6 +39,14 @@ const AppShell = () => {
   const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
   const [askOpen, setAskOpen] = useState(false);
   const [askInitial, setAskInitial] = useState("");
+  const [tourOpen, setTourOpen] = useState(false);
+
+  // Auto-open the spotlight tour on first /app visit
+  useEffect(() => {
+    if (hasSeenTour()) return;
+    const t = window.setTimeout(() => setTourOpen(true), 800);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -134,6 +143,13 @@ const AppShell = () => {
               className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-primary transition-colors"
             >
               <Sparkles className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setTourOpen(true)}
+              aria-label="Take the tour"
+              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <HelpCircle className="h-5 w-5" />
             </button>
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
             <LanguageSelector />
@@ -254,6 +270,7 @@ const AppShell = () => {
             return (
               <button
                 key={tab.id}
+                data-tour={`nav-${tab.id}`}
                 onClick={() => navigate(tab.path)}
                 aria-label={tab.label}
                 className={cn(
@@ -287,6 +304,7 @@ const AppShell = () => {
         </div>
       </footer>
       <AskVyanaModal open={askOpen} initialQuestion={askInitial} onClose={() => setAskOpen(false)} />
+      <SpotlightTour open={tourOpen} onClose={() => setTourOpen(false)} />
     </div>
   );
 };
