@@ -330,25 +330,8 @@ const Auth = () => {
           toast({ title: "Consent Required", description: "You must accept the data consent agreement to proceed.", variant: "destructive" });
           return;
         }
-        if (!phone || phone.replace(/\D/g, '').length < 10) {
-          setPhoneError("Mobile number is required");
-          toast({ title: "Mobile Number Required", description: "Please enter your mobile number to continue.", variant: "destructive" });
-          return;
-        }
-        const cleanPhone = phone.startsWith("+") ? phone : `+91${phone.replace(/\D/g, '')}`;
-        if (await checkPhoneExists(cleanPhone)) {
-          setPhoneError("This mobile number is already registered");
-          toast({ title: "Mobile Number Already Registered", description: "An account with this number already exists. Please sign in.", variant: "destructive" });
-          return;
-        }
-        if (healthId && !skipAbha) {
-          if (!validateHealthId(healthId)) { setHealthIdError("Health ID must be exactly 14 digits"); return; }
-          if (await checkHealthIdExists(healthId)) {
-            setHealthIdError("This ABHA Health ID is already registered.");
-            toast({ title: "ABHA ID Already Registered", description: "An account with this ABHA Health ID already exists.", variant: "destructive" });
-            return;
-          }
-        }
+        // Phone, ABHA, DOB, weight, location are now collected in the profile after signup.
+        // Keeps the signup form short — patients complete their profile inside the app.
       }
     }
 
