@@ -56,9 +56,8 @@ const WatchItWork = () => {
           ref={header.ref}
           className={`reveal ${header.visible ? "is-visible" : ""} text-center mb-12 lg:mb-16`}
         >
-          <p className="font-serif italic text-[14px] text-background/60 mb-4 tracking-wide">
-            Watch it work
-          </p>
+          <p className="hidden" />
+
           <h2 className="font-serif text-3xl sm:text-5xl lg:text-[56px] leading-[1.05] tracking-[-0.02em] max-w-[820px] mx-auto">
             This is what living with{" "}
             <em className="italic text-primary font-normal">Vyana</em> feels like.
