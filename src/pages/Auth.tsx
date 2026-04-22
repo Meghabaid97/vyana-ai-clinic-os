@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -97,8 +97,50 @@ const Auth = () => {
   const [lockoutRemaining, setLockoutRemaining] = useState(0);
   
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const inviteToken = searchParams.get("token");
+  const [tokenChecked, setTokenChecked] = useState(false);
+  const [tokenValid, setTokenValid] = useState(false);
   const { toast } = useToast();
   useLanguage();
+
+  // Validate invite token on mount. If present + valid → unlock signup.
+  // If absent → only login is allowed (signup tab is hidden).
+  useEffect(() => {
+    let active = true;
+    const validate = async () => {
+      if (!inviteToken) {
+        setTokenChecked(true);
+        return;
+      }
+      const { data } = await supabase
+        .from("access_requests")
+        .select("id, email, name, status, token_used_at, token_expires_at")
+        .eq("invite_token", inviteToken)
+        .maybeSingle();
+      if (!active) return;
+      if (
+        data &&
+        data.status === "approved" &&
+        !data.token_used_at &&
+        (!data.token_expires_at || new Date(data.token_expires_at) > new Date())
+      ) {
+        setTokenValid(true);
+        setIsSignUp(true);
+        if (data.email) setEmail(data.email);
+        if (data.name) setName(data.name);
+      } else {
+        toast({
+          title: "Invite link invalid or expired",
+          description: "Please request a new one.",
+          variant: "destructive",
+        });
+      }
+      setTokenChecked(true);
+    };
+    void validate();
+    return () => { active = false; };
+  }, [inviteToken, toast]);
 
   const buildSignupDraft = useCallback(
     (): PendingSignupDraft => {
