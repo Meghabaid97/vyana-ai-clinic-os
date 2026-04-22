@@ -19,7 +19,7 @@ const TrustStrip = () => {
         <div
           ref={header.ref}
           className={`max-w-[640px] mb-14 transition-all duration-700 ${
-            header.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+            header.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
           }`}
         >
           <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-5">
@@ -40,7 +40,7 @@ const TrustStrip = () => {
         <div
           ref={grid.ref}
           className={`grid grid-cols-2 md:grid-cols-5 gap-3 transition-all duration-700 delay-150 ${
-            grid.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+            grid.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
           }`}
         >
           {badges.map(({ icon: Icon, label, sub }) => (

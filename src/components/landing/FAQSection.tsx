@@ -51,7 +51,7 @@ const FAQSection = () => {
         <div
           ref={header.ref}
           className={`mb-14 transition-all duration-700 ${
-            header.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+            header.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
           }`}
         >
           <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-5">
@@ -67,7 +67,7 @@ const FAQSection = () => {
         <div
           ref={list.ref}
           className={`transition-all duration-700 delay-150 ${
-            list.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+            list.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
           }`}
         >
           <Accordion type="single" collapsible className="w-full">
