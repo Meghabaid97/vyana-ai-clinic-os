@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -97,8 +97,50 @@ const Auth = () => {
   const [lockoutRemaining, setLockoutRemaining] = useState(0);
   
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const inviteToken = searchParams.get("token");
+  const [tokenChecked, setTokenChecked] = useState(false);
+  const [tokenValid, setTokenValid] = useState(false);
   const { toast } = useToast();
   useLanguage();
+
+  // Validate invite token on mount. If present + valid → unlock signup.
+  // If absent → only login is allowed (signup tab is hidden).
+  useEffect(() => {
+    let active = true;
+    const validate = async () => {
+      if (!inviteToken) {
+        setTokenChecked(true);
+        return;
+      }
+      const { data } = await supabase
+        .from("access_requests")
+        .select("id, email, name, status, token_used_at, token_expires_at")
+        .eq("invite_token", inviteToken)
+        .maybeSingle();
+      if (!active) return;
+      if (
+        data &&
+        data.status === "approved" &&
+        !data.token_used_at &&
+        (!data.token_expires_at || new Date(data.token_expires_at) > new Date())
+      ) {
+        setTokenValid(true);
+        setIsSignUp(true);
+        if (data.email) setEmail(data.email);
+        if (data.name) setName(data.name);
+      } else {
+        toast({
+          title: "Invite link invalid or expired",
+          description: "Please request a new one.",
+          variant: "destructive",
+        });
+      }
+      setTokenChecked(true);
+    };
+    void validate();
+    return () => { active = false; };
+  }, [inviteToken, toast]);
 
   const buildSignupDraft = useCallback(
     (): PendingSignupDraft => {
@@ -356,6 +398,10 @@ const Auth = () => {
           },
         });
         if (error) throw error;
+        // Mark invite token as used (best effort)
+        if (inviteToken) {
+          await supabase.rpc("consume_invite_token", { _token: inviteToken });
+        }
         if (data.session && data.user) {
           await handleAuthenticatedUser(data.user.id, data.user.user_metadata);
         }
@@ -467,12 +513,24 @@ const Auth = () => {
     }
   };
 
+  // Block signup view entirely without valid invite token
+  const allowSignup = tokenValid;
+  const effectiveIsSignUp = isSignUp && allowSignup;
+
+  if (!tokenChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 safe-area-top safe-area-bottom">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">{t("auth.welcome")}</h1>
-          <p className="text-muted-foreground">{isSignUp ? t("auth.signUp") : t("auth.signIn")}</p>
+          <p className="text-muted-foreground">{effectiveIsSignUp ? t("auth.signUp") : t("auth.signIn")}</p>
         </div>
 
         <div className="bg-card border border-border rounded-lg p-8">
@@ -658,11 +716,26 @@ const Auth = () => {
             Google
           </Button>
 
-          <div className="mt-6 text-center">
-            <button type="button" onClick={() => { setIsSignUp(!isSignUp); setAuthMode("password"); setOtpSent(false); }} className="text-sm text-primary hover:underline">
-              {isSignUp ? t("auth.hasAccount") : t("auth.noAccount")}
-            </button>
-          </div>
+          {/* Toggle: only show if user has valid invite (signup) or is currently signing up */}
+          {(tokenValid || !isSignUp) && (
+            <div className="mt-6 text-center">
+              {isSignUp ? (
+                <button type="button" onClick={() => { setIsSignUp(false); setAuthMode("password"); setOtpSent(false); }} className="text-sm text-primary hover:underline">
+                  {t("auth.hasAccount")}
+                </button>
+              ) : (
+                tokenValid ? (
+                  <button type="button" onClick={() => { setIsSignUp(true); }} className="text-sm text-primary hover:underline">
+                    {t("auth.noAccount")}
+                  </button>
+                ) : (
+                  <Link to="/request-access" className="text-sm text-primary hover:underline">
+                    Don't have an account? Request access →
+                  </Link>
+                )
+              )}
+            </div>
+          )}
         </div>
 
         <div className="mt-6 text-center">

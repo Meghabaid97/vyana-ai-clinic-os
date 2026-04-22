@@ -70,10 +70,10 @@ const PortraitCTA = () => {
           <Button
             type="button"
             disabled={submitting}
-            onClick={() => (window.location.href = "/auth")}
+            onClick={() => (window.location.href = "/request-access")}
             className="group w-full h-12 mt-2 rounded-lg text-[15px]"
           >
-            {t("cta.button")}
+            Request access
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
         </form>

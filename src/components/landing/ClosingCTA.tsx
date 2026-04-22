@@ -24,9 +24,9 @@ const ClosingCTA = () => {
           <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5">
             <Button
               className="group h-12 px-7 text-[15px] rounded-full"
-              onClick={() => (window.location.href = "/auth")}
+              onClick={() => (window.location.href = "/request-access")}
             >
-              Try Vyana now
+              Request access
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
 

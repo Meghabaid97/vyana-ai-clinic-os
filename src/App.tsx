@@ -10,6 +10,8 @@ import Splash from "./pages/Splash";
 import Index from "./pages/Index";
 import WhyVyana from "./pages/WhyVyana";
 import Auth from "./pages/Auth";
+import RequestAccess from "./pages/RequestAccess";
+import AdminWaitlist from "./pages/AdminWaitlist";
 import AppShell from "./components/AppShell";
 import AppHome from "./pages/AppHome";
 import HealthTrends from "./pages/HealthTrends";
@@ -55,6 +57,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/splash" element={<Splash />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/request-access" element={<RequestAccess />} />
+          <Route path="/admin/waitlist" element={<AdminWaitlist />} />
           <Route path="/why-vyana" element={<WhyVyana />} />
           <Route path="/legal" element={<Legal />} />
 
