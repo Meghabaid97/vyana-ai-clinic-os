@@ -17,7 +17,6 @@ import { t, useLanguage } from "@/lib/i18n";
 
 type UserRole = "patient";
 type AuthMode = "password" | "otp";
-type OtpMethod = "email" | "phone";
 
 type PendingSignupDraft = {
   role?: UserRole;
