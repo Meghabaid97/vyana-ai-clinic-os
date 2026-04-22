@@ -185,9 +185,7 @@ const EmergencyContacts = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <PatientHeader patientName={patientName} />
-
+    <div className="bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-4xl mx-auto px-6 py-10">
         {/* Header */}
         <div className="mb-8">
