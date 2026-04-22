@@ -237,7 +237,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
             {tiles.map(({ def, values, latest, prior }) => {
               const status = statusOf(latest, def.range);
               const tone = STATUS_TONE[status];
@@ -248,35 +248,34 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
                 <button
                   key={def.key}
                   onClick={() => handleNav(def.key)}
-                  className="group rounded-2xl border border-border bg-card p-3.5 text-left transition-all hover:border-primary/40 hover:shadow-sm"
+                  className="group rounded-2xl border border-border bg-card p-3 text-left transition-all hover:border-primary/40 hover:shadow-sm min-w-0"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-lg shrink-0">
+                  <div className="flex items-start gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-base shrink-0">
                       {def.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
+                      <p className="text-[10.5px] font-medium text-muted-foreground truncate">{def.label}</p>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-[19px] font-bold text-foreground leading-none">
+                        <span className="text-[17px] font-bold text-foreground leading-none">
                           {fmt(latest, def.decimals ?? 1)}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">{def.unit}</span>
+                        <span className="text-[10px] text-muted-foreground truncate">{def.unit}</span>
                       </div>
                     </div>
-                    <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 whitespace-nowrap ${tone.chip}`}>
-                      {STATUS_COPY[status]}
-                    </span>
                   </div>
 
-                  <div className="mt-3">
+                  <div className="mt-2.5">
                     <RangeBar value={latest} axis={def.axis} range={def.range} status={status} />
                   </div>
 
-                  <div className="mt-2 flex items-center justify-between">
-                    <Sparkline values={values.map((v) => v.value)} tone={status} />
-                    <span className={`flex items-center gap-0.5 text-[10px] font-medium ${dir === "flat" ? "text-muted-foreground" : status === "ok" ? "text-foreground/60" : "text-foreground/70"}`}>
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <span className={`text-[9.5px] font-semibold rounded-full px-1.5 py-0.5 whitespace-nowrap ${tone.chip}`}>
+                      {STATUS_COPY[status]}
+                    </span>
+                    <span className={`flex items-center gap-0.5 text-[10px] font-medium shrink-0 ${dir === "flat" ? "text-muted-foreground" : "text-foreground/65"}`}>
                       <DirIcon className="h-3 w-3" />
-                      {delta != null && dir !== "flat" ? `${Math.abs(delta).toFixed(def.decimals ?? 1)} vs last` : "no change"}
+                      {delta != null && dir !== "flat" ? Math.abs(delta).toFixed(def.decimals ?? 1) : "—"}
                     </span>
                   </div>
                 </button>
