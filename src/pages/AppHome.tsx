@@ -120,7 +120,7 @@ const AppHome = () => {
         </section>
 
         {/* HERO: Briefing CTA — full width on mobile, 5 cols on desktop */}
-        <div className="lg:col-span-5 lg:pb-0">
+        <div className="lg:col-span-5 lg:pb-0" data-tour="briefing-hero">
           <DashboardBriefingHero hasRecords={hasRecords} />
         </div>
       </div>
@@ -230,7 +230,9 @@ const AppHome = () => {
           </section>
 
           {/* ── Trust & privacy reassurance ── */}
-          <TrustReassuranceStrip />
+          <div data-tour="trust-strip">
+            <TrustReassuranceStrip />
+          </div>
 
         </div>
 
