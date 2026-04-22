@@ -513,12 +513,24 @@ const Auth = () => {
     }
   };
 
+  // Block signup view entirely without valid invite token
+  const allowSignup = tokenValid;
+  const effectiveIsSignUp = isSignUp && allowSignup;
+
+  if (!tokenChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 safe-area-top safe-area-bottom">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">{t("auth.welcome")}</h1>
-          <p className="text-muted-foreground">{isSignUp ? t("auth.signUp") : t("auth.signIn")}</p>
+          <p className="text-muted-foreground">{effectiveIsSignUp ? t("auth.signUp") : t("auth.signIn")}</p>
         </div>
 
         <div className="bg-card border border-border rounded-lg p-8">
