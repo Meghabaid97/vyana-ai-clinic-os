@@ -60,8 +60,8 @@ const Index = () => {
       <OutcomeSection />
       <ResearchAndTeam />
       <TrustStrip />
-      <FAQSection />
       <PortraitCTA />
+      <FAQSection />
     </div>
   );
 };
