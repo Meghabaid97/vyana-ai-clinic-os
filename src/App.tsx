@@ -33,6 +33,7 @@ import ClaimAssistant from "./pages/RecoveryHub";
 import Legal from "./pages/Legal";
 import Support from "./pages/Support";
 import DomainChecklist from "./pages/DomainChecklist";
+import Unsubscribe from "./pages/Unsubscribe";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="/admin/waitlist" element={<AdminWaitlist />} />
           <Route path="/why-vyana" element={<WhyVyana />} />
           <Route path="/legal" element={<Legal />} />
+          <Route path="/unsubscribe" element={<Unsubscribe />} />
 
           {/* Patient app with bottom tabs */}
           <Route path="/app" element={<AppShell />}>
