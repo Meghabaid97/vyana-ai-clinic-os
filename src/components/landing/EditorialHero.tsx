@@ -28,7 +28,7 @@ const EditorialHero = () => {
         <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-28 pb-20">
           <div className="max-w-[680px] space-y-8 animate-fade-in-slow">
             <p className="font-serif italic text-[15px] text-foreground/65">
-              The fastest way to explain your medical history
+              Your health story, always with you
             </p>
 
             <h1 className="font-serif text-[44px] sm:text-[64px] lg:text-[84px] leading-[0.98] tracking-[-0.02em] text-foreground">
