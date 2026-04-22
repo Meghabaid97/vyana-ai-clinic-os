@@ -1,55 +1,41 @@
 project_id = "gnfaxcdapizhfqloiajn"
 
-[functions.transcribe-audio]
-verify_jwt = true
-
-[functions.convert-to-fhir]
-verify_jwt = true
-
-[functions.verify-aadhaar]
-verify_jwt = true
-
-[functions.analyze-health-risks]
-verify_jwt = true
-
-[functions.generate-prescription]
-verify_jwt = true
-
-[functions.check-drug-interactions]
-verify_jwt = true
-
-[functions.summarize-health-record]
-verify_jwt = true
-
-[functions.clinical-briefing]
-verify_jwt = true
-
-[functions.analyze-trends]
-verify_jwt = true
-
-[functions.interpret-prescription]
-verify_jwt = true
-
-[functions.process-discharge]
-verify_jwt = true
-
-[functions.insurance-chat]
-verify_jwt = true
-
-[functions.elevenlabs-tts]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
-
-[functions.send-transactional-email]
-verify_jwt = true
-
-[functions.preview-transactional-email]
-verify_jwt = false
-
-[functions.handle-email-unsubscribe]
-verify_jwt = false
-
-[functions.handle-email-suppression]
-verify_jwt = false
+[functions]
+  [functions.analyze-health-risks]
+    verify_jwt = true
+  [functions.analyze-trends]
+    verify_jwt = true
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.check-drug-interactions]
+    verify_jwt = true
+  [functions.clinical-briefing]
+    verify_jwt = true
+  [functions.convert-to-fhir]
+    verify_jwt = true
+  [functions.elevenlabs-tts]
+    verify_jwt = false
+  [functions.generate-prescription]
+    verify_jwt = true
+  [functions.handle-email-suppression]
+    verify_jwt = false
+  [functions.handle-email-unsubscribe]
+    verify_jwt = false
+  [functions.insurance-chat]
+    verify_jwt = true
+  [functions.interpret-prescription]
+    verify_jwt = true
+  [functions.preview-transactional-email]
+    verify_jwt = false
+  [functions.process-discharge]
+    verify_jwt = true
+  [functions.process-email-queue]
+    verify_jwt = true
+  [functions.send-transactional-email]
+    verify_jwt = true
+  [functions.summarize-health-record]
+    verify_jwt = true
+  [functions.transcribe-audio]
+    verify_jwt = true
+  [functions.verify-aadhaar]
+    verify_jwt = true
