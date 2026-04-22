@@ -9,7 +9,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
   const navigate = useNavigate();
 
   return (
-    <section className="px-4 sm:px-5 pb-5">
+    <section className="px-4 sm:px-5 pb-5 lg:px-0 lg:pb-0">
       <div className="relative overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/12 via-primary/6 to-transparent p-5">
         {/* subtle decorative ring */}
         <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-primary/10 blur-2xl" />
