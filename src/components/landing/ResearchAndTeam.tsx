@@ -82,11 +82,11 @@ const ResearchAndTeam = () => {
                 Built by founders from
               </p>
               <div className="grid grid-cols-2 gap-4">
-                <div className="h-24 rounded-lg bg-white flex items-center justify-center">
+                <div className="h-24 rounded-lg bg-white flex items-center justify-center px-2 py-1">
                   <img
                     src={whartonLogo}
                     alt="Wharton School, University of Pennsylvania"
-                    className="max-h-16 w-auto object-contain"
+                    className="max-h-[88px] w-auto object-contain scale-110"
                     loading="lazy"
                   />
                 </div>
