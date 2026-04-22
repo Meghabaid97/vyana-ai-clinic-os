@@ -103,7 +103,7 @@ const AppHome = () => {
       {/* ============ DESKTOP: 2-column hero band ============ */}
       <div className="lg:grid lg:grid-cols-12 lg:gap-6">
         {/* Soft opener — spans full width on mobile, 7 cols on desktop */}
-        <section className="px-4 sm:px-5 pt-8 pb-5 lg:col-span-7 lg:px-0 lg:pt-2">
+        <section className="px-4 sm:px-5 pt-8 pb-5 lg:col-span-7 lg:px-0 lg:pt-0">
           <div className="max-w-sm lg:max-w-2xl">
             <p className="text-xs font-medium tracking-widest uppercase text-primary mb-3">
               Welcome back, {firstName}
