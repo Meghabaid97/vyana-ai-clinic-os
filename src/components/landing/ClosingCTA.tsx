@@ -26,7 +26,7 @@ const ClosingCTA = () => {
               className="group h-12 px-7 text-[15px] rounded-full"
               onClick={() => (window.location.href = "/request-access")}
             >
-              Request access
+              Get early access
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
 

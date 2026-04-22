@@ -49,7 +49,7 @@ const EditorialHero = () => {
                 onClick={() => navigate("/request-access")}
                 className="group h-11 px-6 text-[15px] rounded-full"
               >
-                Request access
+                Get early access
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
               <Button
