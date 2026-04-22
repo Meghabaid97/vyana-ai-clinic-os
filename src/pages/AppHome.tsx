@@ -70,7 +70,7 @@ const AppHome = () => {
     <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
       {/* Profile completion nudge — shown to users who signed up via Google or skipped optional fields */}
       {showProfileBanner && (
-        <div className="px-4 sm:px-5 pt-4">
+        <div className="px-4 sm:px-5 pt-4 pb-2 lg:pb-4">
           <div className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 flex items-center gap-3">
             <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
               <UserCog className="h-4.5 w-4.5 text-primary" />
