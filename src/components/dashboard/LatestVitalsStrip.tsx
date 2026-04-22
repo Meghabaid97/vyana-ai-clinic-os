@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowUp, ArrowDown, Minus, Upload, Loader2 } from "lucide-react";
+import { ArrowUp, ArrowDown, Minus, Upload, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
@@ -11,24 +11,27 @@ interface VitalDef {
   key: string;
   label: string;
   unit: string;
-  priority: number; // lower = more important
+  emoji: string;
+  priority: number;
+  /** clinical healthy band */
   range?: { low?: number; high?: number };
+  /** axis we draw the bar across (so the dot has somewhere to sit) */
+  axis: { min: number; max: number };
   decimals?: number;
 }
 
-// Clinical-priority order. We pick the top N that the user actually has data for.
 const VITAL_DEFS: VitalDef[] = [
-  { key: "bp_systolic", label: "BP (sys)", unit: "mmHg", priority: 1, range: { high: 140 }, decimals: 0 },
-  { key: "hba1c", label: "HbA1c", unit: "%", priority: 2, range: { high: 6.5 }, decimals: 1 },
-  { key: "fasting_blood_sugar", label: "Fasting glucose", unit: "mg/dL", priority: 3, range: { low: 70, high: 126 }, decimals: 0 },
-  { key: "ldl", label: "LDL", unit: "mg/dL", priority: 4, range: { high: 160 }, decimals: 0 },
-  { key: "total_cholesterol", label: "Cholesterol", unit: "mg/dL", priority: 5, range: { high: 240 }, decimals: 0 },
-  { key: "triglycerides", label: "Triglycerides", unit: "mg/dL", priority: 6, range: { high: 200 }, decimals: 0 },
-  { key: "creatinine", label: "Creatinine", unit: "mg/dL", priority: 7, range: { high: 1.3 }, decimals: 2 },
-  { key: "hemoglobin", label: "Hemoglobin", unit: "g/dL", priority: 8, range: { low: 12 }, decimals: 1 },
-  { key: "tsh", label: "TSH", unit: "mIU/L", priority: 9, range: { low: 0.4, high: 4.5 }, decimals: 2 },
-  { key: "weight", label: "Weight", unit: "kg", priority: 10, decimals: 1 },
-  { key: "heart_rate", label: "Heart rate", unit: "bpm", priority: 11, range: { low: 60, high: 100 }, decimals: 0 },
+  { key: "bp_systolic", label: "Blood pressure", unit: "mmHg", emoji: "💓", priority: 1, range: { low: 90, high: 130 }, axis: { min: 70, max: 180 }, decimals: 0 },
+  { key: "hba1c", label: "HbA1c", unit: "%", emoji: "🩸", priority: 2, range: { high: 6.5 }, axis: { min: 4, max: 12 }, decimals: 1 },
+  { key: "fasting_blood_sugar", label: "Fasting sugar", unit: "mg/dL", emoji: "🍚", priority: 3, range: { low: 70, high: 126 }, axis: { min: 50, max: 220 }, decimals: 0 },
+  { key: "ldl", label: "LDL", unit: "mg/dL", emoji: "🥚", priority: 4, range: { high: 130 }, axis: { min: 50, max: 220 }, decimals: 0 },
+  { key: "total_cholesterol", label: "Cholesterol", unit: "mg/dL", emoji: "🧈", priority: 5, range: { high: 200 }, axis: { min: 100, max: 320 }, decimals: 0 },
+  { key: "triglycerides", label: "Triglycerides", unit: "mg/dL", emoji: "🥑", priority: 6, range: { high: 150 }, axis: { min: 50, max: 400 }, decimals: 0 },
+  { key: "creatinine", label: "Creatinine", unit: "mg/dL", emoji: "🫘", priority: 7, range: { low: 0.6, high: 1.3 }, axis: { min: 0.3, max: 2.5 }, decimals: 2 },
+  { key: "hemoglobin", label: "Hemoglobin", unit: "g/dL", emoji: "🩹", priority: 8, range: { low: 12, high: 17 }, axis: { min: 6, max: 20 }, decimals: 1 },
+  { key: "tsh", label: "TSH", unit: "mIU/L", emoji: "🦋", priority: 9, range: { low: 0.4, high: 4.5 }, axis: { min: 0, max: 10 }, decimals: 2 },
+  { key: "weight", label: "Weight", unit: "kg", emoji: "⚖️", priority: 10, axis: { min: 30, max: 150 }, decimals: 1 },
+  { key: "heart_rate", label: "Heart rate", unit: "bpm", emoji: "❤️", priority: 11, range: { low: 60, high: 100 }, axis: { min: 40, max: 160 }, decimals: 0 },
 ];
 
 interface VitalSeries {
@@ -40,32 +43,84 @@ interface VitalSeries {
 
 const fmt = (v: number, d = 1) => (Number.isInteger(v) ? v.toString() : v.toFixed(d));
 
-const Sparkline = ({ values, status }: { values: number[]; status: "ok" | "warn" }) => {
-  if (values.length < 2) {
-    return <div className="h-6" />;
-  }
+const statusOf = (v: number, range?: VitalDef["range"]): "ok" | "watch" | "high" | "low" => {
+  if (!range) return "ok";
+  if (range.high != null && v > range.high) return v > range.high * 1.15 ? "high" : "watch";
+  if (range.low != null && v < range.low) return v < range.low * 0.85 ? "low" : "watch";
+  return "ok";
+};
+
+const STATUS_COPY: Record<"ok" | "watch" | "high" | "low", string> = {
+  ok: "on point",
+  watch: "keep an eye",
+  high: "a bit high",
+  low: "a bit low",
+};
+
+const STATUS_TONE: Record<"ok" | "watch" | "high" | "low", { chip: string; bar: string; track: string }> = {
+  ok:    { chip: "bg-emerald-500/12 text-emerald-700",      bar: "bg-emerald-500",     track: "bg-emerald-500/15" },
+  watch: { chip: "bg-amber-500/15 text-amber-700",          bar: "bg-amber-500",       track: "bg-amber-500/15" },
+  high:  { chip: "bg-destructive/12 text-destructive",      bar: "bg-destructive",     track: "bg-destructive/15" },
+  low:   { chip: "bg-sky-500/15 text-sky-700",              bar: "bg-sky-500",         track: "bg-sky-500/15" },
+};
+
+const Sparkline = ({ values, tone }: { values: number[]; tone: "ok" | "watch" | "high" | "low" }) => {
+  if (values.length < 2) return <div className="h-5" />;
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
-  const w = 64;
-  const h = 20;
+  const w = 56;
+  const h = 18;
   const step = w / (values.length - 1);
   const pts = values
     .map((v, i) => `${(i * step).toFixed(1)},${(h - ((v - min) / range) * h).toFixed(1)}`)
     .join(" ");
-  const stroke = status === "warn" ? "hsl(var(--destructive))" : "hsl(var(--primary))";
+  const stroke =
+    tone === "high" || tone === "low"
+      ? "hsl(var(--destructive))"
+      : tone === "watch"
+        ? "hsl(38 92% 50%)"
+        : "hsl(var(--primary))";
   return (
-    <svg width={w} height={h} className="block">
+    <svg width={w} height={h} className="block opacity-80">
       <polyline points={pts} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 };
 
-const isOutOfRange = (v: number, range?: VitalDef["range"]) => {
-  if (!range) return false;
-  if (range.high != null && v > range.high) return true;
-  if (range.low != null && v < range.low) return true;
-  return false;
+/** Range bar — shows the healthy band as a tinted segment, with a dot at the user's value. */
+const RangeBar = ({
+  value,
+  axis,
+  range,
+  status,
+}: {
+  value: number;
+  axis: { min: number; max: number };
+  range?: VitalDef["range"];
+  status: "ok" | "watch" | "high" | "low";
+}) => {
+  const span = axis.max - axis.min || 1;
+  const pct = (n: number) => Math.max(0, Math.min(100, ((n - axis.min) / span) * 100));
+  const dot = pct(value);
+  const bandLeft = pct(range?.low ?? axis.min);
+  const bandRight = pct(range?.high ?? axis.max);
+  const bandWidth = Math.max(2, bandRight - bandLeft);
+  const tone = STATUS_TONE[status];
+  return (
+    <div className="relative h-1.5 w-full rounded-full bg-muted">
+      {/* healthy band */}
+      <div
+        className="absolute top-0 h-1.5 rounded-full bg-emerald-500/25"
+        style={{ left: `${bandLeft}%`, width: `${bandWidth}%` }}
+      />
+      {/* dot */}
+      <div
+        className={`absolute -top-[3px] h-[12px] w-[12px] rounded-full border-2 border-background ${tone.bar}`}
+        style={{ left: `calc(${dot}% - 6px)` }}
+      />
+    </div>
+  );
 };
 
 const LatestVitalsStrip = ({ patientId }: Props) => {
@@ -96,7 +151,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
         const points = rows
           .map((r) => ({ value: r.vitals?.[def.key] as number | null, recorded_at: r.recorded_at }))
           .filter((p): p is { value: number; recorded_at: string } => typeof p.value === "number" && !Number.isNaN(p.value))
-          .reverse(); // oldest -> newest for sparkline
+          .reverse();
         if (points.length === 0) continue;
         built.push({
           def,
@@ -114,15 +169,34 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
 
   const tiles = useMemo(() => series, [series]);
 
+  /** Build a friendly headline summarizing today's vitals. */
+  const headline = useMemo(() => {
+    if (tiles.length === 0) return null;
+    const okCount = tiles.filter((t) => statusOf(t.latest, t.def.range) === "ok").length;
+    const flagged = tiles.find((t) => {
+      const s = statusOf(t.latest, t.def.range);
+      return s === "high" || s === "low";
+    });
+    const watch = tiles.find((t) => statusOf(t.latest, t.def.range) === "watch");
+    if (flagged) {
+      return { mood: "needs a chat", emoji: flagged.def.emoji, detail: `${flagged.def.label.toLowerCase()} is off-band` };
+    }
+    if (watch) {
+      return { mood: "mostly good", emoji: "👀", detail: `keep an eye on ${watch.def.label.toLowerCase()}` };
+    }
+    return { mood: "looking great", emoji: "✨", detail: `${okCount} of ${tiles.length} vitals on point` };
+  }, [tiles]);
+
   const handleNav = (key: string) => {
     navigate(`/app/trends?vital=${encodeURIComponent(key)}`);
   };
 
   return (
     <section className="px-4 sm:px-5 pb-5 lg:px-0">
-      <div className="flex items-baseline justify-between mb-2.5">
+      {/* Playful headline card */}
+      <div className="flex items-baseline justify-between mb-3">
         <h2 className="text-lg font-bold text-foreground leading-tight">
-          Your latest <span className="text-primary">vitals</span>
+          Today you're <span className="text-primary">{headline?.mood ?? "checking in"}</span>
         </h2>
         <button
           onClick={() => navigate("/app/trends")}
@@ -133,13 +207,13 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
       </div>
 
       {loading ? (
-        <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-center">
+        <div className="rounded-2xl border border-border bg-card p-6 flex items-center justify-center">
           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
         </div>
       ) : tiles.length === 0 ? (
         <button
           onClick={() => navigate("/app/records")}
-          className="w-full rounded-xl border border-dashed border-border bg-card p-5 flex items-center gap-3 text-left hover:border-primary/40 transition-colors"
+          className="w-full rounded-2xl border border-dashed border-border bg-card p-5 flex items-center gap-3 text-left hover:border-primary/40 transition-colors"
         >
           <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
             <Upload className="h-5 w-5 text-primary" />
@@ -150,43 +224,66 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
           </div>
         </button>
       ) : (
-        <div className="flex gap-2.5 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 sm:overflow-visible scrollbar-none">
-          {tiles.map(({ def, values, latest, prior }) => {
-            const warn = isOutOfRange(latest, def.range);
-            const delta = prior != null ? latest - prior : null;
-            const dir = delta == null || Math.abs(delta) < 0.0001 ? "flat" : delta > 0 ? "up" : "down";
-            const DirIcon = dir === "up" ? ArrowUp : dir === "down" ? ArrowDown : Minus;
-            const dirColor = warn
-              ? "text-destructive"
-              : dir === "flat"
-                ? "text-muted-foreground"
-                : "text-foreground/60";
-            return (
-              <button
-                key={def.key}
-                onClick={() => handleNav(def.key)}
-                className={`snap-start shrink-0 w-[44vw] sm:w-auto rounded-xl border p-3 text-left transition-colors hover:border-primary/30 ${
-                  warn ? "border-destructive/30 bg-destructive/5" : "border-border bg-card"
-                }`}
-              >
-                <p className="text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
-                <div className="mt-1 flex items-baseline gap-1">
-                  <span className={`text-xl font-bold ${warn ? "text-destructive" : "text-foreground"}`}>
-                    {fmt(latest, def.decimals ?? 1)}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">{def.unit}</span>
-                </div>
-                <div className="mt-1.5 flex items-center justify-between gap-2">
-                  <Sparkline values={values.map((v) => v.value)} status={warn ? "warn" : "ok"} />
-                  <span className={`flex items-center text-[10px] font-medium ${dirColor}`}>
-                    <DirIcon className="h-3 w-3" />
-                    {delta != null && dir !== "flat" ? Math.abs(delta).toFixed(def.decimals ?? 1) : ""}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        <>
+          {headline && (
+            <div className="mb-3 rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/8 to-transparent px-4 py-3 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-background border border-primary/20 flex items-center justify-center text-lg shrink-0">
+                {headline.emoji}
+              </div>
+              <p className="text-[13px] text-foreground/80 leading-snug">
+                <Sparkles className="inline h-3 w-3 text-primary mr-1 -mt-0.5" />
+                {headline.detail}.
+              </p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
+            {tiles.map(({ def, values, latest, prior }) => {
+              const status = statusOf(latest, def.range);
+              const tone = STATUS_TONE[status];
+              const delta = prior != null ? latest - prior : null;
+              const dir = delta == null || Math.abs(delta) < 0.0001 ? "flat" : delta > 0 ? "up" : "down";
+              const DirIcon = dir === "up" ? ArrowUp : dir === "down" ? ArrowDown : Minus;
+              return (
+                <button
+                  key={def.key}
+                  onClick={() => handleNav(def.key)}
+                  className="group rounded-2xl border border-border bg-card p-3.5 text-left transition-all hover:border-primary/40 hover:shadow-sm"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-lg shrink-0">
+                      {def.emoji}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-[19px] font-bold text-foreground leading-none">
+                          {fmt(latest, def.decimals ?? 1)}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">{def.unit}</span>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 whitespace-nowrap ${tone.chip}`}>
+                      {STATUS_COPY[status]}
+                    </span>
+                  </div>
+
+                  <div className="mt-3">
+                    <RangeBar value={latest} axis={def.axis} range={def.range} status={status} />
+                  </div>
+
+                  <div className="mt-2 flex items-center justify-between">
+                    <Sparkline values={values.map((v) => v.value)} tone={status} />
+                    <span className={`flex items-center gap-0.5 text-[10px] font-medium ${dir === "flat" ? "text-muted-foreground" : status === "ok" ? "text-foreground/60" : "text-foreground/70"}`}>
+                      <DirIcon className="h-3 w-3" />
+                      {delta != null && dir !== "flat" ? `${Math.abs(delta).toFixed(def.decimals ?? 1)} vs last` : "no change"}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </>
       )}
     </section>
   );
