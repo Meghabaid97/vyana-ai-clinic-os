@@ -173,9 +173,6 @@ const DoctorVisitMode = () => {
       {/* Compact top bar */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border">
         <div className="px-4 sm:px-5 py-3 flex items-center gap-3">
-          <button onClick={() => navigate("/app")} className="h-9 w-9 -ml-2 flex items-center justify-center rounded-full hover:bg-muted">
-            <ChevronLeft className="h-5 w-5 text-foreground" />
-          </button>
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-semibold tracking-widest uppercase text-primary leading-none">Doctor Visit Mode</p>
             <h1 className="text-[15px] font-bold text-foreground leading-tight mt-0.5 truncate">
