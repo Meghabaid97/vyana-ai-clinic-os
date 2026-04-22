@@ -343,6 +343,39 @@ const DoctorVisitMode = () => {
             </div>
           </section>
 
+          {/* SOAP Note */}
+          {briefing.soap_note && (
+            <section className="px-4 sm:px-5 pb-3">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <h3 className="text-[13px] font-bold text-foreground">SOAP Note</h3>
+                  <span className="text-[10px] text-muted-foreground">Clinical summary</span>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { letter: "S", label: "Subjective", value: briefing.soap_note.subjective },
+                    { letter: "O", label: "Objective", value: briefing.soap_note.objective },
+                    { letter: "A", label: "Assessment", value: briefing.soap_note.assessment },
+                    { letter: "P", label: "Plan", value: briefing.soap_note.plan },
+                  ]
+                    .filter((s) => s.value && s.value.trim() && s.value.trim().toUpperCase() !== "N/A")
+                    .map((s) => (
+                      <div key={s.letter} className="flex gap-3">
+                        <span className="shrink-0 h-6 w-6 rounded-full bg-primary/10 text-primary text-[11px] font-bold flex items-center justify-center">
+                          {s.letter}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{s.label}</p>
+                          <p className="text-[13px] text-foreground leading-relaxed mt-0.5">{s.value}</p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Flags (if any) */}
           {briefing.red_flags.length > 0 && (
             <section className="px-4 sm:px-5 pb-3">
