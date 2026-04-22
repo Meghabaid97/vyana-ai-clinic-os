@@ -117,7 +117,7 @@ const WhyVyana = () => {
           >
             <span>Tirupur · Tamil Nadu</span>
             <span className="h-px w-6" style={{ background: "hsl(22 18% 60% / 0.6)" }} />
-            <span>An essay by Megha</span>
+            <span>2005 — Today</span>
           </div>
 
           <h1
