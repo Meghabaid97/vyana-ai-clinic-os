@@ -610,9 +610,9 @@ const WhyVyana = () => {
             <div className="flex flex-wrap justify-center gap-3 mt-12">
               <Button
                 className="group h-11 px-6 text-[14px] rounded-full"
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate("/request-access")}
               >
-                Try Vyana
+                Get early access
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
               <Button
