@@ -15,9 +15,9 @@ const landingTranslations: Record<Language, Record<string, string>> = {
 
     // Hero
     "hero.eyebrow": "Your health story, always with you",
-    "hero.h1.l1": "Never explain",
-    "hero.h1.l2": "your medical",
-    "hero.h1.l3": "history",
+    "hero.h1.l1": "Never explain your medical",
+    "hero.h1.l2": "history",
+    "hero.h1.l3": "",
     "hero.h1.again": "again.",
     "hero.sub":
       "Upload your reports. Get a doctor-ready summary in 30 seconds. Conditions, medications, recent changes, one screen any doctor can read instantly.",
