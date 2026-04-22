@@ -36,6 +36,8 @@ const AppShell = () => {
   const location = useLocation();
   const [patientName, setPatientName] = useState("Patient");
   const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
+  const [askOpen, setAskOpen] = useState(false);
+  const [askInitial, setAskInitial] = useState("");
 
   useEffect(() => {
     let cancelled = false;
