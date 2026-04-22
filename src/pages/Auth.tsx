@@ -191,17 +191,23 @@ const Auth = () => {
     const signupDraft = getStoredSignupDraft();
     const fallbackRole = metadata?.role ?? signupDraft?.role ?? null;
 
-    const { data: existingRole, error: roleError } = await supabase
+    const { data: existingRoles, error: roleError } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .maybeSingle();
+      .eq("user_id", userId);
 
     if (roleError) throw roleError;
 
-    const resolvedRole = (existingRole?.role ?? fallbackRole) as UserRole | "admin" | null;
+    const roles = (existingRoles ?? []).map((r) => r.role);
+    // Prefer admin, then patient, then doctor for routing/setup logic
+    const primaryRole = roles.includes("admin")
+      ? "admin"
+      : roles.includes("patient")
+        ? "patient"
+        : roles[0] ?? null;
+    const resolvedRole = (primaryRole ?? fallbackRole) as UserRole | "admin" | null;
 
-    if (!existingRole && resolvedRole && resolvedRole !== "admin") {
+    if (roles.length === 0 && resolvedRole && resolvedRole !== "admin") {
       const { error: insertRoleError } = await supabase
         .from("user_roles")
         .insert({ user_id: userId, role: resolvedRole });
