@@ -83,7 +83,7 @@ const AdminWaitlist = () => {
         .eq("id", req.id);
       if (error) throw error;
 
-      const inviteUrl = `${window.location.origin}/auth?token=${token}`;
+      const inviteUrl = `https://vyana.care/auth?token=${token}`;
 
       // Send approval email (works once email infra is live)
       supabase.functions
@@ -127,7 +127,7 @@ const AdminWaitlist = () => {
   };
 
   const copyInvite = async (token: string) => {
-    const url = `${window.location.origin}/auth?token=${token}`;
+    const url = `https://vyana.care/auth?token=${token}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success("Invite link copied");
