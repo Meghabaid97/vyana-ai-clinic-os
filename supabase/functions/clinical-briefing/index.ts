@@ -89,7 +89,8 @@ Rules:
 - Frame findings as observations and patterns, not recommendations
 - Use phrases like "values suggest", "pattern consistent with", "may warrant discussion"
 - Flag concerning trends or values for the doctor to evaluate
-- Be precise with numbers and dates`;
+- Be precise with numbers and dates
+- ALWAYS produce a complete SOAP note, even when only uploaded reports / vitals / medications are available (no consultation transcripts). Synthesize Subjective from history and active conditions, Objective from latest vitals/labs, Assessment from observed patterns, and Plan as discussion points for the doctor. Never leave any SOAP field empty or "N/A".`;
 
     const userPrompt = `Generate a clinical briefing for this patient.
 

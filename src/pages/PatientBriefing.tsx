@@ -365,27 +365,31 @@ const PatientBriefing = () => {
           )}
 
           {/* SOAP Note */}
-          <section className="px-5 pb-4">
-            <div className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Brain className="h-4 w-4 text-primary" />
-                <h3 className="text-[14px] font-bold text-foreground">SOAP Note</h3>
+          {briefing.soap_note && (
+            <section className="px-5 pb-4">
+              <div className="rounded-xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Brain className="h-4 w-4 text-primary" />
+                  <h3 className="text-[14px] font-bold text-foreground">SOAP Note</h3>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { label: "S, Subjective", value: briefing.soap_note.subjective },
+                    { label: "O, Objective", value: briefing.soap_note.objective },
+                    { label: "A, Assessment", value: briefing.soap_note.assessment },
+                    { label: "P, Plan", value: briefing.soap_note.plan },
+                  ]
+                    .filter((s) => s.value && s.value.trim() && s.value.trim().toUpperCase() !== "N/A")
+                    .map((s, i) => (
+                      <div key={i}>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">{s.label}</p>
+                        <p className="text-[12px] text-foreground leading-relaxed">{s.value}</p>
+                      </div>
+                    ))}
+                </div>
               </div>
-              <div className="space-y-3">
-                {[
-                  { label: "S, Subjective", value: briefing.soap_note.subjective },
-                  { label: "O, Objective", value: briefing.soap_note.objective },
-                  { label: "A, Assessment", value: briefing.soap_note.assessment },
-                  { label: "P, Plan", value: briefing.soap_note.plan },
-                ].map((s, i) => (
-                  <div key={i}>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">{s.label}</p>
-                    <p className="text-[12px] text-foreground leading-relaxed">{s.value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Medication correlations */}
           {briefing.medication_correlations.length > 0 && (
