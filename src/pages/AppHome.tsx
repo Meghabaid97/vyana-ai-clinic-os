@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, Upload, Link2, Shield } from "lucide-react";
+import { ArrowRight, Upload, Link2, Shield, UserCog, X } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
 
@@ -10,7 +10,11 @@ interface PatientProfile {
   name: string;
   age: number | null;
   national_health_id: string | null;
+  phone: string | null;
+  date_of_birth: string | null;
 }
+
+const PROFILE_BANNER_DISMISSED_KEY = "vyana-profile-banner-dismissed";
 
 const AppHome = () => {
   const navigate = useNavigate();
@@ -18,6 +22,9 @@ const AppHome = () => {
   const [recordCount, setRecordCount] = useState(0);
   const [recordDates, setRecordDates] = useState<string[]>([]);
   const [consultationCount, setConsultationCount] = useState(0);
+  const [bannerDismissed, setBannerDismissed] = useState<boolean>(() =>
+    typeof window !== "undefined" && localStorage.getItem(PROFILE_BANNER_DISMISSED_KEY) === "1"
+  );
 
   useEffect(() => { void loadData(); }, []);
 
