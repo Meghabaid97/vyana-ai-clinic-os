@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut } from "lucide-react";
+import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 import LanguageSelector from "@/components/LanguageSelector";
 import HeaderLocationSelector from "@/components/HeaderLocationSelector";
 import AskVyanaModal from "@/components/AskVyanaModal";
+import SpotlightTour, { hasSeenTour } from "@/components/SpotlightTour";
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
@@ -38,6 +39,14 @@ const AppShell = () => {
   const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
   const [askOpen, setAskOpen] = useState(false);
   const [askInitial, setAskInitial] = useState("");
+  const [tourOpen, setTourOpen] = useState(false);
+
+  // Auto-open the spotlight tour on first /app visit
+  useEffect(() => {
+    if (hasSeenTour()) return;
+    const t = window.setTimeout(() => setTourOpen(true), 800);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
