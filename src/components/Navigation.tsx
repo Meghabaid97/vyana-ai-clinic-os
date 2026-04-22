@@ -40,7 +40,7 @@ const Navigation = () => {
             <button onClick={() => navigate("/why-vyana")} className="hover:text-foreground transition-colors">Story</button>
             <button onClick={() => scrollTo("research")} className="hover:text-foreground transition-colors">Research</button>
             <button onClick={() => scrollTo("how")} className="hover:text-foreground transition-colors">How it works</button>
-            <button onClick={() => scrollTo("contact")} className="hover:text-foreground transition-colors">Contact</button>
+            <a href="mailto:mbaid@wharton.upenn.edu" className="hover:text-foreground transition-colors">Contact</a>
           </div>
 
           <div className="flex items-center gap-3">
