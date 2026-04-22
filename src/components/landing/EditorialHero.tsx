@@ -35,10 +35,9 @@ const EditorialHero = () => {
 
             <h1 className="font-serif text-[44px] sm:text-[64px] lg:text-[84px] leading-[0.98] tracking-[-0.02em] text-foreground">
               {t("hero.h1.l1")}
-              <br />
-              {t("hero.h1.l2")}
-              <br />
-              {t("hero.h1.l3")}{" "}
+              {t("hero.h1.l2") && <><br />{t("hero.h1.l2")}</>}
+              {t("hero.h1.l3") && <><br />{t("hero.h1.l3")}</>}
+              {" "}
               <em className="italic text-primary font-normal">{t("hero.h1.again")}</em>
             </h1>
 
