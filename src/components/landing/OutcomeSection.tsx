@@ -1,22 +1,18 @@
 import { useReveal } from "@/hooks/use-reveal";
-
-const outputs = [
-  "A one-screen medical summary",
-  "Trends across time (BP, HbA1c, eGFR)",
-  "Medication and diagnosis history",
-  "Abnormal signals highlighted",
-];
-
-const outcomes = [
-  { stop: "Stop repeating tests", gain: "Save money" },
-  { stop: "Stop guessing history", gain: "Better care" },
-  { stop: "Stop losing reports", gain: "Stay in control" },
-];
+import { useLandingT } from "@/lib/i18n-landing";
 
 const OutcomeSection = () => {
+  const t = useLandingT();
   const header = useReveal<HTMLDivElement>();
   const out = useReveal<HTMLDivElement>();
   const flips = useReveal<HTMLDivElement>();
+
+  const outputs = [t("out.list1"), t("out.list2"), t("out.list3"), t("out.list4")];
+  const outcomes = [
+    { stop: t("out.flip1.stop"), gain: t("out.flip1.gain") },
+    { stop: t("out.flip2.stop"), gain: t("out.flip2.gain") },
+    { stop: t("out.flip3.stop"), gain: t("out.flip3.gain") },
+  ];
 
   return (
     <section id="output" className="relative py-28 lg:py-36 bg-background">
@@ -27,12 +23,12 @@ const OutcomeSection = () => {
             className={`reveal ${header.visible ? "is-visible" : ""} max-w-[760px] mb-12`}
           >
             <p className="font-serif italic text-[15px] text-primary/90 mb-5">
-              What you walk in with
+              {t("out.eyebrow")}
             </p>
             <h2 className="font-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.02] tracking-[-0.02em] text-foreground">
-              Your next appointment,
+              {t("out.title.l1")}
               <br />
-              <em className="italic text-primary font-normal">already prepared.</em>
+              <em className="italic text-primary font-normal">{t("out.title.l2")}</em>
             </h2>
           </div>
           <div
@@ -56,7 +52,7 @@ const OutcomeSection = () => {
           className={`reveal ${flips.visible ? "is-visible" : ""}`}
         >
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
-            What it actually does for you
+            {t("out.flips.eyebrow")}
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {outcomes.map((o, i) => (

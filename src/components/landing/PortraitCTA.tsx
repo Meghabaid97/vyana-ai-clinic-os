@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { useLandingT } from "@/lib/i18n-landing";
 
 const PortraitCTA = () => {
+  const t = useLandingT();
   const [email, setEmail] = useState("");
   const [city, setCity] = useState("");
   const [relation, setRelation] = useState("");
@@ -32,19 +34,19 @@ const PortraitCTA = () => {
     >
       <div className="relative z-10 max-w-[640px] mx-auto px-6 text-center">
         <h2 className="font-serif text-[40px] sm:text-[60px] leading-[1.02] tracking-[-0.02em] text-foreground">
-          Start your family's
+          {t("cta.title.l1")}
           <br />
-          <em className="italic text-primary font-normal">health memory today.</em>
+          <em className="italic text-primary font-normal">{t("cta.title.l2")}</em>
         </h2>
         <p className="mt-6 text-[16px] text-foreground/70 leading-relaxed max-w-[480px] mx-auto">
-          Free to start. Upload your first report in thirty seconds.
+          {t("cta.sub")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-10 space-y-3 text-left max-w-[480px] mx-auto">
           <Input
             type="email"
             required
-            placeholder="Your email address"
+            placeholder={t("cta.email")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="h-12 bg-card border-border focus-visible:ring-primary"
@@ -52,14 +54,14 @@ const PortraitCTA = () => {
           <div className="grid grid-cols-2 gap-3">
             <Input
               type="text"
-              placeholder="Who you care for"
+              placeholder={t("cta.relation")}
               value={relation}
               onChange={(e) => setRelation(e.target.value)}
               className="h-12 bg-card border-border focus-visible:ring-primary"
             />
             <Input
               type="text"
-              placeholder="City"
+              placeholder={t("cta.city")}
               value={city}
               onChange={(e) => setCity(e.target.value)}
               className="h-12 bg-card border-border focus-visible:ring-primary"
@@ -71,14 +73,14 @@ const PortraitCTA = () => {
             onClick={() => (window.location.href = "/auth")}
             className="group w-full h-12 mt-2 rounded-lg text-[15px]"
           >
-            Get started
+            {t("cta.button")}
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
         </form>
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col items-center gap-1.5">
           <p className="text-[11px] tracking-[0.2em] uppercase text-foreground/55">
-            With care,
+            {t("cta.signoff")}
           </p>
           <span
             aria-label="Megha, founder"
@@ -92,7 +94,7 @@ const PortraitCTA = () => {
             Megha
           </span>
           <p className="text-[10px] tracking-[0.2em] uppercase text-foreground/45 mt-1">
-            Founder · Vyana
+            {t("cta.role")}
           </p>
         </div>
       </div>

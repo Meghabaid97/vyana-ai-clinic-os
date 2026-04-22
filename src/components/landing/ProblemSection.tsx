@@ -1,16 +1,21 @@
 import { useReveal } from "@/hooks/use-reveal";
-
-const stats = [
-  { k: "75 pages", v: "of scattered reports across hospitals, clinics and labs." },
-  { k: "5 minutes", v: "to explain a lifetime of history to a doctor who has never seen you." },
-  { k: "0 context", v: "every new specialist starts from a blank page." },
-];
-
-const consequences = ["Repeated tests", "Missed patterns", "Delayed diagnoses"];
+import { useLandingT } from "@/lib/i18n-landing";
 
 const ProblemSection = () => {
+  const t = useLandingT();
   const header = useReveal<HTMLDivElement>();
   const grid = useReveal<HTMLDivElement>();
+
+  const stats = [
+    { k: t("problem.stat1.k"), v: t("problem.stat1.v") },
+    { k: t("problem.stat2.k"), v: t("problem.stat2.v") },
+    { k: t("problem.stat3.k"), v: t("problem.stat3.v") },
+  ];
+  const consequences = [
+    t("problem.tag.repeat"),
+    t("problem.tag.miss"),
+    t("problem.tag.delay"),
+  ];
 
   return (
     <section id="problem" className="relative bg-surface-dark py-28 lg:py-36">
@@ -20,16 +25,15 @@ const ProblemSection = () => {
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[760px] mb-16`}
         >
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
-            The problem
+            {t("problem.eyebrow")}
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
-            Healthcare is broken in
+            {t("problem.title.l1")}
             <br />
-            <em className="italic text-primary font-normal">one simple way.</em>
+            <em className="italic text-primary font-normal">{t("problem.title.l2")}</em>
           </h2>
           <p className="mt-8 text-[18px] leading-[1.65] text-surface-dark-muted max-w-[560px]">
-            Every time you visit a new doctor, you start from scratch. Your
-            history sits in folders, drawers and inboxes nobody reads.
+            {t("problem.sub")}
           </p>
         </div>
 
@@ -54,7 +58,7 @@ const ProblemSection = () => {
 
         <div className="max-w-[760px]">
           <p className="text-[12px] tracking-[0.3em] uppercase text-surface-dark-muted/70 mb-4">
-            This leads to
+            {t("problem.consequences")}
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
             {consequences.map((c) => (
@@ -67,9 +71,7 @@ const ProblemSection = () => {
             ))}
           </div>
           <p className="font-serif italic text-[20px] sm:text-[24px] leading-[1.5] text-surface-dark-foreground/90 max-w-[620px]">
-            This isn't a productivity problem. It's a life problem. In
-            emergencies, families have minutes to explain years of history,
-            and patients pay the price.
+            {t("problem.closer")}
           </p>
         </div>
       </div>
