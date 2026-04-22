@@ -128,6 +128,13 @@ const AppShell = () => {
             </span>
           )}
           <div className="flex items-center gap-1">
+            <button
+              onClick={() => { setAskInitial(""); setAskOpen(true); }}
+              aria-label="Ask Vyana"
+              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-primary transition-colors"
+            >
+              <Sparkles className="h-5 w-5" />
+            </button>
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
             <LanguageSelector />
             <NotificationBell />
