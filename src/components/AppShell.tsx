@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Search, LogOut } from "lucide-react";
+import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 import LanguageSelector from "@/components/LanguageSelector";
 import HeaderLocationSelector from "@/components/HeaderLocationSelector";
+import AskVyanaModal from "@/components/AskVyanaModal";
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
@@ -35,6 +36,8 @@ const AppShell = () => {
   const location = useLocation();
   const [patientName, setPatientName] = useState("Patient");
   const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
+  const [askOpen, setAskOpen] = useState(false);
+  const [askInitial, setAskInitial] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -125,6 +128,13 @@ const AppShell = () => {
             </span>
           )}
           <div className="flex items-center gap-1">
+            <button
+              onClick={() => { setAskInitial(""); setAskOpen(true); }}
+              aria-label="Ask Vyana"
+              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-primary transition-colors"
+            >
+              <Sparkles className="h-5 w-5" />
+            </button>
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
             <LanguageSelector />
             <NotificationBell />
@@ -144,16 +154,20 @@ const AppShell = () => {
             V<span className="text-primary italic">yana</span>
           </button>
 
-          {/* Search */}
+          {/* Ask Vyana — grounded medical Q&A */}
           <div className="flex-1 max-w-2xl">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="Search records, medications, conditions..."
-                className="w-full h-10 pl-10 pr-4 rounded-full border border-border bg-muted/40 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:bg-background transition-all"
-              />
-            </div>
+            <button
+              onClick={() => { setAskInitial(""); setAskOpen(true); }}
+              className="group w-full h-10 pl-4 pr-3 rounded-full border border-border bg-muted/40 hover:bg-background hover:border-primary/40 hover:shadow-sm flex items-center gap-3 text-left transition-all"
+            >
+              <Sparkles className="h-4 w-4 text-primary shrink-0" />
+              <span className="flex-1 text-sm text-muted-foreground truncate">
+                Ask Vyana anything about your health…
+              </span>
+              <span className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground bg-background border border-border rounded px-1.5 py-0.5 group-hover:border-primary/30 group-hover:text-primary transition-colors">
+                Cited
+              </span>
+            </button>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -272,6 +286,7 @@ const AppShell = () => {
           </div>
         </div>
       </footer>
+      <AskVyanaModal open={askOpen} initialQuestion={askInitial} onClose={() => setAskOpen(false)} />
     </div>
   );
 };
