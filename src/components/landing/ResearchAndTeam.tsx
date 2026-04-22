@@ -1,33 +1,19 @@
 import whartonLogo from "@/assets/wharton-logo.png";
 import { useReveal } from "@/hooks/use-reveal";
-
-const citations = [
-  {
-    title: "Cardiovascular Risk",
-    cite: "Goff, D. C., et al. (2014). 2013 ACC/AHA Guideline. Circulation, 129(25_suppl_2).",
-    line: "We implement the Pooled Cohort ASCVD equations on real patient vitals. Never speculative inference.",
-  },
-  {
-    title: "Diabetes Staging",
-    cite: "American Diabetes Association. (2024). Standards of Care in Diabetes. Diabetes Care, 47(Suppl. 1).",
-    line: "HbA1c thresholds and glycemic targets follow ADA 2024, the standard every Indian endocrinology practice uses.",
-  },
-  {
-    title: "Kidney Function",
-    cite: "KDIGO. (2024). Clinical Practice Guideline for CKD. Kidney International, 105(4S).",
-    line: "eGFR is computed via the 2021 CKD-EPI race-free equation, with KDIGO stage flags surfaced early.",
-  },
-  {
-    title: "Drug Interactions",
-    cite: "WHO Collaborating Centre for Drug Statistics Methodology. (2024). ATC/DDD Index.",
-    line: "Every medication is mapped to ATC codes and cross-checked for major interactions.",
-  },
-];
+import { useLandingT } from "@/lib/i18n-landing";
 
 const ResearchAndTeam = () => {
+  const t = useLandingT();
   const header = useReveal<HTMLDivElement>();
   const left = useReveal<HTMLDivElement>();
   const right = useReveal<HTMLDivElement>();
+
+  const citations = [
+    { title: t("research.c1.title"), cite: t("research.c1.cite"), line: t("research.c1.line") },
+    { title: t("research.c2.title"), cite: t("research.c2.cite"), line: t("research.c2.line") },
+    { title: t("research.c3.title"), cite: t("research.c3.cite"), line: t("research.c3.line") },
+    { title: t("research.c4.title"), cite: t("research.c4.cite"), line: t("research.c4.line") },
+  ];
 
   return (
     <section id="research" className="relative bg-surface-dark py-28 lg:py-36">
@@ -37,16 +23,15 @@ const ResearchAndTeam = () => {
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[760px] mb-16`}
         >
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
-            The science
+            {t("research.eyebrow")}
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
-            Built on the same protocols
+            {t("research.title.l1")}
             <br />
-            <em className="italic text-primary font-normal">your doctor already trusts.</em>
+            <em className="italic text-primary font-normal">{t("research.title.l2")}</em>
           </h2>
           <p className="mt-6 text-[17px] text-surface-dark-muted leading-[1.65] max-w-[560px]">
-            Every flag, score and warning in Vyana is a faithful implementation
-            of a published clinical guideline. Not generative guesswork.
+            {t("research.sub")}
           </p>
         </div>
 
@@ -79,7 +64,7 @@ const ResearchAndTeam = () => {
           >
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
               <p className="text-[11px] tracking-[0.3em] uppercase text-surface-dark-muted/80 mb-5">
-                Built by founders from
+                {t("research.builtBy")}
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="h-24 rounded-lg bg-white flex items-center justify-center px-2 py-1">
@@ -93,10 +78,10 @@ const ResearchAndTeam = () => {
                 <div className="h-24 rounded-lg bg-white flex items-center justify-center text-center px-4">
                   <div>
                     <div className="font-serif text-[15px] text-foreground leading-tight">
-                      Clinical Advisors
+                      {t("research.advisors")}
                     </div>
                     <div className="text-[9px] tracking-[0.25em] uppercase text-foreground/55 mt-1.5">
-                      AIIMS · Apollo · Tertiary care
+                      {t("research.advisors.sub")}
                     </div>
                   </div>
                 </div>
@@ -108,29 +93,22 @@ const ResearchAndTeam = () => {
                 Megha Baid
               </h4>
               <p className="text-[13px] text-primary font-medium mb-4">
-                Founder · CS Major · Ex-FAANG · Wharton MBA
+                {t("research.megha.role")}
               </p>
               <p className="text-[14.5px] text-surface-dark-muted leading-[1.7]">
-                Megha is pursuing her MBA at Wharton, focused on healthcare and
-                applied AI. She lost both grandparents to medical emergencies
-                in Tirupur 2005 where doctors had no clinical history, and
-                later navigated her father's intestinal gangrene during COVID
-                with the same gap. Vyana is the layer that would have changed
-                both nights.
+                {t("research.megha.bio")}
               </p>
             </article>
 
             <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
               <h4 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-1">
-                Clinical Advisory Board
+                {t("research.cab.title")}
               </h4>
               <p className="text-[13px] text-primary font-medium mb-4">
-                The trust
+                {t("research.cab.tag")}
               </p>
               <p className="text-[14.5px] text-surface-dark-muted leading-[1.7]">
-                Practising physicians from Indian tertiary hospitals contribute
-                to our risk engine, briefing protocols and the clinical safety
-                rules that govern every AI-generated insight in Vyana.
+                {t("research.cab.body")}
               </p>
             </article>
           </div>
