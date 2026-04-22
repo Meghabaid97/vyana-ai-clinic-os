@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, Upload, Link2, Shield } from "lucide-react";
+import { ArrowRight, Upload, Link2, Shield, UserCog, X } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
 
@@ -10,7 +10,11 @@ interface PatientProfile {
   name: string;
   age: number | null;
   national_health_id: string | null;
+  phone: string | null;
+  date_of_birth: string | null;
 }
+
+const PROFILE_BANNER_DISMISSED_KEY = "vyana-profile-banner-dismissed";
 
 const AppHome = () => {
   const navigate = useNavigate();
@@ -18,6 +22,9 @@ const AppHome = () => {
   const [recordCount, setRecordCount] = useState(0);
   const [recordDates, setRecordDates] = useState<string[]>([]);
   const [consultationCount, setConsultationCount] = useState(0);
+  const [bannerDismissed, setBannerDismissed] = useState<boolean>(() =>
+    typeof window !== "undefined" && localStorage.getItem(PROFILE_BANNER_DISMISSED_KEY) === "1"
+  );
 
   useEffect(() => { void loadData(); }, []);
 
@@ -51,9 +58,48 @@ const AppHome = () => {
   const firstName = profile?.name?.split(" ")[0] || "there";
   const totalRecords = recordCount + consultationCount;
   const hasRecords = totalRecords > 0;
+  const profileIncomplete = !!profile && (!profile.phone || !profile.date_of_birth || !profile.national_health_id);
+  const showProfileBanner = profileIncomplete && !bannerDismissed;
+
+  const dismissBanner = () => {
+    localStorage.setItem(PROFILE_BANNER_DISMISSED_KEY, "1");
+    setBannerDismissed(true);
+  };
 
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
+      {/* Profile completion nudge — shown to users who signed up via Google or skipped optional fields */}
+      {showProfileBanner && (
+        <div className="px-4 sm:px-5 pt-4">
+          <div className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+              <UserCog className="h-4.5 w-4.5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13.5px] font-semibold text-foreground leading-tight">
+                Finish setting up your profile
+              </p>
+              <p className="text-[11.5px] text-muted-foreground mt-0.5 leading-snug">
+                Add your phone, date of birth, and ABHA ID so we can personalize your care.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/app/profile")}
+              className="text-[12px] font-medium text-primary hover:underline whitespace-nowrap px-2"
+            >
+              Complete →
+            </button>
+            <button
+              onClick={dismissBanner}
+              aria-label="Dismiss"
+              className="text-muted-foreground hover:text-foreground p-1 -mr-1"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ============ DESKTOP: 2-column hero band ============ */}
       <div className="lg:grid lg:grid-cols-12 lg:gap-6">
         {/* Soft opener — spans full width on mobile, 7 cols on desktop */}
