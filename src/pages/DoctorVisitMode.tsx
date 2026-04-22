@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, Pill, Activity,
   Share2, Copy, CheckCircle2, ArrowUp, ArrowDown, Minus,
-  Stethoscope, ChevronLeft, Play, FileDown,
+  Stethoscope, ChevronLeft, Play, FileDown, FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
