@@ -627,11 +627,10 @@ const WhyVyana = () => {
           </div>
 
           <footer
-            className="mt-20 pt-6 border-t flex items-center justify-between text-[10px] tracking-[0.22em] uppercase"
+            className="mt-20 pt-6 border-t text-[10px] tracking-[0.22em] uppercase text-center"
             style={{ borderColor: rule, color: inkMuted }}
           >
-            <span>© 2025 Vyana</span>
-            <span>For Indian families</span>
+            © 2025 Vyana
           </footer>
         </div>
       </div>
