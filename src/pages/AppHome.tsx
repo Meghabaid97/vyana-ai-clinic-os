@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, Upload, Link2, Shield, UserCog, X } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
+import TrustReassuranceStrip from "@/components/dashboard/TrustReassuranceStrip";
 
 interface PatientProfile {
   id: string;
@@ -227,6 +228,9 @@ const AppHome = () => {
               )}
             </div>
           </section>
+
+          {/* ── Trust & privacy reassurance ── */}
+          <TrustReassuranceStrip />
 
         </div>
 
