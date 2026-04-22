@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          city: string | null
+          created_at: string
+          email: string
+          id: string
+          invite_token: string | null
+          name: string
+          reason: string | null
+          role: string
+          status: string
+          token_expires_at: string | null
+          token_used_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          city?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invite_token?: string | null
+          name: string
+          reason?: string | null
+          role: string
+          status?: string
+          token_expires_at?: string | null
+          token_used_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invite_token?: string | null
+          name?: string
+          reason?: string | null
+          role?: string
+          status?: string
+          token_expires_at?: string | null
+          token_used_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       api_usage: {
         Row: {
           created_at: string
@@ -732,6 +783,7 @@ export type Database = {
     }
     Functions: {
       cleanup_expired_support_tickets: { Args: never; Returns: undefined }
+      consume_invite_token: { Args: { _token: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
