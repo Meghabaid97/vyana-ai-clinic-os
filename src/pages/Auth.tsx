@@ -113,10 +113,8 @@ const Auth = () => {
         setTokenChecked(true);
         return;
       }
-      const { data } = await supabase
-        .from("access_requests")
-        .select("id, email, name, status, token_used_at, token_expires_at")
-        .eq("invite_token", inviteToken)
+      const { data } = await (supabase as any)
+        .rpc("get_access_request_by_token", { _token: inviteToken })
         .maybeSingle();
       if (!active) return;
       if (
