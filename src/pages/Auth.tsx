@@ -555,6 +555,20 @@ const Auth = () => {
                             <p><strong>7. No Liability:</strong> Vyana, its creators, and affiliates are not liable for any medical decisions made based on information displayed in the app.</p>
                           </div>
                         )}
+                        <div className="flex items-start gap-2 pt-1">
+                          <Checkbox
+                            id="consent"
+                            checked={consentGiven}
+                            onCheckedChange={(checked) => setConsentGiven(checked === true)}
+                            className="mt-0.5"
+                          />
+                          <label htmlFor="consent" className="text-xs text-foreground leading-tight cursor-pointer">
+                            I agree to the <Link to="/legal" target="_blank" className="text-primary underline">Terms of Service</Link> and <Link to="/legal#privacy" target="_blank" className="text-primary underline">Privacy Policy</Link>. I understand Vyana is not a substitute for professional medical advice.
+                          </label>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
 
