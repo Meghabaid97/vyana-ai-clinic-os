@@ -323,29 +323,38 @@ const WhyVyana = () => {
             <ChapterMarker num="02" title="COVID, 2020" rule={rule} ink={ink} muted={inkMuted} />
 
             <p className="mt-10">
-              Fifteen years later. My father called me at 2 AM. He was holding his
-              stomach and couldn't stand up.
+              Fifteen years later. My father, mid-pandemic, holding his stomach and
+              unable to stand. We thought it was nothing. The first doctor said
+              kidney stones. Gave him tablets. Nothing improved.
             </p>
 
             <p className="mt-6">
-              The doctors found gangrene. His intestines had stopped getting blood. They
-              gave us twenty-four hours to decide whether to operate. None of us had
-              ever heard the word before. None of us knew what we were agreeing to.
-              There was no second opinion to get at 2 AM in a pandemic. There was just
-              a phone, and my father in pain, and a decision.
+              We went from doctor to doctor because the pain wouldn't subside. Ten
+              tests. Then more. Each clinic starting from zero, each prescription
+              built on a guess. Days passed. He kept getting worse.
+            </p>
+
+            <p className="mt-6">
+              At the very end of that line, somebody finally said the word: gangrene.
+              His intestines had stopped getting blood. We had twenty-four hours to
+              decide whether to operate, in the middle of a pandemic, with no second
+              opinion to get at 2 AM.
             </p>
 
             <p
               className="mt-8 font-serif"
               style={{ color: ink, fontSize: "23px", lineHeight: 1.45 }}
             >
-              I made the call. He survived.
+              My mother made the call. He survived.
             </p>
 
             <p className="mt-8">
-              I want to be honest with you about what happened next. He survived the
-              surgery. The recovery took almost a year. And in those quiet, terrified
-              months, sitting next to him, I kept thinking the same thing on a loop:
+              But what happened after the surgery is the part nobody warns you about.
+              The discharge summary was seventy-five pages. Specialists wouldn't read
+              it. Their assistants spoke to us instead, then relayed a version of us
+              back to the doctor. He's on blood thinners, so we couldn't give him
+              anything, not even a tablet for fever, without a consult. And no
+              doctor had time for a real consult.
             </p>
 
             <blockquote
@@ -360,9 +369,9 @@ const WhyVyana = () => {
                   lineHeight: 1.4,
                 }}
               >
-                None of this had to be this hard. We had every record. They were just
-                scattered across fifteen folders, three cities, and four pharmacies.
-                Nobody, not one doctor, had ever seen all of it.
+                If I were medically trained enough to translate seventy-five pages
+                into thirty seconds, I would have become a doctor. I'm not. I'm his
+                daughter. And that, somehow, was the entire problem.
               </p>
             </blockquote>
           </section>
