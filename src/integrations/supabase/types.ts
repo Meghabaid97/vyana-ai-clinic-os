@@ -229,6 +229,33 @@ export type Database = {
         }
         Relationships: []
       }
+      early_access_signups: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          preferred_language: string
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          preferred_language: string
+          role: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          preferred_language?: string
+          role?: string
+        }
+        Relationships: []
+      }
       emergency_access_logs: {
         Row: {
           accessed_at: string
