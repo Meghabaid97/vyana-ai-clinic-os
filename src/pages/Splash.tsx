@@ -58,7 +58,7 @@ const Splash = () => {
               onClick={() => navigate("/request-access")}
               className="h-11 w-full rounded-full px-5 text-lg font-medium group"
             >
-              Request access
+              Get early access
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
 

@@ -105,8 +105,8 @@ const RequestAccess = () => {
           V<span className="text-primary italic">yana</span>
         </Link>
 
-        <h1 className="font-serif text-4xl sm:text-5xl leading-[1.05] tracking-[-0.02em] text-foreground">
-          Request access to <em className="italic text-primary font-normal">Vyana</em>
+          <h1 className="font-serif text-4xl sm:text-5xl leading-[1.05] tracking-[-0.02em] text-foreground">
+          Get early access to <em className="italic text-primary font-normal">Vyana</em>
         </h1>
         <p className="mt-6 text-[15px] text-muted-foreground leading-relaxed">
           Vyana is invite-only while we work closely with our first families.
@@ -151,7 +151,7 @@ const RequestAccess = () => {
           </div>
 
           <Button type="submit" disabled={submitting} className="group w-full h-11 rounded-full mt-2">
-            {submitting ? "Sending…" : "Request access"}
+            {submitting ? "Sending…" : "Get early access"}
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
 
