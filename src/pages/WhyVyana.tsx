@@ -115,7 +115,7 @@ const WhyVyana = () => {
             className="flex items-center gap-3 text-[10px] tracking-[0.32em] uppercase mb-10"
             style={{ color: inkMuted }}
           >
-            <span>Tirupur · Tamil Nadu</span>
+            <span>Tirupur, Tamil Nadu</span>
             <span className="h-px w-6" style={{ background: "hsl(22 18% 60% / 0.6)" }} />
             <span>2005 to today</span>
           </div>
@@ -603,7 +603,7 @@ const WhyVyana = () => {
                 className="text-[10px] tracking-[0.3em] uppercase mt-2"
                 style={{ color: inkMuted }}
               >
-                Founder · Vyana
+                Founder, Vyana
               </p>
             </div>
 
