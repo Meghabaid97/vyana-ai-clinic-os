@@ -144,6 +144,13 @@ const AppShell = () => {
             >
               <Sparkles className="h-5 w-5" />
             </button>
+            <button
+              onClick={() => setTourOpen(true)}
+              aria-label="Take the tour"
+              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <HelpCircle className="h-5 w-5" />
+            </button>
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
             <LanguageSelector />
             <NotificationBell />
