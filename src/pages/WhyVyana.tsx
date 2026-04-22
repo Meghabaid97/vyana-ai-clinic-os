@@ -247,11 +247,10 @@ const WhyVyana = () => {
             </p>
 
             <p className="mt-6">
-              When we got there, the doctor had five minutes. Five minutes to understand
-              a woman whose body had been telling stories for seventy years. He asked
-              questions. We didn't have answers. We didn't have her old reports. We
-              didn't know which medications she was on that week. We didn't know what
-              the cardiologist in Coimbatore had said three months ago.
+              When we got there, the doctor had five minutes. Thirty seconds to
+              explain a lifetime. A woman whose body had been telling stories for
+              seventy years, and a family standing in a corridor with a plastic bag
+              of paper that nobody had time to read.
             </p>
 
             <p className="mt-6">
@@ -275,14 +274,17 @@ const WhyVyana = () => {
                 style={{ color: inkSoft, fontSize: "19px", lineHeight: 1.55 }}
               >
                 A year later, my grandfather. Same hospital. Same five minutes. Same
-                questions nobody could answer.
+                silence.
               </p>
             </blockquote>
 
             <p>
-              I was eleven. I remember thinking, very clearly, that the doctor wasn't a
-              bad man. He was just guessing. He was guessing because we hadn't given him
-              anything to know.
+              I was eleven. I remember thinking, very clearly, that the doctor wasn't
+              a bad man. He was trying his best to save a stranger in two minutes,
+              with nothing in front of him. This was not his failure. It was the
+              failure of a country that had never built a clinical memory for its
+              people. And nobody, even now, twenty years later, has prioritised
+              fixing it.
             </p>
 
             {/* Photo — framed, full column width */}
