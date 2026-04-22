@@ -523,104 +523,9 @@ const Auth = () => {
                   </div>
                    {userRole === "patient" && (
                     <>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone" className="flex items-center gap-2">
-                          <Phone className="w-4 h-4" />
-                          Mobile Number <span className="text-destructive">*</span>
-                        </Label>
-                        <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }} required className={`bg-background/50 ${phoneError ? "border-destructive" : ""}`} />
-                        {phoneError && <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{phoneError}</p>}
-                      </div>
-
-                      {/* ABHA ID - Optional */}
-                      <div className="space-y-2">
-                        <Label htmlFor="healthId" className="flex items-center gap-2">
-                          <Shield className="w-4 h-4" />
-                          {t("auth.healthId")} <span className="text-xs text-muted-foreground">(Optional)</span>
-                        </Label>
-                        {!skipAbha ? (
-                          <>
-                            <Input id="healthId" type="text" placeholder="Enter 14-digit ABHA Health ID" value={healthId} onChange={(e) => handleHealthIdChange(e.target.value)} maxLength={14} className={`bg-background/50 ${healthIdError ? "border-destructive" : ""}`} />
-                            {healthIdError ? (
-                              <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{healthIdError}</p>
-                            ) : (
-                              <p className="text-xs text-muted-foreground">{t("auth.healthIdHelp")}</p>
-                            )}
-                            <button type="button" onClick={() => { setSkipAbha(true); setHealthId(""); setHealthIdError(""); }} className="text-xs text-primary hover:underline">
-                              Don't have an ABHA ID? Skip for now
-                            </button>
-                          </>
-                        ) : (
-                          <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-3">
-                            <p className="text-xs text-amber-800 dark:text-amber-200 font-medium">No ABHA ID? No problem.</p>
-                            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">You can register for a free ABHA Health ID at <a href="https://abha.abdm.org.in" target="_blank" rel="noopener noreferrer" className="underline font-medium">abha.abdm.org.in</a></p>
-                            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">Your mobile number will be used as your primary identifier.</p>
-                            <button type="button" onClick={() => setSkipAbha(false)} className="text-xs text-primary hover:underline mt-2">
-                              I have an ABHA ID →
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="dob" className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          Date of Birth
-                        </Label>
-                        <Input id="dob" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} className="bg-background/50" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="weight" className="flex items-center gap-2">
-                          <Weight className="w-4 h-4" />
-                          Weight (kg)
-                        </Label>
-                        <Input id="weight" type="number" placeholder="e.g. 65" value={weight} onChange={(e) => setWeight(e.target.value)} min="1" max="300" className="bg-background/50" />
-                      </div>
-
-                      {/* Location */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4" />
-                            Location
-                          </Label>
-                          <button
-                            type="button"
-                            onClick={detectLocation}
-                            disabled={locating}
-                            className="text-xs text-primary hover:underline inline-flex items-center gap-1 disabled:opacity-50"
-                          >
-                            {locating ? (
-                              <><Loader2 className="h-3 w-3 animate-spin" /> Detecting…</>
-                            ) : latitude && longitude ? (
-                              <><CheckCircle2 className="h-3 w-3" /> Location captured</>
-                            ) : (
-                              <>Use my current location</>
-                            )}
-                          </button>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <Input
-                            id="city"
-                            placeholder="City"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
-                            className="bg-background/50"
-                            maxLength={80}
-                          />
-                          <Input
-                            id="pincode"
-                            placeholder="Pincode"
-                            value={pincode}
-                            onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                            inputMode="numeric"
-                            className="bg-background/50"
-                          />
-                        </div>
-                        <p className="text-[11px] text-muted-foreground">
-                          Helps us find nearby care and personalize alerts. Optional.
-                        </p>
-                      </div>
+                      <p className="text-xs text-muted-foreground -mt-2">
+                        We'll ask for your phone, ABHA ID, and other details inside the app, takes 30 seconds.
+                      </p>
 
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                         <div className="flex items-start gap-2">
@@ -650,20 +555,6 @@ const Auth = () => {
                             <p><strong>7. No Liability:</strong> Vyana, its creators, and affiliates are not liable for any medical decisions made based on information displayed in the app.</p>
                           </div>
                         )}
-                        <div className="flex items-start gap-2 pt-1">
-                          <Checkbox 
-                            id="consent" 
-                            checked={consentGiven} 
-                            onCheckedChange={(checked) => setConsentGiven(checked === true)}
-                            className="mt-0.5"
-                          />
-                          <label htmlFor="consent" className="text-xs text-foreground leading-tight cursor-pointer">
-                            I agree to the <Link to="/legal" target="_blank" className="text-primary underline">Terms of Service</Link> and <Link to="/legal#privacy" target="_blank" className="text-primary underline">Privacy Policy</Link>. I understand Vyana is not a substitute for professional medical advice.
-                          </label>
-                        </div>
-                      </div>
-                    </>
-                  )}
                 </>
               )}
 
