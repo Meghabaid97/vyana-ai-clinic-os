@@ -597,7 +597,7 @@ const WhyVyana = () => {
                 className="font-serif italic"
                 style={{ color: ink, fontSize: "24px" }}
               >
-                — Megha
+                Megha
               </p>
               <p
                 className="text-[10px] tracking-[0.3em] uppercase mt-2"
