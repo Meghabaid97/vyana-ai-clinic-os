@@ -40,8 +40,8 @@ const Navigation = () => {
 
           <div className="flex items-center gap-3">
             <LanguageSelector />
-            <Button size="sm" onClick={() => navigate("/auth")} className="text-[13px] h-8 px-4 rounded-full">
-              {t("nav.try")}
+            <Button size="sm" onClick={() => navigate("/request-access")} className="text-[13px] h-8 px-4 rounded-full">
+              Request access
             </Button>
           </div>
         </div>
