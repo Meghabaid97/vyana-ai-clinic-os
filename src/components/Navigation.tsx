@@ -2,22 +2,17 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSelector from "./LanguageSelector";
-import { tLanding } from "@/lib/i18n-landing";
+import { useLandingT } from "@/lib/i18n-landing";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [, setLangTick] = useState(0);
   const navigate = useNavigate();
+  const t = useLandingT();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    const handleLang = () => setLangTick((t) => t + 1);
     window.addEventListener("scroll", handleScroll);
-    window.addEventListener("vyana-lang-change", handleLang);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("vyana-lang-change", handleLang);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollTo = (id: string) => {
@@ -37,16 +32,16 @@ const Navigation = () => {
 
         <div className="flex items-center gap-7">
           <div className="hidden md:flex items-center gap-7 text-[13px] tracking-wide text-foreground/70">
-            <button onClick={() => navigate("/why-vyana")} className="hover:text-foreground transition-colors">Story</button>
-            <button onClick={() => scrollTo("research")} className="hover:text-foreground transition-colors">Research</button>
-            <button onClick={() => scrollTo("how")} className="hover:text-foreground transition-colors">How it works</button>
-            <a href="mailto:mbaid@wharton.upenn.edu" className="hover:text-foreground transition-colors">Contact</a>
+            <button onClick={() => navigate("/why-vyana")} className="hover:text-foreground transition-colors">{t("nav.story")}</button>
+            <button onClick={() => scrollTo("research")} className="hover:text-foreground transition-colors">{t("nav.research")}</button>
+            <button onClick={() => scrollTo("how")} className="hover:text-foreground transition-colors">{t("nav.how")}</button>
+            <a href="mailto:mbaid@wharton.upenn.edu" className="hover:text-foreground transition-colors">{t("nav.contact")}</a>
           </div>
 
           <div className="flex items-center gap-3">
             <LanguageSelector />
             <Button size="sm" onClick={() => navigate("/auth")} className="text-[13px] h-8 px-4 rounded-full">
-              Try Vyana now
+              {t("nav.try")}
             </Button>
           </div>
         </div>
