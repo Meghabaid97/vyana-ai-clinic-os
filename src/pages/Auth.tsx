@@ -17,7 +17,6 @@ import { t, useLanguage } from "@/lib/i18n";
 
 type UserRole = "patient";
 type AuthMode = "password" | "otp";
-type OtpMethod = "email" | "phone";
 
 type PendingSignupDraft = {
   role?: UserRole;
@@ -87,12 +86,10 @@ const Auth = () => {
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [healthIdError, setHealthIdError] = useState("");
   
-  // OTP states
+  // OTP states (email-only)
   const [authMode, setAuthMode] = useState<AuthMode>("password");
-  const [otpMethod, setOtpMethod] = useState<OtpMethod>("email");
   const [otpSent, setOtpSent] = useState(false);
   const [otpValue, setOtpValue] = useState("");
-  const [otpPhone, setOtpPhone] = useState("");
   
   // Rate limiting states
   const [attempts, setAttempts] = useState(0);
@@ -409,18 +406,15 @@ const Auth = () => {
     }
     setLoading(true);
     try {
-      if (otpMethod === "email") {
-        if (!email || !validateEmail(email)) { toast({ title: "Invalid Email", description: "Enter a valid email", variant: "destructive" }); setLoading(false); return; }
-        const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth` } });
-        if (error) { recordAttempt(); throw error; }
-      } else {
-        if (!otpPhone || otpPhone.length < 10) { toast({ title: "Invalid Phone", description: "Enter a valid phone number", variant: "destructive" }); setLoading(false); return; }
-        const formattedPhone = otpPhone.startsWith("+") ? otpPhone : `+91${otpPhone}`;
-        const { error } = await supabase.auth.signInWithOtp({ phone: formattedPhone });
-        if (error) { recordAttempt(); throw error; }
+      if (!email || !validateEmail(email)) {
+        toast({ title: "Invalid Email", description: "Enter a valid email", variant: "destructive" });
+        setLoading(false);
+        return;
       }
+      const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth` } });
+      if (error) { recordAttempt(); throw error; }
       setOtpSent(true);
-      toast({ title: t("auth.otpSent"), description: otpMethod === "email" ? "Check your email inbox" : "Check your phone for SMS" });
+      toast({ title: t("auth.otpSent"), description: "Check your email inbox" });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally { setLoading(false); }
@@ -430,14 +424,8 @@ const Auth = () => {
     if (!otpValue || otpValue.length < 6) return;
     setLoading(true);
     try {
-      if (otpMethod === "email") {
-        const { error } = await supabase.auth.verifyOtp({ email, token: otpValue, type: "email" });
-        if (error) { recordAttempt(); throw error; }
-      } else {
-        const formattedPhone = otpPhone.startsWith("+") ? otpPhone : `+91${otpPhone}`;
-        const { error } = await supabase.auth.verifyOtp({ phone: formattedPhone, token: otpValue, type: "sms" });
-        if (error) { recordAttempt(); throw error; }
-      }
+      const { error } = await supabase.auth.verifyOtp({ email, token: otpValue, type: "email" });
+      if (error) { recordAttempt(); throw error; }
       setAttempts(0);
       sessionStorage.removeItem("auth-attempts");
       sessionStorage.removeItem("auth-lockout");
@@ -732,37 +720,16 @@ const Auth = () => {
             </form>
           )}
 
-          {/* OTP AUTH */}
+          {/* OTP AUTH (email only) */}
           {!isSignUp && authMode === "otp" && (
             <div className="space-y-4 mb-6">
-              {/* OTP Method Toggle */}
-              <Tabs value={otpMethod} onValueChange={(v) => { setOtpMethod(v as OtpMethod); setOtpSent(false); setOtpValue(""); }} className="mb-2">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="email" className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    {t("auth.emailOtp")}
-                  </TabsTrigger>
-                  <TabsTrigger value="phone" className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    {t("auth.phoneOtp")}
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-
               {!otpSent ? (
                 <>
-                  {otpMethod === "email" ? (
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-2"><Mail className="w-4 h-4" />{t("auth.email")}</Label>
-                      <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-background/50" />
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-2"><Phone className="w-4 h-4" />{t("auth.phone")}</Label>
-                      <Input type="tel" placeholder="+91 98765 43210" value={otpPhone} onChange={(e) => setOtpPhone(e.target.value)} className="bg-background/50" />
-                      <p className="text-xs text-muted-foreground">Enter with country code or we'll add +91</p>
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2"><Mail className="w-4 h-4" />{t("auth.email")}</Label>
+                    <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-background/50" />
+                    <p className="text-xs text-muted-foreground">We'll send a 6-digit code to your email.</p>
+                  </div>
                   <Button onClick={handleSendOtp} variant="gradient" className="w-full" disabled={loading || isLockedOut}>
                     {loading ? t("common.loading") : t("auth.sendOtp")}
                   </Button>
