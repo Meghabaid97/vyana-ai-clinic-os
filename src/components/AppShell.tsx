@@ -286,6 +286,7 @@ const AppShell = () => {
           </div>
         </div>
       </footer>
+      <AskVyanaModal open={askOpen} initialQuestion={askInitial} onClose={() => setAskOpen(false)} />
     </div>
   );
 };
