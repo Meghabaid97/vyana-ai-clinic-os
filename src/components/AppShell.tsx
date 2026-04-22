@@ -270,6 +270,7 @@ const AppShell = () => {
             return (
               <button
                 key={tab.id}
+                data-tour={`nav-${tab.id}`}
                 onClick={() => navigate(tab.path)}
                 aria-label={tab.label}
                 className={cn(
@@ -303,6 +304,7 @@ const AppShell = () => {
         </div>
       </footer>
       <AskVyanaModal open={askOpen} initialQuestion={askInitial} onClose={() => setAskOpen(false)} />
+      <SpotlightTour open={tourOpen} onClose={() => setTourOpen(false)} />
     </div>
   );
 };
