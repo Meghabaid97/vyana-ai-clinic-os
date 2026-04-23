@@ -1,4 +1,4 @@
-import { useEffect, useState, useLayoutEffect, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowRight, X, Sparkles } from "lucide-react";
 
