@@ -19,7 +19,7 @@ const ProblemSection = () => {
   ];
 
   return (
-    <section id="problem" className="section-blend relative py-28 lg:py-36">
+    <section id="problem" className="relative py-28 lg:py-36 bg-background">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
@@ -28,12 +28,12 @@ const ProblemSection = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             {t("problem.eyebrow")}
           </p>
-          <h2 className="text-section text-surface-dark-foreground">
+          <h2 className="text-section text-foreground">
             {t("problem.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("problem.title.l2")}</em>
           </h2>
-          <p className="mt-8 text-body text-surface-dark-muted max-w-[560px]">
+          <p className="mt-8 text-body text-muted-foreground max-w-[560px]">
             {t("problem.sub")}
           </p>
         </div>
@@ -48,20 +48,20 @@ const ProblemSection = () => {
         </div>
 
         <div className="max-w-[760px]">
-          <p className="text-label text-surface-dark-muted/70 mb-4">
+          <p className="text-label text-muted-foreground mb-4">
             {t("problem.consequences")}
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
             {consequences.map((c) => (
               <span
                 key={c}
-                className="rounded-full border border-white/15 px-4 py-2 text-caption text-surface-dark-foreground/85 bg-white/[0.03]"
+                className="rounded-full border border-border px-4 py-2 text-caption text-foreground/80 bg-card/60"
               >
                 {c}
               </span>
             ))}
           </div>
-          <p className="font-serif italic text-[20px] sm:text-[24px] leading-[1.5] text-surface-dark-foreground/90 max-w-[620px]">
+          <p className="font-serif italic text-[20px] sm:text-[24px] leading-[1.5] text-foreground/85 max-w-[620px]">
             {t("problem.closer")}
           </p>
         </div>

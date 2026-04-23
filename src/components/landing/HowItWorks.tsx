@@ -29,10 +29,10 @@ const StepChapter = ({ s, index, stepLabel }: { s: Step; index: number; stepLabe
         <div className="text-label text-primary mb-5">
           {stepLabel} {s.n}
         </div>
-        <h3 className="text-section text-surface-dark-foreground">
+        <h3 className="text-section text-foreground">
           {s.title}
         </h3>
-        <p className="mt-6 text-body text-surface-dark-muted max-w-[520px]">
+        <p className="mt-6 text-body text-muted-foreground max-w-[520px]">
           {s.body}
         </p>
       </div>
@@ -60,7 +60,7 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section id="how" className="section-blend-bottom relative py-28 lg:py-36">
+    <section id="how" className="relative py-28 lg:py-36 bg-background">
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
@@ -69,14 +69,14 @@ const HowItWorks = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             {t("how.eyebrow")}
           </p>
-          <h2 className="text-section text-surface-dark-foreground">
+          <h2 className="text-section text-foreground">
             {t("how.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("how.title.l2")}</em>
           </h2>
         </div>
 
-        <div className="divide-y divide-white/10">
+        <div className="divide-y divide-border/60">
           {steps.map((s, i) => (
             <StepChapter key={s.n} s={s} index={i} stepLabel={t("how.step")} />
           ))}
