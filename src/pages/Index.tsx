@@ -6,15 +6,17 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Landing sections are heavy and only needed for unauthed visitors.
 // Lazy-load so authed users (who get redirected to /app) don't pay for them.
-const MuseumHero = lazy(() => import("@/components/landing/MuseumHero"));
+const EditorialHero = lazy(() => import("@/components/landing/EditorialHero"));
 const ProblemSection = lazy(() => import("@/components/landing/ProblemSection"));
+const QuoteWall = lazy(() => import("@/components/landing/QuoteWall"));
 const WedgeSection = lazy(() => import("@/components/landing/WedgeSection"));
 const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
+const OutcomeSection = lazy(() => import("@/components/landing/OutcomeSection"));
 const ResearchAndTeam = lazy(() => import("@/components/landing/ResearchAndTeam"));
 const TrustStrip = lazy(() => import("@/components/landing/TrustStrip"));
 const FAQSection = lazy(() => import("@/components/landing/FAQSection"));
 const PortraitCTA = lazy(() => import("@/components/landing/PortraitCTA"));
-const ChapterRail = lazy(() => import("@/components/landing/ChapterRail"));
+const SideRail = lazy(() => import("@/components/landing/SideRail"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -61,11 +63,13 @@ const Index = () => {
     <div className="landing-warm min-h-screen bg-background">
       <Navigation />
       <Suspense fallback={<div className="min-h-screen" />}>
-        <ChapterRail />
-        <MuseumHero />
+        <SideRail />
+        <EditorialHero />
         <ProblemSection />
+        <QuoteWall />
         <WedgeSection />
         <HowItWorks />
+        <OutcomeSection />
         <ResearchAndTeam />
         <TrustStrip />
         <PortraitCTA />
