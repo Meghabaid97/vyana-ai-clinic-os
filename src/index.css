@@ -400,6 +400,27 @@
     z-index: 1;
   }
 
+  /* Softer aurora — for ivory/light sections where the wash should
+     barely register. Lower opacity, gentler radii, no center orb. */
+  .aurora-warm-soft {
+    position: relative;
+    isolation: isolate;
+  }
+  .aurora-warm-soft::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(60% 45% at 12% 18%, hsl(var(--primary) / 0.08) 0%, transparent 65%),
+      radial-gradient(55% 45% at 88% 82%, hsl(var(--status-normal) / 0.07) 0%, transparent 70%);
+  }
+  .aurora-warm-soft > * {
+    position: relative;
+    z-index: 1;
+  }
+
   /* ── Whisper tilt ─────────────────────────────────────────────
      3° pointer-tilt for cards. Pure CSS, desktop only (hover capable),
      ignored on touch and reduced-motion. Pair with .tilt-card on the card. */
