@@ -495,25 +495,37 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
+      setLoading(true);
+
       if (isSignUp) {
         setStoredSignupDraft(buildSignupDraft());
       }
 
-      const isNativeApp = Capacitor.isNativePlatform();
+      const redirectUri = Capacitor.isNativePlatform()
+        ? undefined
+        : `${resolveOAuthOrigin()}/app`;
 
-      const redirectTo = isNativeApp
-        ? "lovable://oauth-callback/"
-        : `${window.location.origin}/app`;
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: redirectUri,
+        extraParams: {
+          prompt: "select_account",
+        },
       });
-      if (error) {
-        throw error;
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      if (!result.redirected) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await handleAuthenticatedUser(session.user.id, session.user.user_metadata);
+        }
       }
     } catch (error: any) {
       toast({ title: "Authentication Error", description: error.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
   };
 
