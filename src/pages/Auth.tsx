@@ -525,9 +525,9 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 safe-area-top safe-area-bottom">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+    <div className="min-h-[100svh] flex flex-col items-center justify-center bg-background px-4 py-8 sm:py-12 safe-area-top safe-area-bottom">
+      <div className="w-full max-w-md my-auto">
+        <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">{t("auth.welcome")}</h1>
           <p className="text-muted-foreground">{effectiveIsSignUp ? t("auth.signUp") : t("auth.signIn")}</p>
         </div>
