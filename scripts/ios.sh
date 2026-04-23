@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# scripts/ios.sh — one command for every iOS Capacitor situation.
+#
+# Usage:
+#   ./scripts/ios.sh dev      # daily: sync + open Xcode (hot-reload from Lovable)
+#   ./scripts/ios.sh prod     # release: bundled assets, no live preview
+#   ./scripts/ios.sh sync     # after adding a Capacitor plugin
+#   ./scripts/ios.sh fix      # ios/ folder is broken — full wipe & rebuild
+#   ./scripts/ios.sh doctor   # diagnose without changing anything
+
+set -euo pipefail
+
+MODE="${1:-doctor}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+c_red()    { printf "\033[31m%s\033[0m\n" "$*"; }
+c_green()  { printf "\033[32m%s\033[0m\n" "$*"; }
+c_yellow() { printf "\033[33m%s\033[0m\n" "$*"; }
+c_blue()   { printf "\033[34m%s\033[0m\n" "$*"; }
+
+require_root() {
+  [[ -f package.json && -f capacitor.config.ts ]] || {
+    c_red "Must run from project root (where package.json lives)."
+    exit 1
+  }
+}
+
+ensure_deps() {
+  [[ -d node_modules ]] || { c_blue "Installing npm dependencies..."; npm install; }
+}
+
+ensure_build() {
+  [[ -d dist ]] || { c_blue "Building web assets..."; npm run build; }
+}
+
+ensure_ios_platform() {
+  if [[ ! -d ios/App ]]; then
+    c_blue "iOS platform not found. Adding it..."
+    npx cap add ios
+  fi
+}
+
+case "$MODE" in
+  dev)
+    require_root
+    ensure_deps
+    ensure_build
+    ensure_ios_platform
+    c_blue "Syncing Capacitor (dev: hot-reload from Lovable)..."
+    npx cap sync ios
+    c_green "Opening Xcode. Hit Run (⌘R) — the simulator will load the live preview."
+    npx cap open ios
+    ;;
+
+  prod)
+    require_root
+    c_yellow "PROD build: app will load bundled assets (no live preview, OAuth stays in-app)."
+    ensure_deps
+    c_blue "Building web assets..."
+    npm run build
+    c_blue "Re-creating ios/ in prod mode..."
+    rm -rf ios
+    CAP_MODE=prod npx cap add ios
+    CAP_MODE=prod npx cap sync ios
+    c_green "Opening Xcode. Build for a real device or Archive for TestFlight."
+    CAP_MODE=prod npx cap open ios
+    ;;
+
+  sync)
+    require_root
+    ensure_deps
+    ensure_build
+    ensure_ios_platform
+    c_blue "Syncing iOS plugins..."
+    npx cap sync ios
+    c_green "Done. Reopen Xcode if it was already open so it picks up new plugins."
+    ;;
+
+  fix)
+    require_root
+    c_yellow "Full wipe & rebuild — this resets ios/, node_modules, and Xcode caches."
+    read -r -p "Continue? [y/N] " ans
+    [[ "$ans" =~ ^[Yy]$ ]] || { c_red "Aborted."; exit 1; }
+    rm -rf ios node_modules ~/Library/Developer/Xcode/DerivedData
+    npm install
+    npm run build
+    npx cap add ios
+    npx cap sync ios
+    c_green "Done. Opening Xcode — do File → Packages → Reset Package Caches once."
+    npx cap open ios
+    ;;
+
+  doctor)
+    require_root
+    c_blue "Diagnosing iOS setup..."
+    echo
+    printf "Node:       "; node -v 2>/dev/null || c_red "missing"
+    printf "Xcode:      "; xcodebuild -version 2>/dev/null | head -1 || c_red "missing — install Xcode 26+"
+    printf "node_modules: "; [[ -d node_modules ]] && c_green "ok" || c_yellow "missing (run: npm install)"
+    printf "dist/:      "; [[ -d dist ]] && c_green "ok" || c_yellow "missing (run: npm run build)"
+    printf "ios/App:    "; [[ -d ios/App ]] && c_green "ok" || c_yellow "missing (run: ./scripts/ios.sh dev)"
+    if [[ -f ios/App/App/capacitor.config.json ]]; then
+      if grep -q '"url"' ios/App/App/capacitor.config.json; then
+        c_yellow "Mode:       DEV (live preview from Lovable)"
+      else
+        c_green  "Mode:       PROD (bundled assets)"
+      fi
+    fi
+    echo
+    c_blue "Commands: dev | prod | sync | fix | doctor"
+    ;;
+
+  *)
+    c_red "Unknown mode: $MODE"
+    echo "Usage: ./scripts/ios.sh {dev|prod|sync|fix|doctor}"
+    exit 1
+    ;;
+esac
