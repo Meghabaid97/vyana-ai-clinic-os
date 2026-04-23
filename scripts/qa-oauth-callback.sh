@@ -33,7 +33,8 @@
 set -euo pipefail
 
 APP_ID="app.lovable.7c4352476dc04b689808f61158e40739"
-DEEP_LINK="lovable://oauth-callback/#access_token=qa_fake_access&refresh_token=qa_fake_refresh&token_type=bearer&expires_in=3600"
+DEEP_LINK="vyana://oauth-callback/#access_token=qa_fake_access&refresh_token=qa_fake_refresh&token_type=bearer&expires_in=3600"
+ALT_DEEP_LINK="lovable://oauth-callback/#access_token=qa_fake_access&refresh_token=qa_fake_refresh&token_type=bearer&expires_in=3600"
 
 c_red()   { printf "\033[31m%s\033[0m\n" "$*"; }
 c_green() { printf "\033[32m%s\033[0m\n" "$*"; }
@@ -65,7 +66,7 @@ qa_ios() {
   sleep 3
 
   c_dim "  Firing deep link to simulate OAuth callback…"
-  xcrun simctl openurl booted "$DEEP_LINK"
+  xcrun simctl openurl booted "$DEEP_LINK" || xcrun simctl openurl booted "$ALT_DEEP_LINK"
 
   # Give main.tsx time to: receive appUrlOpen, close Browser, setSession, navigate
   sleep 4
@@ -126,7 +127,8 @@ qa_android() {
   sleep 3
 
   c_dim "  Firing deep link to simulate OAuth callback…"
-  adb -s "$serial" shell am start -W -a android.intent.action.VIEW -d "$DEEP_LINK" "$APP_ID" >/dev/null
+  adb -s "$serial" shell am start -W -a android.intent.action.VIEW -d "$DEEP_LINK" "$APP_ID" >/dev/null \
+    || adb -s "$serial" shell am start -W -a android.intent.action.VIEW -d "$ALT_DEEP_LINK" "$APP_ID" >/dev/null
 
   # Wait for handler in main.tsx to run
   sleep 4
