@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Landing sections are heavy and only needed for unauthed visitors.
 // Lazy-load so authed users (who get redirected to /app) don't pay for them.
-const EditorialHero = lazy(() => import("@/components/landing/EditorialHero"));
+const HeroConstellationScene = lazy(() => import("@/components/landing/HeroConstellationScene"));
 const ProblemSection = lazy(() => import("@/components/landing/ProblemSection"));
 const QuoteWall = lazy(() => import("@/components/landing/QuoteWall"));
 const WedgeSection = lazy(() => import("@/components/landing/WedgeSection"));
@@ -68,7 +68,7 @@ const Index = () => {
       <Suspense fallback={<div className="min-h-screen" />}>
         <SideRail />
         <main id="main-content">
-          <EditorialHero />
+          <HeroConstellationScene />
           <ProblemSection />
           <QuoteWall />
           <WedgeSection />
