@@ -12,26 +12,29 @@ if (Capacitor.isNativePlatform()) {
 }
 
 const OAUTH_CALLBACK_HOST = "oauth-callback";
+const NATIVE_OAUTH_PROTOCOLS = new Set(["lovable:", "vyana:"]);
 
 const isOAuthCallbackUrl = (url: string) => {
   try {
     const parsedUrl = new URL(url);
-    return parsedUrl.protocol === "lovable:" && parsedUrl.host === OAUTH_CALLBACK_HOST;
+    return NATIVE_OAUTH_PROTOCOLS.has(parsedUrl.protocol) && parsedUrl.host === OAUTH_CALLBACK_HOST;
   } catch {
     return false;
   }
 };
 
+const closeInAppBrowser = async () => {
+  try {
+    const { Browser } = await import("@capacitor/browser");
+    await Browser.close();
+  } catch {
+    // Browser plugin not available — ignore.
+  }
+};
+
 const handleOAuthCallback = async (url: string) => {
   try {
-    // Close the in-app browser as soon as we get the callback so the user
-    // is brought back to the native app immediately.
-    try {
-      const { Browser } = await import("@capacitor/browser");
-      await Browser.close();
-    } catch {
-      // Browser plugin not available — ignore.
-    }
+    await closeInAppBrowser();
 
     const parsedUrl = new URL(url);
     const hashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ""));
@@ -39,16 +42,22 @@ const handleOAuthCallback = async (url: string) => {
 
     const accessToken = hashParams.get("access_token") ?? queryParams.get("access_token");
     const refreshToken = hashParams.get("refresh_token") ?? queryParams.get("refresh_token");
+    const authCode = queryParams.get("code") ?? hashParams.get("code");
 
     if (accessToken && refreshToken) {
       await supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
       });
-      window.location.replace("/app");
+    } else if (authCode) {
+      const { error } = await supabase.auth.exchangeCodeForSession(authCode);
+      if (error) throw error;
     }
+
+    window.location.replace("/app");
   } catch (error) {
     console.error("Failed to handle OAuth callback", error);
+    window.location.replace("/splash");
   }
 };
 
