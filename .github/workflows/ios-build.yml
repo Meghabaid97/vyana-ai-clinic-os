@@ -1,0 +1,84 @@
+name: iOS Capacitor Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ios-build:
+    name: Build iOS (Capacitor + SPM)
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Verify Capacitor config exists
+        run: |
+          test -f capacitor.config.ts || (echo "❌ capacitor.config.ts missing" && exit 1)
+          echo "✅ capacitor.config.ts present"
+
+      - name: Add iOS platform (clean)
+        run: |
+          rm -rf ios
+          npx cap add ios
+          echo "✅ ios/ platform generated"
+
+      - name: Sync Capacitor (web → native)
+        run: npx cap sync ios
+
+      - name: Verify SPM Package.swift generated
+        run: |
+          test -f ios/App/CapApp-SPM/Package.swift \
+            || test -f ios/App/Package.swift \
+            || (echo "❌ Capacitor SPM Package.swift not found" && exit 1)
+          echo "✅ Capacitor SPM Package.swift present"
+
+      - name: Select latest stable Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Resolve Swift Package dependencies
+        working-directory: ios/App
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project App.xcodeproj \
+            -scheme App
+
+      - name: Build iOS app (simulator, no signing)
+        working-directory: ios/App
+        run: |
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build | xcpretty && exit ${PIPESTATUS[0]}
+        continue-on-error: false
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-logs
+          path: |
+            ios/App/build/**/*.log
+            ~/Library/Logs/DiagnosticReports/**
+          if-no-files-found: ignore
