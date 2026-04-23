@@ -73,19 +73,19 @@ const EditorialHero = () => {
     >
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background/35" />
 
-      <div className="relative z-10 min-h-[100svh] flex items-center">
-        <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-28 pb-20">
+      <div className="relative z-10 lg:min-h-[100svh] flex items-center">
+        <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-20 pb-12 lg:pt-28 lg:pb-20">
           <div className="lg:grid lg:grid-cols-[minmax(0,700px)_minmax(320px,1fr)] lg:items-center lg:gap-2">
-            <div className="relative z-10 max-w-[860px] space-y-8">
+            <div className="relative z-10 max-w-[860px] space-y-5 lg:space-y-8">
               <p
-                className="hero-soft font-serif italic text-[15px] text-foreground/65"
+                className="hero-soft font-serif italic text-[14px] lg:text-[15px] text-foreground/65"
                 style={{ ["--d" as string]: `${D_EYEBROW}ms` }}
               >
                 {eyebrow}
               </p>
 
               <h1
-                className="hero-soft font-serif text-[44px] sm:text-[64px] lg:text-[88px] leading-[0.98] tracking-[-0.02em] text-foreground"
+                className="hero-soft font-serif text-[40px] sm:text-[64px] lg:text-[88px] leading-[1.02] lg:leading-[0.98] tracking-[-0.02em] text-foreground"
                 style={{ ["--d" as string]: `${D_HEADLINE}ms` }}
               >
                 <span className="block">{lineA}</span>
@@ -96,14 +96,14 @@ const EditorialHero = () => {
               </h1>
 
               <p
-                className="hero-soft text-body text-foreground/85 max-w-[580px]"
+                className="hero-soft text-[15px] lg:text-body leading-[1.55] text-foreground/85 max-w-[580px]"
                 style={{ ["--d" as string]: `${D_SUB}ms` }}
               >
                 {sub}
               </p>
 
               <div
-                className="hero-soft flex flex-wrap items-center gap-x-3 gap-y-2 pt-2"
+                className="hero-soft flex flex-wrap items-center gap-x-3 gap-y-2 pt-1 lg:pt-2"
                 style={{ ["--d" as string]: `${D_CTA}ms` }}
               >
                 <StatefulButton
@@ -129,7 +129,7 @@ const EditorialHero = () => {
             </div>
 
             <div
-              className={`pointer-events-none relative mt-8 flex justify-center ${staged ? "hero-constellation-in" : "opacity-0"} lg:mt-0 lg:-ml-24 lg:justify-start`}
+              className={`pointer-events-none relative mt-6 flex justify-center ${staged ? "hero-constellation-in" : "opacity-0"} lg:mt-0 lg:-ml-24 lg:justify-start`}
               aria-hidden
             >
               <div className="relative">
@@ -139,7 +139,7 @@ const EditorialHero = () => {
                   width={1280}
                   height={1280}
                   draggable={false}
-                  className="hero-constellation-img w-[88vw] max-w-[540px] sm:w-[72vw] sm:max-w-[620px] lg:w-[46vw] lg:max-w-[760px] opacity-70 mix-blend-multiply select-none lg:opacity-90"
+                  className="hero-constellation-img w-[78vw] max-w-[420px] sm:w-[72vw] sm:max-w-[620px] lg:w-[46vw] lg:max-w-[760px] opacity-70 mix-blend-multiply select-none lg:opacity-90"
                 />
                 {SPARKLES.map((s, i) => (
                   <span
@@ -162,7 +162,7 @@ const EditorialHero = () => {
       </div>
 
       <div
-        className="hero-soft pointer-events-none absolute inset-x-0 bottom-8 z-10 flex justify-center"
+        className="hero-soft pointer-events-none absolute inset-x-0 bottom-8 z-10 hidden lg:flex justify-center"
         style={{ ["--d" as string]: `${D_SCROLL_HINT}ms` }}
         aria-hidden
       >
