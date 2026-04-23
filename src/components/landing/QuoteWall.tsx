@@ -25,7 +25,7 @@ const QuoteWall = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             {t("voices.eyebrow")}
           </p>
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.02] tracking-[-0.02em] text-foreground">
+          <h2 className="text-section text-foreground">
             {t("voices.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("voices.title.l2")}</em>
