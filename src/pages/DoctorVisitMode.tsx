@@ -46,7 +46,30 @@ const DoctorVisitMode = () => {
   const [patientName, setPatientName] = useState<string>("");
   const [isDemo, setIsDemo] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareSheetOpen, setShareSheetOpen] = useState(false);
 
+  const createShareLink = async (recipientName: string): Promise<string | null> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({ title: "Sign in required", variant: "destructive" });
+      return null;
+    }
+    const { data: patient } = await supabase
+      .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    if (!patient) {
+      toast({ title: "Profile missing", description: "Complete your profile first.", variant: "destructive" });
+      return null;
+    }
+    const { data, error } = await supabase.from("shared_record_links").insert({
+      patient_id: patient.id,
+      recipient_name: recipientName || null,
+    }).select("token").single();
+    if (error || !data) {
+      toast({ title: "Could not create link", description: error?.message ?? "Unknown error", variant: "destructive" });
+      return null;
+    }
+    return `${window.location.origin}/emergency-access/${data.token}`;
+  };
   // Auto-load demo via ?demo=1
   useEffect(() => {
     if (searchParams.get("demo") === "1") {
