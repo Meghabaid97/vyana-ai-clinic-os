@@ -435,6 +435,27 @@
     .kw-stage .kw { animation: none; }
   }
 
+  /* Hero constellation — late fade-in (after type lands) + slow vertical float. */
+  .hero-constellation-in {
+    animation: hero-constellation-fade 1400ms ease-out 1400ms both;
+  }
+  .hero-constellation-img {
+    animation: hero-constellation-float 14s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes hero-constellation-fade {
+    from { opacity: 0; transform: translateX(24px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes hero-constellation-float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-10px) scale(1.01); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-constellation-in { animation: none; opacity: 1; }
+    .hero-constellation-img { animation: none; }
+  }
+
   /* Softer aurora — for ivory/light sections where the wash should
      barely register. Lower opacity, gentler radii, no center orb. */
   .aurora-warm-soft {
