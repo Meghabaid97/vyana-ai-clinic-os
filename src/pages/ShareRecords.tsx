@@ -1,15 +1,12 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode, Trash2,
+  Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 
 interface ShareLink {
   id: string;
