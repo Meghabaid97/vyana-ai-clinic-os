@@ -435,9 +435,9 @@
     .kw-stage .kw { animation: none; }
   }
 
-  /* Hero constellation — late fade-in (after type lands) + slow vertical float. */
+  /* Hero constellation — fade in together with the headline, fast. */
   .hero-constellation-in {
-    animation: hero-constellation-fade 1400ms ease-out 1400ms both;
+    animation: hero-constellation-fade 600ms ease-out 120ms both;
   }
   .hero-constellation-img {
     animation: hero-constellation-float 14s ease-in-out infinite;
