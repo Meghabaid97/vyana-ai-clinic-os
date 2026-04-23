@@ -1,5 +1,6 @@
 import { useReveal } from "@/hooks/use-reveal";
 import { useLandingT } from "@/lib/i18n-landing";
+import StickyPillarReveal from "./StickyPillarReveal";
 
 const OutcomeSection = () => {
   const t = useLandingT();
@@ -16,7 +17,10 @@ const OutcomeSection = () => {
 
   return (
     <section id="output" className="relative py-28 lg:py-36 bg-background">
-      <div className="max-w-[1240px] mx-auto px-6 lg:px-12 space-y-24">
+      {/* Sticky scroll-reveal of the 5 pillars with real artifacts on the right */}
+      <StickyPillarReveal />
+
+      <div className="max-w-[1240px] mx-auto px-6 lg:px-12 space-y-24 mt-32">
         <div>
           <div
             ref={header.ref}
