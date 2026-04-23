@@ -23,6 +23,7 @@ const ClosingCTA = () => {
 
           <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5">
             <Button
+              variant="premium"
               className="group h-12 px-7 text-[15px] rounded-full"
               onClick={() => (window.location.href = "/request-access")}
             >
