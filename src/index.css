@@ -420,25 +420,45 @@
     .aurora-warm-drift::before { animation: none; }
   }
 
-  /* ---------- Section blend ----------
-     One canvas, one deep moment. The landing flows on cream; only ONE section
-     (Research) deepens to cocoa, and the handoff is a true 240px dissolve that
-     starts and ends in the exact cream tone — no perceptible seam. */
-  .section-blend {
+  /* ---------- Mood sections ----------
+     Each section sits on its own warm tint, with a vertical gradient that
+     starts in the *previous* section's mood and ends in the *next* section's
+     mood. That makes every transition a true seamless dissolve, while still
+     giving each section a distinct atmosphere.
+
+     Usage: <section className="mood mood-blush" data-from="background" data-to="background">
+     The `data-from`/`data-to` attributes pick the fade colors. The fade band
+     is 200px at top and bottom; the middle 100% sits in the section's own mood. */
+  .mood {
     background-color: transparent !important;
     background-image: linear-gradient(
       to bottom,
-      hsl(var(--background)) 0%,
-      hsl(var(--surface-dark)) 240px,
-      hsl(var(--surface-dark)) calc(100% - 240px),
-      hsl(var(--background)) 100%
-    ) !important;
+      var(--mood-from, hsl(var(--background))) 0%,
+      var(--mood-self) 200px,
+      var(--mood-self) calc(100% - 200px),
+      var(--mood-to, hsl(var(--background))) 100%
+    );
   }
-  /* Hairline rule, used in place of dark-section flips, to mark a chapter
-     break on the cream canvas without changing tone. */
-  .chapter-rule {
-    border-top: 1px solid hsl(var(--border) / 0.55);
-  }
+  .mood-cream  { --mood-self: hsl(var(--background)); }
+  .mood-blush  { --mood-self: hsl(var(--mood-blush)); }
+  .mood-sage   { --mood-self: hsl(var(--mood-sage)); }
+  .mood-ivory  { --mood-self: hsl(var(--mood-ivory)); }
+  .mood-cocoa  { --mood-self: hsl(var(--surface-dark)); }
+  .mood-cocoa-warm { --mood-self: hsl(var(--mood-cocoa-warm)); }
+
+  /* Adjacent-mood helpers — set the fade endpoints. */
+  .from-cream  { --mood-from: hsl(var(--background)); }
+  .from-blush  { --mood-from: hsl(var(--mood-blush)); }
+  .from-sage   { --mood-from: hsl(var(--mood-sage)); }
+  .from-ivory  { --mood-from: hsl(var(--mood-ivory)); }
+  .from-cocoa  { --mood-from: hsl(var(--surface-dark)); }
+  .from-cocoa-warm { --mood-from: hsl(var(--mood-cocoa-warm)); }
+  .to-cream    { --mood-to: hsl(var(--background)); }
+  .to-blush    { --mood-to: hsl(var(--mood-blush)); }
+  .to-sage     { --mood-to: hsl(var(--mood-sage)); }
+  .to-ivory    { --mood-to: hsl(var(--mood-ivory)); }
+  .to-cocoa    { --mood-to: hsl(var(--surface-dark)); }
+  .to-cocoa-warm { --mood-to: hsl(var(--mood-cocoa-warm)); }
 
   /* Kinetic word reveal — staggered word-by-word fade+rise+deblur.
      Wrap each word in <span class="kw" style={{"--d":"120ms"}}>word</span>.
