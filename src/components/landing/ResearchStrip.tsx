@@ -53,7 +53,7 @@ const ResearchStrip = () => {
 
         <div className="grid md:grid-cols-2 gap-x-10 gap-y-10">
           {citations.map((c, i) => (
-            <div key={i} className="space-y-2.5">
+            <div key={i} className="rounded-2xl glass-card p-6 space-y-2.5">
               <h3 className="font-serif text-[19px] text-foreground leading-snug">
                 {c.title}
               </h3>
