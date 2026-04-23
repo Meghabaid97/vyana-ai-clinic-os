@@ -17,7 +17,6 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter,
   DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-import { buildEmergencyAccessUrl } from "@/lib/customerUrls";
 
 interface EmergencyContact {
   id: string;
@@ -48,6 +47,7 @@ const EmergencyContacts = () => {
   const [accessLogs, setAccessLogs] = useState<AccessLog[]>([]);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [patientName, setPatientName] = useState("Patient");
+  const [hasSession, setHasSession] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -62,20 +62,13 @@ const EmergencyContacts = () => {
 
   useEffect(() => {
     loadData();
-    // Re-run once auth is restored (session may not be ready on first mount
-    // when navigating directly into the tab from desktop nav).
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) loadData();
-    });
-    return () => subscription.unsubscribe();
   }, []);
 
   const loadData = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      // Don't redirect on missing session — AppShell already gates auth.
-      // Just stop loading and let the auth listener retry when ready.
-      if (!session) { setIsLoading(false); return; }
+      if (!session) { setHasSession(false); setIsLoading(false); return; }
+      setHasSession(true);
 
       const { data: patient } = await supabase
         .from("patients")
@@ -83,7 +76,7 @@ const EmergencyContacts = () => {
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      if (!patient) { setIsLoading(false); return; }
+      if (!patient) { setPatientId(null); setIsLoading(false); return; }
       setPatientId(patient.id);
       setPatientName(patient.name);
 
@@ -160,7 +153,8 @@ const EmergencyContacts = () => {
     }
   };
 
-  const buildAccessLink = (token: string) => buildEmergencyAccessUrl(token);
+  const buildAccessLink = (token: string) =>
+    `${window.location.origin}/emergency-access/${token}`;
 
   const copyAccessLink = (token: string) => {
     navigator.clipboard.writeText(buildAccessLink(token));
@@ -188,6 +182,43 @@ const EmergencyContacts = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!hasSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center space-y-4">
+            <Shield className="h-10 w-10 text-primary mx-auto" />
+            <h2 className="text-xl font-semibold">Sign in to manage emergency contacts</h2>
+            <p className="text-sm text-muted-foreground">
+              You need an account so we can securely link contacts to your records.
+            </p>
+            <Button onClick={() => navigate("/auth")} className="w-full">Sign in</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!patientId) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center space-y-4">
+            <Heart className="h-10 w-10 text-primary mx-auto" />
+            <h2 className="text-xl font-semibold">Finish your profile first</h2>
+            <p className="text-sm text-muted-foreground">
+              We need your basic profile before adding emergency contacts. It only takes a minute.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button onClick={() => navigate("/app/profile/edit")} className="w-full">Complete profile</Button>
+              <Button variant="outline" onClick={() => navigate("/app")} className="w-full">Back to home</Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
