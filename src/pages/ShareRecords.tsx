@@ -23,8 +23,6 @@ const ShareRecords = () => {
   const [loading, setLoading] = useState(true);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
-  const [recipientName, setRecipientName] = useState("");
-  const [creating, setCreating] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => { loadLinks(); }, []);
@@ -47,25 +45,19 @@ const ShareRecords = () => {
     setLoading(false);
   };
 
-  const createLink = async () => {
-    if (!patientId) return;
-    setCreating(true);
+  const createLink = async (recipientName: string): Promise<string | null> => {
+    if (!patientId) return null;
     const { data, error } = await supabase.from("shared_record_links").insert({
       patient_id: patientId,
-      recipient_name: recipientName.trim() || null,
+      recipient_name: recipientName || null,
     }).select().single() as { data: ShareLink | null; error: any };
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else if (data) {
-      const shareUrl = `${window.location.origin}/emergency-access/${data.token}`;
-      await navigator.clipboard.writeText(shareUrl);
-      toast({ title: "Link created & copied!", description: "Share this link with your doctor. Expires in 24 hours." });
-      setShowCreate(false);
-      setRecipientName("");
-      await loadLinks();
+      return null;
     }
-    setCreating(false);
+    if (!data) return null;
+    return `${window.location.origin}/emergency-access/${data.token}`;
   };
 
   const copyLink = async (token: string) => {
