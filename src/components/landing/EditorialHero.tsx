@@ -69,43 +69,12 @@ const EditorialHero = () => {
   return (
     <section
       id="hero"
-      className={`aurora-warm aurora-warm-drift ${staged ? "hero-glow-stage" : ""} relative min-h-[100svh] w-full overflow-hidden bg-background`}
+      className={`aurora-warm aurora-warm-drift ${staged ? "hero-glow-stage" : ""} relative lg:min-h-[100svh] w-full overflow-hidden bg-background`}
     >
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background/35" />
 
-      {/* Mobile: constellation as atmospheric backdrop, centered behind hero */}
-      <div
-        className={`pointer-events-none absolute inset-0 z-[1] lg:hidden flex items-center justify-center ${staged ? "hero-constellation-in" : "opacity-0"}`}
-        aria-hidden
-      >
-        <div className="relative w-[140vw] max-w-none -mr-[20vw] translate-y-[6vh]">
-          <img
-            src={heroConstellation}
-            alt=""
-            width={1280}
-            height={1280}
-            draggable={false}
-            className="hero-constellation-img w-full opacity-40 mix-blend-multiply select-none"
-          />
-          {SPARKLES.map((s, i) => (
-            <span
-              key={i}
-              className={`hero-sparkle ${s.tone ?? ""}`}
-              style={{
-                top: s.top,
-                left: s.left,
-                width: s.size,
-                height: s.size,
-                ["--delay" as string]: s.delay,
-                ["--dur" as string]: s.dur,
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
       <div className="relative z-10 lg:min-h-[100svh] flex items-center">
-        <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-20 pb-12 lg:pt-28 lg:pb-20">
+        <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-20 pb-16 lg:pt-28 lg:pb-20">
           <div className="lg:grid lg:grid-cols-[minmax(0,700px)_minmax(320px,1fr)] lg:items-center lg:gap-2">
             <div className="relative z-10 max-w-[860px] space-y-5 lg:space-y-8">
               <p
@@ -156,6 +125,21 @@ const EditorialHero = () => {
                   <Play className="mr-2 h-4 w-4 fill-current" />
                   {t("hero.cta.secondary")}
                 </Button>
+              </div>
+
+              {/* Mobile only: small constellation accent under CTA, like a signature */}
+              <div
+                className={`lg:hidden pointer-events-none pt-6 -mx-6 ${staged ? "hero-constellation-in" : "opacity-0"}`}
+                aria-hidden
+              >
+                <img
+                  src={heroConstellation}
+                  alt=""
+                  width={1280}
+                  height={1280}
+                  draggable={false}
+                  className="hero-constellation-img w-full max-w-none opacity-60 mix-blend-multiply select-none"
+                />
               </div>
             </div>
 
