@@ -650,6 +650,15 @@
     .vital-status-dot { animation: none; }
   }
 
+  /* Tab content cross-fade + slight rise */
+  @keyframes tab-content-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-tab-content-in {
+    animation: tab-content-in 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   /* Shared elements morph across routes */
   .vt-wordmark { view-transition-name: vyana-wordmark; }
   .vt-cta-pill { view-transition-name: vyana-cta-pill; }
