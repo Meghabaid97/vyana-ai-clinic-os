@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import ClinicalRiskDashboard from "@/components/ClinicalRiskDashboard";
 import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
 import PageHero from "@/components/PageHero";
+import { TrendsSkeleton } from "@/components/ui/page-skeletons";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
@@ -72,6 +73,7 @@ const confidenceConfig = {
 const HealthTrends = () => {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [consultationCount, setConsultationCount] = useState(0);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [vitalHistory, setVitalHistory] = useState<VitalHistoryEntry[]>([]);
@@ -119,49 +121,53 @@ const HealthTrends = () => {
   }, [records]);
 
   const loadTrends = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    const { data: patient } = await supabase
-      .from("patients")
-      .select("id, national_health_id, age")
-      .eq("user_id", session.user.id)
-      .maybeSingle();
+      const { data: patient } = await supabase
+        .from("patients")
+        .select("id, national_health_id, age")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
 
-    if (!patient) return;
-    setPatientAge(patient.age ?? null);
-    setPatientId(patient.id);
+      if (!patient) return;
+      setPatientAge(patient.age ?? null);
+      setPatientId(patient.id);
 
-    const { data: r } = await supabase
-      .from("health_records")
-      .select("id, file_name, file_path, file_type, ai_summary, uploaded_at, updated_at")
-      .eq("patient_id", patient.id)
-      .order("uploaded_at", { ascending: false });
+      const { data: r } = await supabase
+        .from("health_records")
+        .select("id, file_name, file_path, file_type, ai_summary, uploaded_at, updated_at")
+        .eq("patient_id", patient.id)
+        .order("uploaded_at", { ascending: false });
 
-    setRecords((r || []) as HealthRecord[]);
+      setRecords((r || []) as HealthRecord[]);
 
-    // Load vital history for longitudinal view
-    const { data: vh } = await supabase
-      .from("vital_history")
-      .select("*")
-      .eq("patient_id", patient.id)
-      .order("recorded_at", { ascending: true }) as { data: VitalHistoryEntry[] | null };
+      // Load vital history for longitudinal view
+      const { data: vh } = await supabase
+        .from("vital_history")
+        .select("*")
+        .eq("patient_id", patient.id)
+        .order("recorded_at", { ascending: true }) as { data: VitalHistoryEntry[] | null };
 
-    setVitalHistory(vh || []);
+      setVitalHistory(vh || []);
 
-    // Load medications for risk engine
-    const { data: meds } = await supabase
-      .from("medication_reminders")
-      .select("medication_name, dosage, frequency, is_active")
-      .eq("patient_id", patient.id);
-    setMedications((meds || []) as any);
+      // Load medications for risk engine
+      const { data: meds } = await supabase
+        .from("medication_reminders")
+        .select("medication_name, dosage, frequency, is_active")
+        .eq("patient_id", patient.id);
+      setMedications((meds || []) as any);
 
-    if (patient.national_health_id) {
-      const { data: c } = await supabase
-        .from("consultations")
-        .select("id")
-        .eq("patient_national_health_id", patient.national_health_id);
-      setConsultationCount(c?.length || 0);
+      if (patient.national_health_id) {
+        const { data: c } = await supabase
+          .from("consultations")
+          .select("id")
+          .eq("patient_national_health_id", patient.national_health_id);
+        setConsultationCount(c?.length || 0);
+      }
+    } finally {
+      setInitialLoading(false);
     }
   };
 
