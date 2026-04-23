@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { vitalStatus, STATUS_TONE, type VitalStatus } from "@/lib/vitalStatus";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
