@@ -124,6 +124,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
   }, [open, stepIdx, step.path, location.pathname, navigate]);
 
   // Measure target element with retries — if it never shows up, fall back to centered.
+  // Keep this CHEAP on mobile: instant scroll (no smooth animation), single rAF, no scroll listeners.
   useLayoutEffect(() => {
     if (!open) return;
     setTargetMissing(false);
@@ -144,7 +145,6 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       if (!el) {
         attempts += 1;
         if (attempts >= maxAttempts) {
-          // Give up — show centered card so user can still proceed
           setRect(null);
           setTargetMissing(true);
           return;
@@ -157,7 +157,8 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       const offscreen = r.top < 80 || r.bottom > window.innerHeight - 120;
       if (offscreen) {
         try {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          // INSTANT scroll — smooth scroll on mobile causes the tour overlay to lag/jitter
+          el.scrollIntoView({ block: "center" });
         } catch {
           /* older browsers */
         }
@@ -166,7 +167,6 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       raf = requestAnimationFrame(() => {
         if (cancelled) return;
         const r2 = el.getBoundingClientRect();
-        // If the element was just clipped to 0×0 (e.g. inside a hidden header), bail
         if (r2.width === 0 || r2.height === 0) {
           setRect(null);
           setTargetMissing(true);
@@ -182,17 +182,17 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     };
 
     // Wait a tick for navigation/layout to settle
-    const t = setTimeout(measure, 200);
+    const t = setTimeout(measure, 150);
+    // Only re-measure on resize (orientation change). Don't listen to scroll —
+    // that fires constantly during the instant scroll above and pegs the main thread.
     const onResize = () => measure();
     window.addEventListener("resize", onResize);
-    window.addEventListener("scroll", onResize, true);
 
     return () => {
       cancelled = true;
       clearTimeout(t);
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onResize, true);
     };
   }, [open, stepIdx, step.target, location.pathname]);
 

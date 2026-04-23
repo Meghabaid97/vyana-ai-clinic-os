@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import EditorialHero from "@/components/landing/EditorialHero";
-import ProblemSection from "@/components/landing/ProblemSection";
-import QuoteWall from "@/components/landing/QuoteWall";
-import WedgeSection from "@/components/landing/WedgeSection";
-import HowItWorks from "@/components/landing/HowItWorks";
-import OutcomeSection from "@/components/landing/OutcomeSection";
-import ResearchAndTeam from "@/components/landing/ResearchAndTeam";
-import TrustStrip from "@/components/landing/TrustStrip";
-import FAQSection from "@/components/landing/FAQSection";
-import PortraitCTA from "@/components/landing/PortraitCTA";
-import SideRail from "@/components/landing/SideRail";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
+
+// Landing sections are heavy and only needed for unauthed visitors.
+// Lazy-load so authed users (who get redirected to /app) don't pay for them.
+const EditorialHero = lazy(() => import("@/components/landing/EditorialHero"));
+const ProblemSection = lazy(() => import("@/components/landing/ProblemSection"));
+const QuoteWall = lazy(() => import("@/components/landing/QuoteWall"));
+const WedgeSection = lazy(() => import("@/components/landing/WedgeSection"));
+const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
+const OutcomeSection = lazy(() => import("@/components/landing/OutcomeSection"));
+const ResearchAndTeam = lazy(() => import("@/components/landing/ResearchAndTeam"));
+const TrustStrip = lazy(() => import("@/components/landing/TrustStrip"));
+const FAQSection = lazy(() => import("@/components/landing/FAQSection"));
+const PortraitCTA = lazy(() => import("@/components/landing/PortraitCTA"));
+const SideRail = lazy(() => import("@/components/landing/SideRail"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -51,17 +54,19 @@ const Index = () => {
   return (
     <div className="landing-warm min-h-screen bg-background">
       <Navigation />
-      <SideRail />
-      <EditorialHero />
-      <ProblemSection />
-      <QuoteWall />
-      <WedgeSection />
-      <HowItWorks />
-      <OutcomeSection />
-      <ResearchAndTeam />
-      <TrustStrip />
-      <PortraitCTA />
-      <FAQSection />
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <SideRail />
+        <EditorialHero />
+        <ProblemSection />
+        <QuoteWall />
+        <WedgeSection />
+        <HowItWorks />
+        <OutcomeSection />
+        <ResearchAndTeam />
+        <TrustStrip />
+        <PortraitCTA />
+        <FAQSection />
+      </Suspense>
     </div>
   );
 };
