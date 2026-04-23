@@ -1,5 +1,9 @@
 import { useReveal } from "@/hooks/use-reveal";
-import { PhoneMock, MockStoryScreen, MockTrendsScreen, MockBriefingScreen } from "./PhoneMock";
+import {
+  AnimatedUploadDemo,
+  AnimatedExtractDemo,
+  AnimatedShareDemo,
+} from "./AnimatedPhoneDemos";
 import { useLandingT } from "@/lib/i18n-landing";
 
 type Step = {
@@ -7,7 +11,6 @@ type Step = {
   title: string;
   body: string;
   mock: JSX.Element;
-  rotate: number;
 };
 
 const StepChapter = ({ s, index, stepLabel }: { s: Step; index: number; stepLabel: string }) => {
