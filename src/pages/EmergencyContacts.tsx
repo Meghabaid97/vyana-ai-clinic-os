@@ -67,15 +67,16 @@ const EmergencyContacts = () => {
   const loadData = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/auth"); return; }
+      if (!session) { setHasSession(false); setIsLoading(false); return; }
+      setHasSession(true);
 
       const { data: patient } = await supabase
         .from("patients")
         .select("id, name")
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (!patient) { navigate("/app"); return; }
+      if (!patient) { setPatientId(null); setIsLoading(false); return; }
       setPatientId(patient.id);
       setPatientName(patient.name);
 
