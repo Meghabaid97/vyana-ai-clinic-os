@@ -306,13 +306,14 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
                     Open WhatsApp
                   </Button>
                 </div>
-                <button
+                <Button
+                  variant="secondary"
+                  className="mt-3 w-full gap-1.5 bg-primary/10 text-primary hover:bg-primary/15"
                   onClick={() => setStage("qr")}
-                  className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-md border border-border bg-card py-2 text-[12px] font-medium text-foreground hover:border-primary/40 transition-colors"
                 >
-                  <QrCode className="h-3.5 w-3.5" />
+                  <QrCode className="h-4 w-4" />
                   Show QR for doctor to scan
-                </button>
+                </Button>
               </>
             )}
 
