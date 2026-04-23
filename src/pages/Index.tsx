@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 const EditorialHero = lazy(() => import("@/components/landing/EditorialHero"));
 const ProblemSection = lazy(() => import("@/components/landing/ProblemSection"));
 const QuoteWall = lazy(() => import("@/components/landing/QuoteWall"));
-const WedgeSection = lazy(() => import("@/components/landing/WedgeSection"));
+const WedgeSection = lazy(() => import("@/components/landing/WedgeSectionGrid"));
 const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
 const OutcomeSection = lazy(() => import("@/components/landing/OutcomeSection"));
 const ResearchAndTeam = lazy(() => import("@/components/landing/ResearchAndTeam"));
