@@ -230,6 +230,7 @@ const AppShell = () => {
             <LanguageSelector />
             <NotificationBell />
             <button
+              data-tour="nav-profile"
               onClick={() => navigate("/app/profile")}
               className="flex items-center gap-2 rounded-full px-3 h-10 hover:bg-muted transition-colors"
             >
@@ -259,6 +260,7 @@ const AppShell = () => {
               return (
                 <button
                   key={tab.id}
+                  data-tour={`nav-${tab.id}`}
                   onClick={() => navigate(tab.path)}
                   className={cn(
                     "inline-flex items-center gap-2 px-3.5 h-8 rounded-full text-[13px] font-medium transition-colors",
