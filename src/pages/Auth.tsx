@@ -493,6 +493,15 @@ const Auth = () => {
     return origin;
   };
 
+  // Customer-facing production web origin. We NEVER want OAuth to fall back
+  // to a Lovable preview/published URL (e.g. *.lovable.app), even when the
+  // user is signing in from the Lovable preview environment. Supabase will
+  // only honor `redirectTo` if it matches an entry in the URI allow-list.
+  const PRODUCTION_WEB_ORIGIN = "https://www.vyana.care";
+  // Native deep-link scheme registered in capacitor.config.ts + iOS/Android.
+  // Handled in src/main.tsx via the Capacitor App `appUrlOpen` listener.
+  const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
+
   const handleGoogleAuth = async () => {
     try {
       if (isSignUp) {
@@ -503,11 +512,10 @@ const Auth = () => {
 
       if (isNativeApp) {
         const { Browser } = await import("@capacitor/browser");
-        const nativeRedirectTo = `${window.location.protocol}//oauth-callback/`;
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: nativeRedirectTo,
+            redirectTo: NATIVE_OAUTH_REDIRECT,
             skipBrowserRedirect: true,
           },
         });
@@ -517,9 +525,11 @@ const Auth = () => {
         return;
       }
 
+      // Web: always send users back to the production domain so the Lovable
+      // *.lovable.app fallback never appears to customers.
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/app` },
+        options: { redirectTo: `${PRODUCTION_WEB_ORIGIN}/app` },
       });
       if (error) {
         throw error;
