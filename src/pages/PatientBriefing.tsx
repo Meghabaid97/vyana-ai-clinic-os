@@ -5,13 +5,14 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, Pill, FileText,
   Share2, Copy, CheckCircle2, Heart, Brain, Stethoscope,
-  ArrowUp, ArrowDown, Minus, Activity, Play,
+  ArrowUp, ArrowDown, Minus, Activity, Play, QrCode,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { BriefingResultSkeleton } from "@/components/ui/page-skeletons";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
+import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
