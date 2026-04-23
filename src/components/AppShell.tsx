@@ -267,8 +267,8 @@ const AppShell = () => {
 
       {/* ============ CONTENT ============ */}
       {/* Mobile: full-bleed scroll. Desktop: centered max-width container */}
-      <main className="flex-1 overflow-y-auto pb-20 lg:pb-10">
-        <div className="lg:max-w-[1400px] lg:mx-auto lg:px-6 lg:py-6">
+      <main className="flex-1 w-full max-w-full overflow-x-hidden overflow-y-auto pb-20 lg:pb-10">
+        <div className="w-full max-w-full lg:max-w-[1400px] lg:mx-auto lg:px-6 lg:py-6">
           <Outlet />
         </div>
       </main>
