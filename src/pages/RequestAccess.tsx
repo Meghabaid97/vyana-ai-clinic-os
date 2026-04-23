@@ -151,7 +151,7 @@ const RequestAccess = () => {
             />
           </div>
 
-          <Button type="submit" disabled={submitting} className="group w-full h-11 rounded-full mt-2">
+          <Button type="submit" disabled={submitting} className="vt-cta-pill group w-full h-11 rounded-full mt-2">
             {submitting ? "Sending…" : "Get early access"}
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
