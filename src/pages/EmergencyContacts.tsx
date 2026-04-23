@@ -186,6 +186,43 @@ const EmergencyContacts = () => {
     );
   }
 
+  if (!hasSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center space-y-4">
+            <Shield className="h-10 w-10 text-primary mx-auto" />
+            <h2 className="text-xl font-semibold">Sign in to manage emergency contacts</h2>
+            <p className="text-sm text-muted-foreground">
+              You need an account so we can securely link contacts to your records.
+            </p>
+            <Button onClick={() => navigate("/auth")} className="w-full">Sign in</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!patientId) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center space-y-4">
+            <Heart className="h-10 w-10 text-primary mx-auto" />
+            <h2 className="text-xl font-semibold">Finish your profile first</h2>
+            <p className="text-sm text-muted-foreground">
+              We need your basic profile before adding emergency contacts. It only takes a minute.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button onClick={() => navigate("/app/profile/edit")} className="w-full">Complete profile</Button>
+              <Button variant="outline" onClick={() => navigate("/app")} className="w-full">Back to home</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-4xl mx-auto px-6 py-10">
