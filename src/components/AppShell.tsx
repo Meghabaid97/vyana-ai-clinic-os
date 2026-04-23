@@ -158,7 +158,7 @@ const AppShell = () => {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-background flex flex-col">
+    <div className="aurora-warm-soft min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-background flex flex-col">
       {/* ============ MOBILE TOP BAR (hidden on lg+) — iOS-native proportions ============ */}
       <header className="lg:hidden bg-background/85 border-b border-border/60 sticky top-0 z-50 safe-area-top backdrop-blur-xl">
         <div className="px-3 h-11 flex items-center justify-between gap-1.5">
