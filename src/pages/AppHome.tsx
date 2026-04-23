@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, Upload, Link2, Shield, UserCog, X } from "lucide-react";
+import { ArrowRight, Upload, Link2, Shield, UserCog, X, UserCircle2 } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
 import TrustReassuranceStrip from "@/components/dashboard/TrustReassuranceStrip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface PatientProfile {
   id: string;
@@ -26,6 +31,11 @@ const AppHome = () => {
   const [bannerDismissed, setBannerDismissed] = useState<boolean>(() =>
     typeof window !== "undefined" && localStorage.getItem(PROFILE_BANNER_DISMISSED_KEY) === "1"
   );
+  const [requiredOpen, setRequiredOpen] = useState(false);
+  const [reqName, setReqName] = useState("");
+  const [reqPhone, setReqPhone] = useState("");
+  const [savingRequired, setSavingRequired] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => { void loadData(); }, []);
 
@@ -34,9 +44,17 @@ const AppHome = () => {
     if (!session) return;
     const { data: p } = await supabase
       .from("patients").select("*")
-      .eq("user_id", session.user.id).single();
+      .eq("user_id", session.user.id).maybeSingle();
     if (!p) return;
     setProfile(p);
+
+    // Mandatory: name + phone. ABHA + DOB are soft nudges only.
+    const missingRequired = !p.name?.trim() || !p.phone?.trim();
+    if (missingRequired) {
+      setReqName(p.name || "");
+      setReqPhone(p.phone || "");
+      setRequiredOpen(true);
+    }
 
     const { data: r } = await supabase
       .from("health_records")
@@ -56,11 +74,27 @@ const AppHome = () => {
     }
   };
 
+  const saveRequired = async () => {
+    const name = reqName.trim();
+    const phone = reqPhone.trim();
+    if (name.length < 2) { toast({ title: "Please enter your full name", variant: "destructive" }); return; }
+    if (!/^[+0-9 ()-]{7,20}$/.test(phone)) { toast({ title: "Please enter a valid phone number", variant: "destructive" }); return; }
+    if (!profile) return;
+    setSavingRequired(true);
+    const { error } = await supabase.from("patients").update({ name, phone }).eq("id", profile.id);
+    setSavingRequired(false);
+    if (error) { toast({ title: "Could not save", description: error.message, variant: "destructive" }); return; }
+    setProfile({ ...profile, name, phone });
+    setRequiredOpen(false);
+    toast({ title: "Profile saved", description: "You can add more details anytime." });
+  };
+
   const firstName = profile?.name?.split(" ")[0] || "there";
   const totalRecords = recordCount + consultationCount;
   const hasRecords = totalRecords > 0;
-  const profileIncomplete = !!profile && (!profile.phone || !profile.date_of_birth || !profile.national_health_id);
-  const showProfileBanner = profileIncomplete && !bannerDismissed;
+  // Soft nudge for the optional-but-recommended fields (DOB + ABHA).
+  const profileIncomplete = !!profile && (!profile.date_of_birth || !profile.national_health_id);
+  const showProfileBanner = profileIncomplete && !bannerDismissed && !requiredOpen;
 
   const dismissBanner = () => {
     localStorage.setItem(PROFILE_BANNER_DISMISSED_KEY, "1");
@@ -69,7 +103,41 @@ const AppHome = () => {
 
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
-      {/* Profile completion nudge — shown to users who signed up via Google or skipped optional fields */}
+      {/* Mandatory profile capture — name + phone before using the app */}
+      <Dialog open={requiredOpen} onOpenChange={(open) => { if (!open && !profile?.phone) return; setRequiredOpen(open); }}>
+        <DialogContent
+          className="sm:max-w-md"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center mb-2">
+              <UserCircle2 className="h-6 w-6 text-primary" />
+            </div>
+            <DialogTitle>Finish your profile</DialogTitle>
+            <DialogDescription>
+              We just need your name and phone to keep your records connected to you. You can add ABHA ID and other details anytime.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div>
+              <Label htmlFor="req-name">Full name</Label>
+              <Input id="req-name" value={reqName} onChange={(e) => setReqName(e.target.value)} placeholder="e.g. Megha Baid" maxLength={100} />
+            </div>
+            <div>
+              <Label htmlFor="req-phone">Phone number</Label>
+              <Input id="req-phone" value={reqPhone} onChange={(e) => setReqPhone(e.target.value)} placeholder="+91 98765 43210" inputMode="tel" maxLength={20} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={saveRequired} disabled={savingRequired} className="w-full">
+              {savingRequired ? "Saving..." : "Save and continue"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Profile completion nudge — soft banner for optional fields (DOB, ABHA) */}
       {showProfileBanner && (
         <div className="px-4 sm:px-5 pt-4 pb-2 lg:px-0 lg:pb-4">
           <div className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 flex items-center gap-3">
@@ -81,7 +149,7 @@ const AppHome = () => {
                 Finish setting up your profile
               </p>
               <p className="text-[11.5px] text-muted-foreground mt-0.5 leading-snug">
-                Add your phone, date of birth, and ABHA ID so we can personalize your care.
+                Add your date of birth and ABHA ID so we can personalize your care.
               </p>
             </div>
             <button
