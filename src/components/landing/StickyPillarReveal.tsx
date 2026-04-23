@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useActiveSection } from "@/hooks/use-active-section";
+import RxExtractArtifact from "./pillar-artifacts/RxExtractArtifact";
 import TimelineArtifact from "./pillar-artifacts/TimelineArtifact";
 import BriefingArtifact from "./pillar-artifacts/BriefingArtifact";
 import VitalsChartArtifact from "./pillar-artifacts/VitalsChartArtifact";
