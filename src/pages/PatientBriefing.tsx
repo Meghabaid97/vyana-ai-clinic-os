@@ -293,10 +293,20 @@ const PatientBriefing = () => {
               >
                 Share via WhatsApp
               </StatefulButton>
-              <Button onClick={copyToClipboard} variant="outline" className="gap-2">
+              <Button
+                onClick={() => setShareSheetOpen(true)}
+                variant="outline"
+                className="gap-1.5"
+                aria-label="Show QR for doctor to scan"
+                disabled={isDemo}
+                title={isDemo ? "QR sharing isn't available for sample data" : "Show QR"}
+              >
+                <QrCode className="h-4 w-4" />
+              </Button>
+              <Button onClick={copyToClipboard} variant="outline" className="gap-2" aria-label="Copy briefing">
                 {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
               </Button>
-              <Button onClick={generateBriefing} variant="outline" size="icon" disabled={isLoading}>
+              <Button onClick={generateBriefing} variant="outline" size="icon" disabled={isLoading} aria-label="Regenerate briefing">
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               </Button>
             </div>
