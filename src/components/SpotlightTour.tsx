@@ -12,8 +12,8 @@ export interface TourStep {
   body: string;
 }
 
-// Steps now reference ONLY targets that exist on /app + the current bottom-tab IDs
-// (home, briefing, trends, records, claims, you).
+// Steps reference targets that exist on /app + the current bottom-tab IDs
+// (home, briefing, trends, records, claims, profile) plus the Emergency quick action on Home.
 const STEPS: TourStep[] = [
   {
     target: null,
@@ -25,37 +25,44 @@ const STEPS: TourStep[] = [
   {
     target: '[data-tour="briefing-hero"]',
     path: "/app",
-    eyebrow: "Step 1 of 5",
+    eyebrow: "Step 1 of 6",
     title: "Doctor-ready in 30 seconds.",
     body: "Tap here before any visit. Vyana turns your records into a one-page brief your doctor can read in seconds.",
   },
   {
     target: '[data-tour="nav-records"]',
     path: "/app",
-    eyebrow: "Step 2 of 5",
+    eyebrow: "Step 2 of 6",
     title: "Your records, in one place.",
     body: "Upload prescriptions, labs, discharge summaries. We extract vitals and meds automatically.",
   },
   {
     target: '[data-tour="nav-trends"]',
     path: "/app",
-    eyebrow: "Step 3 of 5",
+    eyebrow: "Step 3 of 6",
     title: "See what is changing.",
     body: "Track 33+ vitals over time. Spot trends before they become problems.",
   },
   {
     target: '[data-tour="nav-claims"]',
     path: "/app",
-    eyebrow: "Step 4 of 5",
+    eyebrow: "Step 4 of 6",
     title: "Insurance claims, automated.",
     body: "Drop a discharge summary in. We assemble the paperwork your insurer needs.",
   },
   {
-    target: '[data-tour="nav-you"]',
+    target: '[data-tour="emergency-quick-action"]',
     path: "/app",
-    eyebrow: "Step 5 of 5",
+    eyebrow: "Step 5 of 6",
+    title: "Emergency access, one tap away.",
+    body: "Set up trusted contacts so loved ones can reach your critical health info in a crisis. Find it on your home screen.",
+  },
+  {
+    target: '[data-tour="nav-profile"]',
+    path: "/app",
+    eyebrow: "Step 6 of 6",
     title: "Your profile lives here.",
-    body: "Edit your details, set up emergency contacts, and manage language and location anytime.",
+    body: "Edit your details, manage language and location, and review your account anytime.",
   },
 ];
 

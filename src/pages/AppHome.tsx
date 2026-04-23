@@ -249,6 +249,7 @@ const AppHome = () => {
                 <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Share with doctor</span>
               </button>
               <button
+                data-tour="emergency-quick-action"
                 onClick={() => navigate("/app/emergency-contacts")}
                 className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
               >
