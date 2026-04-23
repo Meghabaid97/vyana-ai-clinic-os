@@ -12,7 +12,6 @@ const QuoteWall = lazy(() => import("@/components/landing/QuoteWall"));
 const WedgeSection = lazy(() => import("@/components/landing/WedgeSectionGrid"));
 const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
 const OutcomeSection = lazy(() => import("@/components/landing/OutcomeSection"));
-const BriefingReveal = lazy(() => import("@/components/landing/BriefingReveal"));
 const ResearchAndTeam = lazy(() => import("@/components/landing/ResearchAndTeam"));
 const TrustStrip = lazy(() => import("@/components/landing/TrustStrip"));
 const FAQSection = lazy(() => import("@/components/landing/FAQSection"));
@@ -74,7 +73,6 @@ const Index = () => {
           <QuoteWall />
           <WedgeSection />
           <HowItWorks />
-          <BriefingReveal />
           <OutcomeSection />
           <ResearchAndTeam />
           <TrustStrip />
