@@ -109,9 +109,11 @@ const ResearchAndTeam = () => {
               <p className="text-caption text-primary font-medium mb-4">
                 {t("research.cab.tag")}
               </p>
-              <p className="text-caption text-surface-dark-muted leading-[1.7]">
-                {t("research.cab.body")}
-              </p>
+              <div className="space-y-3 text-caption text-surface-dark-muted leading-[1.7]">
+                {t("research.cab.body").split("\n\n").map((para, i) => (
+                  <p key={i}>{para}</p>
+                ))}
+              </div>
             </article>
           </div>
         </div>
