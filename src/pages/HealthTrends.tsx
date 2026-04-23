@@ -760,6 +760,8 @@ const HealthTrends = () => {
                         <p className="text-[10px] text-muted-foreground">{vital.unit}</p>
                       </div>
                     </div>
+                      );
+                    })()}
                   </HoverCardTrigger>
                   {hasValue && (
                     <HoverCardContent className="w-72">
