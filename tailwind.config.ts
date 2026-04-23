@@ -70,9 +70,11 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
-        serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'],
-        display: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'],
+        sans: ['var(--font-body)'],
+        serif: ['var(--font-heading)'],
+        display: ['var(--font-heading)'],
+        heading: ['var(--font-heading)'],
+        body: ['var(--font-body)'],
       },
       keyframes: {
         "accordion-down": {
