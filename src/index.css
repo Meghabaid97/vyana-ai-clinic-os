@@ -451,9 +451,42 @@
     0%, 100% { transform: translateY(0) scale(1); }
     50%      { transform: translateY(-10px) scale(1.01); }
   }
+
+  /* Hero sparkles — twinkling dots layered on top of the constellation.
+     Each sparkle picks its own delay/duration via inline CSS vars. */
+  .hero-sparkle {
+    position: absolute;
+    border-radius: 9999px;
+    background: hsl(var(--primary));
+    box-shadow: 0 0 8px hsl(var(--primary) / 0.7), 0 0 14px hsl(var(--accent) / 0.45);
+    opacity: 0;
+    animation: hero-sparkle-twinkle var(--dur, 3.2s) ease-in-out var(--delay, 0s) infinite;
+    will-change: opacity, transform;
+    pointer-events: none;
+  }
+  .hero-sparkle.sage   { background: hsl(var(--status-normal)); box-shadow: 0 0 8px hsl(var(--status-normal) / 0.7); }
+  .hero-sparkle.amber  { background: hsl(var(--accent));        box-shadow: 0 0 8px hsl(var(--accent) / 0.75); }
+  @keyframes hero-sparkle-twinkle {
+    0%, 100% { opacity: 0;    transform: scale(0.6); }
+    45%      { opacity: 0.95; transform: scale(1.15); }
+    55%      { opacity: 0.95; transform: scale(1.15); }
+  }
+
+  /* Heartbeat line pulse — never stops. */
+  .hero-constellation-img {
+    animation:
+      hero-constellation-float 14s ease-in-out infinite,
+      hero-constellation-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes hero-constellation-pulse {
+    0%, 100% { filter: drop-shadow(0 0 0 hsl(var(--primary) / 0)); }
+    50%      { filter: drop-shadow(0 0 14px hsl(var(--primary) / 0.35)); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hero-constellation-in { animation: none; opacity: 1; }
     .hero-constellation-img { animation: none; }
+    .hero-sparkle { animation: none; opacity: 0.6; }
   }
 
   /* Softer aurora — for ivory/light sections where the wash should
