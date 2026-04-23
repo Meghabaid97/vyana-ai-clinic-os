@@ -35,6 +35,7 @@ import Support from "./pages/Support";
 import DomainChecklist from "./pages/DomainChecklist";
 import Unsubscribe from "./pages/Unsubscribe";
 import NotFound from "./pages/NotFound";
+import LayoutQA from "./pages/LayoutQA";
 
 const queryClient = new QueryClient();
 
