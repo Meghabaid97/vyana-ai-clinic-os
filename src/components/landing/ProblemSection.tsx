@@ -47,8 +47,12 @@ const ProblemSection = () => {
               key={i}
               className={`tilt-card reveal reveal-lg reveal-stagger-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-8`}
             >
-              <div className="font-serif text-[42px] leading-none text-primary tracking-[-0.02em]">
-                {s.k}
+              <div className="font-serif text-[42px] leading-none text-primary tracking-[-0.02em] tabular-nums">
+                <CountUp
+                  value={s.k}
+                  start={grid.visible}
+                  durationMs={i === 0 ? 1400 : i === 1 ? 1100 : 800}
+                />
               </div>
               <p className="mt-5 text-body text-surface-dark-muted">
                 {s.v}
