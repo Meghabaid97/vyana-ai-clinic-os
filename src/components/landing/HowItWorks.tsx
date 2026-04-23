@@ -60,7 +60,7 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section id="how" className="section-blend-top section-blend-bottom relative bg-surface-dark py-28 lg:py-36">
+    <section id="how" className="relative bg-surface-dark py-28 lg:py-36">
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
