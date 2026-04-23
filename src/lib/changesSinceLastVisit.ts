@@ -64,9 +64,13 @@ export async function computeChangesSinceLastVisit(patientId: string, limit = 6)
     const [latest, prev] = vh;
     for (const key of Object.keys(VITAL_LABELS)) {
       const cfg = VITAL_LABELS[key];
-      const a = latest.vitals?.[key];
-      const b = prev.vitals?.[key];
-      if (a == null || b == null) continue;
+      const aRaw = latest.vitals?.[key];
+      const bRaw = prev.vitals?.[key];
+      if (aRaw == null || bRaw == null) continue;
+      // Normalize both readings into canonical units before comparing,
+      // so unit-entry mistakes (e.g. HbA1c 0.075 vs 7.5) don't trip alerts.
+      const a = normalizeVital(key, aRaw);
+      const b = normalizeVital(key, bRaw);
       const delta = a - b;
       const abs = Math.abs(delta);
       const monitor = cfg.monitorDelta ?? 0;
@@ -79,7 +83,7 @@ export async function computeChangesSinceLastVisit(patientId: string, limit = 6)
         kind,
         severity,
         label: cfg.label,
-        detail: `${fmtNum(b, cfg.decimals)} → ${fmtNum(a, cfg.decimals)} ${cfg.unit} (${arrow} ${fmtNum(abs, cfg.decimals)})`,
+        detail: `${fmtNum(key, b, cfg.decimals)} → ${fmtNum(key, a, cfg.decimals)} ${cfg.unit} (${arrow} ${fmtNum(key, abs, cfg.decimals)})`,
         when: relativeWhen(latest.recorded_at),
       });
     }
