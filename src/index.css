@@ -479,6 +479,35 @@
   }
 }
 
+/* ── View Transitions ─────────────────────────────────────────
+   Native cross-fade between in-app routes. Browsers without
+   support (Firefox, older Safari) get an instant nav fallback. */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 240ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  ::view-transition-old(root) {
+    animation-name: vyana-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation-name: vyana-fade-in;
+  }
+  @keyframes vyana-fade-out {
+    to { opacity: 0; }
+  }
+  @keyframes vyana-fade-in {
+    from { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none;
+    }
+  }
+}
+
 /* (Landing warm palette removed, root tokens are now museum-warm globally) */
 
 /* Safe areas for native app */
