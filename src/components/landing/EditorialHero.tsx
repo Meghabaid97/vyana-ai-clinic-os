@@ -127,19 +127,21 @@ const EditorialHero = () => {
                 </Button>
               </div>
 
-              {/* Mobile only: small constellation accent under CTA, like a signature */}
+              {/* Mobile only: cropped constellation flourish directly under CTA */}
               <div
-                className={`lg:hidden pointer-events-none pt-6 -mx-6 ${staged ? "hero-constellation-in" : "opacity-0"}`}
+                className={`lg:hidden pointer-events-none pt-5 ${staged ? "hero-constellation-in" : "opacity-0"}`}
                 aria-hidden
               >
-                <img
-                  src={heroConstellation}
-                  alt=""
-                  width={1280}
-                  height={1280}
-                  draggable={false}
-                  className="hero-constellation-img w-full max-w-none opacity-60 mix-blend-multiply select-none"
-                />
+                <div className="relative h-[140px] overflow-hidden">
+                  <img
+                    src={heroConstellation}
+                    alt=""
+                    width={1280}
+                    height={1280}
+                    draggable={false}
+                    className="hero-constellation-img absolute left-1/2 bottom-[-8px] w-[150%] max-w-none -translate-x-1/2 opacity-60 mix-blend-multiply select-none"
+                  />
+                </div>
               </div>
             </div>
 
