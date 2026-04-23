@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSelector from "./LanguageSelector";
 import { useLandingT } from "@/lib/i18n-landing";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useViewTransitionNavigate();
   const t = useLandingT();
 
   useEffect(() => {
