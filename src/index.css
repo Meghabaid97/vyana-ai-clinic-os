@@ -414,6 +414,30 @@
     .aurora-warm-drift::before { animation: none; }
   }
 
+  /* ---------- Section blend bands ----------
+     Soften the cream→cocoa handoff so dark editorial sections feel like a
+     deepening of the same warm palette, not a slam-cut to ink. Apply
+     `.section-blend-top` to the top of a dark section, `.section-blend-bottom`
+     to the bottom. Bands sample the surrounding cream so the seam dissolves. */
+  .section-blend-top::before,
+  .section-blend-bottom::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 96px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .section-blend-top::before {
+    top: 0;
+    background: linear-gradient(to bottom, hsl(var(--background)) 0%, hsl(var(--background) / 0) 100%);
+  }
+  .section-blend-bottom::after {
+    bottom: 0;
+    background: linear-gradient(to top, hsl(var(--background)) 0%, hsl(var(--background) / 0) 100%);
+  }
+
   /* Kinetic word reveal — staggered word-by-word fade+rise+deblur.
      Wrap each word in <span class="kw" style={{"--d":"120ms"}}>word</span>.
      Parent container needs class "kw-stage" to trigger. */
