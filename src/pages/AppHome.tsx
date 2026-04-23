@@ -101,25 +101,24 @@ const AppHome = () => {
         </div>
       )}
 
-      {/* ============ DESKTOP: 2-column hero band ============ */}
+      {/* ============ HERO BAND — phone / tablet / desktop ============ */}
       <div className="lg:grid lg:grid-cols-12 lg:gap-6">
-        {/* Soft opener — spans full width on mobile, 7 cols on desktop */}
-        <section className="px-4 sm:px-5 pt-8 pb-5 lg:col-span-7 lg:px-0 lg:pt-0">
-          <div className="max-w-sm lg:max-w-2xl">
-            <p className="text-xs font-medium tracking-widest uppercase text-primary mb-3">
+        {/* Soft opener */}
+        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-7 lg:px-0 lg:pt-0 lg:pb-0">
+          <div className="max-w-sm md:max-w-xl lg:max-w-2xl">
+            <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-2 sm:mb-3">
               Welcome back, {firstName}
             </p>
-            <h1 className="text-[clamp(1.7rem,7.5vw,2.2rem)] lg:text-5xl xl:text-6xl font-extrabold leading-[1.04] tracking-[-0.03em] text-foreground">
+            <h1 className="text-[26px] sm:text-[32px] md:text-[38px] lg:text-5xl xl:text-6xl font-extrabold leading-[1.05] tracking-[-0.03em] text-foreground">
               Your health story.{" "}
               <span className="block text-primary">Always with you.</span>
             </h1>
-            <p className="mt-2.5 lg:mt-4 max-w-[32ch] lg:max-w-[44ch] text-[13.5px] lg:text-base text-muted-foreground leading-relaxed">
+            <p className="mt-2 sm:mt-3 lg:mt-4 max-w-[34ch] md:max-w-[42ch] lg:max-w-[44ch] text-[13px] sm:text-[14px] lg:text-base text-muted-foreground leading-relaxed">
               Never explain your medical history again. Doctor-ready in 30 seconds.
             </p>
           </div>
         </section>
 
-        {/* HERO: Briefing CTA — full width on mobile, 5 cols on desktop */}
         <div className="lg:col-span-5 lg:pb-0" data-tour="briefing-hero">
           <DashboardBriefingHero hasRecords={hasRecords} />
         </div>
