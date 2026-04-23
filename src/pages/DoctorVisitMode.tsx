@@ -169,23 +169,31 @@ const DoctorVisitMode = () => {
   const activeMeds = briefing?.current_medications.filter(m => m.status !== "stopped") ?? [];
 
   return (
-    <div className="animate-fade-in pb-8">
-      {/* Compact top bar */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border">
-        <div className="px-4 sm:px-5 py-3 flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-semibold tracking-widest uppercase text-primary leading-none">Doctor Visit Mode</p>
-            <h1 className="text-[15px] font-bold text-foreground leading-tight mt-0.5 truncate">
+    <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-8 space-y-4">
+      {/* Hero — matches Health Records / other tabs */}
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+            <Stethoscope className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-primary leading-none mb-1">Doctor Visit Mode</p>
+            <h1 className="text-lg font-bold text-foreground leading-tight">
               {briefing ? "Your visit brief is ready" : "Get ready in 30 seconds"}
             </h1>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+              {briefing
+                ? "Share the one-page brief with your doctor before you walk in."
+                : "Generate a one-page summary your doctor can read in under a minute."}
+            </p>
           </div>
           {briefing && (
-            <Button size="sm" onClick={shareWA} className="h-8 px-3 text-[12px] gap-1.5">
+            <Button size="sm" onClick={shareWA} className="h-9 px-3 text-[12px] gap-1.5 shrink-0">
               <Share2 className="h-3.5 w-3.5" /> Share
             </Button>
           )}
         </div>
-      </div>
+      </section>
 
       {/* HERO CTA when no brief */}
       {!briefing && (
