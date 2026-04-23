@@ -1,5 +1,6 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -22,6 +23,13 @@ const Index = () => {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
+    // Native app should always boot to the splash screen, never the
+    // marketing landing page (which is web-only).
+    if (Capacitor.isNativePlatform()) {
+      navigate("/splash", { replace: true });
+      return;
+    }
+
     let active = true;
 
     const handleSession = (session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]) => {
