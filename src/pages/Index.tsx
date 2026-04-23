@@ -10,7 +10,7 @@ const EditorialHero = lazy(() => import("@/components/landing/EditorialHero"));
 const ProblemSection = lazy(() => import("@/components/landing/ProblemSection"));
 const QuoteWall = lazy(() => import("@/components/landing/QuoteWall"));
 const WedgeSection = lazy(() => import("@/components/landing/WedgeSection"));
-// HowItWorks merged into OutcomeSection (sticky reader covers both)
+const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
 const OutcomeSection = lazy(() => import("@/components/landing/OutcomeSection"));
 const ResearchAndTeam = lazy(() => import("@/components/landing/ResearchAndTeam"));
 const TrustStrip = lazy(() => import("@/components/landing/TrustStrip"));
@@ -72,7 +72,7 @@ const Index = () => {
           <ProblemSection />
           <QuoteWall />
           <WedgeSection />
-          {/* HowItWorks removed; OutcomeSection's sticky reader covers both */}
+          <HowItWorks />
           <OutcomeSection />
           <ResearchAndTeam />
           <TrustStrip />
