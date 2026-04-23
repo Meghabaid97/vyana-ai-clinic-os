@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import WatchItWorkModal from "@/components/WatchItWorkModal";
 import { useLandingT } from "@/lib/i18n-landing";
-import { useMagnetic } from "@/hooks/use-magnetic";
-import { useCursorAurora } from "@/hooks/use-cursor-aurora";
 import heroConstellation from "@/assets/hero-constellation.png";
 
 // Sparkle positions — clustered over the right ~55-95% of the constellation image,
@@ -39,9 +37,6 @@ const EditorialHero = () => {
   const [ctaState, setCtaState] = useState<ButtonState>("idle");
   const [staged, setStaged] = useState(false);
   const t = useLandingT();
-  const sectionRef = useCursorAurora<HTMLElement>();
-  const primaryCtaRef = useMagnetic<HTMLButtonElement>(70, 0.3);
-  const secondaryCtaRef = useMagnetic<HTMLButtonElement>(60, 0.25);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setStaged(true));
@@ -74,8 +69,7 @@ const EditorialHero = () => {
   return (
     <section
       id="hero"
-      ref={sectionRef}
-      className={`aurora-warm aurora-warm-drift aurora-cursor ${staged ? "hero-glow-stage" : ""} relative min-h-[100svh] w-full overflow-hidden bg-background`}
+      className={`aurora-warm aurora-warm-drift ${staged ? "hero-glow-stage" : ""} relative min-h-[100svh] w-full overflow-hidden bg-background`}
     >
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background/35" />
 
@@ -113,7 +107,6 @@ const EditorialHero = () => {
                 style={{ ["--d" as string]: `${D_CTA}ms` }}
               >
                 <StatefulButton
-                  ref={primaryCtaRef}
                   state={ctaState}
                   onClick={handleEarlyAccess}
                   variant="premium"
@@ -125,7 +118,6 @@ const EditorialHero = () => {
                   Get early access
                 </StatefulButton>
                 <Button
-                  ref={secondaryCtaRef}
                   variant="ghost"
                   onClick={() => setDemoOpen(true)}
                   className="group text-[15px] text-foreground/70 hover:text-foreground h-11"
