@@ -63,6 +63,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <NativeBootGuard />
         <ShareIntentBridge />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
