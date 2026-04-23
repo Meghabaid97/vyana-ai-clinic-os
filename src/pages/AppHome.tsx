@@ -362,7 +362,7 @@ const AppHome = () => {
 
         {/* Why Vyana — narrative tile (4 cols) */}
         <section className="px-4 sm:px-6 pb-5 lg:col-span-4 lg:px-0 lg:pb-0">
-          <div className="rounded-xl border border-border overflow-hidden h-full flex flex-col">
+          <div className="rounded-xl border border-border overflow-hidden h-full flex flex-col lg:bento-tile lg:border-0">
             <div className="bg-primary/5 p-4 sm:p-5 flex-1">
               <h2 className="text-[15px] sm:text-base lg:text-lg font-bold text-foreground mb-1.5 sm:mb-2">Why Vyana?</h2>
               <p className="text-[13px] sm:text-[14px] text-foreground leading-relaxed">
