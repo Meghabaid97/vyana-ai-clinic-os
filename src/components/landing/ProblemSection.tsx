@@ -44,7 +44,7 @@ const ProblemSection = () => {
           {stats.map((s, i) => (
             <div
               key={i}
-              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl border border-white/10 bg-white/[0.03] p-8`}
+              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-8`}
             >
               <div className="font-serif text-[42px] leading-none text-primary tracking-[-0.02em]">
                 {s.k}
