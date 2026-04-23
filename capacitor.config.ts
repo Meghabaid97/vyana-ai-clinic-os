@@ -15,7 +15,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const isProd = process.env.CAP_MODE === 'prod';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.7c4352476dc04b689808f61158e40739',
+  appId: 'com.vyana.health',
   appName: 'Vyana',
   webDir: 'dist',
   ...(isProd
