@@ -313,7 +313,7 @@ const PatientProfileEdit = () => {
         {aboutItems.map((item, i) => (
           <button
             key={i}
-            onClick={() => item.path && navigate(item.path)}
+            onClick={() => { if (item.onClick) item.onClick(); else if (item.path) navigate(item.path); }}
             className="w-full flex items-center justify-between py-3.5 border-b border-border"
           >
             <div className="flex items-center gap-3">
