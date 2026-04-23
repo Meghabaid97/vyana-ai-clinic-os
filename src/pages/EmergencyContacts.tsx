@@ -224,8 +224,8 @@ const EmergencyContacts = () => {
   }
 
   return (
-    <div className="bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="max-w-4xl mx-auto px-6 py-10">
+    <div className="animate-fade-in">
+      <div className="px-5 pt-3 pb-6">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-3">
