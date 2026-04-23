@@ -46,10 +46,10 @@ const ScriptCycleGlyph = ({ play }: { play: boolean }) => {
     return () => clearInterval(id);
   }, [play]);
   return (
-    <div className="w-20 h-7 flex items-center justify-start" aria-hidden>
+    <div className="w-14 h-5 flex items-center justify-start" aria-hidden>
       <span
         key={i}
-        className="font-serif text-[26px] leading-none text-primary inline-block animate-fade-in tabular-nums"
+        className="font-serif text-[20px] leading-none text-primary inline-block animate-fade-in tabular-nums"
       >
         {SCRIPTS[i]}
       </span>
