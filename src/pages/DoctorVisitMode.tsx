@@ -197,7 +197,7 @@ const DoctorVisitMode = () => {
 
       {/* HERO CTA when no brief */}
       {!briefing && (
-        <section className="px-4 sm:px-5 pt-6 pb-5">
+        <section>
           <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5">
             <div className="h-12 w-12 rounded-2xl bg-primary/15 flex items-center justify-center mb-3">
               <Stethoscope className="h-6 w-6 text-primary" />
