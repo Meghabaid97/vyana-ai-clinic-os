@@ -208,17 +208,17 @@ const AppHome = () => {
 
                       {/* Stat tiles */}
                       <div className="mt-4 grid grid-cols-3 divide-x divide-border border-t border-border bg-muted/30">
-                        <div className="px-4 py-3">
-                          <p className="text-[10px] font-medium tracking-wider uppercase text-muted-foreground">First</p>
-                          <p className="mt-0.5 text-sm font-semibold text-foreground">{firstDate}</p>
+                        <div className="px-2 sm:px-4 py-2.5 sm:py-3">
+                          <p className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-muted-foreground">First</p>
+                          <p className="mt-0.5 text-[12px] sm:text-sm font-semibold text-foreground truncate">{firstDate}</p>
                         </div>
-                        <div className="px-4 py-3">
-                          <p className="text-[10px] font-medium tracking-wider uppercase text-muted-foreground">Latest</p>
-                          <p className="mt-0.5 text-sm font-semibold text-foreground">{lastDate}</p>
+                        <div className="px-2 sm:px-4 py-2.5 sm:py-3">
+                          <p className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-muted-foreground">Latest</p>
+                          <p className="mt-0.5 text-[12px] sm:text-sm font-semibold text-foreground truncate">{lastDate}</p>
                         </div>
-                        <div className="px-4 py-3">
-                          <p className="text-[10px] font-medium tracking-wider uppercase text-muted-foreground">Active days</p>
-                          <p className="mt-0.5 text-sm font-semibold text-primary">{uniqueDays}</p>
+                        <div className="px-2 sm:px-4 py-2.5 sm:py-3">
+                          <p className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-muted-foreground">Active days</p>
+                          <p className="mt-0.5 text-[12px] sm:text-sm font-semibold text-primary">{uniqueDays}</p>
                         </div>
                       </div>
                     </button>
