@@ -84,7 +84,7 @@ const ClockArcGlyph = ({ play }: { play: boolean }) => {
     return () => cancelAnimationFrame(raf);
   }, [play]);
   return (
-    <svg viewBox="0 0 28 28" className="w-7 h-7 text-primary" aria-hidden>
+    <svg viewBox="0 0 28 28" className="w-5 h-5 text-primary" aria-hidden>
       <circle cx="14" cy="14" r={r} fill="none" stroke="currentColor" strokeOpacity="0.18" strokeWidth="2" />
       <circle
         cx="14"
