@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, FolderOpen, Upload, ChevronRight, Shield } from "lucide-react";
 
+import PageHero from "@/components/PageHero";
+
 const HealthRecordsTab = lazy(() => import("@/components/HealthRecordsTab"));
 
 interface PatientProfile {
@@ -79,21 +81,13 @@ const PatientHealthRecords = () => {
 
   return (
     <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
-      <section className="rounded-2xl border border-border bg-card p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <FolderOpen className="h-5 w-5 text-primary" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-lg font-bold text-foreground leading-tight">Health Records</h1>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-              {profile
-                ? "Upload, summarize, and share your medical documents securely."
-                : "Finish your health profile to unlock uploads, summaries, and doctor sharing."}
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        icon={FolderOpen}
+        title="Health Records"
+        subtitle={profile
+          ? "Upload, summarize, and share your medical documents securely."
+          : "Finish your health profile to unlock uploads, summaries, and doctor sharing."}
+      />
 
       {profile && userId ? (
         <Suspense

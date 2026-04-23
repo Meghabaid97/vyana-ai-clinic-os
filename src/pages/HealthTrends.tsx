@@ -15,6 +15,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ClinicalRiskDashboard from "@/components/ClinicalRiskDashboard";
 import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
+import PageHero from "@/components/PageHero";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
@@ -451,10 +452,12 @@ const HealthTrends = () => {
   ];
 
   return (
-    <div className="animate-fade-in">
-      <section className="px-5 pt-3 pb-2">
-        <h1 className="text-[24px] font-extrabold leading-[1.1] tracking-[-0.03em] text-foreground">Health Trends</h1>
-      </section>
+    <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
+      <PageHero
+        icon={TrendingUp}
+        title="Health Trends"
+        subtitle="Vitals, labs, and what shifted since your last visit."
+      />
 
       {/* Lead: What changed since last visit (the killer feature) */}
       <DashboardChangesCard patientId={patientId} />
@@ -462,7 +465,7 @@ const HealthTrends = () => {
 
       {/* Preview insight card, shown until user has 2+ records */}
       {records.length < 2 && (
-        <section className="px-5 pb-5">
+        <section className="pb-5">
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="h-4 w-4 text-primary" />
@@ -489,7 +492,7 @@ const HealthTrends = () => {
         </section>
       )}
 
-      <section className="px-5 pb-5">
+      <section className="pb-5">
         <div className="flex gap-2">
           <div className="flex-1 rounded-xl border border-border bg-card p-3 text-center">
             <p className="text-xl font-bold text-foreground">{records.length}</p>
@@ -512,7 +515,7 @@ const HealthTrends = () => {
 
       {/* Confidence & Source Banner */}
       {confidence && (
-        <section className="px-5 pb-4">
+        <section className="pb-4">
           <div className="rounded-xl border border-border bg-card p-3 flex items-center gap-3">
             <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
             <div className="flex-1 min-w-0">
@@ -528,7 +531,7 @@ const HealthTrends = () => {
         </section>
       )}
 
-      <section className="px-5 pb-6">
+      <section className="pb-6">
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
           <div className="flex items-start gap-3 mb-3">
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -605,7 +608,7 @@ const HealthTrends = () => {
       </section>
 
       {/* AI Trend Insights */}
-      <section className="px-5 pb-6">
+      <section className="pb-6">
         <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -693,7 +696,7 @@ const HealthTrends = () => {
       )}
 
       {vitalCategories.map((category, ci) => (
-        <section key={ci} className="px-5 pb-6">
+        <section key={ci} className="pb-6">
           <h2 className="text-[15px] font-bold text-foreground mb-3">{category.title}</h2>
           <div className="space-y-2">
             {category.vitals.map((vital, vi) => {
