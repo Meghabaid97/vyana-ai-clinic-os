@@ -28,6 +28,7 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   // Reset whenever the sheet closes
   useEffect(() => {
@@ -38,10 +39,26 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
         setShareUrl(null);
         setError(null);
         setCopied(false);
+        setQrDataUrl(null);
       }, 250);
       return () => clearTimeout(t);
     }
   }, [open]);
+
+  // Generate QR whenever we enter the qr stage
+  useEffect(() => {
+    if (stage !== "qr" || !shareUrl) return;
+    let cancelled = false;
+    QRCode.toDataURL(shareUrl, {
+      margin: 1,
+      width: 480,
+      color: { dark: "#0f172a", light: "#ffffff" },
+      errorCorrectionLevel: "M",
+    })
+      .then((url) => { if (!cancelled) setQrDataUrl(url); })
+      .catch(() => { if (!cancelled) setQrDataUrl(null); });
+    return () => { cancelled = true; };
+  }, [stage, shareUrl]);
 
   const runCeremony = async () => {
     setError(null);
