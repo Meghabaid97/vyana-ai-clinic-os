@@ -363,16 +363,31 @@ const HealthTrends = () => {
     return decimals > 0 ? val.toFixed(decimals) : String(Math.round(val));
   };
 
-  const getStatus = (val: number | null | undefined, low: number, high: number): "normal" | "warning" | "none" => {
+  /**
+   * Classify a vital reading using the shared 4-state helper, with a
+   * "none" fallback for missing values. Open-ended ranges (e.g. HDL > 40)
+   * pass `999` as `high` and we coerce it to undefined here so the helper
+   * only checks the lower bound.
+   */
+  const getStatus = (
+    val: number | null | undefined,
+    low: number,
+    high: number,
+  ): VitalStatus | "none" => {
     if (val === null || val === undefined) return "none";
-    if (val < low || val > high) return "warning";
-    return "normal";
+    const range: { low?: number; high?: number } = {};
+    if (low > 0) range.low = low;
+    if (high > 0 && high < 999) range.high = high;
+    return vitalStatus(val, range);
   };
 
-  const statusColor = (status: "normal" | "warning" | "none") => {
-    if (status === "warning") return "text-destructive";
-    if (status === "normal") return "text-green-600";
-    return "text-foreground";
+  /** Pick the foreground color class for a vital's value, given its status. */
+  const statusColor = (status: VitalStatus | "none") => {
+    if (status === "none") return "text-foreground";
+    if (status === "normal") return "text-status-normal";
+    if (status === "watch") return "text-status-watch";
+    if (status === "high") return "text-status-high";
+    return "text-status-low";
   };
 
   // Get history for a specific vital key
