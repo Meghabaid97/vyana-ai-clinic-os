@@ -196,38 +196,38 @@ const AppHome = () => {
         </div>
       )}
 
-      {/* ============ HERO BAND — phone / tablet / desktop ============ */}
-      <div className="lg:grid lg:grid-cols-12 lg:gap-6">
-        {/* Soft opener */}
-        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-7 lg:px-0 lg:pt-0 lg:pb-0">
-          <div className="max-w-sm md:max-w-xl lg:max-w-2xl">
+      {/* ============ HERO BAND — bento on lg+ (welcome 4 / briefing 2) ============ */}
+      <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:auto-rows-min">
+        {/* Soft opener — wider tile */}
+        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-4 lg:px-6 lg:pt-7 lg:pb-7 lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:flex lg:flex-col lg:justify-center">
+          <div className="max-w-sm md:max-w-xl lg:max-w-none">
             <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-2 sm:mb-3">
               Welcome back, {firstName}
             </p>
-            <h1 className="text-[26px] sm:text-[32px] md:text-[38px] lg:text-5xl xl:text-6xl font-extrabold leading-[1.05] tracking-[-0.03em] text-foreground">
+            <h1 className="text-[26px] sm:text-[32px] md:text-[38px] lg:text-[44px] xl:text-5xl font-extrabold leading-[1.05] tracking-[-0.03em] text-foreground">
               Your health story.{" "}
               <span className="block text-primary">Always with you.</span>
             </h1>
-            <p className="mt-2 sm:mt-3 lg:mt-4 max-w-[34ch] md:max-w-[42ch] lg:max-w-[44ch] text-[13px] sm:text-[14px] lg:text-base text-muted-foreground leading-relaxed">
+            <p className="mt-2 sm:mt-3 lg:mt-4 max-w-[34ch] md:max-w-[42ch] lg:max-w-[48ch] text-[13px] sm:text-[14px] lg:text-base text-muted-foreground leading-relaxed">
               Never explain your medical history again. Doctor-ready in 30 seconds.
             </p>
           </div>
         </section>
 
-        <div className="lg:col-span-5 lg:pb-0" data-tour="briefing-hero">
+        <div className="lg:col-span-2 lg:pb-0" data-tour="briefing-hero">
           <DashboardBriefingHero hasRecords={hasRecords} />
         </div>
       </div>
 
-      {/* ============ DESKTOP: 2-column body grid ============ */}
-      <div className="lg:grid lg:grid-cols-12 lg:gap-6 lg:mt-2">
-        {/* MAIN column (8 cols on desktop) */}
-        <div className="lg:col-span-8 lg:space-y-6">
-          {/* ── Latest vitals at a glance ── */}
+      {/* ============ BENTO BODY — varied tile sizes on lg+ ============ */}
+      <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:mt-5 lg:auto-rows-min">
+        {/* Latest vitals — full width band */}
+        <div className="lg:col-span-6">
           <LatestVitalsStrip patientId={profile?.id ?? null} />
+        </div>
 
-          {/* ── Your story so far (KEEP) ── */}
-          <section className="px-4 sm:px-6 pb-5 lg:px-0 lg:pb-0">
+        {/* Story so far — large primary tile (4 cols) */}
+        <section className="px-4 sm:px-6 pb-5 lg:col-span-4 lg:px-0 lg:pb-0">
             <h2 className="mb-1 text-[17px] sm:text-xl md:text-2xl lg:text-2xl font-bold text-foreground leading-tight tracking-tight">
               <span className="block sm:inline">Your story so far.</span>{" "}
               <span className="block sm:inline text-primary">Every detail matters.</span>
@@ -323,76 +323,71 @@ const AppHome = () => {
             </div>
           </section>
 
-          {/* ── Trust & privacy reassurance ── */}
-          <div data-tour="trust-strip">
-            <TrustReassuranceStrip />
-          </div>
-
+        {/* Trust & privacy — wide tile (4 cols) */}
+        <div data-tour="trust-strip" className="lg:col-span-4">
+          <TrustReassuranceStrip />
         </div>
 
-        {/* SIDE column (4 cols on desktop) */}
-        <aside className="lg:col-span-4 lg:space-y-6">
-          {/* Slim quick actions */}
-          <section className="px-4 sm:px-5 pb-5 lg:px-0 lg:pb-0">
-            <h3 className="hidden lg:block text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Quick actions</h3>
-            <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
+        {/* Quick actions — compact tile (2 cols) */}
+        <section className="px-4 sm:px-5 pb-5 lg:col-span-2 lg:px-0 lg:pb-0">
+          <h3 className="hidden lg:block text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Quick actions</h3>
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
+            <button
+              onClick={() => navigate("/app/share")}
+              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
+            >
+              <Link2 className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Share with doctor</span>
+            </button>
+            <button
+              data-tour="emergency-quick-action"
+              onClick={() => navigate("/app/emergency-contacts")}
+              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
+            >
+              <Shield className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Emergency access</span>
+            </button>
+          </div>
+        </section>
+
+        {/* Why Vyana — narrative tile (4 cols) */}
+        <section className="px-4 sm:px-6 pb-5 lg:col-span-4 lg:px-0 lg:pb-0">
+          <div className="rounded-xl border border-border overflow-hidden h-full flex flex-col">
+            <div className="bg-primary/5 p-4 sm:p-5 flex-1">
+              <h2 className="text-[15px] sm:text-base lg:text-lg font-bold text-foreground mb-1.5 sm:mb-2">Why Vyana?</h2>
+              <p className="text-[13px] sm:text-[14px] text-foreground leading-relaxed">
+                In 2005, in a small hospital in Tirupur, a family lost someone they loved. Not because the doctors didn't care. Because no one had the records. No history. No context. Just five desperate minutes to explain a lifetime.
+              </p>
+              <p className="text-[12px] sm:text-[13px] text-muted-foreground leading-relaxed mt-2 sm:mt-3">
+                Vyana exists so that never happens again. Not to your family. Not to anyone's.
+              </p>
+            </div>
+            <div className="p-3 sm:p-4 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[12.5px] sm:text-[13px] font-semibold text-foreground">Read our full story</p>
+                <p className="text-[10.5px] sm:text-[11px] text-muted-foreground">The promise behind the product.</p>
+              </div>
               <button
-                onClick={() => navigate("/app/share")}
-                className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
+                onClick={() => navigate("/why-vyana")}
+                aria-label="Read our story"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary flex items-center justify-center shrink-0"
               >
-                <Link2 className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Share with doctor</span>
-              </button>
-              <button
-                data-tour="emergency-quick-action"
-                onClick={() => navigate("/app/emergency-contacts")}
-                className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
-              >
-                <Shield className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Emergency access</span>
+                <ArrowRight className="h-4 w-4 text-primary-foreground" />
               </button>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Why Vyana */}
-          <section className="px-4 sm:px-6 pb-5 lg:px-0 lg:pb-0">
-            <div className="rounded-xl border border-border overflow-hidden">
-              <div className="bg-primary/5 p-4 sm:p-5">
-                <h2 className="text-[15px] sm:text-base lg:text-lg font-bold text-foreground mb-1.5 sm:mb-2">Why Vyana?</h2>
-                <p className="text-[13px] sm:text-[14px] text-foreground leading-relaxed">
-                  In 2005, in a small hospital in Tirupur, a family lost someone they loved. Not because the doctors didn't care. Because no one had the records. No history. No context. Just five desperate minutes to explain a lifetime.
-                </p>
-                <p className="text-[12px] sm:text-[13px] text-muted-foreground leading-relaxed mt-2 sm:mt-3">
-                  Vyana exists so that never happens again. Not to your family. Not to anyone's.
-                </p>
-              </div>
-              <div className="p-3 sm:p-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[12.5px] sm:text-[13px] font-semibold text-foreground">Read our full story</p>
-                  <p className="text-[10.5px] sm:text-[11px] text-muted-foreground">The promise behind the product.</p>
-                </div>
-                <button
-                  onClick={() => navigate("/why-vyana")}
-                  aria-label="Read our story"
-                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary flex items-center justify-center shrink-0"
-                >
-                  <ArrowRight className="h-4 w-4 text-primary-foreground" />
-                </button>
-              </div>
+        {!profile?.national_health_id && (
+          <section className="px-4 sm:px-5 pb-5 lg:col-span-2 lg:px-0 lg:pb-0">
+            <div className="rounded-xl p-4 border border-primary/20 bg-primary/5 h-full">
+              <h3 className="font-bold text-sm text-foreground">Connect your ABHA Health ID</h3>
+              <p className="text-muted-foreground text-[13px] leading-relaxed mt-1">
+                Link your national health ID and every consultation across providers connects automatically.
+              </p>
             </div>
           </section>
-
-          {!profile?.national_health_id && (
-            <section className="px-4 sm:px-5 pb-5 lg:px-0 lg:pb-0">
-              <div className="rounded-xl p-4 border border-primary/20 bg-primary/5">
-                <h3 className="font-bold text-sm text-foreground">Connect your ABHA Health ID</h3>
-                <p className="text-muted-foreground text-[13px] leading-relaxed mt-1">
-                  Link your national health ID and every consultation across providers connects automatically.
-                </p>
-              </div>
-            </section>
-          )}
-        </aside>
+        )}
       </div>
 
       <section className="px-4 sm:px-5 pb-3 pt-3 text-center lg:hidden">

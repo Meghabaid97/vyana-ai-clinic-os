@@ -10,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
+import { BriefingResultSkeleton } from "@/components/ui/page-skeletons";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 
 interface Briefing {
@@ -233,16 +234,20 @@ const PatientBriefing = () => {
         </section>
       )}
 
-      {/* Loading state */}
+      {/* Loading state — skeleton mirrors the result layout to avoid jank on swap */}
       {isLoading && !briefing && (
-        <section className="px-5 pb-6">
-          <div className="rounded-xl border border-border bg-card p-6 text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">
-              Analyzing your health records, vitals, and medications...
-            </p>
-          </div>
-        </section>
+        <>
+          <section className="px-5 pb-3">
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
+              <p className="text-[12px] text-foreground leading-snug">
+                <span className="font-semibold">Generating your briefing.</span>{" "}
+                Analyzing records, vitals, and medications…
+              </p>
+            </div>
+          </section>
+          <BriefingResultSkeleton />
+        </>
       )}
 
       {/* Briefing display */}
