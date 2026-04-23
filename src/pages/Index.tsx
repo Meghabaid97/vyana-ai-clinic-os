@@ -1,5 +1,6 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 
