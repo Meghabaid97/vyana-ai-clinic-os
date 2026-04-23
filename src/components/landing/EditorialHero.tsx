@@ -74,7 +74,7 @@ const EditorialHero = () => {
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background/35" />
 
       <div className="relative z-10 lg:min-h-[100svh] flex items-center">
-        <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-20 pb-16 lg:pt-28 lg:pb-20">
+        <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-20 pb-10 lg:pt-28 lg:pb-20">
           <div className="lg:grid lg:grid-cols-[minmax(0,700px)_minmax(320px,1fr)] lg:items-center lg:gap-2">
             <div className="relative z-10 max-w-[860px] space-y-5 lg:space-y-8">
               <p
@@ -127,22 +127,6 @@ const EditorialHero = () => {
                 </Button>
               </div>
 
-              {/* Mobile only: cropped constellation flourish directly under CTA */}
-              <div
-                className={`lg:hidden pointer-events-none pt-5 ${staged ? "hero-constellation-in" : "opacity-0"}`}
-                aria-hidden
-              >
-                <div className="relative h-[140px] overflow-hidden">
-                  <img
-                    src={heroConstellation}
-                    alt=""
-                    width={1280}
-                    height={1280}
-                    draggable={false}
-                    className="hero-constellation-img absolute left-1/2 bottom-[-8px] w-[150%] max-w-none -translate-x-1/2 opacity-60 mix-blend-multiply select-none"
-                  />
-                </div>
-              </div>
             </div>
 
             {/* Desktop only: constellation as right column */}
