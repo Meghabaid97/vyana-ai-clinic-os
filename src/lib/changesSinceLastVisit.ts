@@ -2,6 +2,7 @@
 // plus recent medication and record activity. Used by Home "What changed" card
 // and HealthTrends "What changed since last visit" section.
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeVital, formatVital } from "@/lib/vitalStatus";
 
 export type ChangeKind = "vital_up" | "vital_down" | "vital_stable" | "new_med" | "new_record";
 export type ChangeSeverity = "info" | "monitor" | "alert";
@@ -37,7 +38,7 @@ const VITAL_LABELS: Record<string, { label: string; unit: string; alertDelta?: n
   weight: { label: "Weight", unit: "kg", alertDelta: 4, monitorDelta: 2, decimals: 1 },
 };
 
-const fmtNum = (v: number, decimals = 0) => decimals > 0 ? v.toFixed(decimals) : String(Math.round(v));
+const fmtNum = (key: string, v: number, decimals = 0) => formatVital(key, v, decimals);
 
 const relativeWhen = (iso: string): string => {
   const then = new Date(iso).getTime();
@@ -63,9 +64,13 @@ export async function computeChangesSinceLastVisit(patientId: string, limit = 6)
     const [latest, prev] = vh;
     for (const key of Object.keys(VITAL_LABELS)) {
       const cfg = VITAL_LABELS[key];
-      const a = latest.vitals?.[key];
-      const b = prev.vitals?.[key];
-      if (a == null || b == null) continue;
+      const aRaw = latest.vitals?.[key];
+      const bRaw = prev.vitals?.[key];
+      if (aRaw == null || bRaw == null) continue;
+      // Normalize both readings into canonical units before comparing,
+      // so unit-entry mistakes (e.g. HbA1c 0.075 vs 7.5) don't trip alerts.
+      const a = normalizeVital(key, aRaw);
+      const b = normalizeVital(key, bRaw);
       const delta = a - b;
       const abs = Math.abs(delta);
       const monitor = cfg.monitorDelta ?? 0;
@@ -78,7 +83,7 @@ export async function computeChangesSinceLastVisit(patientId: string, limit = 6)
         kind,
         severity,
         label: cfg.label,
-        detail: `${fmtNum(b, cfg.decimals)} → ${fmtNum(a, cfg.decimals)} ${cfg.unit} (${arrow} ${fmtNum(abs, cfg.decimals)})`,
+        detail: `${fmtNum(key, b, cfg.decimals)} → ${fmtNum(key, a, cfg.decimals)} ${cfg.unit} (${arrow} ${fmtNum(key, abs, cfg.decimals)})`,
         when: relativeWhen(latest.recorded_at),
       });
     }

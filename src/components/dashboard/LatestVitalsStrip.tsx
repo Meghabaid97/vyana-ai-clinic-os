@@ -4,6 +4,8 @@ import { ArrowUp, ArrowDown, Minus, Upload, Loader2, Sparkles } from "lucide-rea
 import { supabase } from "@/integrations/supabase/client";
 import {
   vitalStatus,
+  normalizeVital,
+  formatVital,
   STATUS_TONE,
   STATUS_COPY,
   type VitalStatus,
@@ -47,7 +49,7 @@ interface VitalSeries {
   prior: number | null;
 }
 
-const fmt = (v: number, d = 1) => (Number.isInteger(v) ? v.toString() : v.toFixed(d));
+const fmt = (key: string, v: number, d = 1) => formatVital(key, v, d);
 
 const Sparkline = ({ values, tone }: { values: number[]; tone: VitalStatus }) => {
   if (values.length < 2) return <div className="h-5" />;
@@ -128,8 +130,12 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
       const built: VitalSeries[] = [];
       for (const def of VITAL_DEFS) {
         const points = rows
-          .map((r) => ({ value: r.vitals?.[def.key] as number | null, recorded_at: r.recorded_at }))
-          .filter((p): p is { value: number; recorded_at: string } => typeof p.value === "number" && !Number.isNaN(p.value))
+          .map((r) => {
+            const raw = r.vitals?.[def.key] as number | null;
+            if (typeof raw !== "number" || Number.isNaN(raw)) return null;
+            return { value: normalizeVital(def.key, raw), recorded_at: r.recorded_at };
+          })
+          .filter((p): p is { value: number; recorded_at: string } => p !== null)
           .reverse();
         if (points.length === 0) continue;
         built.push({
@@ -237,7 +243,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
                       <p className="text-[10.5px] sm:text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
                       <div className="flex items-baseline gap-1">
                         <span className="text-[17px] sm:text-[19px] font-bold text-foreground leading-none">
-                          {fmt(latest, def.decimals ?? 1)}
+                          {fmt(def.key, latest, def.decimals ?? 1)}
                         </span>
                         <span className="text-[10px] text-muted-foreground truncate">{def.unit}</span>
                       </div>
