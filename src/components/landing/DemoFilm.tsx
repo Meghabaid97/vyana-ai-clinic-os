@@ -77,7 +77,7 @@ const DemoFilm = () => {
 
         <div
           ref={frame.ref}
-          className={`reveal ${frame.visible ? "is-visible" : ""} relative rounded-2xl overflow-hidden border border-border bg-card group`}
+          className={`reveal ${frame.visible ? "is-visible" : ""} relative rounded-2xl overflow-hidden glass-card group`}
         >
           <video
             ref={videoRef}

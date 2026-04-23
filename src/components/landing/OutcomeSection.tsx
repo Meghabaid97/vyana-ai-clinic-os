@@ -38,7 +38,7 @@ const OutcomeSection = () => {
             {outputs.map((o, i) => (
               <div
                 key={i}
-                className={`reveal reveal-delay-${i + 1} ${out.visible ? "is-visible" : ""} flex items-start gap-4 rounded-xl border border-border bg-card p-5`}
+                className={`reveal reveal-delay-${i + 1} ${out.visible ? "is-visible" : ""} flex items-start gap-4 rounded-xl glass-card p-5`}
               >
                 <span className="font-serif text-primary text-[22px] leading-none mt-0.5">·</span>
                 <span className="text-[15px] leading-[1.55] text-foreground/90">{o}</span>
