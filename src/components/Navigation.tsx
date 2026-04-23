@@ -40,7 +40,7 @@ const Navigation = () => {
 
           <div className="flex items-center gap-3">
             <LanguageSelector />
-            <Button size="sm" onClick={() => navigate("/request-access")} className="text-[13px] h-8 px-4 rounded-full">
+            <Button size="sm" onClick={() => navigate("/request-access")} className="vt-cta-pill text-[13px] h-8 px-4 rounded-full">
               Get early access
             </Button>
           </div>
