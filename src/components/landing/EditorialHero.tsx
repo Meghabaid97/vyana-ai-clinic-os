@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { ArrowRight, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -9,7 +10,18 @@ import { useLandingT } from "@/lib/i18n-landing";
 const EditorialHero = () => {
   const navigate = useNavigate();
   const [demoOpen, setDemoOpen] = useState(false);
+  const [ctaState, setCtaState] = useState<ButtonState>("idle");
   const t = useLandingT();
+
+  const handleEarlyAccess = () => {
+    if (ctaState !== "idle") return;
+    setCtaState("loading");
+    // Brief feedback so the action feels acknowledged before the route swap
+    setTimeout(() => {
+      setCtaState("success");
+      setTimeout(() => navigate("/request-access"), 450);
+    }, 350);
+  };
 
   return (
     <section id="hero" className="relative min-h-[100svh] w-full overflow-hidden">
@@ -45,14 +57,17 @@ const EditorialHero = () => {
             </p>
 
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-2">
-              <Button
-                onClick={() => navigate("/request-access")}
+              <StatefulButton
+                state={ctaState}
+                onClick={handleEarlyAccess}
                 variant="premium"
-                className="group h-11 px-6 text-[15px] rounded-full"
+                loadingLabel="Just a moment…"
+                successLabel="Let's begin"
+                className="h-11 px-6 text-[15px] rounded-full min-w-[180px]"
+                idleIcon={<ArrowRight className="h-4 w-4" />}
               >
                 Get early access
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Button>
+              </StatefulButton>
               <Button
                 variant="ghost"
                 onClick={() => setDemoOpen(true)}

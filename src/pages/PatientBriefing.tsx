@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 
 interface Briefing {
@@ -26,6 +27,7 @@ const PatientBriefing = () => {
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareState, setShareState] = useState<ButtonState>("idle");
   const [isDemo, setIsDemo] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
@@ -125,9 +127,16 @@ const PatientBriefing = () => {
   };
 
   const shareViaWhatsApp = () => {
+    if (shareState !== "idle") return;
+    setShareState("loading");
     const text = briefingToText();
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
+    // Brief "preparing" beat so the AI summary feels assembled, not instant.
+    setTimeout(() => {
+      window.open(url, "_blank");
+      setShareState("success");
+      setTimeout(() => setShareState("idle"), 2000);
+    }, 500);
   };
 
   const copyToClipboard = async () => {
@@ -242,10 +251,18 @@ const PatientBriefing = () => {
           {/* Share actions */}
           <section className="px-5 pb-4">
             <div className="flex gap-2">
-              <Button onClick={shareViaWhatsApp} variant="outline" className="flex-1 gap-2">
-                <Share2 className="h-4 w-4" />
+              <StatefulButton
+                state={shareState}
+                onClick={shareViaWhatsApp}
+                variant="outline"
+                className="flex-1"
+                loadingLabel="Preparing…"
+                successLabel="Opened WhatsApp"
+                errorLabel="Try again"
+                idleIcon={<Share2 className="h-4 w-4" />}
+              >
                 Share via WhatsApp
-              </Button>
+              </StatefulButton>
               <Button onClick={copyToClipboard} variant="outline" className="gap-2">
                 {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
               </Button>

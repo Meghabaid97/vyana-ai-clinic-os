@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { RECORD_CATEGORIES, type RecordCategory } from "@/lib/recordCategories";
 
 interface HealthRecord {
@@ -62,6 +63,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadState, setUploadState] = useState<ButtonState>("idle");
   const [isSummarizing, setIsSummarizing] = useState<string | null>(null);
   const [showConsentDialog, setShowConsentDialog] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<HealthRecord | null>(null);
@@ -119,6 +121,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     }
 
     setIsUploading(true);
+    setUploadState("loading");
     try {
       const filePath = `${userId}/${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabase.storage
@@ -147,6 +150,9 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         description: "Your health record has been uploaded successfully",
       });
 
+      setUploadState("success");
+      setTimeout(() => setUploadState("idle"), 1800);
+
       await loadRecords();
       await summarizeRecord(insertedRecord as HealthRecord);
 
@@ -160,6 +166,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         description: error.message || "Failed to upload file",
         variant: "destructive",
       });
+      setUploadState("error");
+      setTimeout(() => setUploadState("idle"), 2200);
     } finally {
       setIsUploading(false);
     }
@@ -337,19 +345,18 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
               onChange={handleFileUpload}
               className="hidden"
             />
-            <Button
+            <StatefulButton
+              state={uploadState}
               onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
               size="sm"
-              className="rounded-xl"
+              className="rounded-xl min-w-[110px]"
+              loadingLabel="Uploading"
+              successLabel="Uploaded"
+              errorLabel="Retry"
+              idleIcon={<Upload className="h-4 w-4" />}
             >
-              {isUploading ? (
-                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-              ) : (
-                <Upload className="h-4 w-4 mr-1.5" />
-              )}
               Upload
-            </Button>
+            </StatefulButton>
           </div>
         </div>
         <div className="flex items-center gap-2">
