@@ -32,7 +32,7 @@ const SPARKLES: Array<{
 ];
 
 const EditorialHero = () => {
-  const navigate = useNavigate();
+  const navigate = useViewTransitionNavigate();
   const [demoOpen, setDemoOpen] = useState(false);
   const [ctaState, setCtaState] = useState<ButtonState>("idle");
   const [staged, setStaged] = useState(false);
