@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { initShareIntent } from "@/lib/shareIntent";
+import NativeBootGuard from "@/components/NativeBootGuard";
 
 // Eager: minimal route shell only
 const Index = lazy(() => import("./pages/Index"));
@@ -62,6 +63,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <NativeBootGuard />
         <ShareIntentBridge />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
