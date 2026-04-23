@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useLandingT } from "@/lib/i18n-landing";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 
 const PortraitCTA = () => {
   const t = useLandingT();
+  const navigate = useViewTransitionNavigate();
   const [email, setEmail] = useState("");
   const [city, setCity] = useState("");
   const [relation, setRelation] = useState("");
