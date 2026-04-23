@@ -161,16 +161,16 @@ const StatsStrip = () => {
               return (
                 <div
                   key={i}
-                  className={`px-8 py-10 sm:px-10 sm:py-12 reveal reveal-delay-${i + 1} ${visible ? "is-visible" : ""}`}
+                  className={`px-6 py-6 sm:px-7 sm:py-7 reveal reveal-delay-${i + 1} ${visible ? "is-visible" : ""}`}
                 >
-                  <div className="mb-4">
+                  <div className="mb-2">
                     <Glyph play={visible} />
                   </div>
-                  <div className="font-serif text-[64px] sm:text-[76px] leading-none text-white tracking-[-0.02em] tabular-nums">
+                  <div className="font-serif text-[40px] sm:text-[44px] leading-none text-white tracking-[-0.02em] tabular-nums">
                     <CountUp value={s.value} start={visible} durationMs={1300 + i * 150} />
                   </div>
-                  <div className="text-label text-primary mt-2">{s.unit}</div>
-                  <p className="mt-5 text-caption text-[hsl(30_20%_82%)] max-w-[280px]">
+                  <div className="text-[11px] tracking-[0.2em] uppercase text-primary mt-2">{s.unit}</div>
+                  <p className="mt-3 text-[13px] leading-[1.55] text-[hsl(30_20%_82%)] max-w-[280px]">
                     {s.body}
                   </p>
                 </div>
