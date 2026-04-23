@@ -88,21 +88,53 @@ const PatientProfileEdit = () => {
     navigate("/auth");
   };
 
+  const APP_STORE_URL = "https://apps.apple.com/app/vyana/id0000000000"; // TODO: replace with real ID once published
+  const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=care.vyana.app"; // TODO: replace once published
+  const WEB_APP_URL = "https://www.vyana.care";
+
+  const handleRateApp = async () => {
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isAndroid = /Android/i.test(ua);
+
+    if (isIOS) { window.open(APP_STORE_URL, "_blank", "noopener,noreferrer"); return; }
+    if (isAndroid) { window.open(PLAY_STORE_URL, "_blank", "noopener,noreferrer"); return; }
+
+    // Desktop / other: try Web Share, fall back to copying the link.
+    const shareData = {
+      title: "Vyana",
+      text: "I am using Vyana to keep my family's health story in one place. Try it:",
+      url: WEB_APP_URL,
+    };
+    try {
+      if (typeof navigator !== "undefined" && (navigator as any).share) {
+        await (navigator as any).share(shareData);
+        return;
+      }
+    } catch { /* user dismissed share — fall through to copy */ }
+    try {
+      await navigator.clipboard.writeText(WEB_APP_URL);
+      toast({ title: "Link copied", description: "Share Vyana with friends and family." });
+    } catch {
+      window.open(WEB_APP_URL, "_blank", "noopener,noreferrer");
+    }
+  };
+
   if (isLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   const menuItems = [
-    { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/app/medical-history" },
-    { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/app/emergency-contacts" },
-    { icon: Bell, label: "Notifications", desc: "Manage notification preferences", path: null },
-    { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: "/legal" },
+    { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/app/medical-history" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Bell, label: "Notifications", desc: "Manage notification preferences", path: null as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
   ];
 
   const aboutItems = [
-    { icon: BookOpen, label: "Our Story", desc: "Why we built Vyana", path: "/app/story" },
-    { icon: HelpCircle, label: "Help & Support", desc: "Raise a ticket or report an issue", path: "/app/support" },
-    { icon: Star, label: "Rate App", desc: "Rate Vyana on the store", path: null },
+    { icon: BookOpen, label: "Our Story", desc: "Why we built Vyana", path: "/app/story" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: HelpCircle, label: "Help & Support", desc: "Raise a ticket or report an issue", path: "/app/support" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Star, label: "Rate App", desc: "Rate Vyana or share with friends", path: null as string | null, onClick: handleRateApp },
   ];
 
   return (
