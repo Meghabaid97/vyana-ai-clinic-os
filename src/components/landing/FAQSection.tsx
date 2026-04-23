@@ -18,7 +18,7 @@ const FAQSection = () => {
   }));
 
   return (
-    <section id="faq" className="mood mood-cream from-cocoa-warm to-cream py-24 lg:py-32">
+    <section id="faq" className="py-24 lg:py-32 bg-background border-t border-border">
       <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}

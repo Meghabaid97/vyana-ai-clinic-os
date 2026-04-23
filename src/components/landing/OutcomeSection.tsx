@@ -15,7 +15,7 @@ const OutcomeSection = () => {
   ];
 
   return (
-    <section id="output" className="mood mood-blush from-ivory to-cocoa relative py-28 lg:py-36">
+    <section id="output" className="relative py-28 lg:py-36 bg-background">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12 space-y-24">
         <div>
           <div

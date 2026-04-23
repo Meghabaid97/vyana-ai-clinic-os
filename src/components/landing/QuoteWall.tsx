@@ -15,7 +15,7 @@ const QuoteWall = () => {
   return (
     <section
       id="voices"
-      className="mood mood-cream from-blush to-sage relative py-28 lg:py-36"
+      className="relative bg-background py-28 lg:py-36 border-t border-border/60"
     >
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
