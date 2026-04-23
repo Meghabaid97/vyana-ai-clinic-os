@@ -249,7 +249,7 @@ const DoctorVisitMode = () => {
       {briefing && (
         <>
           {isDemo && (
-            <section className="px-4 sm:px-5 pt-4">
+            <section className="pt-4">
               <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 flex items-center justify-between gap-3">
                 <div className="flex items-start gap-2 min-w-0">
                   <Play className="h-3.5 w-3.5 text-yellow-700 mt-0.5 shrink-0 fill-current" />
@@ -263,7 +263,7 @@ const DoctorVisitMode = () => {
           )}
 
           {/* Patient strip */}
-          <section className="px-4 sm:px-5 pt-4 pb-2">
+          <section className="pt-4 pb-2">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Patient</p>
@@ -276,7 +276,7 @@ const DoctorVisitMode = () => {
           </section>
 
           {/* 1. Overview */}
-          <section className="px-4 sm:px-5 pb-3">
+          <section className="pb-3">
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">1</span>
@@ -294,7 +294,7 @@ const DoctorVisitMode = () => {
           </section>
 
           {/* 2. What changed */}
-          <section className="px-4 sm:px-5 pb-3">
+          <section className="pb-3">
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-center gap-2 mb-3">
                 <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">2</span>
@@ -327,7 +327,7 @@ const DoctorVisitMode = () => {
           </section>
 
           {/* 3. Medications */}
-          <section className="px-4 sm:px-5 pb-3">
+          <section className="pb-3">
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-center gap-2 mb-3">
                 <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">3</span>
@@ -353,7 +353,7 @@ const DoctorVisitMode = () => {
 
           {/* SOAP Note */}
           {briefing.soap_note && (
-            <section className="px-4 sm:px-5 pb-3">
+            <section className="pb-3">
               <div className="rounded-2xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="h-4 w-4 text-primary" />
@@ -386,7 +386,7 @@ const DoctorVisitMode = () => {
 
           {/* Flags (if any) */}
           {briefing.red_flags.length > 0 && (
-            <section className="px-4 sm:px-5 pb-3">
+            <section className="pb-3">
               <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -405,7 +405,7 @@ const DoctorVisitMode = () => {
           )}
 
           {/* 4. Share */}
-          <section className="px-4 sm:px-5 pt-2 pb-6">
+          <section className="pt-2 pb-6">
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
               <div className="flex items-center gap-2 mb-3">
                 <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">4</span>
