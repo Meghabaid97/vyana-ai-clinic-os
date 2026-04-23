@@ -1,5 +1,9 @@
 import { useReveal } from "@/hooks/use-reveal";
-import { PhoneMock, MockStoryScreen, MockTrendsScreen, MockBriefingScreen } from "./PhoneMock";
+import {
+  AnimatedUploadDemo,
+  AnimatedExtractDemo,
+  AnimatedShareDemo,
+} from "./AnimatedPhoneDemos";
 import { useLandingT } from "@/lib/i18n-landing";
 
 type Step = {
@@ -7,7 +11,6 @@ type Step = {
   title: string;
   body: string;
   mock: JSX.Element;
-  rotate: number;
 };
 
 const StepChapter = ({ s, index, stepLabel }: { s: Step; index: number; stepLabel: string }) => {
@@ -40,7 +43,7 @@ const StepChapter = ({ s, index, stepLabel }: { s: Step; index: number; stepLabe
           reverse ? "lg:col-start-1 lg:row-start-1" : ""
         } flex justify-center`}
       >
-        <PhoneMock rotate={s.rotate}>{s.mock}</PhoneMock>
+        {s.mock}
       </div>
     </div>
   );
@@ -51,9 +54,9 @@ const HowItWorks = () => {
   const header = useReveal<HTMLDivElement>();
 
   const steps: Step[] = [
-    { n: "01", title: t("how.s1.title"), body: t("how.s1.body"), mock: <MockStoryScreen />, rotate: -3 },
-    { n: "02", title: t("how.s2.title"), body: t("how.s2.body"), mock: <MockTrendsScreen />, rotate: 2 },
-    { n: "03", title: t("how.s3.title"), body: t("how.s3.body"), mock: <MockBriefingScreen />, rotate: -2 },
+    { n: "01", title: t("how.s1.title"), body: t("how.s1.body"), mock: <AnimatedUploadDemo /> },
+    { n: "02", title: t("how.s2.title"), body: t("how.s2.body"), mock: <AnimatedExtractDemo /> },
+    { n: "03", title: t("how.s3.title"), body: t("how.s3.body"), mock: <AnimatedShareDemo /> },
   ];
 
   return (
