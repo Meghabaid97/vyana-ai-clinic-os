@@ -18,7 +18,7 @@ const ProblemSection = () => {
   ];
 
   return (
-    <section id="problem" className="relative bg-surface-dark py-28 lg:py-36">
+    <section id="problem" className="aurora-warm relative bg-surface-dark py-28 lg:py-36">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
@@ -39,12 +39,12 @@ const ProblemSection = () => {
 
         <div
           ref={grid.ref}
-          className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-16"
+          className="tilt-stage grid md:grid-cols-3 gap-6 lg:gap-8 mb-16"
         >
           {stats.map((s, i) => (
             <div
               key={i}
-              className={`reveal reveal-lg reveal-stagger-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-8`}
+              className={`tilt-card reveal reveal-lg reveal-stagger-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-8`}
             >
               <div className="font-serif text-[42px] leading-none text-primary tracking-[-0.02em]">
                 {s.k}
