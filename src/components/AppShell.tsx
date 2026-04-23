@@ -15,14 +15,12 @@ const tabs = [
   { id: "trends", label: "Trends", shortLabel: "Trends", icon: TrendingUp, path: "/app/trends" },
   { id: "records", label: "Records", shortLabel: "Files", icon: FolderOpen, path: "/app/records" },
   { id: "claims", label: "Claims", shortLabel: "Claim", icon: Heart, path: "/app/recovery" },
-  { id: "you", label: "You", shortLabel: "You", icon: User, path: "/app/profile" },
+  { id: "emergency", label: "Emergency", shortLabel: "SOS", icon: Shield, path: "/app/emergency-contacts" },
+  { id: "profile", label: "Profile", shortLabel: "Profile", icon: User, path: "/app/profile" },
 ];
 
-// Tabs shown in the desktop secondary nav (includes Emergency)
-const desktopTabs = [
-  ...tabs.slice(0, 5),
-  { id: "emergency", label: "Emergency", shortLabel: "SOS", icon: Shield, path: "/app/emergency-contacts" },
-];
+// Desktop secondary nav uses the same tab set
+const desktopTabs = tabs;
 
 // Sub-route titles (routes inside /app that aren't a primary tab)
 const subRouteTitles: Record<string, string> = {
@@ -295,7 +293,7 @@ const AppShell = () => {
 
       {/* ============ MOBILE BOTTOM TAB BAR (hidden on lg+) — iOS-native 6-tab ============ */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/90 border-t border-border/60 z-50 safe-area-bottom backdrop-blur-xl">
-        <div className="grid grid-cols-6 items-stretch h-[52px] w-full max-w-full overflow-hidden">
+        <div className="grid grid-cols-7 items-stretch h-[54px] w-full max-w-full overflow-hidden">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -305,13 +303,13 @@ const AppShell = () => {
                 onClick={() => navigate(tab.path)}
                 aria-label={tab.label}
                 className={cn(
-                  "flex min-w-0 flex-col items-center justify-center gap-[3px] h-full px-0 transition-colors active:bg-muted/40",
+                  "flex min-w-0 flex-col items-center justify-center gap-[2px] h-full px-0 transition-colors active:bg-muted/40",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                <tab.icon className={cn("h-[20px] w-[20px] shrink-0", isActive ? "stroke-[2.4]" : "stroke-[1.8]")} />
+                <tab.icon className={cn("h-[19px] w-[19px] shrink-0", isActive ? "stroke-[2.4]" : "stroke-[1.8]")} />
                 <span className={cn(
-                  "block w-full text-center truncate text-[9.5px] leading-none tracking-tight px-0.5",
+                  "block w-full text-center truncate text-[9px] leading-none tracking-tight px-px",
                   isActive ? "font-semibold" : "font-medium"
                 )}>
                   {tab.shortLabel}
