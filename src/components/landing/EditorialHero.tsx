@@ -7,6 +7,30 @@ import WatchItWorkModal from "@/components/WatchItWorkModal";
 import { useLandingT } from "@/lib/i18n-landing";
 import heroConstellation from "@/assets/hero-constellation.png";
 
+// Sparkle positions — clustered over the right ~55-95% of the constellation image,
+// where the dot cluster visually sits. Mix of coral/sage/amber, varied sizes & timings.
+const SPARKLES: Array<{
+  top: string;
+  left: string;
+  size: string;
+  delay: string;
+  dur: string;
+  tone?: "sage" | "amber";
+}> = [
+  { top: "32%", left: "58%", size: "5px", delay: "0s",   dur: "2.8s" },
+  { top: "28%", left: "72%", size: "4px", delay: "0.6s", dur: "3.4s", tone: "amber" },
+  { top: "44%", left: "63%", size: "6px", delay: "1.1s", dur: "3.0s", tone: "sage" },
+  { top: "52%", left: "80%", size: "4px", delay: "0.3s", dur: "2.6s" },
+  { top: "38%", left: "88%", size: "5px", delay: "1.6s", dur: "3.6s", tone: "amber" },
+  { top: "60%", left: "70%", size: "3px", delay: "0.9s", dur: "2.4s", tone: "sage" },
+  { top: "48%", left: "92%", size: "4px", delay: "2.0s", dur: "3.2s" },
+  { top: "66%", left: "84%", size: "5px", delay: "0.4s", dur: "2.9s", tone: "amber" },
+  { top: "36%", left: "78%", size: "3px", delay: "1.4s", dur: "2.5s", tone: "sage" },
+  { top: "56%", left: "60%", size: "4px", delay: "1.8s", dur: "3.1s" },
+  { top: "70%", left: "75%", size: "3px", delay: "0.2s", dur: "2.7s", tone: "amber" },
+  { top: "42%", left: "55%", size: "3px", delay: "2.2s", dur: "3.3s", tone: "sage" },
+];
+
 const EditorialHero = () => {
   const navigate = useNavigate();
   const [demoOpen, setDemoOpen] = useState(false);
@@ -137,14 +161,31 @@ const EditorialHero = () => {
               className={`pointer-events-none relative mt-8 flex justify-center ${staged ? "hero-constellation-in" : "opacity-0"} lg:mt-0 lg:-ml-24 lg:justify-start`}
               aria-hidden
             >
-              <img
-                src={heroConstellation}
-                alt=""
-                width={1280}
-                height={1280}
-                draggable={false}
-                className="hero-constellation-img w-[88vw] max-w-[540px] sm:w-[72vw] sm:max-w-[620px] lg:w-[46vw] lg:max-w-[760px] opacity-70 mix-blend-multiply select-none lg:opacity-90"
-              />
+              <div className="relative">
+                <img
+                  src={heroConstellation}
+                  alt=""
+                  width={1280}
+                  height={1280}
+                  draggable={false}
+                  className="hero-constellation-img w-[88vw] max-w-[540px] sm:w-[72vw] sm:max-w-[620px] lg:w-[46vw] lg:max-w-[760px] opacity-70 mix-blend-multiply select-none lg:opacity-90"
+                />
+                {/* Sparkles — positioned over the constellation cluster (right ~55-95% of image) */}
+                {SPARKLES.map((s, i) => (
+                  <span
+                    key={i}
+                    className={`hero-sparkle ${s.tone ?? ""}`}
+                    style={{
+                      top: s.top,
+                      left: s.left,
+                      width: s.size,
+                      height: s.size,
+                      ["--delay" as string]: s.delay,
+                      ["--dur" as string]: s.dur,
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
