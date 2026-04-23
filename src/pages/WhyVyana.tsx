@@ -13,7 +13,7 @@ const chapters = [
 ];
 
 const WhyVyana = () => {
-  const navigate = useNavigate();
+  const navigate = useViewTransitionNavigate();
   const location = useLocation();
   const inApp = location.pathname.startsWith("/app");
   const [progress, setProgress] = useState(0);
