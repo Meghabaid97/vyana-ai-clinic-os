@@ -6,11 +6,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { initShareIntent } from "@/lib/shareIntent";
 
-// Eager: shell + landing + auth (needed on cold start)
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import AppShell from "./components/AppShell";
-import AppHome from "./pages/AppHome";
+// Eager: minimal route shell only
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const AppShell = lazy(() => import("./components/AppShell"));
+const AppHome = lazy(() => import("./pages/AppHome"));
 
 // Lazy: everything else (loaded on demand → smaller initial bundle, faster start)
 const Splash = lazy(() => import("./pages/Splash"));

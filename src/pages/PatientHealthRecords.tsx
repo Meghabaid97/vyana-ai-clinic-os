@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, FolderOpen, Upload, ChevronRight, Shield } from "lucide-react";
-import HealthRecordsTab from "@/components/HealthRecordsTab";
+
+const HealthRecordsTab = lazy(() => import("@/components/HealthRecordsTab"));
 
 interface PatientProfile {
   id: string;
@@ -95,7 +96,15 @@ const PatientHealthRecords = () => {
       </section>
 
       {profile && userId ? (
-        <HealthRecordsTab patientId={profile.id} userId={userId} doctors={doctors} />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center rounded-2xl border border-border bg-card py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          }
+        >
+          <HealthRecordsTab patientId={profile.id} userId={userId} doctors={doctors} />
+        </Suspense>
       ) : (
         <>
           <section className="rounded-2xl border border-border bg-card p-5">

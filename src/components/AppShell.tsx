@@ -1,13 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut, HelpCircle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
-import LanguageSelector from "@/components/LanguageSelector";
-import HeaderLocationSelector from "@/components/HeaderLocationSelector";
-import AskVyanaModal from "@/components/AskVyanaModal";
-import SpotlightTour, { hasSeenTour } from "@/components/SpotlightTour";
+
+const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
+const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSelector"));
+const AskVyanaModal = lazy(() => import("@/components/AskVyanaModal"));
+const SpotlightTour = lazy(() => import("@/components/SpotlightTour"));
+
+const TOUR_STORAGE_KEY = "vyana-tour-completed-v1";
+const hasSeenTour = () => typeof window !== "undefined" && localStorage.getItem(TOUR_STORAGE_KEY) === "1";
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
