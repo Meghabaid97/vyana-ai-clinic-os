@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Mail, Linkedin } from "lucide-react";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 
 const ClosingCTA = () => {
+  const navigate = useViewTransitionNavigate();
   return (
     <section id="contact" className="py-28 lg:py-36">
       <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
