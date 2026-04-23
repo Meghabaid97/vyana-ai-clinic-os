@@ -62,20 +62,28 @@ const EmergencyContacts = () => {
 
   useEffect(() => {
     loadData();
+    // Re-run once auth is restored (session may not be ready on first mount
+    // when navigating directly into the tab from desktop nav).
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) loadData();
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const loadData = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/auth"); return; }
+      // Don't redirect on missing session — AppShell already gates auth.
+      // Just stop loading and let the auth listener retry when ready.
+      if (!session) { setIsLoading(false); return; }
 
       const { data: patient } = await supabase
         .from("patients")
         .select("id, name")
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (!patient) { navigate("/app"); return; }
+      if (!patient) { setIsLoading(false); return; }
       setPatientId(patient.id);
       setPatientName(patient.name);
 
