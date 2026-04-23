@@ -192,16 +192,16 @@ const AppHome = () => {
                       </div>
 
                       {/* Big number */}
-                      <div className="px-5">
+                      <div className="px-4 sm:px-5">
                         <div className="flex items-baseline gap-2">
-                          <span className="text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-none">
+                          <span className="text-[40px] sm:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-none">
                             {totalRecords}
                           </span>
-                          <span className="text-base font-medium text-muted-foreground">
+                          <span className="text-[14px] sm:text-base font-medium text-muted-foreground">
                             record{totalRecords !== 1 ? "s" : ""} held
                           </span>
                         </div>
-                        <p className="mt-2 text-[13px] text-foreground/80 leading-relaxed">
+                        <p className="mt-2 text-[12.5px] sm:text-[13px] text-foreground/80 leading-relaxed">
                           Every detail you save is one less question your next doctor has to ask.
                         </p>
                       </div>
