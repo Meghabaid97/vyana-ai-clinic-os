@@ -188,7 +188,7 @@ const PatientProfileEdit = () => {
                 toast({ title: v ? "Visit saved" : "Visit cleared", description: v ? "We'll remind you the day before." : "" });
               }
             }}
-            className="h-11 text-[15px]"
+            className="h-11 text-[15px] w-full block max-w-full appearance-none"
           />
           {profile?.next_visit_date && (
             <button
