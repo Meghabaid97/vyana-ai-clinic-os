@@ -73,8 +73,8 @@ const PortraitCTA = () => {
             type="button"
             variant="premium"
             disabled={submitting}
-            onClick={() => (window.location.href = "/request-access")}
-            className="group w-full h-12 mt-2 rounded-lg text-[15px]"
+            onClick={() => navigate("/request-access")}
+            className="vt-cta-pill group w-full h-12 mt-2 rounded-lg text-[15px]"
           >
             Get early access
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
