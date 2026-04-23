@@ -137,14 +137,31 @@ const EditorialHero = () => {
               className={`pointer-events-none relative mt-8 flex justify-center ${staged ? "hero-constellation-in" : "opacity-0"} lg:mt-0 lg:-ml-24 lg:justify-start`}
               aria-hidden
             >
-              <img
-                src={heroConstellation}
-                alt=""
-                width={1280}
-                height={1280}
-                draggable={false}
-                className="hero-constellation-img w-[88vw] max-w-[540px] sm:w-[72vw] sm:max-w-[620px] lg:w-[46vw] lg:max-w-[760px] opacity-70 mix-blend-multiply select-none lg:opacity-90"
-              />
+              <div className="relative">
+                <img
+                  src={heroConstellation}
+                  alt=""
+                  width={1280}
+                  height={1280}
+                  draggable={false}
+                  className="hero-constellation-img w-[88vw] max-w-[540px] sm:w-[72vw] sm:max-w-[620px] lg:w-[46vw] lg:max-w-[760px] opacity-70 mix-blend-multiply select-none lg:opacity-90"
+                />
+                {/* Sparkles — positioned over the constellation cluster (right ~55-95% of image) */}
+                {SPARKLES.map((s, i) => (
+                  <span
+                    key={i}
+                    className={`hero-sparkle ${s.tone ?? ""}`}
+                    style={{
+                      top: s.top,
+                      left: s.left,
+                      width: s.size,
+                      height: s.size,
+                      ["--delay" as string]: s.delay,
+                      ["--dur" as string]: s.dur,
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
