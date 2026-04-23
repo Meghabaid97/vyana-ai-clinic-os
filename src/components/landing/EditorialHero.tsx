@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import WatchItWorkModal from "@/components/WatchItWorkModal";
 import { useLandingT } from "@/lib/i18n-landing";
+import heroConstellation from "@/assets/hero-constellation.png";
 
 /**
  * Editorial Kinetic Hero
