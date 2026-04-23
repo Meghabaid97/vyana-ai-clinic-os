@@ -25,7 +25,7 @@ export const PhoneMock = ({
     >
       {/* Screen */}
       <div
-        className="ai-scan relative w-full h-full rounded-[34px] overflow-hidden"
+        className="relative w-full h-full rounded-[34px] overflow-hidden"
         style={{ background: "hsl(36 30% 96%)" }}
       >
         {children}
