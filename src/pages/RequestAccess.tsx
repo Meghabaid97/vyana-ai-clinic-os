@@ -26,7 +26,7 @@ const schema = z.object({
 });
 
 const RequestAccess = () => {
-  const navigate = useNavigate();
+  const navigate = useViewTransitionNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
