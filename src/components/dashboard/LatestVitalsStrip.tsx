@@ -261,6 +261,23 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
               );
             })}
           </div>
+
+          {/* Color legend — quietly explains the dot colors used on each tile */}
+          <ul
+            aria-label="What the colors mean"
+            className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10.5px] text-muted-foreground"
+          >
+            {(["normal", "watch", "high", "low"] as VitalStatus[]).map((s) => (
+              <li key={s} className="flex items-center gap-1.5">
+                <span
+                  aria-hidden
+                  className={`h-2 w-2 rounded-full ${STATUS_TONE[s].bar}`}
+                />
+                <span className="capitalize">{s}</span>
+                <span className="text-muted-foreground/70">— {STATUS_COPY[s]}</span>
+              </li>
+            ))}
+          </ul>
         </>
       )}
     </section>
