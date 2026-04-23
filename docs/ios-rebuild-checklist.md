@@ -11,7 +11,7 @@ or **"ios platform already exists"**.
 
 ## 0. Prerequisites (one-time)
 
-- [ ] macOS with **Xcode 15.4+** installed (Xcode 26 recommended for Cap 8).
+- [ ] macOS with **Xcode 26+** installed (required for Capacitor 8 SPM).
 - [ ] Command line tools: `xcode-select --install`
 - [ ] Node 20+: `node -v`
 - [ ] You cloned the repo from GitHub (not editing inside `ios/App`).
@@ -28,103 +28,86 @@ git pull
 ls package.json capacitor.config.ts   # both must exist
 ```
 
-If either file is missing, you are in the wrong directory. `cd` up until you see them.
-
 ---
 
 ## 2. Wipe the broken native folder
 
 ```bash
-rm -rf ios
-rm -rf node_modules
-rm -rf ~/Library/Developer/Xcode/DerivedData
-```
-
-Optional (only if you previously ran CocoaPods):
-
-```bash
-rm -rf ios/App/Pods ios/App/Podfile ios/App/Podfile.lock
+rm -rf ios node_modules ~/Library/Developer/Xcode/DerivedData
 ```
 
 ---
 
-## 3. Reinstall JS dependencies and build the web bundle
+## 3. Reinstall and build
 
 ```bash
 npm install
 npm run build
 ```
 
-`npm run build` must succeed — Capacitor copies `dist/` into the iOS app.
-
 ---
 
-## 4. Re-add the iOS platform (from project root)
+## 4. Re-add the iOS platform (DEV — hot reload from Lovable)
 
 ```bash
 npx cap add ios
 npx cap sync ios
-```
-
-Expected output includes:
-
-```
-[info] Writing Package.swift
-✔ update ios in ...ms
-[success] ios platform added!
-```
-
-If you see `[error] ios platform already exists`, repeat step 2 first.
-
----
-
-## 5. Open and build in Xcode
-
-```bash
 npx cap open ios
 ```
 
-In Xcode:
+Then in Xcode: **File → Packages → Reset Package Caches**, **Resolve Package
+Versions**, **Product → Clean Build Folder**, then **Run**.
 
-1. **File → Packages → Reset Package Caches**
-2. **File → Packages → Resolve Package Versions**
-3. **Product → Clean Build Folder** (`⇧⌘K`)
-4. Select an iPhone simulator → **Product → Build** (`⌘B`)
+The simulator will load the live Lovable preview URL — any web change appears
+instantly without rebuilding.
 
 ---
 
-## 6. Verify hot-reload from the sandbox
+## 5. Build a PROD app (no live preview, ships bundled assets)
 
-`capacitor.config.ts` points `server.url` at the Lovable sandbox preview.
-After `Run` (`⌘R`), the simulator should load the live preview URL — any web
-change you make in Lovable appears instantly without rebuilding.
+Use this for TestFlight / App Store / real installable builds. Without this
+step the iOS app will keep loading the website and OAuth links will bounce to
+Safari.
 
-For an offline build (App Store submission), remove the `server.url` block,
-re-run `npm run build && npx cap sync ios`, then rebuild in Xcode.
+```bash
+rm -rf ios
+npm run build
+CAP_MODE=prod npx cap add ios
+CAP_MODE=prod npx cap sync ios
+CAP_MODE=prod npx cap open ios
+```
+
+Verify in Xcode:
+- `ios/App/App/capacitor.config.json` should **not** contain `server.url`.
+- The app should launch directly into the bundled UI offline.
+
+---
+
+## 6. App icon (one-time)
+
+Capacitor does not auto-generate the iOS home-screen icon. Either:
+
+- Open `ios/App/App/Assets.xcassets/AppIcon.appiconset` in Xcode and drag a
+  1024×1024 PNG, **or**
+- Run `npx @capacitor/assets generate --iconBackgroundColor "#FFFFFF" --iconBackgroundColorDark "#0F172A"`
+  after placing a 1024×1024 source at `assets/icon.png`.
 
 ---
 
 ## Common errors & fixes
 
-| Error                                                           | Cause                                      | Fix                                                    |
-| --------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------ |
-| `No Podfile found`                                              | Running `pod install` on an SPM project    | Skip it. Use `npx cap sync ios` only.                  |
-| `ios platform already exists`                                   | Half-created `ios/` from a previous run    | `rm -rf ios` then re-run `npx cap add ios`.            |
-| `The Capacitor CLI needs to run at the root of an npm package`  | You ran `npx cap …` inside `ios/App`       | `cd` back to the folder containing `package.json`.     |
-| `Missing package product 'CapApp-SPM'`                          | Stale Swift Package cache                  | Xcode → File → Packages → Reset Package Caches.        |
-| `command not found: pod`                                        | Trying to use CocoaPods (not needed here)  | Ignore. This project uses SPM.                         |
-| `xcode-select: error: tool 'xcodebuild' requires Xcode`         | Command-line tools selected, not full Xcode | `sudo xcode-select -s /Applications/Xcode.app`         |
+| Error                                                          | Cause                                       | Fix                                                          |
+| -------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------ |
+| `No Podfile found`                                             | Running `pod install` on an SPM project     | Skip it. Use `npx cap sync ios` only.                        |
+| `ios platform already exists`                                  | Half-created `ios/` from a previous run     | `rm -rf ios` then re-run `npx cap add ios`.                  |
+| `Missing package product 'CapApp-SPM'`                         | Stale Swift Package cache or Xcode < 26     | Update to Xcode 26, then Reset Package Caches.               |
+| App opens website / redirects to Safari                        | `server.url` is set in `capacitor.config`   | Build with `CAP_MODE=prod npx cap sync ios`.                 |
+| Blank app icon on home screen                                  | `AppIcon.appiconset` is empty               | See section 6 above.                                         |
+| `command not found: pod`                                       | Trying to use CocoaPods (not needed)        | Ignore. This project uses SPM.                               |
 
 ---
 
 ## CI safety net
 
-`.github/workflows/ios-build.yml` runs this exact sequence on every push and PR:
-
-1. `npm ci` → `npm run build`
-2. `rm -rf ios && npx cap add ios && npx cap sync ios`
-3. Verifies `Package.swift` exists
-4. `xcodebuild -resolvePackageDependencies`
-5. Builds the iOS app for the simulator (no signing)
-
-If anything in this checklist breaks, CI will fail before you do.
+`.github/workflows/ios-build.yml` runs the full sequence on every push and PR
+so a broken `ios/` setup is caught before merge.
