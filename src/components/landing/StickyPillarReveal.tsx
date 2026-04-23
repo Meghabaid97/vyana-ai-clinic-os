@@ -1,22 +1,70 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useActiveSection } from "@/hooks/use-active-section";
+import {
+  AnimatedUploadDemo,
+  AnimatedExtractDemo,
+  AnimatedShareDemo,
+} from "./AnimatedPhoneDemos";
 import RxExtractArtifact from "./pillar-artifacts/RxExtractArtifact";
 import TimelineArtifact from "./pillar-artifacts/TimelineArtifact";
 import BriefingArtifact from "./pillar-artifacts/BriefingArtifact";
 import VitalsChartArtifact from "./pillar-artifacts/VitalsChartArtifact";
 import RiskFlagArtifact from "./pillar-artifacts/RiskFlagArtifact";
 
-type Pillar = {
+type Beat = {
+  chapter: "how" | "why";
   numeral: string;
+  eyebrow: string;
   framework: string;
   citation: string;
   takeaway: string;
   Artifact: React.ComponentType;
+  // Phone demos own their own backdrop, so the live-preview frame skips its
+  // warm cream surface for those steps and lets the device float on dark.
+  fullBleed?: boolean;
 };
 
-const pillars: Pillar[] = [
+// The two old sections, "How it works" and "Outcome", are merged here.
+// Beats 1-3 = the three mechanical steps with the existing phone demos.
+// Beats 4-8 = the five evidence pillars with citation-style framing.
+const beats: Beat[] = [
   {
+    chapter: "how",
+    numeral: "01",
+    eyebrow: "How it works",
+    framework: "Upload anything.",
+    citation:
+      "Snap a prescription. Drop a PDF. Forward a discharge summary. We read handwritten Hindi, printed Tamil, smudged Bengali. Five languages, every format.",
+    takeaway: "One inbox for every piece of paper your family has ever collected.",
+    Artifact: AnimatedUploadDemo,
+    fullBleed: true,
+  },
+  {
+    chapter: "how",
+    numeral: "02",
+    eyebrow: "How it works",
+    framework: "AI extracts everything.",
+    citation:
+      "Vitals, diagnoses, medications, timelines. Thirty-three clinical signals plotted across years, so the slow patterns finally become visible.",
+    takeaway: "Years of paper become structured, queryable medical truth in seconds.",
+    Artifact: AnimatedExtractDemo,
+    fullBleed: true,
+  },
+  {
+    chapter: "how",
+    numeral: "03",
+    eyebrow: "How it works",
+    framework: "Walk in prepared.",
+    citation:
+      "A one-page clinical briefing any doctor can read in thirty seconds. Conditions, medications, recent flags. Share on WhatsApp before the appointment.",
+    takeaway: "Every appointment starts with context, not a blank page.",
+    Artifact: AnimatedShareDemo,
+    fullBleed: true,
+  },
+  {
+    chapter: "why",
     numeral: "I",
+    eyebrow: "Evidence",
     framework: "Vision-language extraction",
     citation:
       "OpenAI. (2024). GPT-4 with vision: System card. Multimodal models can extract structured clinical data from photographs of handwritten and printed documents at near-human accuracy.",
@@ -25,7 +73,9 @@ const pillars: Pillar[] = [
     Artifact: RxExtractArtifact,
   },
   {
+    chapter: "why",
     numeral: "II",
+    eyebrow: "Evidence",
     framework: "Longitudinal records",
     citation:
       "WHO. (2016). Framework on integrated, people-centred health services. Continuity of clinical information is the single strongest predictor of safe, appropriate care across visits.",
@@ -34,7 +84,9 @@ const pillars: Pillar[] = [
     Artifact: TimelineArtifact,
   },
   {
+    chapter: "why",
     numeral: "III",
+    eyebrow: "Evidence",
     framework: "Information transfer",
     citation:
       "Stiell, A., et al. (2003). Prevalence of information gaps in the emergency department. CMAJ, 169(10). Information gaps occur in 32% of ER visits and are independently associated with longer stays and adverse events.",
@@ -43,7 +95,9 @@ const pillars: Pillar[] = [
     Artifact: BriefingArtifact,
   },
   {
+    chapter: "why",
     numeral: "IV",
+    eyebrow: "Evidence",
     framework: "Trend surveillance",
     citation:
       "Lancet Diabetes & Endocrinology. (2020). Continuous risk-factor monitoring outperforms episodic measurement in detecting trajectory changes in HbA1c, BP and eGFR.",
@@ -52,7 +106,9 @@ const pillars: Pillar[] = [
     Artifact: VitalsChartArtifact,
   },
   {
+    chapter: "why",
     numeral: "V",
+    eyebrow: "Evidence",
     framework: "Validated risk scoring",
     citation:
       "ACC/AHA Pooled Cohort Equations (2013); ADA Standards of Care (2024); KDIGO Guidelines (2024). Risk computed from a patient's actual numbers, not population averages, supports earlier intervention.",
