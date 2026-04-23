@@ -13,7 +13,7 @@ const WedgeSection = () => {
   ];
 
   return (
-    <section id="wedge" className="relative py-32 lg:py-40 bg-surface-dark">
+    <section id="wedge" className="aurora-warm relative py-32 lg:py-40 bg-surface-dark">
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
