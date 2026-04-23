@@ -225,12 +225,12 @@ const PatientProfilePage = () => {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 mb-8">
-            <TabsTrigger value="overview" className="text-xs md:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="records" className="text-xs md:text-sm">{t("patient.healthRecords")}</TabsTrigger>
-            <TabsTrigger value="trends" className="text-xs md:text-sm">{t("patient.trends")}</TabsTrigger>
-            <TabsTrigger value="summary" className="text-xs md:text-sm">Summary</TabsTrigger>
-            <TabsTrigger value="tools" className="text-xs md:text-sm">Tools</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 mb-6 sm:mb-8 h-auto">
+            <TabsTrigger value="overview" className="text-[11px] sm:text-sm px-1 sm:px-3">Overview</TabsTrigger>
+            <TabsTrigger value="records" className="text-[11px] sm:text-sm px-1 sm:px-3">Records</TabsTrigger>
+            <TabsTrigger value="trends" className="text-[11px] sm:text-sm px-1 sm:px-3">Trends</TabsTrigger>
+            <TabsTrigger value="summary" className="text-[11px] sm:text-sm px-1 sm:px-3">Summary</TabsTrigger>
+            <TabsTrigger value="tools" className="text-[11px] sm:text-sm px-1 sm:px-3">Tools</TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW TAB */}
