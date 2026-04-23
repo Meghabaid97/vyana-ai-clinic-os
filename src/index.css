@@ -6,6 +6,10 @@
 
 @layer base {
   :root {
+    /* Typography */
+    --font-heading: 'Instrument Serif', ui-serif, Georgia, serif;
+    --font-body: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+
     --background: 36 30% 96%;        /* warm ivory */
     --foreground: 22 22% 14%;        /* deep walnut */
 
@@ -108,7 +112,7 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family: var(--font-body);
     font-feature-settings: "ss01", "cv11";
   }
   /* Subtle film-grain overlay for editorial "printed paper" texture */
@@ -131,13 +135,39 @@
 @layer utilities {
   /* Editorial serif, for headers, big numbers, narrative accents */
   .font-display {
-    font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+    font-family: var(--font-heading);
     letter-spacing: -0.01em;
   }
   .font-numeral {
-    font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+    font-family: var(--font-heading);
     font-feature-settings: "lnum", "tnum";
     letter-spacing: -0.02em;
+  }
+  /* Fluid editorial type scale — single source of truth across sections */
+  .text-hero {
+    font-family: var(--font-heading);
+    font-size: clamp(40px, 6vw, 68px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+  .text-section {
+    font-family: var(--font-heading);
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .text-card-title {
+    font-size: 20px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .text-body { font-size: 16px; line-height: 1.65; }
+  .text-caption { font-size: 14px; line-height: 1.5; }
+  .text-label {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
   }
   .animate-fade-in {
     animation: fadeIn 0.4s ease-out forwards;
