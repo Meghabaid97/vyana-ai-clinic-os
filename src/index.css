@@ -215,6 +215,21 @@
   }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .glass-card { background-color: hsl(var(--card) / 0.95); }
+    .glass-card-dark { background-color: hsl(var(--surface-dark) / 0.95); }
+  }
+  /* Dark variant for editorial dark sections (Problem, Wedge, Research) */
+  .glass-card-dark {
+    background-color: hsl(0 0% 100% / 0.04);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid hsl(0 0% 100% / 0.1);
+    transition: all 0.3s ease;
+  }
+  .glass-card-dark:hover {
+    background-color: hsl(0 0% 100% / 0.07);
+    border-color: hsl(0 0% 100% / 0.18);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -20px hsl(0 0% 0% / 0.5);
   }
   .hero-halo {
     display: none;
