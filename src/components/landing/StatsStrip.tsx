@@ -14,7 +14,7 @@ import CountUp from "@/components/landing/CountUp";
 const HeartbeatGlyph = ({ play }: { play: boolean }) => (
   <svg
     viewBox="0 0 80 28"
-    className="w-20 h-7 text-primary"
+    className="w-14 h-5 text-primary"
     fill="none"
     stroke="currentColor"
     strokeWidth="1.6"
