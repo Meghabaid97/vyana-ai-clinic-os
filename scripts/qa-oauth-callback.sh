@@ -7,7 +7,7 @@
 #   1. Boots the app on the requested simulator/emulator (iOS or Android).
 #   2. Waits for the app to be visible on screen.
 #   3. Fires a synthetic OAuth callback deep link
-#      (lovable://oauth-callback/#access_token=fake&refresh_token=fake)
+#      (vyana://oauth-callback/#access_token=fake&refresh_token=fake)
 #      simulating what Google would send after a successful sign-in.
 #   4. Asserts that:
 #        a. The in-app SFSafariViewController / Custom Tab is no longer the
@@ -34,7 +34,6 @@ set -euo pipefail
 
 APP_ID="app.lovable.7c4352476dc04b689808f61158e40739"
 DEEP_LINK="vyana://oauth-callback/#access_token=qa_fake_access&refresh_token=qa_fake_refresh&token_type=bearer&expires_in=3600"
-ALT_DEEP_LINK="lovable://oauth-callback/#access_token=qa_fake_access&refresh_token=qa_fake_refresh&token_type=bearer&expires_in=3600"
 
 c_red()   { printf "\033[31m%s\033[0m\n" "$*"; }
 c_green() { printf "\033[32m%s\033[0m\n" "$*"; }
