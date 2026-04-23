@@ -34,7 +34,11 @@ const PatientHeader = ({ patientName, title, subtitle, showBack = true }: Patien
     setLocation({ pincode: newLocation.pincode, city: newLocation.city });
   };
 
-  const handleSignOut = async () => { await supabase.auth.signOut(); navigate("/auth"); };
+  const handleSignOut = async () => {
+    const { signOutFully } = await import("@/lib/signOut");
+    await signOutFully();
+    navigate("/auth");
+  };
 
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">

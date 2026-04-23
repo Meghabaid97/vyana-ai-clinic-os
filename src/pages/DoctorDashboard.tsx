@@ -116,7 +116,8 @@ const DoctorDashboard = () => {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    const { signOutFully } = await import("@/lib/signOut");
+    await signOutFully();
     navigate("/auth");
   };
 

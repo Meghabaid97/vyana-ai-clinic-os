@@ -136,7 +136,8 @@ const AppShell = () => {
   const firstName = patientName.split(" ")[0];
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    const { signOutFully } = await import("@/lib/signOut");
+    await signOutFully();
     navigate("/auth", { replace: true });
   };
 

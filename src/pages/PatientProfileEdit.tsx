@@ -82,7 +82,11 @@ const PatientProfileEdit = () => {
     } finally { setIsSaving(false); }
   };
 
-  const handleSignOut = async () => { await supabase.auth.signOut(); navigate("/auth"); };
+  const handleSignOut = async () => {
+    const { signOutFully } = await import("@/lib/signOut");
+    await signOutFully();
+    navigate("/auth");
+  };
 
   if (isLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
