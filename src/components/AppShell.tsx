@@ -95,15 +95,19 @@ const AppShell = () => {
     };
   }, [navigate]);
 
-  const activeTab = tabs.find(t =>
+  const allTabs = desktopTabs;
+  const activeTab = allTabs.find(t =>
     t.path === "/app"
       ? location.pathname === "/app"
       : location.pathname.startsWith(t.path)
   )?.id || "home";
 
-  const tabPaths = new Set(tabs.map((t) => t.path));
+  const tabPaths = new Set(allTabs.map((t) => t.path));
   const isSubRoute = !tabPaths.has(location.pathname) && location.pathname.startsWith("/app");
   const subTitle = subRouteTitles[location.pathname];
+
+  // Title for mobile top bar when on a primary tab
+  const activeTabLabel = allTabs.find((t) => t.id === activeTab)?.label;
 
   const firstName = patientName.split(" ")[0];
 
