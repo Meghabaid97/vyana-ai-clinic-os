@@ -243,7 +243,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
                       <p className="text-[10.5px] sm:text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
                       <div className="flex items-baseline gap-1">
                         <span className="text-[17px] sm:text-[19px] font-bold text-foreground leading-none">
-                          {fmt(latest, def.decimals ?? 1)}
+                          {fmt(def.key, latest, def.decimals ?? 1)}
                         </span>
                         <span className="text-[10px] text-muted-foreground truncate">{def.unit}</span>
                       </div>
