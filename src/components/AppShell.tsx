@@ -18,8 +18,12 @@ const tabs = [
   { id: "profile", label: "Profile", shortLabel: "Profile", icon: User, path: "/app/profile" },
 ];
 
-// Desktop secondary nav uses the same tab set
-const desktopTabs = tabs;
+// Desktop secondary nav: Profile is redundant (account chip is in top bar),
+// so we surface Emergency instead.
+const desktopTabs = [
+  ...tabs.slice(0, 5),
+  { id: "emergency", label: "Emergency", shortLabel: "SOS", icon: Shield, path: "/app/emergency-contacts" },
+];
 
 // Sub-route titles (routes inside /app that aren't a primary tab)
 const subRouteTitles: Record<string, string> = {
@@ -109,7 +113,9 @@ const AppShell = () => {
     };
   }, [navigate]);
 
-  const allTabs = desktopTabs;
+  // Union of all tab paths (mobile + desktop) so /app/profile and /app/emergency-contacts
+  // both resolve to a primary route and don't render the back-arrow header.
+  const allTabs = [...tabs, ...desktopTabs.filter(d => !tabs.some(t => t.id === d.id))];
   const activeTab = allTabs.find(t =>
     t.path === "/app"
       ? location.pathname === "/app"
