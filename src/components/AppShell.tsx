@@ -130,52 +130,45 @@ const AppShell = () => {
 
   return (
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-background flex flex-col">
-      {/* ============ MOBILE TOP BAR (hidden on lg+) ============ */}
-      <header className="lg:hidden bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm">
-        <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between gap-2">
-          {isSubRoute ? (
-            <button
-              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
-              aria-label="Go back"
-              className="-ml-1 inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-foreground hover:bg-muted transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span className="font-display text-lg truncate">{subTitle || "Back"}</span>
-            </button>
-          ) : (
-            <span className="font-display text-2xl text-foreground tracking-tight leading-none">
-              V<span className="text-primary italic">yana</span>
-            </span>
-          )}
-          <div className="flex items-center gap-1">
+      {/* ============ MOBILE TOP BAR (hidden on lg+) — iOS-native proportions ============ */}
+      <header className="lg:hidden bg-background/85 border-b border-border/60 sticky top-0 z-50 safe-area-top backdrop-blur-xl">
+        <div className="px-3 h-11 flex items-center justify-between gap-1.5">
+          {/* LEFT — back on sub-routes, page title on tab roots */}
+          <div className="flex items-center min-w-0 flex-1">
+            {isSubRoute ? (
+              <button
+                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
+                aria-label="Go back"
+                className="-ml-1.5 inline-flex items-center gap-0.5 h-9 px-1.5 rounded-lg text-primary active:bg-muted transition-colors min-w-0"
+              >
+                <ArrowLeft className="h-[22px] w-[22px] shrink-0" strokeWidth={2.25} />
+                <span className="text-[17px] font-normal truncate">{subTitle || "Back"}</span>
+              </button>
+            ) : (
+              <h1 className="text-[17px] font-semibold text-foreground tracking-tight truncate px-1">
+                {activeTabLabel || "Vyana"}
+              </h1>
+            )}
+          </div>
+
+          {/* RIGHT — compact icon cluster (iOS 24pt standard) */}
+          <div className="flex items-center gap-0.5 shrink-0">
             <button
               onClick={() => { setAskInitial(""); setAskOpen(true); }}
               aria-label="Ask Vyana"
-              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-primary transition-colors"
+              className="h-9 w-9 rounded-full active:bg-muted flex items-center justify-center text-primary transition-colors"
             >
-              <Sparkles className="h-5 w-5" />
+              <Sparkles className="h-[20px] w-[20px]" />
             </button>
             <button
               onClick={() => setTourOpen(true)}
               aria-label="Take the tour"
-              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              className="h-9 w-9 rounded-full active:bg-muted flex items-center justify-center text-muted-foreground transition-colors"
             >
-              <HelpCircle className="h-5 w-5" />
+              <HelpCircle className="h-[20px] w-[20px]" />
             </button>
             <NotificationBell />
-            <button
-              onClick={() => navigate("/app/profile")}
-              aria-label="Profile"
-              className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-[12px] font-bold text-primary hover:bg-primary/25 transition-colors"
-            >
-              {firstName.charAt(0).toUpperCase()}
-            </button>
           </div>
-        </div>
-        {/* Secondary row — location + language (mobile) */}
-        <div className="px-4 sm:px-5 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
-          <LanguageSelector />
         </div>
       </header>
 
