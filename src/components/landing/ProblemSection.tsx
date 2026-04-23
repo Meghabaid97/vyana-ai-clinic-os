@@ -1,6 +1,7 @@
 import { useReveal } from "@/hooks/use-reveal";
 import { useLandingT } from "@/lib/i18n-landing";
 import CountUp from "@/components/landing/CountUp";
+import { Spotlight } from "@/components/landing/Spotlight";
 
 const ProblemSection = () => {
   const t = useLandingT();
