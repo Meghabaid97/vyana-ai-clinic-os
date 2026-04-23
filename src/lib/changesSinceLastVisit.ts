@@ -38,7 +38,7 @@ const VITAL_LABELS: Record<string, { label: string; unit: string; alertDelta?: n
   weight: { label: "Weight", unit: "kg", alertDelta: 4, monitorDelta: 2, decimals: 1 },
 };
 
-const fmtNum = (v: number, decimals = 0) => decimals > 0 ? v.toFixed(decimals) : String(Math.round(v));
+const fmtNum = (key: string, v: number, decimals = 0) => formatVital(key, v, decimals);
 
 const relativeWhen = (iso: string): string => {
   const then = new Date(iso).getTime();
