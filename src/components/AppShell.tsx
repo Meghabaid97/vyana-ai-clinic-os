@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut, HelpCircle } from "lucide-react";
+import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut, HelpCircle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
@@ -41,12 +41,13 @@ const AppShell = () => {
   const [askInitial, setAskInitial] = useState("");
   const [tourOpen, setTourOpen] = useState(false);
 
-  // Auto-open the spotlight tour on first /app visit
+  // Auto-open the spotlight tour on first /app HOME visit only
   useEffect(() => {
     if (hasSeenTour()) return;
+    if (location.pathname !== "/app") return;
     const t = window.setTimeout(() => setTourOpen(true), 800);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     let cancelled = false;
@@ -151,10 +152,20 @@ const AppShell = () => {
             >
               <HelpCircle className="h-5 w-5" />
             </button>
-            <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
-            <LanguageSelector />
             <NotificationBell />
+            <button
+              onClick={() => navigate("/app/profile")}
+              aria-label="Profile"
+              className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-[12px] font-bold text-primary hover:bg-primary/25 transition-colors"
+            >
+              {firstName.charAt(0).toUpperCase()}
+            </button>
           </div>
+        </div>
+        {/* Secondary row — location + language (mobile) */}
+        <div className="px-4 sm:px-5 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
+          <LanguageSelector />
         </div>
       </header>
 
