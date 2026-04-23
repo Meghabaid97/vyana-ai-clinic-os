@@ -4,6 +4,8 @@ import { ArrowUp, ArrowDown, Minus, Upload, Loader2, Sparkles } from "lucide-rea
 import { supabase } from "@/integrations/supabase/client";
 import {
   vitalStatus,
+  normalizeVital,
+  formatVital,
   STATUS_TONE,
   STATUS_COPY,
   type VitalStatus,
