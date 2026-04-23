@@ -96,7 +96,7 @@ const EditorialHero = () => {
           alt=""
           width={1280}
           height={1280}
-          className="hero-constellation-img w-[78vw] max-w-[920px] lg:w-[60vw] lg:max-w-[1040px] -mr-[8vw] lg:-mr-[6vw] opacity-60 lg:opacity-80 select-none"
+          className="hero-constellation-img w-[62vw] max-w-[560px] sm:w-[55vw] sm:max-w-[680px] lg:w-[58vw] lg:max-w-[980px] mr-0 lg:-mr-[4vw] opacity-55 sm:opacity-65 lg:opacity-80 select-none"
           draggable={false}
         />
       </div>
