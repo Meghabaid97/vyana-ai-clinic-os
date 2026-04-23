@@ -1,3 +1,4 @@
+import { Mail, Linkedin } from "lucide-react";
 import whartonLogo from "@/assets/wharton-logo.png";
 import { useReveal } from "@/hooks/use-reveal";
 import { useLandingT } from "@/lib/i18n-landing";
