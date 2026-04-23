@@ -207,9 +207,14 @@ const DoctorVisitMode = () => {
         }
         action={
           briefing ? (
-            <Button size="sm" onClick={shareWA} className="h-9 px-3 text-[12px] gap-1.5">
-              <Share2 className="h-3.5 w-3.5" /> Share
-            </Button>
+            <div className="flex gap-1.5">
+              <Button size="sm" variant="outline" onClick={() => setShareSheetOpen(true)} className="h-9 px-2.5 text-[12px] gap-1.5" disabled={isDemo} title={isDemo ? "QR sharing isn't available for sample data" : "Show QR for doctor to scan"} aria-label="Show QR">
+                <QrCode className="h-3.5 w-3.5" />
+              </Button>
+              <Button size="sm" onClick={shareWA} className="h-9 px-3 text-[12px] gap-1.5">
+                <Share2 className="h-3.5 w-3.5" /> Share
+              </Button>
+            </div>
           ) : undefined
         }
       />
