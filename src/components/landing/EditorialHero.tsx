@@ -58,11 +58,11 @@ const EditorialHero = () => {
   const again = t("hero.h1.again");
   const sub = t("hero.sub");
 
-  const EYEBROW_START = 120;
-  const HEADLINE_START = 360;
-  const HEADLINE_STEP = 90;
-  const SUB_DELAY_AFTER_HEADLINE = 180;
-  const CTA_DELAY_AFTER_SUB = 220;
+  const EYEBROW_START = 60;
+  const HEADLINE_START = 140;
+  const HEADLINE_STEP = 35;
+  const SUB_DELAY_AFTER_HEADLINE = 120;
+  const CTA_DELAY_AFTER_SUB = 140;
 
   const splitWords = (s: string) => s.split(/\s+/).filter(Boolean);
   const wordsA = splitWords(lineA);
