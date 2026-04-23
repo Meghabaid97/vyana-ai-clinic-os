@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 
 interface Briefing {
@@ -26,6 +27,7 @@ const PatientBriefing = () => {
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareState, setShareState] = useState<ButtonState>("idle");
   const [isDemo, setIsDemo] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
@@ -125,9 +127,16 @@ const PatientBriefing = () => {
   };
 
   const shareViaWhatsApp = () => {
+    if (shareState !== "idle") return;
+    setShareState("loading");
     const text = briefingToText();
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
+    // Brief "preparing" beat so the AI summary feels assembled, not instant.
+    setTimeout(() => {
+      window.open(url, "_blank");
+      setShareState("success");
+      setTimeout(() => setShareState("idle"), 2000);
+    }, 500);
   };
 
   const copyToClipboard = async () => {
