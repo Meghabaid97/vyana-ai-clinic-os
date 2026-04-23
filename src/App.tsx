@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { initShareIntent } from "@/lib/shareIntent";
 import NativeBootGuard from "@/components/NativeBootGuard";
+import ChunkErrorBoundary from "@/components/ChunkErrorBoundary";
 
 // Eager: minimal route shell only
 const Index = lazy(() => import("./pages/Index"));
@@ -65,8 +66,9 @@ const App = () => (
       <BrowserRouter>
         <NativeBootGuard />
         <ShareIntentBridge />
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
+        <ChunkErrorBoundary>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
             {/* Public */}
             <Route path="/" element={<Index />} />
             <Route path="/splash" element={<Splash />} />
