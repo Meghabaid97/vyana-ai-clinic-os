@@ -127,22 +127,6 @@ const EditorialHero = () => {
                 </Button>
               </div>
 
-              {/* Mobile only: cropped constellation flourish directly under CTA */}
-              <div
-                className={`lg:hidden pointer-events-none pt-5 ${staged ? "hero-constellation-in" : "opacity-0"}`}
-                aria-hidden
-              >
-                <div className="relative h-[140px] overflow-hidden">
-                  <img
-                    src={heroConstellation}
-                    alt=""
-                    width={1280}
-                    height={1280}
-                    draggable={false}
-                    className="hero-constellation-img absolute left-1/2 bottom-[-8px] w-[150%] max-w-none -translate-x-1/2 opacity-60 mix-blend-multiply select-none"
-                  />
-                </div>
-              </div>
             </div>
 
             {/* Desktop only: constellation as right column */}
