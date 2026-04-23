@@ -32,7 +32,7 @@ const TrustStrip = () => {
             <br />
             <em className="italic text-primary font-normal">{t("trust.title.l2")}</em>
           </h2>
-          <p className="mt-6 text-[15.5px] leading-[1.75] text-muted-foreground">
+          <p className="mt-6 text-body text-muted-foreground">
             {t("trust.sub")}
           </p>
         </div>
@@ -52,10 +52,10 @@ const TrustStrip = () => {
                 <Icon className="h-4 w-4 text-primary" strokeWidth={1.75} />
               </div>
               <div>
-                <div className="text-[13.5px] font-medium text-foreground leading-tight">
+                <div className="text-card-title font-medium text-foreground">
                   {label}
                 </div>
-                <div className="text-[11.5px] text-muted-foreground mt-1 leading-snug">
+                <div className="text-caption text-muted-foreground mt-1">
                   {sub}
                 </div>
               </div>
@@ -63,7 +63,7 @@ const TrustStrip = () => {
           ))}
         </div>
 
-        <p className="mt-10 text-[13px] italic text-muted-foreground/80 max-w-[620px]">
+        <p className="mt-10 text-caption italic text-muted-foreground/80 max-w-[620px]">
           {t("trust.note")}
         </p>
       </div>

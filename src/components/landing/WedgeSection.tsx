@@ -41,10 +41,10 @@ const WedgeSection = () => {
               <div className="text-label text-primary mb-6">
                 {p.n}
               </div>
-              <h3 className="font-serif text-[26px] leading-[1.15] text-surface-dark-foreground tracking-[-0.01em]">
+              <h3 className="font-serif text-card-title text-surface-dark-foreground">
                 {p.title}
               </h3>
-              <p className="mt-4 text-[15px] leading-[1.65] text-surface-dark-muted">
+              <p className="mt-4 text-body text-surface-dark-muted">
                 {p.body}
               </p>
             </div>

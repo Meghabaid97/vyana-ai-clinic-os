@@ -41,7 +41,7 @@ const StatsStrip = () => {
                 <div className="text-label text-primary mt-2">
                   {s.unit}
                 </div>
-                <p className="mt-5 text-[14px] leading-[1.7] text-[hsl(30_20%_82%)] max-w-[280px]">
+                <p className="mt-5 text-caption text-[hsl(30_20%_82%)] max-w-[280px]">
                   {s.body}
                 </p>
               </div>
