@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-MODE="${1:-doctor}"
+MODE="${1:-prod}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
