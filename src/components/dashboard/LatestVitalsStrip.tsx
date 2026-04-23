@@ -218,7 +218,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
             {tiles.map(({ def, values, latest, prior }) => {
-              const status = statusOf(latest, def.range);
+              const status = vitalStatus(latest, def.range);
               const tone = STATUS_TONE[status];
               const delta = prior != null ? latest - prior : null;
               const dir = delta == null || Math.abs(delta) < 0.0001 ? "flat" : delta > 0 ? "up" : "down";
