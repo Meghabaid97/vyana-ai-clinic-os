@@ -131,65 +131,65 @@ const StickyPillarReveal = () => {
             ))}
           </div>
 
-          {/* Right: sticky artifact frame on a soft surface */}
-          <div className="relative">
-            <div className="sticky top-1/2 -translate-y-1/2">
-              <div className="relative h-[600px] rounded-[28px] bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)] border border-border/40 shadow-[0_40px_100px_-40px_hsl(22_25%_15%/0.25)] overflow-hidden">
-                {/* Subtle grid texture */}
-                <div
-                  className="absolute inset-0 opacity-[0.04]"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(hsl(22 25% 15%) 1px, transparent 1px)",
-                    backgroundSize: "20px 20px",
-                  }}
-                />
+          {/* Right: sticky artifact frame. self-start + sticky pins it to the
+              top of the viewport while the left column scrolls past. The grid
+              row's height = the left column's height, giving sticky room to travel. */}
+          <div className="sticky self-start top-[calc(50vh-300px)] h-[600px]">
+            <div className="relative h-full rounded-[28px] bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)] border border-border/40 shadow-[0_40px_100px_-40px_hsl(22_25%_15%/0.25)] overflow-hidden">
+              {/* Subtle grid texture */}
+              <div
+                className="absolute inset-0 opacity-[0.04]"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(hsl(22 25% 15%) 1px, transparent 1px)",
+                  backgroundSize: "20px 20px",
+                }}
+              />
 
-                {/* Active pillar label, top-left */}
-                <div className="absolute top-6 left-6 z-10">
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-foreground/50 font-medium">
-                    Live preview
-                  </p>
-                  <p
-                    key={active}
-                    className="font-serif text-[15px] text-foreground mt-1 animate-fade-in"
-                  >
-                    {pillars[active].framework}
-                  </p>
-                </div>
+              {/* Active pillar label, top-left */}
+              <div className="absolute top-6 left-6 z-10">
+                <p className="text-[10px] uppercase tracking-[0.25em] text-foreground/50 font-medium">
+                  Live preview
+                </p>
+                <p
+                  key={active}
+                  className="font-serif text-[15px] text-foreground mt-1 animate-fade-in"
+                >
+                  {pillars[active].framework}
+                </p>
+              </div>
 
-                {/* Step indicator, top-right */}
-                <div className="absolute top-6 right-6 z-10 flex gap-1.5">
-                  {pillars.map((_, i) => (
-                    <span
+              {/* Step indicator, top-right */}
+              <div className="absolute top-6 right-6 z-10 flex gap-1.5">
+                {pillars.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-1 rounded-full transition-all duration-500 ${
+                      active === i
+                        ? "w-6 bg-primary"
+                        : "w-1.5 bg-foreground/20"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Artifact stack */}
+              <div className="absolute inset-0 flex items-center justify-center px-8">
+                {pillars.map((p, i) => {
+                  const Artifact = p.Artifact;
+                  return (
+                    <div
                       key={i}
-                      className={`h-1 rounded-full transition-all duration-500 ${
+                      className={`absolute inset-0 flex items-center justify-center px-8 transition-all duration-500 ${
                         active === i
-                          ? "w-6 bg-primary"
-                          : "w-1.5 bg-foreground/20"
+                          ? "opacity-100 translate-y-0 pointer-events-auto"
+                          : "opacity-0 translate-y-3 pointer-events-none"
                       }`}
-                    />
-                  ))}
-                </div>
-
-                {/* Artifact stack */}
-                <div className="absolute inset-0 flex items-center justify-center px-8">
-                  {pillars.map((p, i) => {
-                    const Artifact = p.Artifact;
-                    return (
-                      <div
-                        key={i}
-                        className={`absolute inset-0 flex items-center justify-center px-8 transition-all duration-500 ${
-                          active === i
-                            ? "opacity-100 translate-y-0 pointer-events-auto"
-                            : "opacity-0 translate-y-3 pointer-events-none"
-                        }`}
-                      >
-                        <Artifact />
-                      </div>
-                    );
-                  })}
-                </div>
+                    >
+                      <Artifact />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
