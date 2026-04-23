@@ -48,7 +48,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { jsPDF } from "jspdf";
 import { downloadPrescriptionPdf } from "@/lib/prescriptionPdf";
-import { downloadPrescriptionPdfSage } from "@/lib/prescriptionPdfSage";
 import { decodePatientId, maskHealthId } from "@/lib/formatters";
 
 interface Consultation {
@@ -393,11 +392,13 @@ const DoctorPatientView = () => {
     }
   };
 
-  const buildPrescriptionPayload = () => {
-    if (!prescription || !selectedConsultationForRx) return null;
+  const downloadPrescription = () => {
+    if (!prescription || !selectedConsultationForRx) return;
 
+    // Parse medications into structured format
     const medLines = prescription.medications.split("\n").filter(Boolean);
     const medications = medLines.map(med => {
+      // Try to parse medication line (format: "MedicationName - Dosage - Instructions")
       const parts = med.split(/[--]/).map(p => p.trim());
       return {
         name: parts[0] || med,
@@ -409,16 +410,17 @@ const DoctorPatientView = () => {
       };
     });
 
+    // Extract diagnosis from FHIR data
     const fhirData = parseFHIRData(selectedConsultationForRx.fhir_data);
     const diagnoses = extractDiagnosis(fhirData);
 
     const visitDate = new Date(selectedConsultationForRx.created_at).toLocaleDateString("en-IN", {
       day: "2-digit",
-      month: "2-digit",
+      month: "2-digit", 
       year: "numeric",
     });
 
-    return {
+    downloadPrescriptionPdf({
       clinicName: doctorProfile?.clinic_name || "Healthcare Clinic",
       clinicAddress: doctorProfile?.clinic_address || "",
       clinicPhone: doctorProfile?.phone || "",
@@ -431,22 +433,12 @@ const DoctorPatientView = () => {
       patientGender: undefined,
       patientPhone: undefined,
       healthId: healthId || "",
-      visitDate,
+      visitDate: visitDate,
       visitType: "Consultation Visit",
       diagnosis: diagnoses.join(", ") || "As noted in consultation",
-      medications,
+      medications: medications,
       advice: prescription.notes || undefined,
-    };
-  };
-
-  const downloadPrescription = () => {
-    const payload = buildPrescriptionPayload();
-    if (payload) downloadPrescriptionPdf(payload);
-  };
-
-  const downloadPrescriptionSage = () => {
-    const payload = buildPrescriptionPayload();
-    if (payload) downloadPrescriptionPdfSage(payload);
+    });
   };
 
   // Audio dictation for prescription
@@ -1132,13 +1124,9 @@ const DoctorPatientView = () => {
             <Button variant="outline" onClick={() => setShowPrescriptionDialog(false)}>
               Cancel
             </Button>
-            <Button variant="outline" onClick={downloadPrescription} disabled={!prescription}>
+            <Button onClick={downloadPrescription} disabled={!prescription}>
               <Download className="h-4 w-4 mr-2" />
-              Classic PDF
-            </Button>
-            <Button onClick={downloadPrescriptionSage} disabled={!prescription}>
-              <Download className="h-4 w-4 mr-2" />
-              Sage edition (new)
+              Download PDF
             </Button>
           </DialogFooter>
         </DialogContent>
