@@ -13,18 +13,18 @@ const WedgeSectionGrid = () => {
   ];
 
   return (
-    <section id="wedge" className="section-blend-top relative py-32 lg:py-40">
+    <section id="wedge" className="relative py-32 lg:py-40 bg-background">
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[820px] mb-20`}
         >
-          <h2 className="text-section text-surface-dark-foreground">
+          <h2 className="text-section text-foreground">
             {t("wedge.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("wedge.title.l2")}</em>
           </h2>
-          <p className="mt-8 text-[18px] leading-[1.65] text-surface-dark-muted max-w-[620px]">
+          <p className="mt-8 text-[18px] leading-[1.65] text-muted-foreground max-w-[620px]">
             {t("wedge.sub")}
           </p>
         </div>
@@ -36,15 +36,15 @@ const WedgeSectionGrid = () => {
           {pillars.map((p, i) => (
             <div
               key={p.n}
-              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-8`}
+              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card p-8`}
             >
               <div className="text-label text-primary mb-6">
                 {p.n}
               </div>
-              <h3 className="font-serif text-card-title text-surface-dark-foreground">
+              <h3 className="font-serif text-card-title text-foreground">
                 {p.title}
               </h3>
-              <p className="mt-4 text-body text-surface-dark-muted">
+              <p className="mt-4 text-body text-muted-foreground">
                 {p.body}
               </p>
             </div>
