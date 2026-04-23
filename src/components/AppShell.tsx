@@ -113,7 +113,9 @@ const AppShell = () => {
     };
   }, [navigate]);
 
-  const allTabs = desktopTabs;
+  // Union of all tab paths (mobile + desktop) so /app/profile and /app/emergency-contacts
+  // both resolve to a primary route and don't render the back-arrow header.
+  const allTabs = [...tabs, ...desktopTabs.filter(d => !tabs.some(t => t.id === d.id))];
   const activeTab = allTabs.find(t =>
     t.path === "/app"
       ? location.pathname === "/app"
