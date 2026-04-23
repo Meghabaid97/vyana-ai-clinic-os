@@ -62,6 +62,7 @@ case "$MODE" in
     ensure_deps
     ensure_build
     ensure_ios_platform
+    generate_app_icon
     c_blue "Syncing Capacitor (dev: hot-reload from Lovable)..."
     npx cap sync ios
     c_green "Opening Xcode. Hit Run (⌘R) — the simulator will load the live preview."
@@ -77,6 +78,7 @@ case "$MODE" in
     c_blue "Re-creating ios/ in prod mode..."
     rm -rf ios
     CAP_MODE=prod npx cap add ios
+    generate_app_icon
     CAP_MODE=prod npx cap sync ios
     c_green "Opening Xcode. Build for a real device or Archive for TestFlight."
     CAP_MODE=prod npx cap open ios
@@ -87,6 +89,7 @@ case "$MODE" in
     ensure_deps
     ensure_build
     ensure_ios_platform
+    generate_app_icon
     c_blue "Syncing iOS plugins..."
     npx cap sync ios
     c_green "Done. Reopen Xcode if it was already open so it picks up new plugins."
@@ -101,6 +104,7 @@ case "$MODE" in
     npm install
     npm run build
     npx cap add ios
+    generate_app_icon
     npx cap sync ios
     c_green "Done. Opening Xcode — do File → Packages → Reset Package Caches once."
     npx cap open ios
