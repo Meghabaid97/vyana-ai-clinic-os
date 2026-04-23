@@ -96,7 +96,15 @@ const PatientHealthRecords = () => {
       </section>
 
       {profile && userId ? (
-        <HealthRecordsTab patientId={profile.id} userId={userId} doctors={doctors} />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center rounded-2xl border border-border bg-card py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          }
+        >
+          <HealthRecordsTab patientId={profile.id} userId={userId} doctors={doctors} />
+        </Suspense>
       ) : (
         <>
           <section className="rounded-2xl border border-border bg-card p-5">
