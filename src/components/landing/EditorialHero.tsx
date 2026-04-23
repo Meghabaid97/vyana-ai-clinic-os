@@ -73,6 +73,37 @@ const EditorialHero = () => {
     >
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background/35" />
 
+      {/* Mobile: constellation as atmospheric backdrop, centered behind hero */}
+      <div
+        className={`pointer-events-none absolute inset-0 z-[1] lg:hidden flex items-center justify-center ${staged ? "hero-constellation-in" : "opacity-0"}`}
+        aria-hidden
+      >
+        <div className="relative w-[140vw] max-w-none -mr-[20vw] translate-y-[6vh]">
+          <img
+            src={heroConstellation}
+            alt=""
+            width={1280}
+            height={1280}
+            draggable={false}
+            className="hero-constellation-img w-full opacity-40 mix-blend-multiply select-none"
+          />
+          {SPARKLES.map((s, i) => (
+            <span
+              key={i}
+              className={`hero-sparkle ${s.tone ?? ""}`}
+              style={{
+                top: s.top,
+                left: s.left,
+                width: s.size,
+                height: s.size,
+                ["--delay" as string]: s.delay,
+                ["--dur" as string]: s.dur,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
       <div className="relative z-10 lg:min-h-[100svh] flex items-center">
         <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-20 pb-12 lg:pt-28 lg:pb-20">
           <div className="lg:grid lg:grid-cols-[minmax(0,700px)_minmax(320px,1fr)] lg:items-center lg:gap-2">
@@ -128,8 +159,9 @@ const EditorialHero = () => {
               </div>
             </div>
 
+            {/* Desktop only: constellation as right column */}
             <div
-              className={`pointer-events-none relative mt-6 flex justify-center ${staged ? "hero-constellation-in" : "opacity-0"} lg:mt-0 lg:-ml-24 lg:justify-start`}
+              className={`pointer-events-none relative hidden lg:flex justify-start lg:-ml-24 ${staged ? "hero-constellation-in" : "opacity-0"}`}
               aria-hidden
             >
               <div className="relative">
@@ -139,7 +171,7 @@ const EditorialHero = () => {
                   width={1280}
                   height={1280}
                   draggable={false}
-                  className="hero-constellation-img w-[78vw] max-w-[420px] sm:w-[72vw] sm:max-w-[620px] lg:w-[46vw] lg:max-w-[760px] opacity-70 mix-blend-multiply select-none lg:opacity-90"
+                  className="hero-constellation-img w-[46vw] max-w-[760px] opacity-90 mix-blend-multiply select-none"
                 />
                 {SPARKLES.map((s, i) => (
                   <span
