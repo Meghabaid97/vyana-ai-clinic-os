@@ -31,7 +31,7 @@ const config: CapacitorConfig = {
         server: {
           url: 'https://7c435247-6dc0-4b68-9808-f61158e40739.lovableproject.com?forceHideBadge=true',
           cleartext: true,
-          iosScheme: 'lovable',
+          iosScheme: 'vyana',
         },
       }),
   ios: {

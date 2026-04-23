@@ -12,7 +12,7 @@ if (Capacitor.isNativePlatform()) {
 }
 
 const OAUTH_CALLBACK_HOST = "oauth-callback";
-const NATIVE_OAUTH_PROTOCOLS = new Set(["lovable:", "vyana:"]);
+const NATIVE_OAUTH_PROTOCOLS = new Set(["vyana:"]);
 
 const isOAuthCallbackUrl = (url: string) => {
   try {
