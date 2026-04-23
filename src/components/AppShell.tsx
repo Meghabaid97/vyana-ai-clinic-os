@@ -52,9 +52,14 @@ const AppShell = () => {
   const [askInitial, setAskInitial] = useState("");
   const [tourOpen, setTourOpen] = useState(false);
 
-  // Tour is opt-in only (triggered via the "Watch a quick tour" button).
-  // Do NOT auto-open — it covers the dashboard with a misaligned spotlight on mobile.
-  // To re-enable explicit triggering, call setTourOpen(true) from a button onClick.
+  // Auto-launch the spotlight tour once per device on first visit to /app.
+  // Manual replay is always available via the help (?) button in the top bar.
+  useEffect(() => {
+    if (hasSeenTour()) return;
+    if (location.pathname !== "/app") return;
+    const t = window.setTimeout(() => setTourOpen(true), 800);
+    return () => window.clearTimeout(t);
+  }, [location.pathname]);
 
   useEffect(() => {
     let cancelled = false;
@@ -224,6 +229,13 @@ const AppShell = () => {
           <div className="flex items-center gap-2 shrink-0">
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
             <LanguageSelector />
+            <button
+              onClick={() => setTourOpen(true)}
+              aria-label="Take the tour"
+              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <HelpCircle className="h-[18px] w-[18px]" />
+            </button>
             <NotificationBell />
             <button
               data-tour="nav-profile"
