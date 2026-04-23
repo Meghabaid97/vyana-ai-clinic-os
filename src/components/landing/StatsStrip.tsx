@@ -26,10 +26,20 @@ const StatsStrip = () => {
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={ref}
-          className={`reveal ${visible ? "is-visible" : ""} rounded-2xl backdrop-blur-md shadow-[0_30px_80px_-30px_rgba(0,0,0,0.45)] overflow-hidden`}
+          className={`reveal ${visible ? "is-visible" : ""} relative rounded-2xl backdrop-blur-md shadow-[0_30px_80px_-30px_rgba(0,0,0,0.45)] overflow-hidden`}
           style={{ background: "hsl(20 18% 10% / 0.82)" }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
+          {/* Subtle editorial grid — ivory lines on walnut, behind content */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.05]"
+            style={{
+              backgroundImage:
+                "url(\"data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 0h40M0 0v40' stroke='%23f5ead8' stroke-width='0.5'/%3E%3C/svg%3E\")",
+              backgroundSize: "40px 40px",
+            }}
+          />
+          <div className="relative grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
             {stats.map((s, i) => (
               <div
                 key={i}
