@@ -10,6 +10,9 @@ const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSel
 const AskVyanaModal = lazy(() => import("@/components/AskVyanaModal"));
 const SpotlightTour = lazy(() => import("@/components/SpotlightTour"));
 
+const TOUR_STORAGE_KEY = "vyana-tour-completed-v1";
+const hasSeenTour = () => typeof window !== "undefined" && localStorage.getItem(TOUR_STORAGE_KEY) === "1";
+
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
   { id: "briefing", label: "Briefing", shortLabel: "Brief", icon: Stethoscope, path: "/app/briefing" },
