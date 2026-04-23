@@ -400,6 +400,41 @@
     z-index: 1;
   }
 
+  /* Drifting aurora — same wash, slow 28s loop. Hero use only. */
+  .aurora-warm-drift::before {
+    background-size: 200% 200%;
+    animation: aurora-drift 28s ease-in-out infinite;
+  }
+  @keyframes aurora-drift {
+    0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+    50%      { background-position: 25% 35%, 75% 65%, 60% 40%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .aurora-warm-drift::before { animation: none; }
+  }
+
+  /* Kinetic word reveal — staggered word-by-word fade+rise+deblur.
+     Wrap each word in <span class="kw" style={{"--d":"120ms"}}>word</span>.
+     Parent container needs class "kw-stage" to trigger. */
+  .kw {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.4em);
+    filter: blur(6px);
+    will-change: opacity, transform, filter;
+  }
+  .kw-stage .kw {
+    animation: kw-rise 760ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    animation-delay: var(--d, 0ms);
+  }
+  @keyframes kw-rise {
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .kw { opacity: 1; transform: none; filter: none; }
+    .kw-stage .kw { animation: none; }
+  }
+
   /* Softer aurora — for ivory/light sections where the wash should
      barely register. Lower opacity, gentler radii, no center orb. */
   .aurora-warm-soft {
