@@ -12,15 +12,19 @@ const WatchItWorkModal = ({ open, onOpenChange }: Props) => {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [showControls, setShowControls] = useState(false);
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (open) {
       setHasError(false);
-      v.currentTime = 0;
+      setShowControls(false);
+      try { v.currentTime = 0; } catch {}
       v.muted = true;
       setIsMuted(true);
+      // Try to autoplay muted (allowed on most browsers). Fall back to a
+      // tap-to-play overlay if blocked (iOS native WebView, low-power mode).
       const p = v.play();
       if (p && typeof p.then === "function") {
         p.then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
@@ -41,7 +45,14 @@ const WatchItWorkModal = ({ open, onOpenChange }: Props) => {
   const manualPlay = () => {
     const v = videoRef.current;
     if (!v) return;
-    v.play().then(() => setIsPlaying(true)).catch(() => {});
+    v.muted = true;
+    setIsMuted(true);
+    v.play()
+      .then(() => setIsPlaying(true))
+      .catch(() => {
+        // Last-resort: expose native controls so the user can definitely play.
+        setShowControls(true);
+      });
   };
 
   return (
@@ -87,18 +98,20 @@ const WatchItWorkModal = ({ open, onOpenChange }: Props) => {
                   loop
                   autoPlay
                   preload="auto"
+                  controls={showControls}
+                  controlsList="nodownload noplaybackrate"
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
                   onError={() => setHasError(true)}
                   onLoadedData={() => {
                     const v = videoRef.current;
-                    if (v && v.paused) v.play().catch(() => {});
+                    if (v && v.paused) v.play().catch(() => setShowControls(true));
                   }}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
 
                 {/* Tap-to-play overlay (autoplay blocked) */}
-                {!isPlaying && !hasError && (
+                {!isPlaying && !hasError && !showControls && (
                   <button
                     onClick={manualPlay}
                     aria-label="Play video"
@@ -111,22 +124,36 @@ const WatchItWorkModal = ({ open, onOpenChange }: Props) => {
                 )}
 
                 {hasError && (
-                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black text-white text-[11px] px-4 text-center">
-                    Demo video could not load. Please refresh.
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black text-white text-[12px] px-4 text-center gap-3">
+                    <span>Demo video could not load.</span>
+                    <button
+                      onClick={() => {
+                        const v = videoRef.current;
+                        if (!v) return;
+                        setHasError(false);
+                        v.load();
+                        v.play().catch(() => setShowControls(true));
+                      }}
+                      className="rounded-full bg-white/15 hover:bg-white/25 px-3 py-1.5 text-[11px] font-medium"
+                    >
+                      Try again
+                    </button>
                   </div>
                 )}
 
-                <button
-                  onClick={toggleMute}
-                  aria-label={isMuted ? "Unmute" : "Mute"}
-                  className="absolute bottom-2.5 right-2.5 z-30 h-8 w-8 rounded-full bg-black/55 border border-white/15 flex items-center justify-center text-white"
-                >
-                  {isMuted ? (
-                    <VolumeX className="h-3.5 w-3.5" />
-                  ) : (
-                    <Volume2 className="h-3.5 w-3.5" />
-                  )}
-                </button>
+                {!showControls && (
+                  <button
+                    onClick={toggleMute}
+                    aria-label={isMuted ? "Unmute" : "Mute"}
+                    className="absolute bottom-2.5 right-2.5 z-30 h-8 w-8 rounded-full bg-black/55 border border-white/15 flex items-center justify-center text-white"
+                  >
+                    {isMuted ? (
+                      <VolumeX className="h-3.5 w-3.5" />
+                    ) : (
+                      <Volume2 className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>
