@@ -37,7 +37,7 @@ const EditorialHero = () => {
               {t("hero.h1.l1")}
               <br />
               {t("hero.h1.l2")}{" "}
-              <em className="italic text-primary font-normal">{t("hero.h1.again")}</em>
+              <em className="italic text-primary font-normal ai-sparkle">{t("hero.h1.again")}</em>
             </h1>
 
             <p className="text-[17px] leading-[1.65] text-foreground/85 max-w-[560px]">
