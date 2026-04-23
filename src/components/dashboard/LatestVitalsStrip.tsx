@@ -52,6 +52,27 @@ interface VitalSeries {
 const fmt = (key: string, v: number, d = 1) => formatVital(key, v, d);
 
 const Sparkline = ({ values, tone }: { values: number[]; tone: VitalStatus }) => {
+  const pathRef = useRef<SVGPolylineElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = pathRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setVisible(true);
+            io.disconnect();
+          }
+        });
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   if (values.length < 2) return <div className="h-5" />;
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -62,9 +83,21 @@ const Sparkline = ({ values, tone }: { values: number[]; tone: VitalStatus }) =>
   const pts = values
     .map((v, i) => `${(i * step).toFixed(1)},${(h - ((v - min) / range) * h).toFixed(1)}`)
     .join(" ");
+  // approximate path length for dash animation (slightly over true length is fine)
+  const approxLen = Math.ceil(w * 1.6);
   return (
-    <svg width={w} height={h} className="block opacity-80">
-      <polyline points={pts} fill="none" stroke={STATUS_TONE[tone].stroke} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    <svg width={w} height={h} className="block opacity-90">
+      <polyline
+        ref={pathRef}
+        points={pts}
+        fill="none"
+        stroke={STATUS_TONE[tone].stroke}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        className={`vital-sparkline-path ${visible ? "is-visible" : ""}`}
+        style={{ ["--spark-len" as string]: approxLen }}
+      />
     </svg>
   );
 };
