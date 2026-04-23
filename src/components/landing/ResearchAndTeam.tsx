@@ -16,7 +16,7 @@ const ResearchAndTeam = () => {
   ];
 
   return (
-    <section id="research" className="section-blend relative py-28 lg:py-36">
+    <section id="research" className="mood mood-cocoa from-blush to-cream relative py-28 lg:py-36">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}

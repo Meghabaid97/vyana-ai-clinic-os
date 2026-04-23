@@ -60,7 +60,7 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section id="how" className="relative py-28 lg:py-36 bg-background">
+    <section id="how" className="mood mood-ivory from-sage to-blush relative py-28 lg:py-36">
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
