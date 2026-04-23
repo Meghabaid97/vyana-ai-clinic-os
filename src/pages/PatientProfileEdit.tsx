@@ -163,15 +163,20 @@ const PatientProfileEdit = () => {
       {/* Next doctor visit, drives pre-visit notification */}
       <section className="px-5 pt-4">
         <div className="rounded-xl border border-border bg-card p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <Calendar className="h-5 w-5 text-primary" />
-            <div className="flex-1">
+          <div className="flex items-center gap-3 mb-3">
+            <Calendar className="h-5 w-5 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
               <p className="text-[15px] font-medium text-foreground">Next doctor visit</p>
-              <p className="text-xs text-muted-foreground">We'll prep your summary the day before</p>
+              <p className="text-xs text-muted-foreground">
+                {profile?.next_visit_date
+                  ? "We'll prep your summary the day before"
+                  : "Add a date and we'll prep your summary the day before"}
+              </p>
             </div>
           </div>
           <Input
             type="date"
+            aria-label="Next doctor visit date"
             value={profile?.next_visit_date || ""}
             min={new Date().toISOString().slice(0, 10)}
             onChange={async (e) => {
@@ -183,7 +188,24 @@ const PatientProfileEdit = () => {
                 toast({ title: v ? "Visit saved" : "Visit cleared", description: v ? "We'll remind you the day before." : "" });
               }
             }}
+            className="h-11 text-[15px]"
           />
+          {profile?.next_visit_date && (
+            <button
+              type="button"
+              onClick={async () => {
+                if (!profile) return;
+                const { error } = await supabase.from("patients").update({ next_visit_date: null }).eq("id", profile.id);
+                if (!error) {
+                  setProfile({ ...profile, next_visit_date: null });
+                  toast({ title: "Visit cleared" });
+                }
+              }}
+              className="mt-2 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Clear date
+            </button>
+          )}
         </div>
       </section>
       <section className="px-5 pt-5">
