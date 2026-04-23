@@ -88,16 +88,12 @@ const StickyPillarReveal = () => {
           page scroll moves through invisible sentinels that switch the active
           citation + live preview. */}
       <div className="hidden lg:block max-w-[1280px] mx-auto px-12">
-        <div className="relative" style={{ height: `${pillars.length * 72}vh` }}>
-          {pillars.map((p, i) => (
-            <div
-              key={`sentinel-${i}`}
-              ref={registerRef(i)}
-              className="h-[72vh]"
-              aria-hidden
-            />
-          ))}
-
+        <div
+          className="relative"
+          style={{
+            height: `calc(100svh - 3.5rem + ${(pillars.length - 1) * 72}vh)`,
+          }}
+        >
           <div className="sticky top-14 h-[calc(100svh-3.5rem)] grid grid-cols-[minmax(0,1fr)_minmax(0,560px)] gap-20 items-center">
             {/* Left: active citation only, cross-fading as the section advances */}
             <div className="relative h-full flex items-center">
@@ -193,6 +189,18 @@ const StickyPillarReveal = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Invisible scroll markers drive the active step without pushing the
+              stage down, so the scene appears immediately when the section starts. */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 opacity-0" aria-hidden>
+            {pillars.map((p, i) => (
+              <div
+                key={`sentinel-${i}`}
+                ref={registerRef(i)}
+                style={{ height: i === 0 ? "calc(100svh - 3.5rem)" : "72vh" }}
+              />
+            ))}
           </div>
         </div>
       </div>
