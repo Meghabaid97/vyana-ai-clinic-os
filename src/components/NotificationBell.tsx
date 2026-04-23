@@ -53,8 +53,13 @@ const NotificationBell = () => {
       userIdRef.current = session.user.id;
       await loadNotifications();
 
+      // Use a PRIVATE channel so Supabase Realtime enforces the
+      // realtime.messages RLS policy ("Users can subscribe to own notification
+      // topic"). The topic name MUST match the policy: notifications:<uid>.
       channel = supabase
-        .channel(`notifications:${session.user.id}`)
+        .channel(`notifications:${session.user.id}`, {
+          config: { private: true },
+        })
         .on(
           "postgres_changes",
           {
