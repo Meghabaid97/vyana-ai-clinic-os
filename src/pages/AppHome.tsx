@@ -103,7 +103,41 @@ const AppHome = () => {
 
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
-      {/* Profile completion nudge — shown to users who signed up via Google or skipped optional fields */}
+      {/* Mandatory profile capture — name + phone before using the app */}
+      <Dialog open={requiredOpen} onOpenChange={(open) => { if (!open && !profile?.phone) return; setRequiredOpen(open); }}>
+        <DialogContent
+          className="sm:max-w-md"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center mb-2">
+              <UserCircle2 className="h-6 w-6 text-primary" />
+            </div>
+            <DialogTitle>Finish your profile</DialogTitle>
+            <DialogDescription>
+              We just need your name and phone to keep your records connected to you. You can add ABHA ID and other details anytime.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div>
+              <Label htmlFor="req-name">Full name</Label>
+              <Input id="req-name" value={reqName} onChange={(e) => setReqName(e.target.value)} placeholder="e.g. Megha Baid" maxLength={100} />
+            </div>
+            <div>
+              <Label htmlFor="req-phone">Phone number</Label>
+              <Input id="req-phone" value={reqPhone} onChange={(e) => setReqPhone(e.target.value)} placeholder="+91 98765 43210" inputMode="tel" maxLength={20} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={saveRequired} disabled={savingRequired} className="w-full">
+              {savingRequired ? "Saving..." : "Save and continue"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Profile completion nudge — soft banner for optional fields (DOB, ABHA) */}
       {showProfileBanner && (
         <div className="px-4 sm:px-5 pt-4 pb-2 lg:px-0 lg:pb-4">
           <div className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 flex items-center gap-3">
