@@ -130,8 +130,12 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
       const built: VitalSeries[] = [];
       for (const def of VITAL_DEFS) {
         const points = rows
-          .map((r) => ({ value: r.vitals?.[def.key] as number | null, recorded_at: r.recorded_at }))
-          .filter((p): p is { value: number; recorded_at: string } => typeof p.value === "number" && !Number.isNaN(p.value))
+          .map((r) => {
+            const raw = r.vitals?.[def.key] as number | null;
+            if (typeof raw !== "number" || Number.isNaN(raw)) return null;
+            return { value: normalizeVital(def.key, raw), recorded_at: r.recorded_at };
+          })
+          .filter((p): p is { value: number; recorded_at: string } => p !== null)
           .reverse();
         if (points.length === 0) continue;
         built.push({
