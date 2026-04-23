@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Stethoscope, Sparkles, Play, ArrowRight, Clock } from "lucide-react";
 
@@ -7,6 +8,19 @@ interface Props {
 
 const DashboardBriefingHero = ({ hasRecords }: Props) => {
   const navigate = useNavigate();
+  const [staged, setStaged] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setStaged(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  // Staggered "deal the deck" cadence — full reveal in ~600ms
+  const stage = (delay: number): React.CSSProperties => ({
+    opacity: staged ? 1 : 0,
+    transform: staged ? "translateY(0)" : "translateY(8px)",
+    transition: `opacity 380ms ease-out ${delay}ms, transform 420ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+  });
 
   return (
     <section className="px-4 sm:px-5 pb-5 lg:px-0 lg:pb-0">
@@ -15,22 +29,29 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
         <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-primary/10 blur-2xl" />
 
         <div className="relative">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3" style={stage(0)}>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase text-primary">
               <Clock className="h-3 w-3" /> 30 seconds
             </span>
           </div>
 
-          <h2 className="text-[24px] sm:text-[26px] font-extrabold leading-[1.1] tracking-[-0.02em] text-foreground">
+          <h2
+            className="text-[24px] sm:text-[26px] font-extrabold leading-[1.1] tracking-[-0.02em] text-foreground"
+            style={stage(120)}
+          >
             I have a <span className="text-primary">doctor visit.</span>
           </h2>
-          <p className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed max-w-[36ch]">
+          <p
+            className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed max-w-[36ch]"
+            style={stage(220)}
+          >
             One scrollable sheet your doctor can read in under a minute. Conditions, what changed, medications, ready to share.
           </p>
 
           {/* Primary CTA */}
           <button
             onClick={() => navigate("/app/briefing")}
+            style={stage(340)}
             className="group mt-5 flex w-full items-center gap-3 rounded-2xl bg-primary p-4 text-left shadow-sm transition-transform active:scale-[0.99]"
           >
             <div className="h-11 w-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0">
@@ -51,6 +72,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
           <div className="mt-2.5 grid grid-cols-2 gap-2">
             <button
               onClick={() => navigate("/app/briefing")}
+              style={stage(460)}
               className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-left hover:border-primary/30 transition-colors min-w-0"
             >
               <Sparkles className="h-4 w-4 text-primary shrink-0" />
@@ -58,6 +80,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
             </button>
             <button
               onClick={() => navigate("/app/briefing?demo=1")}
+              style={stage(540)}
               className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-left hover:border-primary/30 transition-colors min-w-0"
             >
               <Play className="h-4 w-4 text-primary fill-current shrink-0" />
