@@ -101,22 +101,22 @@ const ResearchAndTeam = () => {
                   <p key={i}>{para}</p>
                 ))}
               </div>
-              <div className="mt-5 flex flex-wrap items-center gap-3">
+              <div className="mt-5 flex items-center gap-3">
                 <a
                   href="mailto:vyana.care@gmail.com"
-                  className="inline-flex items-center gap-2 rounded-full border border-surface-dark-foreground/20 px-4 py-2 text-caption text-surface-dark-foreground/90 transition-colors hover:border-primary hover:text-primary"
+                  aria-label="Email Megha Baid"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-surface-dark-foreground/20 text-surface-dark-foreground/80 transition-colors hover:border-primary hover:text-primary"
                 >
-                  <Mail className="h-3.5 w-3.5" aria-hidden="true" />
-                  vyana.care@gmail.com
+                  <Mail className="h-4 w-4" aria-hidden="true" />
                 </a>
                 <a
                   href="https://www.linkedin.com/in/megha-baid-wharton/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-surface-dark-foreground/20 px-4 py-2 text-caption text-surface-dark-foreground/90 transition-colors hover:border-primary hover:text-primary"
+                  aria-label="Megha Baid on LinkedIn"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-surface-dark-foreground/20 text-surface-dark-foreground/80 transition-colors hover:border-primary hover:text-primary"
                 >
-                  <Linkedin className="h-3.5 w-3.5" aria-hidden="true" />
-                  LinkedIn
+                  <Linkedin className="h-4 w-4" aria-hidden="true" />
                 </a>
               </div>
             </article>
