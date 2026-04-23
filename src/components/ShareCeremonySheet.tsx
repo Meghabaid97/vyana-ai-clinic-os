@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Lock, Clock, Check, FileText, MessageCircle, Copy, Loader2 } from "lucide-react";
+import { Lock, Clock, Check, FileText, MessageCircle, Copy, Loader2, QrCode, ArrowLeft } from "lucide-react";
 
 type Stage =
   | "form"        // ask for recipient name
   | "packaging"   // card folds
   | "locking"    // lock clicks shut
   | "timing"      // 24h timer starts ticking
-  | "ready";     // copied to WhatsApp
+  | "ready"       // copied to WhatsApp
+  | "qr";         // show QR code for doctor to scan
 
 interface Props {
   open: boolean;
@@ -26,6 +28,7 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   // Reset whenever the sheet closes
   useEffect(() => {
@@ -36,10 +39,26 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
         setShareUrl(null);
         setError(null);
         setCopied(false);
+        setQrDataUrl(null);
       }, 250);
       return () => clearTimeout(t);
     }
   }, [open]);
+
+  // Generate QR whenever we enter the qr stage
+  useEffect(() => {
+    if (stage !== "qr" || !shareUrl) return;
+    let cancelled = false;
+    QRCode.toDataURL(shareUrl, {
+      margin: 1,
+      width: 480,
+      color: { dark: "#0f172a", light: "#ffffff" },
+      errorCorrectionLevel: "M",
+    })
+      .then((url) => { if (!cancelled) setQrDataUrl(url); })
+      .catch(() => { if (!cancelled) setQrDataUrl(null); });
+    return () => { cancelled = true; };
+  }, [stage, shareUrl]);
 
   const runCeremony = async () => {
     setError(null);
@@ -141,6 +160,49 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
               </Button>
             </div>
           </div>
+        ) : stage === "qr" ? (
+          <div className="px-6">
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => setStage("ready")}
+                className="inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Back
+              </button>
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+                <Clock className="h-3 w-3 share-timer-tick" /> Expires in 24h
+              </span>
+            </div>
+
+            <div className="mx-auto flex h-[260px] w-[260px] items-center justify-center rounded-2xl border border-border bg-background p-4 shadow-sm animate-tab-content-in">
+              {qrDataUrl ? (
+                <img
+                  src={qrDataUrl}
+                  alt="Scan to open the secure share link"
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              )}
+            </div>
+
+            <p className="mt-4 text-center text-[13px] font-medium text-foreground">
+              Ask the doctor to scan
+            </p>
+            <p className="mt-1 text-center text-[12px] text-muted-foreground">
+              Their phone camera will open your records. No app needed.
+            </p>
+
+            <div className="mt-5 flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={copyAgain}>
+                {copied ? <Check className="h-4 w-4 mr-1.5" /> : <Copy className="h-4 w-4 mr-1.5" />}
+                {copied ? "Copied" : "Copy link"}
+              </Button>
+              <Button className="flex-1" onClick={() => onOpenChange(false)}>
+                Done
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="px-6">
             {/* Stage visual */}
@@ -233,16 +295,25 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
             </p>
 
             {stage === "ready" && (
-              <div className="mt-5 flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={copyAgain}>
-                  {copied ? <Check className="h-4 w-4 mr-1.5" /> : <Copy className="h-4 w-4 mr-1.5" />}
-                  {copied ? "Copied" : "Copy link"}
-                </Button>
-                <Button className="flex-1" onClick={openWhatsApp}>
-                  <MessageCircle className="h-4 w-4 mr-1.5" />
-                  Open WhatsApp
-                </Button>
-              </div>
+              <>
+                <div className="mt-5 flex gap-2">
+                  <Button variant="outline" className="flex-1" onClick={copyAgain}>
+                    {copied ? <Check className="h-4 w-4 mr-1.5" /> : <Copy className="h-4 w-4 mr-1.5" />}
+                    {copied ? "Copied" : "Copy link"}
+                  </Button>
+                  <Button className="flex-1" onClick={openWhatsApp}>
+                    <MessageCircle className="h-4 w-4 mr-1.5" />
+                    Open WhatsApp
+                  </Button>
+                </div>
+                <button
+                  onClick={() => setStage("qr")}
+                  className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-md border border-border bg-card py-2 text-[12px] font-medium text-foreground hover:border-primary/40 transition-colors"
+                >
+                  <QrCode className="h-3.5 w-3.5" />
+                  Show QR for doctor to scan
+                </button>
+              </>
             )}
 
             {(stage === "packaging" || stage === "locking" || stage === "timing") && (
