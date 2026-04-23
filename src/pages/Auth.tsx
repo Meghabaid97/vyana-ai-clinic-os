@@ -478,35 +478,23 @@ const Auth = () => {
       const isNativeApp = Capacitor.isNativePlatform();
 
       if (isNativeApp) {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: NATIVE_OAUTH_REDIRECT,
-            skipBrowserRedirect: true,
-          },
+        const result = await lovable.auth.signInWithOAuth("google", {
+          redirect_uri: NATIVE_OAUTH_REDIRECT,
         });
-        if (error) throw error;
-        if (!data?.url) throw new Error("No OAuth URL returned");
-        // IMPORTANT: do NOT open OAuth in the in-app Capacitor Browser sheet
-        // (popover). The sheet doesn't reliably honor our `vyana://oauth-callback`
-        // custom-scheme redirect, so the user gets stuck staring at the
-        // vyana.care website chrome inside an iOS browser popover. Hand the
-        // URL to the OS-level system browser instead — `windowName: "_system"`
-        // tells the Capacitor WebView shim to launch the URL externally
-        // (Safari on iOS, Chrome on Android), and the `vyana://oauth-callback`
-        // deep link then routes cleanly back into the native app via the
-        // `appUrlOpen` listener in `main.tsx`.
-        window.open(data.url, "_system");
+        if (result.error) throw result.error;
+        if (result.redirected) return;
+
+        navigate("/app", { replace: true });
         return;
       }
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: `${window.location.origin}/app` },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/app`,
       });
-      if (error) {
-        throw error;
-      }
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+
+      navigate("/app", { replace: true });
     } catch (error: any) {
       toast({ title: "Authentication Error", description: error.message, variant: "destructive" });
     }
