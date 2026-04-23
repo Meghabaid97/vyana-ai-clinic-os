@@ -12,12 +12,11 @@ if (Capacitor.isNativePlatform()) {
 }
 
 const OAUTH_CALLBACK_HOST = "oauth-callback";
-const OAUTH_CALLBACK_PROTOCOLS = new Set(["lovable:", "vyana:"]);
 
 const isOAuthCallbackUrl = (url: string) => {
   try {
     const parsedUrl = new URL(url);
-    return OAUTH_CALLBACK_PROTOCOLS.has(parsedUrl.protocol) && parsedUrl.host === OAUTH_CALLBACK_HOST;
+    return parsedUrl.protocol === "lovable:" && parsedUrl.host === OAUTH_CALLBACK_HOST;
   } catch {
     return false;
   }
@@ -25,6 +24,15 @@ const isOAuthCallbackUrl = (url: string) => {
 
 const handleOAuthCallback = async (url: string) => {
   try {
+    // Close the in-app browser as soon as we get the callback so the user
+    // is brought back to the native app immediately.
+    try {
+      const { Browser } = await import("@capacitor/browser");
+      await Browser.close();
+    } catch {
+      // Browser plugin not available — ignore.
+    }
+
     const parsedUrl = new URL(url);
     const hashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ""));
     const queryParams = parsedUrl.searchParams;

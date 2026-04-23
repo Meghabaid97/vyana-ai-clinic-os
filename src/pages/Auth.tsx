@@ -495,37 +495,40 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
-      setLoading(true);
-
       if (isSignUp) {
         setStoredSignupDraft(buildSignupDraft());
       }
 
-      const redirectUri = Capacitor.isNativePlatform()
-        ? undefined
-        : `${resolveOAuthOrigin()}/app`;
+      const isNativeApp = Capacitor.isNativePlatform();
 
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: redirectUri,
-        extraParams: {
-          prompt: "select_account",
-        },
-      });
-
-      if (result.error) {
-        throw result.error;
+      if (isNativeApp) {
+        // Native: open OAuth in in-app browser, intercept callback via deep link.
+        // Use skipBrowserRedirect so we get the URL and open it ourselves in
+        // an in-app browser (SFSafariViewController on iOS) that we can close
+        // programmatically once the deep link fires in main.tsx.
+        const { Browser } = await import("@capacitor/browser");
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: "lovable://oauth-callback/",
+            skipBrowserRedirect: true,
+          },
+        });
+        if (error) throw error;
+        if (!data?.url) throw new Error("No OAuth URL returned");
+        await Browser.open({ url: data.url, presentationStyle: "popover" });
+        return;
       }
 
-      if (!result.redirected) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          await handleAuthenticatedUser(session.user.id, session.user.user_metadata);
-        }
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/app` },
+      });
+      if (error) {
+        throw error;
       }
     } catch (error: any) {
       toast({ title: "Authentication Error", description: error.message, variant: "destructive" });
-    } finally {
-      setLoading(false);
     }
   };
 
