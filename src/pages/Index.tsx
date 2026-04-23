@@ -14,6 +14,7 @@ const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
 const OutcomeSection = lazy(() => import("@/components/landing/OutcomeSection"));
 const ResearchAndTeam = lazy(() => import("@/components/landing/ResearchAndTeam"));
 const TrustStrip = lazy(() => import("@/components/landing/TrustStrip"));
+const StatsStrip = lazy(() => import("@/components/landing/StatsStrip"));
 const FAQSection = lazy(() => import("@/components/landing/FAQSection"));
 const PortraitCTA = lazy(() => import("@/components/landing/PortraitCTA"));
 const SideRail = lazy(() => import("@/components/landing/SideRail"));
@@ -74,6 +75,7 @@ const Index = () => {
           <WedgeSection />
           <HowItWorks />
           <OutcomeSection />
+          <StatsStrip />
           <ResearchAndTeam />
           <TrustStrip />
           <PortraitCTA />
