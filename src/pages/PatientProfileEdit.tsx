@@ -345,11 +345,11 @@ const PatientProfileEdit = () => {
         <p className="text-[11px] text-muted-foreground mt-1">ver 1.0.0</p>
         <div className="flex items-center justify-center gap-6 mt-4">
           {[
-            { icon: Lock, label: "Privacy", path: "/legal#privacy" },
-            { icon: FileText, label: "Terms", path: "/legal" },
-            { icon: Star, label: "Rate App", path: null },
+            { icon: Lock, label: "Privacy", path: "/legal#privacy" as string | null, onClick: undefined as undefined | (() => void) },
+            { icon: FileText, label: "Terms", path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
+            { icon: Star, label: "Rate App", path: null as string | null, onClick: handleRateApp },
           ].map((item, i) => (
-            <div key={i} className="flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => item.path && navigate(item.path)}>
+            <div key={i} className="flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => { if (item.onClick) item.onClick(); else if (item.path) navigate(item.path); }}>
               <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                 <item.icon className="h-4 w-4 text-muted-foreground" />
               </div>
