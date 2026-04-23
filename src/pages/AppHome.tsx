@@ -132,12 +132,12 @@ const AppHome = () => {
           <LatestVitalsStrip patientId={profile?.id ?? null} />
 
           {/* ── Your story so far (KEEP) ── */}
-          <section className="px-4 sm:px-5 pb-5 lg:px-0 lg:pb-0">
-            <h2 className="mb-1 text-lg lg:text-2xl font-bold text-foreground leading-tight">
+          <section className="px-4 sm:px-6 pb-5 lg:px-0 lg:pb-0">
+            <h2 className="mb-1 text-[17px] sm:text-xl md:text-2xl lg:text-2xl font-bold text-foreground leading-tight tracking-tight">
               <span className="block sm:inline">Your story so far.</span>{" "}
               <span className="block sm:inline text-primary">Every detail matters.</span>
             </h2>
-            <p className="text-[13px] lg:text-sm text-muted-foreground mb-4 leading-relaxed">
+            <p className="text-[12.5px] sm:text-[13.5px] lg:text-sm text-muted-foreground mb-3 sm:mb-4 leading-relaxed max-w-[58ch]">
               What happens when the system forgets and families pay the price. Your records make sure that never happens.
             </p>
 
