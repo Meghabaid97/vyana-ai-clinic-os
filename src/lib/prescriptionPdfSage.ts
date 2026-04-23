@@ -90,7 +90,7 @@ export const generatePrescriptionPdfSage = (data: PrescriptionData): jsPDF => {
   y += 12;
 
   // ---------- Diagnosis ----------
-  doc.setFont("helvetica", "bold");
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(...SAGE_DEEP);
   doc.text("DIAGNOSIS", margin, y);
@@ -107,7 +107,7 @@ export const generatePrescriptionPdfSage = (data: PrescriptionData): jsPDF => {
   doc.setFontSize(22);
   doc.setTextColor(...SAGE_DEEP);
   doc.text("Rx", margin, y + 2);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(...SAGE_DEEP);
   doc.text("PRESCRIPTION", margin + 12, y);
@@ -177,7 +177,7 @@ export const generatePrescriptionPdfSage = (data: PrescriptionData): jsPDF => {
     doc.line(margin, y, pageWidth - margin, y);
     y += 6;
 
-    doc.setFont("helvetica", "bold");
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(...SAGE_DEEP);
     doc.text("A NOTE FROM YOUR DOCTOR", margin, y);
