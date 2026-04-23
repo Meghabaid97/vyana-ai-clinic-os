@@ -39,6 +39,9 @@ const EditorialHero = () => {
   const [ctaState, setCtaState] = useState<ButtonState>("idle");
   const [staged, setStaged] = useState(false);
   const t = useLandingT();
+  const sectionRef = useCursorAurora<HTMLElement>();
+  const primaryCtaRef = useMagnetic<HTMLButtonElement>(70, 0.3);
+  const secondaryCtaRef = useMagnetic<HTMLButtonElement>(60, 0.25);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setStaged(true));
