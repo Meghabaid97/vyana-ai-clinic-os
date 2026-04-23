@@ -56,6 +56,30 @@ generate_app_icon() {
     >/dev/null 2>&1 || c_yellow "Icon generation failed (non-fatal). Run manually: npx @capacitor/assets generate --ios"
 }
 
+# Verify the AppIcon set was actually written before we hand off to Xcode.
+# A blank icon almost always means `cap add ios` ran after generate and wiped it,
+# or @capacitor/assets failed silently. Either way, we do NOT want to open Xcode
+# in that state — the user will archive a build with a white square icon.
+verify_app_icon() {
+  local iconset="ios/App/App/Assets.xcassets/AppIcon.appiconset"
+  if [[ ! -d "$iconset" ]]; then
+    c_red "Pre-build check failed: $iconset is missing."
+    c_red "iOS platform looks broken. Run: ./scripts/ios.sh fix"
+    exit 1
+  fi
+  # Capacitor's generator writes AppIcon-512@2x.png (1024x1024) as the marketing icon.
+  # If it isn't there, the icon set is the empty placeholder and Xcode will ship a blank icon.
+  if [[ ! -f "$iconset/AppIcon-512@2x.png" ]]; then
+    c_red "Pre-build check failed: AppIcon-512@2x.png missing in $iconset."
+    c_red "Icon was not generated. Fix:"
+    c_red "  1) ensure assets/icon.png exists (1024x1024 PNG)"
+    c_red "  2) run: npx @capacitor/assets generate --ios"
+    c_red "  3) re-run this script"
+    exit 1
+  fi
+  c_green "AppIcon verified."
+}
+
 case "$MODE" in
   dev)
     require_root
