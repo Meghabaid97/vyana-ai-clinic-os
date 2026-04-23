@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import familyPhoto from "@/assets/family-tirupur-2005.jpg";
