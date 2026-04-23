@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { ArrowRight, Play } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 import { useEffect, useState } from "react";
 import WatchItWorkModal from "@/components/WatchItWorkModal";
 import { useLandingT } from "@/lib/i18n-landing";
@@ -32,7 +32,7 @@ const SPARKLES: Array<{
 ];
 
 const EditorialHero = () => {
-  const navigate = useNavigate();
+  const navigate = useViewTransitionNavigate();
   const [demoOpen, setDemoOpen] = useState(false);
   const [ctaState, setCtaState] = useState<ButtonState>("idle");
   const [staged, setStaged] = useState(false);
@@ -112,7 +112,7 @@ const EditorialHero = () => {
                   variant="premium"
                   loadingLabel="Just a moment…"
                   successLabel="Let's begin"
-                  className="h-11 px-6 text-[15px] rounded-full min-w-[180px]"
+                  className="vt-cta-pill h-11 px-6 text-[15px] rounded-full min-w-[180px]"
                   idleIcon={<ArrowRight className="h-4 w-4" />}
                 >
                   Get early access

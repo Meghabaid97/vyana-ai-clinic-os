@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Mail, Linkedin } from "lucide-react";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 
 const ClosingCTA = () => {
+  const navigate = useViewTransitionNavigate();
   return (
     <section id="contact" className="py-28 lg:py-36">
       <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
@@ -24,8 +26,8 @@ const ClosingCTA = () => {
           <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5">
             <Button
               variant="premium"
-              className="group h-12 px-7 text-[15px] rounded-full"
-              onClick={() => (window.location.href = "/request-access")}
+              className="vt-cta-pill group h-12 px-7 text-[15px] rounded-full"
+              onClick={() => navigate("/request-access")}
             >
               Get early access
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />

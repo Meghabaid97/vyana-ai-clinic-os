@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,7 @@ const schema = z.object({
 });
 
 const RequestAccess = () => {
-  const navigate = useNavigate();
+  const navigate = useViewTransitionNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
@@ -101,7 +102,7 @@ const RequestAccess = () => {
   return (
     <div className="min-h-screen bg-background py-16 px-6">
       <div className="max-w-[560px] mx-auto">
-        <Link to="/" className="font-display text-2xl text-foreground inline-block mb-12">
+        <Link to="/" className="vt-wordmark font-display text-2xl text-foreground inline-block mb-12">
           V<span className="text-primary italic">yana</span>
         </Link>
 
@@ -150,7 +151,7 @@ const RequestAccess = () => {
             />
           </div>
 
-          <Button type="submit" disabled={submitting} className="group w-full h-11 rounded-full mt-2">
+          <Button type="submit" disabled={submitting} className="vt-cta-pill group w-full h-11 rounded-full mt-2">
             {submitting ? "Sending…" : "Get early access"}
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>

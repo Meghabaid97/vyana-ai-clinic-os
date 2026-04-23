@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSelector from "./LanguageSelector";
 import { useLandingT } from "@/lib/i18n-landing";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useViewTransitionNavigate();
   const t = useLandingT();
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const Navigation = () => {
       }`}
     >
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12 h-14 flex items-center justify-between">
-        <button onClick={() => navigate("/")} className="font-display text-2xl text-foreground tracking-tight leading-none">
+        <button onClick={() => navigate("/")} className="vt-wordmark font-display text-2xl text-foreground tracking-tight leading-none">
           V<span className="text-primary italic">yana</span>
         </button>
 
@@ -40,7 +40,7 @@ const Navigation = () => {
 
           <div className="flex items-center gap-3">
             <LanguageSelector />
-            <Button size="sm" onClick={() => navigate("/request-access")} className="text-[13px] h-8 px-4 rounded-full">
+            <Button size="sm" onClick={() => navigate("/request-access")} className="vt-cta-pill text-[13px] h-8 px-4 rounded-full">
               Get early access
             </Button>
           </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import familyPhoto from "@/assets/family-tirupur-2005.jpg";
@@ -12,7 +13,7 @@ const chapters = [
 ];
 
 const WhyVyana = () => {
-  const navigate = useNavigate();
+  const navigate = useViewTransitionNavigate();
   const location = useLocation();
   const inApp = location.pathname.startsWith("/app");
   const [progress, setProgress] = useState(0);
@@ -609,7 +610,7 @@ const WhyVyana = () => {
 
             <div className="flex flex-wrap justify-center gap-3 mt-12">
               <Button
-                className="group h-11 px-6 text-[14px] rounded-full"
+                className="vt-cta-pill group h-11 px-6 text-[14px] rounded-full"
                 onClick={() => navigate("/request-access")}
               >
                 Get early access
