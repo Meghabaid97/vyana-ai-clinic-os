@@ -229,7 +229,7 @@ const AppShell = () => {
         {/* Secondary nav row */}
         <div className="border-t border-border bg-muted/30">
           <div className="max-w-[1400px] mx-auto px-6 h-11 flex items-center gap-1">
-            {tabs.map((tab) => {
+            {desktopTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
