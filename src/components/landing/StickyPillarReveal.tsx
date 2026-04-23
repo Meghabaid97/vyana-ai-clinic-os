@@ -6,46 +6,59 @@ import VitalsChartArtifact from "./pillar-artifacts/VitalsChartArtifact";
 import RiskFlagArtifact from "./pillar-artifacts/RiskFlagArtifact";
 
 type Pillar = {
-  eyebrow: string;
-  title: string;
-  body: string;
+  numeral: string;
+  framework: string;
+  citation: string;
+  takeaway: string;
   Artifact: React.ComponentType;
 };
 
+// Coraise-inspired structure: each beat reads like a peer-reviewed claim,
+// not a marketing pillar. Framework name -> italic citation -> plain takeaway.
 const pillars: Pillar[] = [
   {
-    eyebrow: "Powered by",
-    title: "Vision AI extraction",
-    body:
-      "Snap any prescription, lab report or discharge summary. We pull vitals, meds and diagnoses, handwritten or printed, in five Indian languages.",
+    numeral: "I",
+    framework: "Vision-language extraction",
+    citation:
+      "OpenAI. (2024). GPT-4 with vision: System card. Multimodal models can extract structured clinical data from photographs of handwritten and printed documents at near-human accuracy.",
+    takeaway:
+      "Snap any prescription, lab report or discharge summary in five Indian languages. We pull vitals, meds and diagnoses, handwritten or printed.",
     Artifact: RxExtractArtifact,
   },
   {
-    eyebrow: "Experience",
-    title: "A quiet health story",
-    body:
-      "Years of scattered paper become one calm, longitudinal record your family can actually read.",
+    numeral: "II",
+    framework: "Longitudinal records",
+    citation:
+      "WHO. (2016). Framework on integrated, people-centred health services. Continuity of clinical information is the single strongest predictor of safe, appropriate care across visits.",
+    takeaway:
+      "Years of scattered paper become one calm, longitudinal record your family can actually read, not a folder of unrelated PDFs.",
     Artifact: TimelineArtifact,
   },
   {
-    eyebrow: "Outcome",
-    title: "Doctors trust the briefing",
-    body:
-      "A one-page clinical summary any physician can read in thirty seconds. Shareable on WhatsApp before the appointment.",
+    numeral: "III",
+    framework: "Information transfer",
+    citation:
+      "Stiell, A., et al. (2003). Prevalence of information gaps in the emergency department. CMAJ, 169(10). Information gaps occur in 32% of ER visits and are independently associated with longer stays and adverse events.",
+    takeaway:
+      "A one-page clinical briefing any physician can read in thirty seconds. Shareable on WhatsApp before the appointment.",
     Artifact: BriefingArtifact,
   },
   {
-    eyebrow: "Powered by",
-    title: "33 vitals tracked",
-    body:
-      "HbA1c. BP. eGFR. The slow-moving signals doctors rarely get to see in a fifteen-minute consult, surfaced before they become irreversible.",
+    numeral: "IV",
+    framework: "Trend surveillance",
+    citation:
+      "Lancet Diabetes & Endocrinology. (2020). Continuous risk-factor monitoring outperforms episodic measurement in detecting trajectory changes in HbA1c, BP and eGFR.",
+    takeaway:
+      "33 vitals tracked. The slow-moving signals doctors rarely get to see in a fifteen-minute consult, surfaced before they become irreversible.",
     Artifact: VitalsChartArtifact,
   },
   {
-    eyebrow: "Experience",
-    title: "Risk flags that listen",
-    body:
-      "ASCVD, ADA diabetes staging, KDIGO kidney scores. Computed from your real numbers, never speculation.",
+    numeral: "V",
+    framework: "Validated risk scoring",
+    citation:
+      "ACC/AHA Pooled Cohort Equations (2013); ADA Standards of Care (2024); KDIGO Guidelines (2024). Risk computed from a patient's actual numbers, not population averages, supports earlier intervention.",
+    takeaway:
+      "ASCVD, ADA diabetes staging, KDIGO kidney scores. Computed from your real readings, framed as discussion points, never speculation.",
     Artifact: RiskFlagArtifact,
   },
 ];
@@ -54,96 +67,161 @@ const StickyPillarReveal = () => {
   const { active, registerRef } = useActiveSection(pillars.length);
 
   return (
-    <div className="relative">
+    <div className="relative py-24 lg:py-32">
       {/* Section header */}
-      <div className="max-w-[760px] mx-auto px-6 lg:px-12 mb-16 lg:mb-24">
+      <div className="max-w-[860px] mx-auto px-6 lg:px-12 mb-20 lg:mb-28">
         <p className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-5">
-          The proof
+          IV &nbsp;·&nbsp; What you walk in with
         </p>
-        <h2 className="font-serif text-4xl sm:text-5xl lg:text-[64px] leading-[1.05] tracking-[-0.02em] text-foreground">
+        <h2 className="font-serif text-4xl sm:text-5xl lg:text-[68px] leading-[1.05] tracking-[-0.02em] text-foreground">
           Five quiet systems,
           <br />
-          <em className="italic text-primary font-normal">one connected story.</em>
+          <em className="italic text-primary font-normal">grounded in evidence.</em>
         </h2>
-        <p className="mt-5 text-body text-muted-foreground max-w-[560px]">
-          Scroll. Each piece of Vyana shows you the artifact it produces, real,
-          not a promise.
+        <p className="mt-6 font-serif italic text-[18px] text-muted-foreground leading-relaxed max-w-[620px]">
+          Each piece of Vyana sits on a published clinical framework. Scroll
+          through to see what every system actually produces.
         </p>
       </div>
 
       {/* Desktop: sticky two-column */}
-      <div className="hidden lg:block max-w-[1240px] mx-auto px-12">
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,520px)] gap-16">
-          {/* Left: scrolling beats */}
+      <div className="hidden lg:block max-w-[1280px] mx-auto px-12">
+        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,560px)] gap-20">
+          {/* Left: scrolling Coraise-style citations */}
           <div>
             {pillars.map((p, i) => (
               <section
                 key={i}
                 ref={registerRef(i)}
-                className="min-h-[80vh] flex items-center"
+                className="min-h-[78vh] flex items-center"
               >
                 <div
-                  className={`transition-all duration-500 ${
+                  className={`max-w-[520px] transition-all duration-700 ease-[cubic-bezier(0.2,0.7,0.2,1)] ${
                     active === i
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-40 translate-y-1"
+                      ? "opacity-100 translate-y-0 blur-0"
+                      : "opacity-30 translate-y-1"
                   }`}
+                  style={{
+                    filter: active === i ? "blur(0)" : "blur(0.5px)",
+                  }}
                 >
-                  <p className="text-[10px] tracking-[0.3em] uppercase text-primary font-semibold mb-4">
-                    {String(i + 1).padStart(2, "0")} · {p.eyebrow}
-                  </p>
-                  <h3 className="font-serif text-[40px] leading-[1.1] tracking-[-0.01em] text-foreground mb-5">
-                    {p.title}
+                  <div className="flex items-baseline gap-3 mb-5">
+                    <span className="font-serif italic text-[15px] text-primary">
+                      {p.numeral}
+                    </span>
+                    <span className="h-px flex-1 bg-border" />
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                      {String(i + 1).padStart(2, "0")} / {pillars.length}
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif text-[34px] leading-[1.1] tracking-[-0.01em] text-foreground mb-6">
+                    {p.framework}
                   </h3>
-                  <p className="text-[17px] leading-[1.6] text-foreground/75 max-w-[460px]">
-                    {p.body}
+
+                  <p className="font-serif italic text-[14px] text-muted-foreground leading-[1.65] mb-6 pl-4 border-l-2 border-primary/30">
+                    {p.citation}
+                  </p>
+
+                  <p className="text-[17px] leading-[1.6] text-foreground/85">
+                    {p.takeaway}
                   </p>
                 </div>
               </section>
             ))}
           </div>
 
-          {/* Right: sticky artifact frame */}
+          {/* Right: sticky artifact frame on a soft surface */}
           <div className="relative">
-            <div className="sticky top-1/2 -translate-y-1/2 h-[520px] flex items-center justify-center">
-              {pillars.map((p, i) => {
-                const Artifact = p.Artifact;
-                return (
-                  <div
-                    key={i}
-                    className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
-                      active === i
-                        ? "opacity-100 translate-y-0 pointer-events-auto"
-                        : "opacity-0 translate-y-2 pointer-events-none"
-                    }`}
+            <div className="sticky top-1/2 -translate-y-1/2">
+              <div className="relative h-[600px] rounded-[28px] bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)] border border-border/40 shadow-[0_40px_100px_-40px_hsl(22_25%_15%/0.25)] overflow-hidden">
+                {/* Subtle grid texture */}
+                <div
+                  className="absolute inset-0 opacity-[0.04]"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(hsl(22 25% 15%) 1px, transparent 1px)",
+                    backgroundSize: "20px 20px",
+                  }}
+                />
+
+                {/* Active pillar label, top-left */}
+                <div className="absolute top-6 left-6 z-10">
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-foreground/50 font-medium">
+                    Live preview
+                  </p>
+                  <p
+                    key={active}
+                    className="font-serif text-[15px] text-foreground mt-1 animate-fade-in"
                   >
-                    <Artifact />
-                  </div>
-                );
-              })}
+                    {pillars[active].framework}
+                  </p>
+                </div>
+
+                {/* Step indicator, top-right */}
+                <div className="absolute top-6 right-6 z-10 flex gap-1.5">
+                  {pillars.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1 rounded-full transition-all duration-500 ${
+                        active === i
+                          ? "w-6 bg-primary"
+                          : "w-1.5 bg-foreground/20"
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Artifact stack */}
+                <div className="absolute inset-0 flex items-center justify-center px-8">
+                  {pillars.map((p, i) => {
+                    const Artifact = p.Artifact;
+                    return (
+                      <div
+                        key={i}
+                        className={`absolute inset-0 flex items-center justify-center px-8 transition-all duration-500 ${
+                          active === i
+                            ? "opacity-100 translate-y-0 pointer-events-auto"
+                            : "opacity-0 translate-y-3 pointer-events-none"
+                        }`}
+                      >
+                        <Artifact />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Mobile: stacked pairs */}
-      <div className="lg:hidden max-w-[520px] mx-auto px-6 space-y-16">
+      <div className="lg:hidden max-w-[560px] mx-auto px-6 space-y-20">
         {pillars.map((p, i) => {
           const Artifact = p.Artifact;
           return (
-            <div key={i} className="space-y-6">
+            <div key={i} className="space-y-7">
               <div>
-                <p className="text-[10px] tracking-[0.3em] uppercase text-primary font-semibold mb-3">
-                  {String(i + 1).padStart(2, "0")} · {p.eyebrow}
-                </p>
-                <h3 className="font-serif text-[28px] leading-[1.15] text-foreground mb-3">
-                  {p.title}
+                <div className="flex items-baseline gap-3 mb-4">
+                  <span className="font-serif italic text-[14px] text-primary">
+                    {p.numeral}
+                  </span>
+                  <span className="h-px flex-1 bg-border" />
+                </div>
+                <h3 className="font-serif text-[26px] leading-[1.15] text-foreground mb-4">
+                  {p.framework}
                 </h3>
-                <p className="text-[15px] leading-[1.6] text-foreground/75">
-                  {p.body}
+                <p className="font-serif italic text-[13px] text-muted-foreground leading-[1.65] mb-4 pl-3 border-l-2 border-primary/30">
+                  {p.citation}
+                </p>
+                <p className="text-[15px] leading-[1.6] text-foreground/85">
+                  {p.takeaway}
                 </p>
               </div>
-              <Artifact />
+              <div className="rounded-2xl bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)] border border-border/40 p-6">
+                <Artifact />
+              </div>
             </div>
           );
         })}
