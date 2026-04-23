@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import WatchItWorkModal from "@/components/WatchItWorkModal";
 import { useLandingT } from "@/lib/i18n-landing";
+import heroConstellation from "@/assets/hero-constellation.png";
 
 /**
  * Editorial Kinetic Hero
@@ -83,6 +84,22 @@ const EditorialHero = () => {
     >
       {/* Subtle vignette to anchor type, keeps aurora airy */}
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background/40" />
+
+      {/* Constellation visual — bleeds off the right edge, sits behind/beside type.
+          Fades in last (after CTA) and breathes with a slow float. No dark overlay. */}
+      <div
+        className={`pointer-events-none absolute inset-y-0 right-0 z-[5] flex items-center justify-end ${staged ? "hero-constellation-in" : "opacity-0"}`}
+        aria-hidden
+      >
+        <img
+          src={heroConstellation}
+          alt=""
+          width={1280}
+          height={1280}
+          className="hero-constellation-img w-[78vw] max-w-[920px] lg:w-[60vw] lg:max-w-[1040px] -mr-[8vw] lg:-mr-[6vw] opacity-60 lg:opacity-80 select-none"
+          draggable={false}
+        />
+      </div>
 
       <div className="relative z-10 min-h-[100svh] flex items-center">
         <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-28 pb-20">
