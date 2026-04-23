@@ -67,30 +67,6 @@ const Sparkline = ({ values, tone }: { values: number[]; tone: VitalStatus }) =>
   );
 };
 
-const Sparkline = ({ values, tone }: { values: number[]; tone: "ok" | "watch" | "high" | "low" }) => {
-  if (values.length < 2) return <div className="h-5" />;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-  const w = 56;
-  const h = 18;
-  const step = w / (values.length - 1);
-  const pts = values
-    .map((v, i) => `${(i * step).toFixed(1)},${(h - ((v - min) / range) * h).toFixed(1)}`)
-    .join(" ");
-  const stroke =
-    tone === "high" || tone === "low"
-      ? "hsl(var(--destructive))"
-      : tone === "watch"
-        ? "hsl(38 92% 50%)"
-        : "hsl(var(--primary))";
-  return (
-    <svg width={w} height={h} className="block opacity-80">
-      <polyline points={pts} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
-  );
-};
-
 /** Range bar — shows the healthy band as a tinted segment, with a dot at the user's value. */
 const RangeBar = ({
   value,
@@ -101,7 +77,7 @@ const RangeBar = ({
   value: number;
   axis: { min: number; max: number };
   range?: VitalDef["range"];
-  status: "ok" | "watch" | "high" | "low";
+  status: VitalStatus;
 }) => {
   const span = axis.max - axis.min || 1;
   const pct = (n: number) => Math.max(0, Math.min(100, ((n - axis.min) / span) * 100));
@@ -112,9 +88,9 @@ const RangeBar = ({
   const tone = STATUS_TONE[status];
   return (
     <div className="relative h-1.5 w-full rounded-full bg-muted">
-      {/* healthy band */}
+      {/* healthy band — always sage, regardless of current dot status */}
       <div
-        className="absolute top-0 h-1.5 rounded-full bg-emerald-500/25"
+        className="absolute top-0 h-1.5 rounded-full bg-status-normal/25"
         style={{ left: `${bandLeft}%`, width: `${bandWidth}%` }}
       />
       {/* dot */}
