@@ -1,4 +1,4 @@
-import { useEffect, useState, useLayoutEffect, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowRight, X, Sparkles } from "lucide-react";
 
@@ -88,60 +88,7 @@ interface Props {
 }
 
 const PADDING = 8;
-const TARGET_WAIT_MS = 1200;
-
-const getScrollParent = (el: HTMLElement | null): HTMLElement | null => {
-  let node = el?.parentElement ?? null;
-
-  while (node) {
-    const { overflowY } = window.getComputedStyle(node);
-    const isScrollable = /(auto|scroll|overlay)/.test(overflowY) && node.scrollHeight > node.clientHeight;
-
-    if (isScrollable) return node;
-    node = node.parentElement;
-  }
-
-  return document.scrollingElement instanceof HTMLElement ? document.scrollingElement : null;
-};
-
-const getVisibleBounds = (container: HTMLElement | null) => {
-  const isMobile = window.innerWidth < 1024;
-  const topInset = isMobile ? 8 : 16;
-  const bottomInset = isMobile ? 96 : 24;
-
-  if (!container || container === document.documentElement || container === document.body) {
-    return {
-      top: topInset,
-      bottom: window.innerHeight - bottomInset,
-      height: window.innerHeight - topInset - bottomInset,
-    };
-  }
-
-  const rect = container.getBoundingClientRect();
-  return {
-    top: rect.top + topInset,
-    bottom: Math.min(rect.bottom, window.innerHeight - bottomInset),
-    height: Math.min(rect.bottom, window.innerHeight - bottomInset) - (rect.top + topInset),
-  };
-};
-
-const scrollTargetIntoView = (el: HTMLElement) => {
-  const container = getScrollParent(el);
-  const visible = getVisibleBounds(container);
-  const targetRect = el.getBoundingClientRect();
-  const targetHeight = Math.max(targetRect.height, 1);
-  const desiredViewportTop = visible.top + Math.max((visible.height - targetHeight) / 2, 24);
-  const delta = targetRect.top - desiredViewportTop;
-
-  if (Math.abs(delta) < 6) return;
-
-  if (!container || container === document.documentElement || container === document.body) {
-    window.scrollTo({ top: window.scrollY + delta, behavior: "auto" });
-    return;
-  }
-
-  container.scrollTo({ top: container.scrollTop + delta, behavior: "auto" });
-};
+const TARGET_WAIT_MS = 1500;
 
 const SpotlightTour = ({ open, onClose }: Props) => {
   const navigate = useNavigate();
@@ -153,6 +100,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
 
   const step = STEPS[stepIdx];
 
+  // Reset when tour opens
   useEffect(() => {
     if (open) {
       setStepIdx(0);
@@ -162,6 +110,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     }
   }, [open]);
 
+  // Navigate to step path once per step
   useEffect(() => {
     if (!open) return;
     if (!step.path) return;
@@ -172,81 +121,84 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     }
   }, [open, stepIdx, step.path, location.pathname, navigate]);
 
-  useLayoutEffect(() => {
+  // Measure target. Simple, robust:
+  //   1. Clear old rect immediately
+  //   2. Poll for the element (up to TARGET_WAIT_MS)
+  //   3. Once found, scroll into view, wait one frame, commit measurement
+  //   4. If never found, mark missing — card centers itself
+  useEffect(() => {
     if (!open) return;
     setTargetMissing(false);
     setRect(null);
 
     if (!step.target) return;
 
-    let raf = 0;
-    let settleTimeout = 0;
     let cancelled = false;
     let attempts = 0;
     const maxAttempts = Math.ceil(TARGET_WAIT_MS / 100);
+    let pollTimer: number | undefined;
+    let settleTimer: number | undefined;
+    let raf = 0;
 
-    const commitRect = (el: HTMLElement) => {
-      const next = el.getBoundingClientRect();
-      if (next.width === 0 || next.height === 0) {
-        setRect(null);
+    const commit = (el: HTMLElement) => {
+      if (cancelled) return;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) {
         setTargetMissing(true);
         return;
       }
-
       setRect({
-        top: next.top - PADDING,
-        left: next.left - PADDING,
-        width: next.width + PADDING * 2,
-        height: next.height + PADDING * 2,
+        top: r.top - PADDING,
+        left: r.left - PADDING,
+        width: r.width + PADDING * 2,
+        height: r.height + PADDING * 2,
       });
     };
 
-    const measure = () => {
+    const tryFind = () => {
       if (cancelled) return;
-
       const el = document.querySelector(step.target as string) as HTMLElement | null;
+
       if (!el) {
         attempts += 1;
         if (attempts >= maxAttempts) {
-          setRect(null);
           setTargetMissing(true);
           return;
         }
-        settleTimeout = window.setTimeout(measure, 100);
+        pollTimer = window.setTimeout(tryFind, 100);
         return;
       }
 
-      const current = el.getBoundingClientRect();
-      const visible = getVisibleBounds(getScrollParent(el));
-      const offscreen = current.top < visible.top || current.bottom > visible.bottom;
-
-      if (offscreen) {
-        scrollTargetIntoView(el);
-        settleTimeout = window.setTimeout(() => {
-          if (cancelled) return;
-          raf = requestAnimationFrame(() => {
-            if (cancelled) return;
-            commitRect(el);
-          });
-        }, 260);
-        return;
+      // Try to scroll element into view (best-effort, ignore failures)
+      try {
+        el.scrollIntoView({ block: "center", inline: "nearest" });
+      } catch {
+        /* noop */
       }
 
-      raf = requestAnimationFrame(() => {
+      // Wait for scroll to settle (mobile scroll containers can take a beat),
+      // then commit. Always commit — never re-check offscreen, never loop.
+      settleTimer = window.setTimeout(() => {
         if (cancelled) return;
-        commitRect(el);
-      });
+        raf = requestAnimationFrame(() => commit(el));
+      }, 220);
     };
 
-    const t = window.setTimeout(measure, 150);
-    const onResize = () => measure();
+    // Initial delay to allow route navigation / layout settle
+    pollTimer = window.setTimeout(tryFind, 120);
+
+    const onResize = () => {
+      // On viewport resize, re-measure the existing element if present
+      const el = document.querySelector(step.target as string) as HTMLElement | null;
+      if (el) commit(el);
+    };
     window.addEventListener("resize", onResize);
 
     return () => {
       cancelled = true;
-      window.clearTimeout(t);
-      window.clearTimeout(settleTimeout);
-      cancelAnimationFrame(raf);
+      if (pollTimer) window.clearTimeout(pollTimer);
+      if (settleTimer) window.clearTimeout(settleTimer);
+      if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
     };
   }, [open, stepIdx, step.target, location.pathname]);
