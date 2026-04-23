@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
-import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
@@ -38,11 +37,6 @@ const SIGNUP_DRAFT_KEY = "vyana-signup-draft";
 const CUSTOMER_APP_ORIGIN = "https://www.vyana.care";
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/app`;
 const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
-
-const nativeLovableAuth = createLovableAuth({
-  oauthBrokerUrl: `${CUSTOMER_APP_ORIGIN}/~oauth/initiate`,
-  supportedOAuthOrigins: ["https://oauth.lovable.app", "https://lovable.dev", CUSTOMER_APP_ORIGIN],
-});
 
 const getStoredSignupDraft = (): PendingSignupDraft | null => {
   try {
@@ -485,13 +479,19 @@ const Auth = () => {
       const isNativeApp = Capacitor.isNativePlatform();
 
       if (isNativeApp) {
-        const result = await nativeLovableAuth.signInWithOAuth("google", {
-          redirect_uri: NATIVE_OAUTH_REDIRECT,
-        });
-        if (result.error) throw result.error;
-        if (result.redirected) return;
+        const { Browser } = await import("@capacitor/browser");
+        const state = typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        const oauthUrl = new URL(`${CUSTOMER_APP_ORIGIN}/~oauth/initiate`);
+        oauthUrl.searchParams.set("provider", "google");
+        oauthUrl.searchParams.set("redirect_uri", NATIVE_OAUTH_REDIRECT);
+        oauthUrl.searchParams.set("state", state);
 
-        navigate("/app", { replace: true });
+        await Browser.open({
+          url: oauthUrl.toString(),
+          presentationStyle: "popover",
+        });
         return;
       }
 
