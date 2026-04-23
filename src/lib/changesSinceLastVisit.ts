@@ -2,6 +2,7 @@
 // plus recent medication and record activity. Used by Home "What changed" card
 // and HealthTrends "What changed since last visit" section.
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeVital, formatVital } from "@/lib/vitalStatus";
 
 export type ChangeKind = "vital_up" | "vital_down" | "vital_stable" | "new_med" | "new_record";
 export type ChangeSeverity = "info" | "monitor" | "alert";
