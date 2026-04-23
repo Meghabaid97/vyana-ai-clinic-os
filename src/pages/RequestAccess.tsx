@@ -102,7 +102,7 @@ const RequestAccess = () => {
   return (
     <div className="min-h-screen bg-background py-16 px-6">
       <div className="max-w-[560px] mx-auto">
-        <Link to="/" className="font-display text-2xl text-foreground inline-block mb-12">
+        <Link to="/" className="vt-wordmark font-display text-2xl text-foreground inline-block mb-12">
           V<span className="text-primary italic">yana</span>
         </Link>
 
