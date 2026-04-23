@@ -90,10 +90,10 @@ export const generatePrescriptionPdfSage = (data: PrescriptionData): jsPDF => {
   y += 12;
 
   // ---------- Diagnosis ----------
-  doc.setFont("times", "italic");
-  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
   doc.setTextColor(...SAGE_DEEP);
-  doc.text("Diagnosis", margin, y);
+  doc.text("DIAGNOSIS", margin, y);
   y += 5;
   doc.setFont("times", "normal");
   doc.setFontSize(12);
@@ -103,14 +103,14 @@ export const generatePrescriptionPdfSage = (data: PrescriptionData): jsPDF => {
   y += dxLines.length * 5.5 + 4;
 
   // ---------- Rx mark ----------
-  doc.setFont("times", "italic");
+  doc.setFont("times", "normal");
   doc.setFontSize(22);
   doc.setTextColor(...SAGE_DEEP);
-  doc.text("℞", margin, y + 2);
-  doc.setFont("times", "italic");
-  doc.setFontSize(11);
+  doc.text("Rx", margin, y + 2);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
   doc.setTextColor(...SAGE_DEEP);
-  doc.text("Prescription", margin + 10, y);
+  doc.text("PRESCRIPTION", margin + 12, y);
   y += 6;
 
   // Hairline under Rx label
@@ -177,10 +177,10 @@ export const generatePrescriptionPdfSage = (data: PrescriptionData): jsPDF => {
     doc.line(margin, y, pageWidth - margin, y);
     y += 6;
 
-    doc.setFont("times", "italic");
-    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
     doc.setTextColor(...SAGE_DEEP);
-    doc.text("A note from your doctor", margin, y);
+    doc.text("A NOTE FROM YOUR DOCTOR", margin, y);
     y += 5;
 
     doc.setFont("times", "normal");
