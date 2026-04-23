@@ -8,10 +8,11 @@ import NotificationBell from "@/components/NotificationBell";
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
 const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSelector"));
 const AskVyanaModal = lazy(() => import("@/components/AskVyanaModal"));
-const SpotlightTour = lazy(() => import("@/components/SpotlightTour"));
+const HowItWorksTour = lazy(() => import("@/components/HowItWorksTour"));
 
 const TOUR_STORAGE_KEY = "vyana-tour-completed-v1";
 const hasSeenTour = () => typeof window !== "undefined" && localStorage.getItem(TOUR_STORAGE_KEY) === "1";
+const markTourSeen = () => { if (typeof window !== "undefined") localStorage.setItem(TOUR_STORAGE_KEY, "1"); };
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
@@ -357,7 +358,13 @@ const AppShell = () => {
         </div>
       </footer>
       <AskVyanaModal open={askOpen} initialQuestion={askInitial} onClose={() => setAskOpen(false)} />
-      <SpotlightTour open={tourOpen} onClose={() => setTourOpen(false)} />
+      <Suspense fallback={null}>
+        <HowItWorksTour
+          open={tourOpen}
+          onOpenChange={(o) => { setTourOpen(o); if (!o) markTourSeen(); }}
+          onFinish={() => markTourSeen()}
+        />
+      </Suspense>
     </div>
   );
 };
