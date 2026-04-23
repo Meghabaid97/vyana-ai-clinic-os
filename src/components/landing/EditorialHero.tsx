@@ -162,7 +162,7 @@ const EditorialHero = () => {
       </div>
 
       <div
-        className="hero-soft pointer-events-none absolute inset-x-0 bottom-8 z-10 flex justify-center"
+        className="hero-soft pointer-events-none absolute inset-x-0 bottom-8 z-10 hidden lg:flex justify-center"
         style={{ ["--d" as string]: `${D_SCROLL_HINT}ms` }}
         aria-hidden
       >
