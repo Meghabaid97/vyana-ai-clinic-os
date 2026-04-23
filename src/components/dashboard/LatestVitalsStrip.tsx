@@ -49,7 +49,7 @@ interface VitalSeries {
   prior: number | null;
 }
 
-const fmt = (v: number, d = 1) => (Number.isInteger(v) ? v.toString() : v.toFixed(d));
+const fmt = (key: string, v: number, d = 1) => formatVital(key, v, d);
 
 const Sparkline = ({ values, tone }: { values: number[]; tone: VitalStatus }) => {
   if (values.length < 2) return <div className="h-5" />;
