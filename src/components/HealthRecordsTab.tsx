@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
+import { RecordsTabSkeleton } from "@/components/ui/page-skeletons";
 import { RECORD_CATEGORIES, type RecordCategory } from "@/lib/recordCategories";
 
 interface HealthRecord {
@@ -313,7 +314,6 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   };
 
   if (isLoading) {
-    const { RecordsTabSkeleton } = require("@/components/ui/page-skeletons");
     return <RecordsTabSkeleton />;
   }
 

@@ -10,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
+import { BriefingResultSkeleton } from "@/components/ui/page-skeletons";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 
 interface Briefing {
