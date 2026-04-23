@@ -1,3 +1,4 @@
+import { Mail, Linkedin } from "lucide-react";
 import whartonLogo from "@/assets/wharton-logo.png";
 import { useReveal } from "@/hooks/use-reveal";
 import { useLandingT } from "@/lib/i18n-landing";
@@ -99,6 +100,24 @@ const ResearchAndTeam = () => {
                 {t("research.megha.bio").split("\n\n").map((para, i) => (
                   <p key={i}>{para}</p>
                 ))}
+              </div>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <a
+                  href="mailto:vyana.care@gmail.com"
+                  className="inline-flex items-center gap-2 rounded-full border border-surface-dark-foreground/20 px-4 py-2 text-caption text-surface-dark-foreground/90 transition-colors hover:border-primary hover:text-primary"
+                >
+                  <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+                  vyana.care@gmail.com
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/megha-baid-wharton/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-surface-dark-foreground/20 px-4 py-2 text-caption text-surface-dark-foreground/90 transition-colors hover:border-primary hover:text-primary"
+                >
+                  <Linkedin className="h-3.5 w-3.5" aria-hidden="true" />
+                  LinkedIn
+                </a>
               </div>
             </article>
 
