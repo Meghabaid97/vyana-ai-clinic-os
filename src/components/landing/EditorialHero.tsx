@@ -113,6 +113,7 @@ const EditorialHero = () => {
                 style={{ ["--d" as string]: `${D_CTA}ms` }}
               >
                 <StatefulButton
+                  ref={primaryCtaRef}
                   state={ctaState}
                   onClick={handleEarlyAccess}
                   variant="premium"
@@ -124,6 +125,7 @@ const EditorialHero = () => {
                   Get early access
                 </StatefulButton>
                 <Button
+                  ref={secondaryCtaRef}
                   variant="ghost"
                   onClick={() => setDemoOpen(true)}
                   className="group text-[15px] text-foreground/70 hover:text-foreground h-11"
