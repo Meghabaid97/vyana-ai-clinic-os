@@ -139,7 +139,8 @@ const StickyPillarReveal = () => {
     startScrollTop: 0,
   });
   const [isDragging, setIsDragging] = useState(false);
-  const { active, registerRef } = useActiveSection(pillars.length, scrollRootRef);
+  const { active, registerRef } = useActiveSection(beats.length, scrollRootRef);
+  const activeBeat = beats[active];
 
   useEffect(() => {
     const scene = sceneRef.current;
@@ -228,16 +229,20 @@ const StickyPillarReveal = () => {
   };
 
   return (
-    <div className="relative py-16 lg:py-20">
+    <div id="how-and-why" className="relative py-16 lg:py-20">
       <div className="max-w-[860px] mx-auto px-6 lg:px-12 mb-10 lg:mb-12">
         <p className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-4">
-          IV &nbsp;·&nbsp; Outcome
+          III &nbsp;·&nbsp; How it works &amp; why it works
         </p>
-        <h2 className="font-serif text-4xl sm:text-5xl lg:text-[56px] leading-[1.04] tracking-[-0.02em] text-foreground max-w-[760px]">
-          Evidence on the left,
+        <h2 className="font-serif text-4xl sm:text-5xl lg:text-[56px] leading-[1.04] tracking-[-0.02em] text-foreground max-w-[780px]">
+          Three quiet steps,
           <br />
-          <em className="italic text-primary font-normal">live proof on the right.</em>
+          <em className="italic text-primary font-normal">five reasons it holds up.</em>
         </h2>
+        <p className="mt-5 font-serif italic text-[16px] text-muted-foreground max-w-[560px]">
+          Scroll through what Vyana does, then through the published evidence each
+          step rests on. The right pane updates as you read.
+        </p>
       </div>
 
       <div className="hidden lg:block max-w-[1280px] mx-auto px-12">
@@ -259,47 +264,66 @@ const StickyPillarReveal = () => {
               <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-background to-transparent z-10" />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent z-10" />
 
-              {pillars.map((p, i) => (
-                <section
-                  key={i}
-                  ref={registerRef(i)}
-                  className="min-h-full flex items-center py-8"
-                >
-                  <article
-                    className={`max-w-[520px] transition-all duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] ${
-                      active === i ? "opacity-100 translate-y-0" : "opacity-35 translate-y-1"
-                    }`}
-                    style={{ filter: active === i ? "blur(0)" : "blur(0.6px)" }}
+              {beats.map((b, i) => {
+                const showsChapterBreak = i > 0 && b.chapter !== beats[i - 1].chapter;
+                return (
+                  <section
+                    key={i}
+                    ref={registerRef(i)}
+                    className="min-h-full flex items-center py-8"
                   >
-                    <div className="flex items-baseline gap-3 mb-5">
-                      <span className="font-serif italic text-[15px] text-primary">
-                        {p.numeral}
-                      </span>
-                      <span className="h-px flex-1 bg-border" />
-                      <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                        {String(i + 1).padStart(2, "0")} / {pillars.length}
-                      </span>
-                    </div>
+                    <article
+                      className={`max-w-[520px] transition-all duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] ${
+                        active === i ? "opacity-100 translate-y-0" : "opacity-35 translate-y-1"
+                      }`}
+                      style={{ filter: active === i ? "blur(0)" : "blur(0.6px)" }}
+                    >
+                      {showsChapterBreak && (
+                        <div className="mb-8 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-primary font-semibold">
+                          <span className="h-px w-10 bg-primary/50" />
+                          Why it holds up
+                        </div>
+                      )}
 
-                    <h3 className="font-serif text-[34px] leading-[1.08] tracking-[-0.01em] text-foreground mb-6">
-                      {p.framework}
-                    </h3>
+                      <div className="flex items-baseline gap-3 mb-5">
+                        <span className="font-serif italic text-[15px] text-primary">
+                          {b.numeral}
+                        </span>
+                        <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                          {b.eyebrow}
+                        </span>
+                        <span className="h-px flex-1 bg-border" />
+                        <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                          {String(i + 1).padStart(2, "0")} / {beats.length}
+                        </span>
+                      </div>
 
-                    <p className="font-serif italic text-[14px] text-muted-foreground leading-[1.65] mb-6 pl-4 border-l-2 border-primary/30">
-                      {p.citation}
-                    </p>
+                      <h3 className="font-serif text-[34px] leading-[1.08] tracking-[-0.01em] text-foreground mb-6">
+                        {b.framework}
+                      </h3>
 
-                    <p className="text-[17px] leading-[1.6] text-foreground/85">
-                      {p.takeaway}
-                    </p>
-                  </article>
-                </section>
-              ))}
+                      <p className="font-serif italic text-[14px] text-muted-foreground leading-[1.65] mb-6 pl-4 border-l-2 border-primary/30">
+                        {b.citation}
+                      </p>
+
+                      <p className="text-[17px] leading-[1.6] text-foreground/85">
+                        {b.takeaway}
+                      </p>
+                    </article>
+                  </section>
+                );
+              })}
             </div>
           </div>
 
           <div className="relative h-full overflow-hidden">
-            <div className="relative h-full rounded-[28px] bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)] border border-border/40 shadow-[0_40px_100px_-40px_hsl(22_25%_15%/0.25)] overflow-hidden">
+            <div
+              className={`relative h-full rounded-[28px] border border-border/40 shadow-[0_40px_100px_-40px_hsl(22_25%_15%/0.25)] overflow-hidden transition-colors duration-500 ${
+                activeBeat.fullBleed
+                  ? "bg-[hsl(22_25%_10%)]"
+                  : "bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)]"
+              }`}
+            >
               <div
                 className="absolute inset-0 opacity-[0.04]"
                 style={{
