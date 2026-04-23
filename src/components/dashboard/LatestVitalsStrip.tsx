@@ -273,13 +273,22 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
                       {def.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10.5px] sm:text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-[10.5px] sm:text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
+                        <span
+                          aria-hidden
+                          className={`h-1.5 w-1.5 rounded-full shrink-0 ${tone.bar} ${status !== "normal" ? "vital-status-dot" : ""}`}
+                        />
+                      </div>
                       <div className="flex items-baseline gap-1">
                         <span className="text-[17px] sm:text-[19px] font-bold text-foreground leading-none">
                           {fmt(def.key, latest, def.decimals ?? 1)}
                         </span>
                         <span className="text-[10px] text-muted-foreground truncate">{def.unit}</span>
                       </div>
+                    </div>
+                    <div className="ml-auto shrink-0 self-start pt-0.5">
+                      <Sparkline values={values.map((v) => v.value)} tone={status} />
                     </div>
                   </div>
 
