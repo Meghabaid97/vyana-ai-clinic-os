@@ -452,8 +452,8 @@ const HealthTrends = () => {
 
   return (
     <div className="animate-fade-in">
-      <section className="px-5 pt-8 pb-3">
-        <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">Health Trends</h1>
+      <section className="px-5 pt-3 pb-2">
+        <h1 className="text-[24px] font-extrabold leading-[1.1] tracking-[-0.03em] text-foreground">Health Trends</h1>
       </section>
 
       {/* Lead: What changed since last visit (the killer feature) */}
