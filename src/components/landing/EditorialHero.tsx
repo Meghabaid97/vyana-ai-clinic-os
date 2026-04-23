@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import WatchItWorkModal from "@/components/WatchItWorkModal";
 import { useLandingT } from "@/lib/i18n-landing";
+import { useMagnetic } from "@/hooks/use-magnetic";
+import { useCursorAurora } from "@/hooks/use-cursor-aurora";
 import heroConstellation from "@/assets/hero-constellation.png";
 
 // Sparkle positions — clustered over the right ~55-95% of the constellation image,
