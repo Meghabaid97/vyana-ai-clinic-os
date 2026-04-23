@@ -502,15 +502,12 @@ const Auth = () => {
       const isNativeApp = Capacitor.isNativePlatform();
 
       if (isNativeApp) {
-        // Native: open OAuth in in-app browser, intercept callback via deep link.
-        // Use skipBrowserRedirect so we get the URL and open it ourselves in
-        // an in-app browser (SFSafariViewController on iOS) that we can close
-        // programmatically once the deep link fires in main.tsx.
         const { Browser } = await import("@capacitor/browser");
+        const nativeRedirectTo = `${window.location.protocol}//oauth-callback/`;
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: "lovable://oauth-callback/",
+            redirectTo: nativeRedirectTo,
             skipBrowserRedirect: true,
           },
         });
