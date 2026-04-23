@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { ArrowRight, Play } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 import { useEffect, useState } from "react";
 import WatchItWorkModal from "@/components/WatchItWorkModal";
 import { useLandingT } from "@/lib/i18n-landing";
