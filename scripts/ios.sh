@@ -89,6 +89,7 @@ case "$MODE" in
     generate_app_icon
     c_blue "Syncing Capacitor (dev: hot-reload from Lovable)..."
     npx cap sync ios
+    verify_app_icon
     c_green "Opening Xcode. Hit Run (⌘R) — the simulator will load the live preview."
     npx cap open ios
     ;;
