@@ -305,6 +305,17 @@
   .skip-link {
     @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-md focus:bg-primary focus:text-primary-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
   }
+  /* Reveal-on-hover affordance for parent .group cards (e.g. chevron on row hover) */
+  .reveal-on-hover {
+    @apply opacity-0 -translate-x-1 transition-all duration-200 ease-out;
+  }
+  .group:hover .reveal-on-hover,
+  .group:focus-within .reveal-on-hover {
+    @apply opacity-100 translate-x-0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-on-hover { @apply opacity-100 translate-x-0 transition-none; }
+  }
 }
 
 /* (Landing warm palette removed, root tokens are now museum-warm globally) */
