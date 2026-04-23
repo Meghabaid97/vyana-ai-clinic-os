@@ -436,9 +436,19 @@ const DoctorVisitMode = () => {
                 <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">4</span>
                 <h3 className="text-[13px] font-bold text-foreground">Share with your doctor</h3>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Button onClick={shareWA} size="sm" className="h-10 gap-1.5 text-[12px]">
                   <Share2 className="h-3.5 w-3.5" /> WhatsApp
+                </Button>
+                <Button
+                  onClick={() => setShareSheetOpen(true)}
+                  size="sm"
+                  variant="secondary"
+                  className="h-10 gap-1.5 text-[12px] bg-primary/10 text-primary hover:bg-primary/15"
+                  disabled={isDemo}
+                  title={isDemo ? "QR sharing isn't available for sample data" : "Show QR for doctor to scan"}
+                >
+                  <QrCode className="h-3.5 w-3.5" /> Show QR
                 </Button>
                 <Button onClick={copy} size="sm" variant="outline" className="h-10 gap-1.5 text-[12px]">
                   {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
