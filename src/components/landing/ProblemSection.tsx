@@ -39,12 +39,12 @@ const ProblemSection = () => {
 
         <div
           ref={grid.ref}
-          className={`reveal ${grid.visible ? "is-visible" : ""} grid md:grid-cols-3 gap-6 lg:gap-8 mb-16`}
+          className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-16"
         >
           {stats.map((s, i) => (
             <div
               key={i}
-              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-8`}
+              className={`reveal reveal-lg reveal-stagger-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-8`}
             >
               <div className="font-serif text-[42px] leading-none text-primary tracking-[-0.02em]">
                 {s.k}
