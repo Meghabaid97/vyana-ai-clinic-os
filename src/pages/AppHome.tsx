@@ -259,25 +259,26 @@ const AppHome = () => {
           </section>
 
           {/* Why Vyana */}
-          <section className="px-4 sm:px-5 pb-5 lg:px-0 lg:pb-0">
+          <section className="px-4 sm:px-6 pb-5 lg:px-0 lg:pb-0">
             <div className="rounded-xl border border-border overflow-hidden">
-              <div className="bg-primary/5 p-5">
-                <h2 className="text-lg font-bold text-foreground mb-2">Why Vyana?</h2>
-                <p className="text-[14px] text-foreground leading-relaxed">
+              <div className="bg-primary/5 p-4 sm:p-5">
+                <h2 className="text-[15px] sm:text-base lg:text-lg font-bold text-foreground mb-1.5 sm:mb-2">Why Vyana?</h2>
+                <p className="text-[13px] sm:text-[14px] text-foreground leading-relaxed">
                   In 2005, in a small hospital in Tirupur, a family lost someone they loved. Not because the doctors didn't care. Because no one had the records. No history. No context. Just five desperate minutes to explain a lifetime.
                 </p>
-                <p className="text-[13px] text-muted-foreground leading-relaxed mt-3">
+                <p className="text-[12px] sm:text-[13px] text-muted-foreground leading-relaxed mt-2 sm:mt-3">
                   Vyana exists so that never happens again. Not to your family. Not to anyone's.
                 </p>
               </div>
-              <div className="p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-[13px] font-semibold text-foreground">Read our full story</p>
-                  <p className="text-[11px] text-muted-foreground">The promise behind the product.</p>
+              <div className="p-3 sm:p-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[12.5px] sm:text-[13px] font-semibold text-foreground">Read our full story</p>
+                  <p className="text-[10.5px] sm:text-[11px] text-muted-foreground">The promise behind the product.</p>
                 </div>
                 <button
                   onClick={() => navigate("/why-vyana")}
-                  className="h-9 w-9 rounded-full bg-primary flex items-center justify-center shrink-0"
+                  aria-label="Read our story"
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary flex items-center justify-center shrink-0"
                 >
                   <ArrowRight className="h-4 w-4 text-primary-foreground" />
                 </button>
