@@ -276,9 +276,9 @@ const AppShell = () => {
         </div>
       </main>
 
-      {/* ============ MOBILE BOTTOM TAB BAR (hidden on lg+) ============ */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 border-t border-border z-50 safe-area-bottom backdrop-blur-sm">
-        <div className="grid grid-cols-6 items-center h-14 sm:h-16 max-w-lg mx-auto px-0.5 sm:px-1">
+      {/* ============ MOBILE BOTTOM TAB BAR (hidden on lg+) — iOS-native 6-tab ============ */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/90 border-t border-border/60 z-50 safe-area-bottom backdrop-blur-xl">
+        <div className="grid grid-cols-6 items-stretch h-[52px] max-w-xl mx-auto">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -288,13 +288,17 @@ const AppShell = () => {
                 onClick={() => navigate(tab.path)}
                 aria-label={tab.label}
                 className={cn(
-                  "flex min-w-0 flex-col items-center justify-center gap-0.5 sm:gap-1 h-full rounded-xl px-0.5 sm:px-1 transition-colors",
+                  "flex min-w-0 flex-col items-center justify-center gap-[3px] h-full px-0.5 transition-colors active:bg-muted/40",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                <tab.icon className={cn("h-4.5 w-4.5 sm:h-5 sm:w-5", isActive && "stroke-[2.5]")} />
-                <span className="hidden min-[361px]:block truncate text-[10px] font-medium leading-none">{tab.label}</span>
-                <span className="block min-[361px]:hidden truncate text-[9px] font-medium leading-none">{tab.shortLabel}</span>
+                <tab.icon className={cn("h-[22px] w-[22px]", isActive ? "stroke-[2.4]" : "stroke-[1.8]")} />
+                <span className={cn(
+                  "truncate text-[10px] leading-none tracking-tight",
+                  isActive ? "font-semibold" : "font-medium"
+                )}>
+                  {tab.label}
+                </span>
               </button>
             );
           })}
