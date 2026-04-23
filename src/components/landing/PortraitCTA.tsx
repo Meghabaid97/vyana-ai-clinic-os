@@ -69,6 +69,7 @@ const PortraitCTA = () => {
           </div>
           <Button
             type="button"
+            variant="premium"
             disabled={submitting}
             onClick={() => (window.location.href = "/request-access")}
             className="group w-full h-12 mt-2 rounded-lg text-[15px]"

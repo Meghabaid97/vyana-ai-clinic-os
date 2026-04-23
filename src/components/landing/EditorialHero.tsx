@@ -47,6 +47,7 @@ const EditorialHero = () => {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-2">
               <Button
                 onClick={() => navigate("/request-access")}
+                variant="premium"
                 className="group h-11 px-6 text-[15px] rounded-full"
               >
                 Get early access
