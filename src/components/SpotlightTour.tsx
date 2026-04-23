@@ -124,13 +124,15 @@ const SpotlightTour = ({ open, onClose }: Props) => {
   }, [open, stepIdx, step.path, location.pathname, navigate]);
 
   // Measure target element with retries — if it never shows up, fall back to centered.
-  // Keep this CHEAP on mobile: instant scroll (no smooth animation), single rAF, no scroll listeners.
+  // Keep this CHEAP on mobile: instant scroll (no smooth animation), no scroll listeners.
   useLayoutEffect(() => {
     if (!open) return;
     setTargetMissing(false);
+    // Clear the previous step's highlight immediately so the user sees movement
+    // and never gets visually "stuck" on the old spotlight while we measure.
+    setRect(null);
 
     if (!step.target) {
-      setRect(null);
       return;
     }
 
@@ -138,6 +140,26 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     let cancelled = false;
     let attempts = 0;
     const maxAttempts = Math.ceil(TARGET_WAIT_MS / 100);
+
+    // Bottom tab bar is fixed ~54px + safe-area; treat anything within ~140px
+    // of the bottom edge as "covered" and worth scrolling into view.
+    const BOTTOM_OBSCURED = 140;
+    const TOP_OBSCURED = 80;
+
+    const commitRect = (el: HTMLElement) => {
+      const r2 = el.getBoundingClientRect();
+      if (r2.width === 0 || r2.height === 0) {
+        setRect(null);
+        setTargetMissing(true);
+        return;
+      }
+      setRect({
+        top: r2.top - PADDING,
+        left: r2.left - PADDING,
+        width: r2.width + PADDING * 2,
+        height: r2.height + PADDING * 2,
+      });
+    };
 
     const measure = () => {
       if (cancelled) return;
@@ -154,30 +176,32 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       }
 
       const r = el.getBoundingClientRect();
-      const offscreen = r.top < 80 || r.bottom > window.innerHeight - 120;
+      const offscreen =
+        r.top < TOP_OBSCURED || r.bottom > window.innerHeight - BOTTOM_OBSCURED;
+
       if (offscreen) {
         try {
-          // INSTANT scroll — smooth scroll on mobile causes the tour overlay to lag/jitter
           el.scrollIntoView({ block: "center" });
         } catch {
           /* older browsers */
         }
+        // Mobile scroll containers can take >1 frame to settle. Wait a beat,
+        // then re-check; if the element is STILL covered (e.g. the scroll
+        // container couldn't scroll far enough because the target lives near
+        // the page edge), commit anyway so the user is never stuck.
+        setTimeout(() => {
+          if (cancelled) return;
+          raf = requestAnimationFrame(() => {
+            if (cancelled) return;
+            commitRect(el);
+          });
+        }, 220);
+        return;
       }
 
       raf = requestAnimationFrame(() => {
         if (cancelled) return;
-        const r2 = el.getBoundingClientRect();
-        if (r2.width === 0 || r2.height === 0) {
-          setRect(null);
-          setTargetMissing(true);
-          return;
-        }
-        setRect({
-          top: r2.top - PADDING,
-          left: r2.left - PADDING,
-          width: r2.width + PADDING * 2,
-          height: r2.height + PADDING * 2,
-        });
+        commitRect(el);
       });
     };
 
