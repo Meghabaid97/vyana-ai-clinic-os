@@ -1,43 +1,60 @@
 import { ReactNode } from "react";
+import { useSpotlight } from "@/hooks/use-spotlight";
 
-/** Stylized iPhone-shaped frame with custom screen content. */
+/**
+ * Stylized iPhone-shaped frame with custom screen content.
+ *
+ * The base `rotate` is applied to an inner wrapper so the outer element can
+ * own the `tilt-card` hover transform without fighting it. The outer also
+ * wears `spotlight-card` so a soft coral glow tracks the cursor across the
+ * phone shell on pointer-fine devices (no-op on touch).
+ */
 export const PhoneMock = ({
   children,
   rotate = 0,
 }: {
   children: ReactNode;
   rotate?: number;
-}) => (
-  <div
-    className="relative mx-auto"
-    style={{
-      width: 300,
-      height: 620,
-      transform: `rotate(${rotate}deg)`,
-      filter:
-        "drop-shadow(0 50px 80px rgba(20,15,10,0.45)) drop-shadow(0 20px 30px rgba(20,15,10,0.25))",
-    }}
-  >
-    {/* Phone shell */}
+}) => {
+  const spot = useSpotlight<HTMLDivElement>();
+  return (
     <div
-      className="absolute inset-0 rounded-[42px] p-[10px]"
-      style={{ background: "hsl(20 18% 8%)" }}
+      ref={spot.ref}
+      onPointerMove={spot.onPointerMove}
+      onPointerLeave={spot.onPointerLeave}
+      className="tilt-card spotlight-card relative mx-auto rounded-[42px]"
+      style={{ width: 300, height: 620 }}
     >
-      {/* Screen */}
       <div
-        className="relative w-full h-full rounded-[34px] overflow-hidden"
-        style={{ background: "hsl(36 30% 96%)" }}
+        className="absolute inset-0"
+        style={{
+          transform: `rotate(${rotate}deg)`,
+          filter:
+            "drop-shadow(0 50px 80px rgba(20,15,10,0.45)) drop-shadow(0 20px 30px rgba(20,15,10,0.25))",
+        }}
       >
-        {children}
+        {/* Phone shell */}
+        <div
+          className="absolute inset-0 rounded-[42px] p-[10px]"
+          style={{ background: "hsl(20 18% 8%)" }}
+        >
+          {/* Screen */}
+          <div
+            className="relative w-full h-full rounded-[34px] overflow-hidden"
+            style={{ background: "hsl(36 30% 96%)" }}
+          >
+            {children}
+          </div>
+          {/* Notch */}
+          <div
+            className="absolute top-[14px] left-1/2 -translate-x-1/2 w-[90px] h-[24px] rounded-full"
+            style={{ background: "hsl(20 18% 8%)" }}
+          />
+        </div>
       </div>
-      {/* Notch */}
-      <div
-        className="absolute top-[14px] left-1/2 -translate-x-1/2 w-[90px] h-[24px] rounded-full"
-        style={{ background: "hsl(20 18% 8%)" }}
-      />
     </div>
-  </div>
-);
+  );
+};
 
 /* ---------- Step 01, Capture / Health Story screen ---------- */
 export const MockStoryScreen = () => (
