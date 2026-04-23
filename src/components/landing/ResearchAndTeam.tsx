@@ -16,7 +16,7 @@ const ResearchAndTeam = () => {
   ];
 
   return (
-    <section id="research" className="relative bg-surface-dark py-28 lg:py-36">
+    <section id="research" className="aurora-warm relative bg-surface-dark py-28 lg:py-36">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
