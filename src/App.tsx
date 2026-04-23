@@ -64,6 +64,7 @@ const App = () => (
           <Route path="/why-vyana" element={<WhyVyana />} />
           <Route path="/legal" element={<Legal />} />
           <Route path="/unsubscribe" element={<Unsubscribe />} />
+          <Route path="/layout-qa" element={<LayoutQA />} />
 
           {/* Patient app with bottom tabs */}
           <Route path="/app" element={<AppShell />}>
