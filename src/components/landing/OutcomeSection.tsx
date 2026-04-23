@@ -58,7 +58,7 @@ const OutcomeSection = () => {
             {outcomes.map((o, i) => (
               <div
                 key={i}
-                className={`reveal reveal-delay-${i + 1} ${flips.visible ? "is-visible" : ""} rounded-2xl border border-border bg-card p-7`}
+                className={`reveal reveal-delay-${i + 1} ${flips.visible ? "is-visible" : ""} rounded-2xl glass-card p-7`}
               >
                 <p className="text-[14px] text-foreground/45 line-through">
                   {o.stop}
