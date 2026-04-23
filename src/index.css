@@ -174,7 +174,117 @@
   }
 }
 
-/* (Landing warm palette removed, root tokens are now museum-warm globally) */
+/* =========================================================
+   Landing-only refinements (scoped under .landing-warm)
+   - Human serif (Fraunces) for headings
+   - Squircle radii on cards/buttons
+   - Soft airy shadows replacing harsh borders
+   - Subtle AI sparkle + scan shimmer animations
+   ========================================================= */
+.landing-warm {
+  --squircle-sm: 14px;
+  --squircle-md: 22px;
+  --squircle-lg: 32px;
+  --shadow-airy-sm: 0 1px 2px hsl(22 25% 12% / 0.04), 0 8px 24px -12px hsl(22 25% 12% / 0.08);
+  --shadow-airy-md: 0 2px 4px hsl(22 25% 12% / 0.04), 0 18px 48px -20px hsl(22 25% 12% / 0.12);
+  --shadow-airy-lg: 0 4px 8px hsl(22 25% 12% / 0.05), 0 32px 80px -28px hsl(22 25% 12% / 0.18);
+}
+
+.landing-warm .font-serif,
+.landing-warm h1,
+.landing-warm h2,
+.landing-warm h3,
+.landing-warm h4,
+.landing-warm blockquote,
+.landing-warm figure {
+  font-family: 'Fraunces', 'Instrument Serif', ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 60, "WONK" 0;
+}
+.landing-warm h1,
+.landing-warm h2 {
+  font-variation-settings: "SOFT" 80, "WONK" 0;
+}
+
+/* Squircle every rounded card / button on the landing. */
+.landing-warm .rounded-2xl { border-radius: var(--squircle-md); }
+.landing-warm .rounded-xl  { border-radius: var(--squircle-sm); }
+.landing-warm .rounded-3xl { border-radius: var(--squircle-lg); }
+
+/* Airy depth: soft shadow + nearly invisible border on light cards */
+.landing-warm .bg-card {
+  box-shadow: var(--shadow-airy-sm);
+  border-color: hsl(var(--border) / 0.5);
+  transition: box-shadow 280ms ease, transform 280ms ease;
+}
+.landing-warm .bg-card:hover {
+  box-shadow: var(--shadow-airy-md);
+  transform: translateY(-1px);
+}
+
+/* Dark-surface variant: soft inner glow instead of stark border */
+.landing-warm .bg-surface-dark .bg-white\/\[0\.03\] {
+  box-shadow: 0 1px 0 hsl(0 0% 100% / 0.04) inset, 0 24px 60px -28px hsl(0 0% 0% / 0.6);
+  border-color: hsl(0 0% 100% / 0.06);
+}
+
+/* Pillowy primary CTA on landing */
+.landing-warm button.rounded-full,
+.landing-warm a.rounded-full {
+  box-shadow: 0 1px 0 hsl(0 0% 100% / 0.15) inset, 0 10px 24px -10px hsl(var(--primary) / 0.45);
+}
+
+/* ---------- AI sparkles ---------- */
+@keyframes vyana-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.6) rotate(0deg); }
+  40%      { opacity: 1; transform: scale(1)   rotate(20deg); }
+  70%      { opacity: 0.55; transform: scale(0.9) rotate(-10deg); }
+}
+.landing-warm .ai-sparkle { position: relative; display: inline-block; }
+.landing-warm .ai-sparkle::before,
+.landing-warm .ai-sparkle::after {
+  content: "";
+  position: absolute;
+  width: 10px; height: 10px;
+  background: radial-gradient(circle, hsl(var(--primary)) 0%, hsl(var(--primary) / 0) 70%);
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: vyana-sparkle 3.2s ease-in-out infinite;
+}
+.landing-warm .ai-sparkle::before { top: -6px;  right: -14px; animation-delay: 0.2s; }
+.landing-warm .ai-sparkle::after  { bottom: 6px; right: -22px; width: 6px; height: 6px; animation-delay: 1.4s; }
+
+/* ---------- Scan shimmer ---------- */
+@keyframes vyana-scan {
+  0%   { transform: translateY(-110%); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(110%); opacity: 0; }
+}
+.landing-warm .ai-scan { position: relative; overflow: hidden; isolation: isolate; }
+.landing-warm .ai-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    hsl(var(--primary) / 0) 0%,
+    hsl(var(--primary) / 0.18) 45%,
+    hsl(var(--primary) / 0.32) 50%,
+    hsl(var(--primary) / 0.18) 55%,
+    hsl(var(--primary) / 0) 100%
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: vyana-scan 4.8s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-warm .ai-sparkle::before,
+  .landing-warm .ai-sparkle::after,
+  .landing-warm .ai-scan::after { animation: none; opacity: 0; }
+}
 
 /* Safe areas for native app */
 .safe-area-top {
