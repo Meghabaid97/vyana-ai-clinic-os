@@ -5,9 +5,7 @@ const sections = [
   { id: "problem", label: "Problem" },
   { id: "voices", label: "Voices" },
   { id: "wedge", label: "Product" },
-  
-  { id: "how", label: "How" },
-  { id: "output", label: "Outcome" },
+  { id: "output", label: "How & Why" },
   { id: "research", label: "Science" },
   { id: "trust", label: "Trust" },
   { id: "faq", label: "Questions" },
