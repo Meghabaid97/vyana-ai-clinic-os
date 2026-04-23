@@ -37,6 +37,13 @@ const SIGNUP_DRAFT_KEY = "vyana-signup-draft";
 const CUSTOMER_APP_ORIGIN = "https://www.vyana.care";
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/app`;
 const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
+// The Lovable OAuth proxy worker only intercepts /~oauth/* on *.lovable.app
+// origins. The customer-facing custom domain (vyana.care) is hosted on Vercel
+// and serves the SPA for that path, which causes a 404 inside the in-app
+// browser. For native OAuth we MUST hit the Lovable origin so the proxy
+// handles the initiate -> Google -> callback chain. The user only sees this
+// origin briefly inside SFSafariViewController during sign-in.
+const NATIVE_OAUTH_INITIATE_ORIGIN = "https://meghabaid.lovable.app";
 
 const getStoredSignupDraft = (): PendingSignupDraft | null => {
   try {
@@ -483,7 +490,7 @@ const Auth = () => {
         const state = typeof crypto !== "undefined" && crypto.randomUUID
           ? crypto.randomUUID()
           : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-        const oauthUrl = new URL(`${CUSTOMER_APP_ORIGIN}/~oauth/initiate`);
+        const oauthUrl = new URL(`${NATIVE_OAUTH_INITIATE_ORIGIN}/~oauth/initiate`);
         oauthUrl.searchParams.set("provider", "google");
         oauthUrl.searchParams.set("redirect_uri", NATIVE_OAUTH_REDIRECT);
         oauthUrl.searchParams.set("state", state);
