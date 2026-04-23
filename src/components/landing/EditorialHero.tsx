@@ -74,7 +74,8 @@ const EditorialHero = () => {
   return (
     <section
       id="hero"
-      className={`aurora-warm aurora-warm-drift ${staged ? "hero-glow-stage" : ""} relative min-h-[100svh] w-full overflow-hidden bg-background`}
+      ref={sectionRef}
+      className={`aurora-warm aurora-warm-drift aurora-cursor ${staged ? "hero-glow-stage" : ""} relative min-h-[100svh] w-full overflow-hidden bg-background`}
     >
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background/35" />
 
