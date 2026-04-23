@@ -13,7 +13,7 @@ const WedgeSectionGrid = () => {
   ];
 
   return (
-    <section id="wedge" className="relative py-32 lg:py-40 bg-background">
+    <section id="wedge" className="mood mood-sage from-cream to-ivory relative py-32 lg:py-40">
       <div className="relative z-10 max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}

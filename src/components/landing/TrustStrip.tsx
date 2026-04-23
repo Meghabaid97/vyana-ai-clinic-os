@@ -16,7 +16,7 @@ const TrustStrip = () => {
   ];
 
   return (
-    <section id="trust" className="py-24 lg:py-32 bg-background border-t border-border">
+    <section id="trust" className="mood mood-cream from-cocoa to-cocoa-warm py-24 lg:py-32">
       <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}

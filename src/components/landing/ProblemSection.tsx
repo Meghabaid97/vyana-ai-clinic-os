@@ -19,7 +19,7 @@ const ProblemSection = () => {
   ];
 
   return (
-    <section id="problem" className="relative py-28 lg:py-36 bg-background">
+    <section id="problem" className="mood mood-blush from-cream to-cream relative py-28 lg:py-36">
       <div className="max-w-[1240px] mx-auto px-6 lg:px-12">
         <div
           ref={header.ref}
