@@ -119,7 +119,7 @@ const AppShell = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-background flex flex-col">
       {/* ============ MOBILE TOP BAR (hidden on lg+) ============ */}
       <header className="lg:hidden bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm">
         <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between gap-2">
