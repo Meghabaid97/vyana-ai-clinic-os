@@ -1,6 +1,6 @@
 import { useReveal } from "@/hooks/use-reveal";
 import { useLandingT } from "@/lib/i18n-landing";
-import CountUp from "@/components/landing/CountUp";
+import { StatCard } from "@/components/landing/StatCard";
 
 const ProblemSection = () => {
   const t = useLandingT();
@@ -43,21 +43,7 @@ const ProblemSection = () => {
           className="tilt-stage grid md:grid-cols-3 gap-6 lg:gap-8 mb-16"
         >
           {stats.map((s, i) => (
-            <div
-              key={i}
-              className={`tilt-card reveal reveal-lg reveal-stagger-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-8`}
-            >
-              <div className="font-serif text-[42px] leading-none text-primary tracking-[-0.02em] tabular-nums">
-                <CountUp
-                  value={s.k}
-                  start={grid.visible}
-                  durationMs={i === 0 ? 1400 : i === 1 ? 1100 : 800}
-                />
-              </div>
-              <p className="mt-5 text-body text-surface-dark-muted">
-                {s.v}
-              </p>
-            </div>
+            <StatCard key={i} k={s.k} v={s.v} index={i} visible={grid.visible} />
           ))}
         </div>
 

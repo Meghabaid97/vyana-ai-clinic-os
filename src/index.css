@@ -443,6 +443,40 @@
     .tilt-card { transition: none; }
     .tilt-card:hover { transform: none !important; }
   }
+
+  /* ── Cursor spotlight ─────────────────────────────────────────
+     Soft coral glow that follows the cursor inside the card.
+     Pair with the `useSpotlight` hook, which writes --mx/--my/--ma.
+     Touch pointers don't trigger the hook, so this is a no-op on mobile. */
+  .spotlight-card {
+    --mx: 50%;
+    --my: 50%;
+    --ma: 0;
+    position: relative;
+    isolation: isolate;
+  }
+  .spotlight-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(
+      280px circle at var(--mx) var(--my),
+      hsl(var(--primary) / 0.18),
+      transparent 60%
+    );
+    opacity: var(--ma);
+    transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .spotlight-card > * {
+    position: relative;
+    z-index: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spotlight-card::after { display: none; }
+  }
 }
 
 /* (Landing warm palette removed, root tokens are now museum-warm globally) */
