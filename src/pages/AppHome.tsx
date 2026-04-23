@@ -199,7 +199,7 @@ const AppHome = () => {
       {/* ============ HERO BAND — bento on lg+ (welcome 4 / briefing 2) ============ */}
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:auto-rows-min">
         {/* Soft opener — wider tile */}
-        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-4 lg:px-7 lg:pt-7 lg:pb-7 lg:flex lg:flex-col lg:justify-center lg:bento-tile lg:bento-tile-accent">
+        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-4 lg:px-6 lg:pt-7 lg:pb-7 lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:flex lg:flex-col lg:justify-center">
           <div className="max-w-sm md:max-w-xl lg:max-w-none">
             <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-2 sm:mb-3">
               Welcome back, {firstName}
@@ -250,7 +250,7 @@ const AppHome = () => {
               ))}
             </div>
 
-            <div className="mt-4 bento-tile overflow-hidden">
+            <div className="mt-4 rounded-2xl border border-border bg-card overflow-hidden">
               {totalRecords === 0 ? (
                 <button onClick={() => navigate("/app/records")} className="group flex items-center gap-3 w-full min-w-0 p-4 text-left hover:bg-primary/5 transition-colors">
                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -326,10 +326,10 @@ const AppHome = () => {
         {/* Quick actions — compact tile sitting beside Story (2 cols, top-aligned) */}
         <section className="px-4 sm:px-5 pb-5 lg:col-span-2 lg:px-0 lg:pb-0 lg:self-start">
           <h3 className="hidden lg:block text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Quick actions</h3>
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1 lg:gap-3">
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
             <button
               onClick={() => navigate("/app/share")}
-              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left transition-colors min-w-0 lg:bento-tile lg:py-4 lg:px-4"
+              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
             >
               <Link2 className="h-4 w-4 text-primary shrink-0" />
               <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Share with doctor</span>
@@ -337,7 +337,7 @@ const AppHome = () => {
             <button
               data-tour="emergency-quick-action"
               onClick={() => navigate("/app/emergency-contacts")}
-              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left transition-colors min-w-0 lg:bento-tile lg:py-4 lg:px-4"
+              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
             >
               <Shield className="h-4 w-4 text-primary shrink-0" />
               <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Emergency access</span>
@@ -362,7 +362,7 @@ const AppHome = () => {
 
         {/* Why Vyana — narrative tile (4 cols) */}
         <section className="px-4 sm:px-6 pb-5 lg:col-span-4 lg:px-0 lg:pb-0">
-          <div className="rounded-xl border border-border overflow-hidden h-full flex flex-col lg:bento-tile lg:border-0">
+          <div className="rounded-xl border border-border overflow-hidden h-full flex flex-col">
             <div className="bg-primary/5 p-4 sm:p-5 flex-1">
               <h2 className="text-[15px] sm:text-base lg:text-lg font-bold text-foreground mb-1.5 sm:mb-2">Why Vyana?</h2>
               <p className="text-[13px] sm:text-[14px] text-foreground leading-relaxed">
