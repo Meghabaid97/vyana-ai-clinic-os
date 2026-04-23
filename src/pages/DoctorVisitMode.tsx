@@ -5,13 +5,14 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, Pill, Activity,
   Share2, Copy, CheckCircle2, ArrowUp, ArrowDown, Minus,
-  Stethoscope, ChevronLeft, Play, FileDown, FileText,
+  Stethoscope, ChevronLeft, Play, FileDown, FileText, QrCode,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SAMPLE_BRIEFING, SAMPLE_PATIENT } from "@/lib/sampleBriefingData";
 import { Change, computeChangesSinceLastVisit, SAMPLE_CHANGES } from "@/lib/changesSinceLastVisit";
 import PageHero from "@/components/PageHero";
+import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
@@ -45,7 +46,30 @@ const DoctorVisitMode = () => {
   const [patientName, setPatientName] = useState<string>("");
   const [isDemo, setIsDemo] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareSheetOpen, setShareSheetOpen] = useState(false);
 
+  const createShareLink = async (recipientName: string): Promise<string | null> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({ title: "Sign in required", variant: "destructive" });
+      return null;
+    }
+    const { data: patient } = await supabase
+      .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    if (!patient) {
+      toast({ title: "Profile missing", description: "Complete your profile first.", variant: "destructive" });
+      return null;
+    }
+    const { data, error } = await supabase.from("shared_record_links").insert({
+      patient_id: patient.id,
+      recipient_name: recipientName || null,
+    }).select("token").single();
+    if (error || !data) {
+      toast({ title: "Could not create link", description: error?.message ?? "Unknown error", variant: "destructive" });
+      return null;
+    }
+    return `${window.location.origin}/emergency-access/${data.token}`;
+  };
   // Auto-load demo via ?demo=1
   useEffect(() => {
     if (searchParams.get("demo") === "1") {
@@ -183,9 +207,14 @@ const DoctorVisitMode = () => {
         }
         action={
           briefing ? (
-            <Button size="sm" onClick={shareWA} className="h-9 px-3 text-[12px] gap-1.5">
-              <Share2 className="h-3.5 w-3.5" /> Share
-            </Button>
+            <div className="flex gap-1.5">
+              <Button size="sm" variant="outline" onClick={() => setShareSheetOpen(true)} className="h-9 px-2.5 text-[12px] gap-1.5" disabled={isDemo} title={isDemo ? "QR sharing isn't available for sample data" : "Show QR for doctor to scan"} aria-label="Show QR">
+                <QrCode className="h-3.5 w-3.5" />
+              </Button>
+              <Button size="sm" onClick={shareWA} className="h-9 px-3 text-[12px] gap-1.5">
+                <Share2 className="h-3.5 w-3.5" /> Share
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -407,9 +436,19 @@ const DoctorVisitMode = () => {
                 <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">4</span>
                 <h3 className="text-[13px] font-bold text-foreground">Share with your doctor</h3>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Button onClick={shareWA} size="sm" className="h-10 gap-1.5 text-[12px]">
                   <Share2 className="h-3.5 w-3.5" /> WhatsApp
+                </Button>
+                <Button
+                  onClick={() => setShareSheetOpen(true)}
+                  size="sm"
+                  variant="secondary"
+                  className="h-10 gap-1.5 text-[12px] bg-primary/10 text-primary hover:bg-primary/15"
+                  disabled={isDemo}
+                  title={isDemo ? "QR sharing isn't available for sample data" : "Show QR for doctor to scan"}
+                >
+                  <QrCode className="h-3.5 w-3.5" /> Show QR
                 </Button>
                 <Button onClick={copy} size="sm" variant="outline" className="h-10 gap-1.5 text-[12px]">
                   {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
@@ -437,6 +476,12 @@ const DoctorVisitMode = () => {
           </section>
         </>
       )}
+
+      <ShareCeremonySheet
+        open={shareSheetOpen}
+        onOpenChange={setShareSheetOpen}
+        onCreate={createShareLink}
+      />
     </div>
   );
 };
