@@ -38,7 +38,7 @@ const StatsStrip = () => {
                 <div className="font-serif text-[64px] sm:text-[76px] leading-none text-white tracking-[-0.02em]">
                   {s.value}
                 </div>
-                <div className="text-[12px] tracking-[0.2em] uppercase text-primary mt-2 font-medium">
+                <div className="text-label text-primary mt-2">
                   {s.unit}
                 </div>
                 <p className="mt-5 text-[14px] leading-[1.7] text-[hsl(30_20%_82%)] max-w-[280px]">

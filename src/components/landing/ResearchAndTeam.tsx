@@ -25,7 +25,7 @@ const ResearchAndTeam = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             {t("research.eyebrow")}
           </p>
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
+          <h2 className="text-section text-surface-dark-foreground">
             {t("research.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("research.title.l2")}</em>
@@ -63,7 +63,7 @@ const ResearchAndTeam = () => {
             className={`reveal ${right.visible ? "is-visible" : ""} space-y-5`}
           >
             <div className="rounded-2xl glass-card-dark p-7">
-              <p className="text-[11px] tracking-[0.3em] uppercase text-surface-dark-muted/80 mb-5">
+              <p className="text-label text-surface-dark-muted/80 mb-5">
                 {t("research.builtBy")}
               </p>
               <div className="grid grid-cols-2 gap-4">

@@ -19,7 +19,7 @@ const WedgeSection = () => {
           ref={header.ref}
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[820px] mb-20`}
         >
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[80px] leading-[1.0] tracking-[-0.02em] text-surface-dark-foreground">
+          <h2 className="text-section text-surface-dark-foreground">
             {t("wedge.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("wedge.title.l2")}</em>
@@ -38,7 +38,7 @@ const WedgeSection = () => {
               key={p.n}
               className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-8`}
             >
-              <div className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-6">
+              <div className="text-label text-primary mb-6">
                 {p.n}
               </div>
               <h3 className="font-serif text-[26px] leading-[1.15] text-surface-dark-foreground tracking-[-0.01em]">

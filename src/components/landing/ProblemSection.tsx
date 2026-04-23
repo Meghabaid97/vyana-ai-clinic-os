@@ -27,7 +27,7 @@ const ProblemSection = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             {t("problem.eyebrow")}
           </p>
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
+          <h2 className="text-section text-surface-dark-foreground">
             {t("problem.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("problem.title.l2")}</em>
@@ -57,7 +57,7 @@ const ProblemSection = () => {
         </div>
 
         <div className="max-w-[760px]">
-          <p className="text-[12px] tracking-[0.3em] uppercase text-surface-dark-muted/70 mb-4">
+          <p className="text-label text-surface-dark-muted/70 mb-4">
             {t("problem.consequences")}
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
