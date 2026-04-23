@@ -474,6 +474,10 @@ const HealthTrends = () => {
     },
   ];
 
+  if (initialLoading) {
+    return <TrendsSkeleton />;
+  }
+
   return (
     <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
       <PageHero
