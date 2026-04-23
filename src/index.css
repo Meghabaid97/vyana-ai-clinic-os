@@ -246,7 +246,10 @@
     background-color: hsl(var(--card) / 0.55);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
     backdrop-filter: blur(20px) saturate(150%);
-    @apply border border-border/50 transition-all duration-300;
+    border: 1px solid hsl(var(--border) / 0.5);
+    transition: background-color var(--duration-medium) var(--ease-out),
+                transform var(--duration-medium) var(--ease-out),
+                box-shadow var(--duration-medium) var(--ease-out);
   }
   .glass-card:hover {
     background-color: hsl(var(--card) / 0.78);
