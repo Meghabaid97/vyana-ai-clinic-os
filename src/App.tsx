@@ -110,7 +110,8 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Suspense>
+          </Suspense>
+        </ChunkErrorBoundary>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
