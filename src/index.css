@@ -435,21 +435,55 @@
     .kw-stage .kw { animation: none; }
   }
 
-  /* Hero constellation — fade in together with the headline, fast. */
+  /* Hero constellation — soft glow-up: ease in opacity + scale, no horizontal slide. */
   .hero-constellation-in {
-    animation: hero-constellation-fade 600ms ease-out 120ms both;
+    animation: hero-constellation-glow 1600ms cubic-bezier(0.2, 0.7, 0.2, 1) 200ms both;
   }
   .hero-constellation-img {
     animation: hero-constellation-float 14s ease-in-out infinite;
     transform-origin: center;
   }
-  @keyframes hero-constellation-fade {
-    from { opacity: 0; transform: translateX(24px); }
-    to   { opacity: 1; transform: translateX(0); }
+  @keyframes hero-constellation-glow {
+    from { opacity: 0; transform: scale(0.96); filter: blur(8px); }
+    to   { opacity: 1; transform: scale(1);     filter: blur(0); }
   }
   @keyframes hero-constellation-float {
     0%, 100% { transform: translateY(0) scale(1); }
     50%      { transform: translateY(-10px) scale(1.01); }
+  }
+
+  /* ---------- Hero soft glow-up reveal ----------
+     One ambient breath: aurora brightens, content rises through a blur-to-focus pass,
+     sparkles fade in last. Replaces the abrupt word-by-word stagger.
+     Stage by adding `.hero-glow-stage` to the section root after first paint. */
+  .hero-glow-stage::before {
+    animation: hero-aurora-wake 1800ms cubic-bezier(0.2, 0.7, 0.2, 1) both,
+               aurora-drift 28s ease-in-out 1800ms infinite;
+  }
+  @keyframes hero-aurora-wake {
+    from { opacity: 0.25; filter: blur(14px) saturate(0.7); transform: scale(1.04); }
+    to   { opacity: 1;    filter: blur(0)    saturate(1);   transform: scale(1); }
+  }
+
+  .hero-soft {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(10px);
+    will-change: opacity, transform, filter;
+  }
+  .hero-glow-stage .hero-soft {
+    animation: hero-soft-rise 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    animation-delay: var(--d, 0ms);
+  }
+  @keyframes hero-soft-rise {
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-glow-stage::before { animation: none; opacity: 1; filter: none; transform: none; }
+    .hero-soft { opacity: 1; transform: none; filter: none; }
+    .hero-glow-stage .hero-soft { animation: none; }
+    .hero-constellation-in { animation: none; opacity: 1; }
   }
 
   /* Hero sparkles — twinkling dots layered on top of the constellation.

@@ -58,82 +58,53 @@ const EditorialHero = () => {
   const again = t("hero.h1.again");
   const sub = t("hero.sub");
 
-  const EYEBROW_START = 60;
-  const HEADLINE_START = 140;
-  const HEADLINE_STEP = 35;
-  const SUB_DELAY_AFTER_HEADLINE = 120;
-  const CTA_DELAY_AFTER_SUB = 140;
-
-  const splitWords = (s: string) => s.split(/\s+/).filter(Boolean);
-  const wordsA = splitWords(lineA);
-  const wordsB = splitWords(lineB);
-  const wordsAgain = splitWords(again);
-  const totalHeadlineWords = wordsA.length + wordsB.length + wordsAgain.length;
-
-  const subStart = HEADLINE_START + totalHeadlineWords * HEADLINE_STEP + SUB_DELAY_AFTER_HEADLINE;
-  const ctaStart = subStart + 320 + CTA_DELAY_AFTER_SUB;
-
-  const renderWords = (
-    words: string[],
-    baseDelay: number,
-    step: number,
-    options?: { italic?: boolean; accent?: boolean }
-  ) =>
-    words.map((w, i) => (
-      <span
-        key={`${baseDelay}-${i}-${w}`}
-        className={`kw ${options?.italic ? "italic font-normal" : ""} ${options?.accent ? "text-primary" : ""}`}
-        style={{ ["--d" as string]: `${baseDelay + i * step}ms` }}
-      >
-        {w}
-        {i < words.length - 1 ? "\u00A0" : ""}
-      </span>
-    ));
+  // Soft glow-up cadence — each element rises a beat after the previous,
+  // all riding the same blur-to-focus easing. No word-by-word stagger.
+  const D_EYEBROW = 200;
+  const D_HEADLINE = 380;
+  const D_SUB = 720;
+  const D_CTA = 920;
+  const D_SCROLL_HINT = 1200;
 
   return (
     <section
       id="hero"
-      className="aurora-warm aurora-warm-drift relative min-h-[100svh] w-full overflow-hidden bg-background"
+      className={`aurora-warm aurora-warm-drift ${staged ? "hero-glow-stage" : ""} relative min-h-[100svh] w-full overflow-hidden bg-background`}
     >
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background/35" />
 
       <div className="relative z-10 min-h-[100svh] flex items-center">
         <div className="max-w-[1240px] mx-auto px-6 lg:px-12 w-full pt-28 pb-20">
           <div className="lg:grid lg:grid-cols-[minmax(0,700px)_minmax(320px,1fr)] lg:items-center lg:gap-2">
-            <div className={`relative z-10 max-w-[860px] space-y-8 ${staged ? "kw-stage" : ""}`}>
-              <p className="font-serif italic text-[15px] text-foreground/65">
-                <span className="kw" style={{ ["--d" as string]: `${EYEBROW_START}ms` }}>
-                  {eyebrow}
-                </span>
+            <div className="relative z-10 max-w-[860px] space-y-8">
+              <p
+                className="hero-soft font-serif italic text-[15px] text-foreground/65"
+                style={{ ["--d" as string]: `${D_EYEBROW}ms` }}
+              >
+                {eyebrow}
               </p>
 
-              <h1 className="font-serif text-[44px] sm:text-[64px] lg:text-[88px] leading-[0.98] tracking-[-0.02em] text-foreground">
-                <span className="block">{renderWords(wordsA, HEADLINE_START, HEADLINE_STEP)}</span>
+              <h1
+                className="hero-soft font-serif text-[44px] sm:text-[64px] lg:text-[88px] leading-[0.98] tracking-[-0.02em] text-foreground"
+                style={{ ["--d" as string]: `${D_HEADLINE}ms` }}
+              >
+                <span className="block">{lineA}</span>
                 <span className="block">
-                  {renderWords(
-                    wordsB,
-                    HEADLINE_START + wordsA.length * HEADLINE_STEP,
-                    HEADLINE_STEP
-                  )}{" "}
-                  {renderWords(
-                    wordsAgain,
-                    HEADLINE_START + (wordsA.length + wordsB.length) * HEADLINE_STEP,
-                    HEADLINE_STEP,
-                    { italic: true, accent: true }
-                  )}
+                  {lineB}{" "}
+                  <em className="italic font-normal text-primary">{again}</em>
                 </span>
               </h1>
 
               <p
-                className="text-body text-foreground/85 max-w-[580px] kw"
-                style={{ ["--d" as string]: `${subStart}ms` }}
+                className="hero-soft text-body text-foreground/85 max-w-[580px]"
+                style={{ ["--d" as string]: `${D_SUB}ms` }}
               >
                 {sub}
               </p>
 
               <div
-                className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-2 kw"
-                style={{ ["--d" as string]: `${ctaStart}ms` }}
+                className="hero-soft flex flex-wrap items-center gap-x-3 gap-y-2 pt-2"
+                style={{ ["--d" as string]: `${D_CTA}ms` }}
               >
                 <StatefulButton
                   state={ctaState}
@@ -170,7 +141,6 @@ const EditorialHero = () => {
                   draggable={false}
                   className="hero-constellation-img w-[88vw] max-w-[540px] sm:w-[72vw] sm:max-w-[620px] lg:w-[46vw] lg:max-w-[760px] opacity-70 mix-blend-multiply select-none lg:opacity-90"
                 />
-                {/* Sparkles — positioned over the constellation cluster (right ~55-95% of image) */}
                 {SPARKLES.map((s, i) => (
                   <span
                     key={i}
@@ -192,8 +162,8 @@ const EditorialHero = () => {
       </div>
 
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-8 z-10 flex justify-center kw"
-        style={{ ["--d" as string]: `${ctaStart + 240}ms` }}
+        className="hero-soft pointer-events-none absolute inset-x-0 bottom-8 z-10 flex justify-center"
+        style={{ ["--d" as string]: `${D_SCROLL_HINT}ms` }}
         aria-hidden
       >
         <div className="h-10 w-[1px] bg-gradient-to-b from-transparent via-foreground/30 to-transparent" />
