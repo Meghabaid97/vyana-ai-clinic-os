@@ -326,10 +326,10 @@ const AppHome = () => {
         {/* Quick actions — compact tile sitting beside Story (2 cols, top-aligned) */}
         <section className="px-4 sm:px-5 pb-5 lg:col-span-2 lg:px-0 lg:pb-0 lg:self-start">
           <h3 className="hidden lg:block text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Quick actions</h3>
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1 lg:gap-3">
             <button
               onClick={() => navigate("/app/share")}
-              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
+              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left transition-colors min-w-0 lg:bento-tile lg:py-4 lg:px-4"
             >
               <Link2 className="h-4 w-4 text-primary shrink-0" />
               <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Share with doctor</span>
@@ -337,7 +337,7 @@ const AppHome = () => {
             <button
               data-tour="emergency-quick-action"
               onClick={() => navigate("/app/emergency-contacts")}
-              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
+              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left transition-colors min-w-0 lg:bento-tile lg:py-4 lg:px-4"
             >
               <Shield className="h-4 w-4 text-primary shrink-0" />
               <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Emergency access</span>
