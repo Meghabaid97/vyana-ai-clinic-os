@@ -199,7 +199,7 @@ const AppHome = () => {
       {/* ============ HERO BAND — bento on lg+ (welcome 4 / briefing 2) ============ */}
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:auto-rows-min">
         {/* Soft opener — wider tile */}
-        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-4 lg:px-6 lg:pt-7 lg:pb-7 lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:flex lg:flex-col lg:justify-center">
+        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-4 lg:px-7 lg:pt-7 lg:pb-7 lg:flex lg:flex-col lg:justify-center lg:bento-tile lg:bento-tile-accent">
           <div className="max-w-sm md:max-w-xl lg:max-w-none">
             <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-2 sm:mb-3">
               Welcome back, {firstName}
