@@ -405,6 +405,27 @@
     background-size: 200% 200%;
     animation: aurora-drift 28s ease-in-out infinite;
   }
+
+  /* Cursor-aware aurora — radial wash anchored to --ax/--ay (set by
+     useCursorAurora). Layered above the base aurora ::before so the
+     drifting backdrop still breathes underneath. Desktop pointer-fine
+     only; on touch the vars stay at 50% 50% and the orb sits centered. */
+  .aurora-cursor::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(420px circle at var(--ax, 50%) var(--ay, 50%),
+        hsl(var(--primary) / 0.14) 0%,
+        hsl(var(--status-normal) / 0.06) 35%,
+        transparent 70%);
+    transition: background 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .aurora-cursor::after { display: none; }
+  }
   @keyframes aurora-drift {
     0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
     50%      { background-position: 25% 35%, 75% 65%, 60% 40%; }
