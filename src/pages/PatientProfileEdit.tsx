@@ -88,21 +88,53 @@ const PatientProfileEdit = () => {
     navigate("/auth");
   };
 
+  const APP_STORE_URL = "https://apps.apple.com/app/vyana/id0000000000"; // TODO: replace with real ID once published
+  const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=care.vyana.app"; // TODO: replace once published
+  const WEB_APP_URL = "https://www.vyana.care";
+
+  const handleRateApp = async () => {
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isAndroid = /Android/i.test(ua);
+
+    if (isIOS) { window.open(APP_STORE_URL, "_blank", "noopener,noreferrer"); return; }
+    if (isAndroid) { window.open(PLAY_STORE_URL, "_blank", "noopener,noreferrer"); return; }
+
+    // Desktop / other: try Web Share, fall back to copying the link.
+    const shareData = {
+      title: "Vyana",
+      text: "I am using Vyana to keep my family's health story in one place. Try it:",
+      url: WEB_APP_URL,
+    };
+    try {
+      if (typeof navigator !== "undefined" && (navigator as any).share) {
+        await (navigator as any).share(shareData);
+        return;
+      }
+    } catch { /* user dismissed share — fall through to copy */ }
+    try {
+      await navigator.clipboard.writeText(WEB_APP_URL);
+      toast({ title: "Link copied", description: "Share Vyana with friends and family." });
+    } catch {
+      window.open(WEB_APP_URL, "_blank", "noopener,noreferrer");
+    }
+  };
+
   if (isLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   const menuItems = [
-    { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/app/medical-history" },
-    { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/app/emergency-contacts" },
-    { icon: Bell, label: "Notifications", desc: "Manage notification preferences", path: null },
-    { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: "/legal" },
+    { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/app/medical-history" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Bell, label: "Notifications", desc: "Manage notification preferences", path: null as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
   ];
 
   const aboutItems = [
-    { icon: BookOpen, label: "Our Story", desc: "Why we built Vyana", path: "/app/story" },
-    { icon: HelpCircle, label: "Help & Support", desc: "Raise a ticket or report an issue", path: "/app/support" },
-    { icon: Star, label: "Rate App", desc: "Rate Vyana on the store", path: null },
+    { icon: BookOpen, label: "Our Story", desc: "Why we built Vyana", path: "/app/story" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: HelpCircle, label: "Help & Support", desc: "Raise a ticket or report an issue", path: "/app/support" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Star, label: "Rate App", desc: "Rate Vyana or share with friends", path: null as string | null, onClick: handleRateApp },
   ];
 
   return (
@@ -281,7 +313,7 @@ const PatientProfileEdit = () => {
         {aboutItems.map((item, i) => (
           <button
             key={i}
-            onClick={() => item.path && navigate(item.path)}
+            onClick={() => { if (item.onClick) item.onClick(); else if (item.path) navigate(item.path); }}
             className="w-full flex items-center justify-between py-3.5 border-b border-border"
           >
             <div className="flex items-center gap-3">
@@ -313,11 +345,11 @@ const PatientProfileEdit = () => {
         <p className="text-[11px] text-muted-foreground mt-1">ver 1.0.0</p>
         <div className="flex items-center justify-center gap-6 mt-4">
           {[
-            { icon: Lock, label: "Privacy", path: "/legal#privacy" },
-            { icon: FileText, label: "Terms", path: "/legal" },
-            { icon: Star, label: "Rate App", path: null },
+            { icon: Lock, label: "Privacy", path: "/legal#privacy" as string | null, onClick: undefined as undefined | (() => void) },
+            { icon: FileText, label: "Terms", path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
+            { icon: Star, label: "Rate App", path: null as string | null, onClick: handleRateApp },
           ].map((item, i) => (
-            <div key={i} className="flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => item.path && navigate(item.path)}>
+            <div key={i} className="flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => { if (item.onClick) item.onClick(); else if (item.path) navigate(item.path); }}>
               <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                 <item.icon className="h-4 w-4 text-muted-foreground" />
               </div>
