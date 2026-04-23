@@ -423,6 +423,7 @@
     .tilt-card { transition: none; }
     .tilt-card:hover { transform: none !important; }
   }
+}
 
 /* (Landing warm palette removed, root tokens are now museum-warm globally) */
 
