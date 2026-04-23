@@ -32,7 +32,7 @@ const ProblemSection = () => {
             <br />
             <em className="italic text-primary font-normal">{t("problem.title.l2")}</em>
           </h2>
-          <p className="mt-8 text-[18px] leading-[1.65] text-surface-dark-muted max-w-[560px]">
+          <p className="mt-8 text-body text-surface-dark-muted max-w-[560px]">
             {t("problem.sub")}
           </p>
         </div>
@@ -49,7 +49,7 @@ const ProblemSection = () => {
               <div className="font-serif text-[42px] leading-none text-primary tracking-[-0.02em]">
                 {s.k}
               </div>
-              <p className="mt-5 text-[15px] leading-[1.65] text-surface-dark-muted">
+              <p className="mt-5 text-body text-surface-dark-muted">
                 {s.v}
               </p>
             </div>
@@ -64,7 +64,7 @@ const ProblemSection = () => {
             {consequences.map((c) => (
               <span
                 key={c}
-                className="rounded-full border border-white/15 px-4 py-2 text-[14px] text-surface-dark-foreground/85 bg-white/[0.03]"
+                className="rounded-full border border-white/15 px-4 py-2 text-caption text-surface-dark-foreground/85 bg-white/[0.03]"
               >
                 {c}
               </span>

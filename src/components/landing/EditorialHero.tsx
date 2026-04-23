@@ -40,7 +40,7 @@ const EditorialHero = () => {
               <em className="italic text-primary font-normal">{t("hero.h1.again")}</em>
             </h1>
 
-            <p className="text-[17px] leading-[1.65] text-foreground/85 max-w-[560px]">
+            <p className="text-body text-foreground/85 max-w-[560px]">
               {t("hero.sub")}
             </p>
 

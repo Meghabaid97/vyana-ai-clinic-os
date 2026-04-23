@@ -26,10 +26,10 @@ const FAQSection = () => {
             header.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
           }`}
         >
-          <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-5">
+          <p className="text-label text-primary mb-5">
             VI &nbsp;·&nbsp; {t("faq.eyebrow")}
           </p>
-          <h2 className="font-serif text-[32px] sm:text-[44px] lg:text-[52px] leading-[1.05] tracking-[-0.02em] text-foreground">
+          <h2 className="text-section text-foreground">
             {t("faq.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("faq.title.l2")}</em>
@@ -49,10 +49,10 @@ const FAQSection = () => {
                 value={`item-${i}`}
                 className="border-b border-border"
               >
-                <AccordionTrigger className="text-left font-serif text-[18px] sm:text-[20px] text-foreground hover:no-underline py-6">
+                <AccordionTrigger className="text-left font-serif text-card-title text-foreground hover:no-underline py-6">
                   {item.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-[15px] leading-[1.75] text-muted-foreground pb-6 pr-8">
+                <AccordionContent className="text-body text-muted-foreground pb-6 pr-8">
                   {item.a}
                 </AccordionContent>
               </AccordionItem>
@@ -60,7 +60,7 @@ const FAQSection = () => {
           </Accordion>
         </div>
 
-        <p className="mt-12 text-[14px] text-muted-foreground italic">
+        <p className="mt-12 text-caption text-muted-foreground italic">
           {t("faq.footer.pre")}{" "}
           <a
             href="mailto:mbaid@wharton.upenn.edu"

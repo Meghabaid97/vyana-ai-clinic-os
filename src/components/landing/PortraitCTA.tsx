@@ -33,12 +33,12 @@ const PortraitCTA = () => {
       className="relative bg-background py-28 lg:py-36"
     >
       <div className="relative z-10 max-w-[640px] mx-auto px-6 text-center">
-        <h2 className="font-serif text-[40px] sm:text-[60px] leading-[1.02] tracking-[-0.02em] text-foreground">
+        <h2 className="text-section text-foreground">
           {t("cta.title.l1")}
           <br />
           <em className="italic text-primary font-normal">{t("cta.title.l2")}</em>
         </h2>
-        <p className="mt-6 text-[16px] text-foreground/70 leading-relaxed max-w-[480px] mx-auto">
+        <p className="mt-6 text-body text-foreground/70 max-w-[480px] mx-auto">
           {t("cta.sub")}
         </p>
 
@@ -79,7 +79,7 @@ const PortraitCTA = () => {
         </form>
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col items-center gap-1.5">
-          <p className="text-[11px] tracking-[0.2em] uppercase text-foreground/55">
+          <p className="text-label text-foreground/55">
             {t("cta.signoff")}
           </p>
           <span
@@ -93,7 +93,7 @@ const PortraitCTA = () => {
           >
             Megha
           </span>
-          <p className="text-[10px] tracking-[0.2em] uppercase text-foreground/45 mt-1">
+          <p className="text-label text-foreground/45 mt-1">
             {t("cta.role")}
           </p>
         </div>
