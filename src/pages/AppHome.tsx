@@ -37,7 +37,13 @@ const AppHome = () => {
   const [savingRequired, setSavingRequired] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => { void loadData(); }, []);
+  useEffect(() => {
+    void loadData();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) void loadData();
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const loadData = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -45,7 +51,14 @@ const AppHome = () => {
     const { data: p } = await supabase
       .from("patients").select("*")
       .eq("user_id", session.user.id).maybeSingle();
-    if (!p) return;
+
+    // No patient row yet → still prompt for required fields so we can create it.
+    if (!p) {
+      setReqName("");
+      setReqPhone("");
+      setRequiredOpen(true);
+      return;
+    }
     setProfile(p);
 
     // Mandatory: name + phone. ABHA + DOB are soft nudges only.
