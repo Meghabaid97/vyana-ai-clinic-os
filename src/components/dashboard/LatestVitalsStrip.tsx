@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUp, ArrowDown, Minus, Upload, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,6 +52,27 @@ interface VitalSeries {
 const fmt = (key: string, v: number, d = 1) => formatVital(key, v, d);
 
 const Sparkline = ({ values, tone }: { values: number[]; tone: VitalStatus }) => {
+  const pathRef = useRef<SVGPolylineElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = pathRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setVisible(true);
+            io.disconnect();
+          }
+        });
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   if (values.length < 2) return <div className="h-5" />;
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -62,9 +83,21 @@ const Sparkline = ({ values, tone }: { values: number[]; tone: VitalStatus }) =>
   const pts = values
     .map((v, i) => `${(i * step).toFixed(1)},${(h - ((v - min) / range) * h).toFixed(1)}`)
     .join(" ");
+  // approximate path length for dash animation (slightly over true length is fine)
+  const approxLen = Math.ceil(w * 1.6);
   return (
-    <svg width={w} height={h} className="block opacity-80">
-      <polyline points={pts} fill="none" stroke={STATUS_TONE[tone].stroke} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    <svg width={w} height={h} className="block opacity-90">
+      <polyline
+        ref={pathRef}
+        points={pts}
+        fill="none"
+        stroke={STATUS_TONE[tone].stroke}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        className={`vital-sparkline-path ${visible ? "is-visible" : ""}`}
+        style={{ ["--spark-len" as string]: approxLen }}
+      />
     </svg>
   );
 };
@@ -240,13 +273,22 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
                       {def.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10.5px] sm:text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-[10.5px] sm:text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
+                        <span
+                          aria-hidden
+                          className={`h-1.5 w-1.5 rounded-full shrink-0 ${tone.bar} ${status !== "normal" ? "vital-status-dot" : ""}`}
+                        />
+                      </div>
                       <div className="flex items-baseline gap-1">
                         <span className="text-[17px] sm:text-[19px] font-bold text-foreground leading-none">
                           {fmt(def.key, latest, def.decimals ?? 1)}
                         </span>
                         <span className="text-[10px] text-muted-foreground truncate">{def.unit}</span>
                       </div>
+                    </div>
+                    <div className="ml-auto shrink-0 self-start pt-0.5">
+                      <Sparkline values={values.map((v) => v.value)} tone={status} />
                     </div>
                   </div>
 
