@@ -295,7 +295,7 @@ const AppShell = () => {
 
       {/* ============ MOBILE BOTTOM TAB BAR (hidden on lg+) — iOS-native 6-tab ============ */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/90 border-t border-border/60 z-50 safe-area-bottom backdrop-blur-xl">
-        <div className="grid grid-cols-6 items-stretch h-[52px] max-w-xl mx-auto">
+        <div className="grid grid-cols-6 items-stretch h-[52px] w-full max-w-full overflow-hidden">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -305,16 +305,16 @@ const AppShell = () => {
                 onClick={() => navigate(tab.path)}
                 aria-label={tab.label}
                 className={cn(
-                  "flex min-w-0 flex-col items-center justify-center gap-[3px] h-full px-0.5 transition-colors active:bg-muted/40",
+                  "flex min-w-0 flex-col items-center justify-center gap-[3px] h-full px-0 transition-colors active:bg-muted/40",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                <tab.icon className={cn("h-[22px] w-[22px]", isActive ? "stroke-[2.4]" : "stroke-[1.8]")} />
+                <tab.icon className={cn("h-[20px] w-[20px] shrink-0", isActive ? "stroke-[2.4]" : "stroke-[1.8]")} />
                 <span className={cn(
-                  "truncate text-[10px] leading-none tracking-tight",
+                  "block w-full text-center truncate text-[9.5px] leading-none tracking-tight px-0.5",
                   isActive ? "font-semibold" : "font-medium"
                 )}>
-                  {tab.label}
+                  {tab.shortLabel}
                 </span>
               </button>
             );
