@@ -30,7 +30,7 @@ const PortraitCTA = () => {
   return (
     <section
       id="contact"
-      className="relative bg-background py-28 lg:py-36"
+      className="aurora-warm-soft relative bg-background py-28 lg:py-36"
     >
       <div className="relative z-10 max-w-[640px] mx-auto px-6 text-center">
         <h2 className="text-section text-foreground">
