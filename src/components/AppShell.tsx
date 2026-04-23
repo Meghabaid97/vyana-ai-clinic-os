@@ -52,13 +52,9 @@ const AppShell = () => {
   const [askInitial, setAskInitial] = useState("");
   const [tourOpen, setTourOpen] = useState(false);
 
-  // Auto-open the spotlight tour on first /app HOME visit only
-  useEffect(() => {
-    if (hasSeenTour()) return;
-    if (location.pathname !== "/app") return;
-    const t = window.setTimeout(() => setTourOpen(true), 800);
-    return () => window.clearTimeout(t);
-  }, [location.pathname]);
+  // Tour is opt-in only (triggered via the "Watch a quick tour" button).
+  // Do NOT auto-open — it covers the dashboard with a misaligned spotlight on mobile.
+  // To re-enable explicit triggering, call setTourOpen(true) from a button onClick.
 
   useEffect(() => {
     let cancelled = false;
