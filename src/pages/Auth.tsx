@@ -490,7 +490,7 @@ const Auth = () => {
         const state = typeof crypto !== "undefined" && crypto.randomUUID
           ? crypto.randomUUID()
           : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-        const oauthUrl = new URL(`${CUSTOMER_APP_ORIGIN}/~oauth/initiate`);
+        const oauthUrl = new URL(`${NATIVE_OAUTH_INITIATE_ORIGIN}/~oauth/initiate`);
         oauthUrl.searchParams.set("provider", "google");
         oauthUrl.searchParams.set("redirect_uri", NATIVE_OAUTH_REDIRECT);
         oauthUrl.searchParams.set("state", state);
