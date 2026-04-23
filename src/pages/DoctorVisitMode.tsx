@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SAMPLE_BRIEFING, SAMPLE_PATIENT } from "@/lib/sampleBriefingData";
 import { Change, computeChangesSinceLastVisit, SAMPLE_CHANGES } from "@/lib/changesSinceLastVisit";
+import PageHero from "@/components/PageHero";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
