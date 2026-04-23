@@ -297,6 +297,14 @@
   .gradient-hero {
     @apply bg-primary;
   }
+  /* Unified keyboard focus ring — terracotta, only for keyboard users */
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md;
+  }
+  /* Skip-to-content link: hidden until keyboard-focused */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-md focus:bg-primary focus:text-primary-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  }
 }
 
 /* (Landing warm palette removed, root tokens are now museum-warm globally) */

@@ -61,19 +61,24 @@ const Index = () => {
 
   return (
     <div className="landing-warm min-h-screen bg-background">
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <Navigation />
       <Suspense fallback={<div className="min-h-screen" />}>
         <SideRail />
-        <EditorialHero />
-        <ProblemSection />
-        <QuoteWall />
-        <WedgeSection />
-        <HowItWorks />
-        <OutcomeSection />
-        <ResearchAndTeam />
-        <TrustStrip />
-        <PortraitCTA />
-        <FAQSection />
+        <main id="main-content">
+          <EditorialHero />
+          <ProblemSection />
+          <QuoteWall />
+          <WedgeSection />
+          <HowItWorks />
+          <OutcomeSection />
+          <ResearchAndTeam />
+          <TrustStrip />
+          <PortraitCTA />
+          <FAQSection />
+        </main>
       </Suspense>
     </div>
   );
