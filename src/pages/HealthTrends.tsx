@@ -451,10 +451,12 @@ const HealthTrends = () => {
   ];
 
   return (
-    <div className="animate-fade-in">
-      <section className="px-5 pt-3 pb-2">
-        <h1 className="text-[24px] font-extrabold leading-[1.1] tracking-[-0.03em] text-foreground">Health Trends</h1>
-      </section>
+    <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
+      <PageHero
+        icon={TrendingUp}
+        title="Health Trends"
+        subtitle="Vitals, labs, and what shifted since your last visit."
+      />
 
       {/* Lead: What changed since last visit (the killer feature) */}
       <DashboardChangesCard patientId={patientId} />
