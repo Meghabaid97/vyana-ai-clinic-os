@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut, HelpCircle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 import NotificationBell from "@/components/NotificationBell";
 
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
@@ -46,6 +47,7 @@ const subRouteTitles: Record<string, string> = {
 
 const AppShell = () => {
   const navigate = useNavigate();
+  const vtNavigate = useViewTransitionNavigate();
   const location = useLocation();
   const [patientName, setPatientName] = useState("Patient");
   const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
