@@ -11,7 +11,7 @@ export async function initShareIntent(navigate: (path: string) => void) {
   if (!Capacitor.isNativePlatform()) return;
 
   try {
-    const { SendIntent } = await import("send-intent");
+    const { SendIntent } = await import("@mindlib-capacitor/send-intent");
 
     const handle = async (result: any) => {
       if (!result?.url) return;
