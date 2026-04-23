@@ -127,6 +127,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
   // Keep this CHEAP on mobile: instant scroll (no smooth animation), single rAF, no scroll listeners.
   useLayoutEffect(() => {
     if (!open) return;
+    setRect(null);
     setTargetMissing(false);
 
     if (!step.target) {
@@ -200,6 +201,8 @@ const SpotlightTour = ({ open, onClose }: Props) => {
   const isFirst = stepIdx === 0;
 
   const handleNext = useCallback(() => {
+    setRect(null);
+    setTargetMissing(false);
     if (isLast) {
       markTourSeen();
       onClose();
