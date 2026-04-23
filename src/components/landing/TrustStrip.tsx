@@ -46,7 +46,7 @@ const TrustStrip = () => {
           {badges.map(({ icon: Icon, label, sub }) => (
             <div
               key={label}
-              className="rounded-xl border border-border bg-card p-5 flex flex-col items-start gap-3 hover:border-primary/40 hover:shadow-sm transition-all"
+              className="rounded-xl glass-card p-5 flex flex-col items-start gap-3 hover:border-primary/40"
             >
               <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Icon className="h-4 w-4 text-primary" strokeWidth={1.75} />
