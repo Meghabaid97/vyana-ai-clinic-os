@@ -11,10 +11,16 @@ import SpotlightTour, { hasSeenTour } from "@/components/SpotlightTour";
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
-  { id: "claims", label: "Claims", shortLabel: "Claim", icon: Heart, path: "/app/recovery" },
-  { id: "trends", label: "Trends", shortLabel: "Trnd", icon: TrendingUp, path: "/app/trends" },
-  { id: "records", label: "Records", shortLabel: "Files", icon: FolderOpen, path: "/app/records" },
   { id: "briefing", label: "Briefing", shortLabel: "Brief", icon: Stethoscope, path: "/app/briefing" },
+  { id: "trends", label: "Trends", shortLabel: "Trends", icon: TrendingUp, path: "/app/trends" },
+  { id: "records", label: "Records", shortLabel: "Files", icon: FolderOpen, path: "/app/records" },
+  { id: "claims", label: "Claims", shortLabel: "Claim", icon: Heart, path: "/app/recovery" },
+  { id: "you", label: "You", shortLabel: "You", icon: User, path: "/app/profile" },
+];
+
+// Tabs shown in the desktop secondary nav (includes Emergency)
+const desktopTabs = [
+  ...tabs.slice(0, 5),
   { id: "emergency", label: "Emergency", shortLabel: "SOS", icon: Shield, path: "/app/emergency-contacts" },
 ];
 
@@ -89,15 +95,19 @@ const AppShell = () => {
     };
   }, [navigate]);
 
-  const activeTab = tabs.find(t =>
+  const allTabs = desktopTabs;
+  const activeTab = allTabs.find(t =>
     t.path === "/app"
       ? location.pathname === "/app"
       : location.pathname.startsWith(t.path)
   )?.id || "home";
 
-  const tabPaths = new Set(tabs.map((t) => t.path));
+  const tabPaths = new Set(allTabs.map((t) => t.path));
   const isSubRoute = !tabPaths.has(location.pathname) && location.pathname.startsWith("/app");
   const subTitle = subRouteTitles[location.pathname];
+
+  // Title for mobile top bar when on a primary tab
+  const activeTabLabel = allTabs.find((t) => t.id === activeTab)?.label;
 
   const firstName = patientName.split(" ")[0];
 
@@ -120,52 +130,45 @@ const AppShell = () => {
 
   return (
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-background flex flex-col">
-      {/* ============ MOBILE TOP BAR (hidden on lg+) ============ */}
-      <header className="lg:hidden bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm">
-        <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between gap-2">
-          {isSubRoute ? (
-            <button
-              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
-              aria-label="Go back"
-              className="-ml-1 inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-foreground hover:bg-muted transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span className="font-display text-lg truncate">{subTitle || "Back"}</span>
-            </button>
-          ) : (
-            <span className="font-display text-2xl text-foreground tracking-tight leading-none">
-              V<span className="text-primary italic">yana</span>
-            </span>
-          )}
-          <div className="flex items-center gap-1">
+      {/* ============ MOBILE TOP BAR (hidden on lg+) — iOS-native proportions ============ */}
+      <header className="lg:hidden bg-background/85 border-b border-border/60 sticky top-0 z-50 safe-area-top backdrop-blur-xl">
+        <div className="px-3 h-11 flex items-center justify-between gap-1.5">
+          {/* LEFT — back on sub-routes, page title on tab roots */}
+          <div className="flex items-center min-w-0 flex-1">
+            {isSubRoute ? (
+              <button
+                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
+                aria-label="Go back"
+                className="-ml-1.5 inline-flex items-center gap-0.5 h-9 px-1.5 rounded-lg text-primary active:bg-muted transition-colors min-w-0"
+              >
+                <ArrowLeft className="h-[22px] w-[22px] shrink-0" strokeWidth={2.25} />
+                <span className="text-[17px] font-normal truncate">{subTitle || "Back"}</span>
+              </button>
+            ) : (
+              <h1 className="text-[17px] font-semibold text-foreground tracking-tight truncate px-1">
+                {activeTabLabel || "Vyana"}
+              </h1>
+            )}
+          </div>
+
+          {/* RIGHT — compact icon cluster (iOS 24pt standard) */}
+          <div className="flex items-center gap-0.5 shrink-0">
             <button
               onClick={() => { setAskInitial(""); setAskOpen(true); }}
               aria-label="Ask Vyana"
-              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-primary transition-colors"
+              className="h-9 w-9 rounded-full active:bg-muted flex items-center justify-center text-primary transition-colors"
             >
-              <Sparkles className="h-5 w-5" />
+              <Sparkles className="h-[20px] w-[20px]" />
             </button>
             <button
               onClick={() => setTourOpen(true)}
               aria-label="Take the tour"
-              className="h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              className="h-9 w-9 rounded-full active:bg-muted flex items-center justify-center text-muted-foreground transition-colors"
             >
-              <HelpCircle className="h-5 w-5" />
+              <HelpCircle className="h-[20px] w-[20px]" />
             </button>
             <NotificationBell />
-            <button
-              onClick={() => navigate("/app/profile")}
-              aria-label="Profile"
-              className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-[12px] font-bold text-primary hover:bg-primary/25 transition-colors"
-            >
-              {firstName.charAt(0).toUpperCase()}
-            </button>
           </div>
-        </div>
-        {/* Secondary row — location + language (mobile) */}
-        <div className="px-4 sm:px-5 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
-          <LanguageSelector />
         </div>
       </header>
 
@@ -226,7 +229,7 @@ const AppShell = () => {
         {/* Secondary nav row */}
         <div className="border-t border-border bg-muted/30">
           <div className="max-w-[1400px] mx-auto px-6 h-11 flex items-center gap-1">
-            {tabs.map((tab) => {
+            {desktopTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
@@ -273,9 +276,9 @@ const AppShell = () => {
         </div>
       </main>
 
-      {/* ============ MOBILE BOTTOM TAB BAR (hidden on lg+) ============ */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 border-t border-border z-50 safe-area-bottom backdrop-blur-sm">
-        <div className="grid grid-cols-6 items-center h-14 sm:h-16 max-w-lg mx-auto px-0.5 sm:px-1">
+      {/* ============ MOBILE BOTTOM TAB BAR (hidden on lg+) — iOS-native 6-tab ============ */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/90 border-t border-border/60 z-50 safe-area-bottom backdrop-blur-xl">
+        <div className="grid grid-cols-6 items-stretch h-[52px] max-w-xl mx-auto">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -285,13 +288,17 @@ const AppShell = () => {
                 onClick={() => navigate(tab.path)}
                 aria-label={tab.label}
                 className={cn(
-                  "flex min-w-0 flex-col items-center justify-center gap-0.5 sm:gap-1 h-full rounded-xl px-0.5 sm:px-1 transition-colors",
+                  "flex min-w-0 flex-col items-center justify-center gap-[3px] h-full px-0.5 transition-colors active:bg-muted/40",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                <tab.icon className={cn("h-4.5 w-4.5 sm:h-5 sm:w-5", isActive && "stroke-[2.5]")} />
-                <span className="hidden min-[361px]:block truncate text-[10px] font-medium leading-none">{tab.label}</span>
-                <span className="block min-[361px]:hidden truncate text-[9px] font-medium leading-none">{tab.shortLabel}</span>
+                <tab.icon className={cn("h-[22px] w-[22px]", isActive ? "stroke-[2.4]" : "stroke-[1.8]")} />
+                <span className={cn(
+                  "truncate text-[10px] leading-none tracking-tight",
+                  isActive ? "font-semibold" : "font-medium"
+                )}>
+                  {tab.label}
+                </span>
               </button>
             );
           })}
