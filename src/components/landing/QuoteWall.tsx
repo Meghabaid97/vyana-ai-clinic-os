@@ -39,7 +39,7 @@ const QuoteWall = () => {
           {quotes.map((q, i) => (
             <figure
               key={i}
-              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl border border-border bg-card p-8`}
+              className={`reveal reveal-delay-${i + 1} ${grid.visible ? "is-visible" : ""} rounded-2xl glass-card p-8`}
             >
               <span
                 aria-hidden
