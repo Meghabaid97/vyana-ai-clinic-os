@@ -32,7 +32,31 @@ const PatientBriefing = () => {
   const [shareState, setShareState] = useState<ButtonState>("idle");
   const [isDemo, setIsDemo] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [shareSheetOpen, setShareSheetOpen] = useState(false);
   const { toast } = useToast();
+
+  const createShareLink = async (recipientName: string): Promise<string | null> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({ title: "Sign in required", description: "Please sign in to share your briefing.", variant: "destructive" });
+      return null;
+    }
+    const { data: patient } = await supabase
+      .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    if (!patient) {
+      toast({ title: "Profile missing", description: "Complete your profile first.", variant: "destructive" });
+      return null;
+    }
+    const { data, error } = await supabase.from("shared_record_links").insert({
+      patient_id: patient.id,
+      recipient_name: recipientName || null,
+    }).select().single() as { data: { token: string } | null; error: { message: string } | null };
+    if (error || !data) {
+      toast({ title: "Could not create link", description: error?.message ?? "Unknown error", variant: "destructive" });
+      return null;
+    }
+    return `${window.location.origin}/emergency-access/${data.token}`;
+  };
 
   // Honour ?demo=1 deep link from home "Try sample data"
   useEffect(() => {
