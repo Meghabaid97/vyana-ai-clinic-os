@@ -49,25 +49,22 @@ interface VitalSeries {
 
 const fmt = (v: number, d = 1) => (Number.isInteger(v) ? v.toString() : v.toFixed(d));
 
-const statusOf = (v: number, range?: VitalDef["range"]): "ok" | "watch" | "high" | "low" => {
-  if (!range) return "ok";
-  if (range.high != null && v > range.high) return v > range.high * 1.15 ? "high" : "watch";
-  if (range.low != null && v < range.low) return v < range.low * 0.85 ? "low" : "watch";
-  return "ok";
-};
-
-const STATUS_COPY: Record<"ok" | "watch" | "high" | "low", string> = {
-  ok: "on point",
-  watch: "keep an eye",
-  high: "a bit high",
-  low: "a bit low",
-};
-
-const STATUS_TONE: Record<"ok" | "watch" | "high" | "low", { chip: string; bar: string; track: string }> = {
-  ok:    { chip: "bg-emerald-500/12 text-emerald-700",      bar: "bg-emerald-500",     track: "bg-emerald-500/15" },
-  watch: { chip: "bg-amber-500/15 text-amber-700",          bar: "bg-amber-500",       track: "bg-amber-500/15" },
-  high:  { chip: "bg-destructive/12 text-destructive",      bar: "bg-destructive",     track: "bg-destructive/15" },
-  low:   { chip: "bg-sky-500/15 text-sky-700",              bar: "bg-sky-500",         track: "bg-sky-500/15" },
+const Sparkline = ({ values, tone }: { values: number[]; tone: VitalStatus }) => {
+  if (values.length < 2) return <div className="h-5" />;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const w = 56;
+  const h = 18;
+  const step = w / (values.length - 1);
+  const pts = values
+    .map((v, i) => `${(i * step).toFixed(1)},${(h - ((v - min) / range) * h).toFixed(1)}`)
+    .join(" ");
+  return (
+    <svg width={w} height={h} className="block opacity-80">
+      <polyline points={pts} fill="none" stroke={STATUS_TONE[tone].stroke} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
 };
 
 const Sparkline = ({ values, tone }: { values: number[]; tone: "ok" | "watch" | "high" | "low" }) => {
