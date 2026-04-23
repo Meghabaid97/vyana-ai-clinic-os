@@ -170,30 +170,25 @@ const DoctorVisitMode = () => {
 
   return (
     <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-8 space-y-4">
-      {/* Hero — matches Health Records / other tabs */}
-      <section className="rounded-2xl border border-border bg-card p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <Stethoscope className="h-5 w-5 text-primary" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold tracking-widest uppercase text-primary leading-none mb-1">Doctor Visit Mode</p>
-            <h1 className="text-lg font-bold text-foreground leading-tight">
-              {briefing ? "Your visit brief is ready" : "Get ready in 30 seconds"}
-            </h1>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-              {briefing
-                ? "Share the one-page brief with your doctor before you walk in."
-                : "Generate a one-page summary your doctor can read in under a minute."}
-            </p>
-          </div>
-          {briefing && (
-            <Button size="sm" onClick={shareWA} className="h-9 px-3 text-[12px] gap-1.5 shrink-0">
+      {/* Hero — shared with Records, Trends */}
+      <PageHero
+        icon={Stethoscope}
+        eyebrow="Doctor Visit Mode"
+        title={briefing ? "Your visit brief is ready" : "Get ready in 30 seconds"}
+        subtitle={
+          briefing
+            ? "Share the one-page brief with your doctor before you walk in."
+            : "Generate a one-page summary your doctor can read in under a minute."
+        }
+        action={
+          briefing ? (
+            <Button size="sm" onClick={shareWA} className="h-9 px-3 text-[12px] gap-1.5">
               <Share2 className="h-3.5 w-3.5" /> Share
             </Button>
-          )}
-        </div>
-      </section>
+          ) : undefined
+        }
+      />
+
 
       {/* HERO CTA when no brief */}
       {!briefing && (
