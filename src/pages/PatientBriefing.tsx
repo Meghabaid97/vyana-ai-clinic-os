@@ -251,10 +251,18 @@ const PatientBriefing = () => {
           {/* Share actions */}
           <section className="px-5 pb-4">
             <div className="flex gap-2">
-              <Button onClick={shareViaWhatsApp} variant="outline" className="flex-1 gap-2">
-                <Share2 className="h-4 w-4" />
+              <StatefulButton
+                state={shareState}
+                onClick={shareViaWhatsApp}
+                variant="outline"
+                className="flex-1"
+                loadingLabel="Preparing…"
+                successLabel="Opened WhatsApp"
+                errorLabel="Try again"
+                idleIcon={<Share2 className="h-4 w-4" />}
+              >
                 Share via WhatsApp
-              </Button>
+              </StatefulButton>
               <Button onClick={copyToClipboard} variant="outline" className="gap-2">
                 {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
               </Button>
