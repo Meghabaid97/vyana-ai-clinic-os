@@ -395,7 +395,7 @@ const AppHome = () => {
         </aside>
       </div>
 
-      <section className="px-4 sm:px-5 pb-8 pt-4 text-center lg:hidden">
+      <section className="px-4 sm:px-5 pb-3 pt-3 text-center lg:hidden">
         <p className="text-xs text-muted-foreground">
           <span className="font-semibold text-foreground">Vyana</span> · Never explain your medical history again.
         </p>
