@@ -95,9 +95,11 @@ const ResearchAndTeam = () => {
               <p className="text-caption text-primary font-medium mb-4">
                 {t("research.megha.role")}
               </p>
-              <p className="text-caption text-surface-dark-muted leading-[1.7]">
-                {t("research.megha.bio")}
-              </p>
+              <div className="space-y-3 text-caption text-surface-dark-muted leading-[1.7]">
+                {t("research.megha.bio").split("\n\n").map((para, i) => (
+                  <p key={i}>{para}</p>
+                ))}
+              </div>
             </article>
 
             <article className="rounded-2xl glass-card-dark p-7">
