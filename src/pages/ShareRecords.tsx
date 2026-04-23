@@ -173,37 +173,13 @@ const ShareRecords = () => {
         </section>
       )}
 
-      {/* Create Dialog */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Link2 className="h-5 w-5 text-primary" />
-              Create Share Link
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <label className="text-sm font-medium text-foreground">Doctor's Name (optional)</label>
-              <Input
-                placeholder="e.g. Dr. Sharma"
-                value={recipientName}
-                onChange={(e) => setRecipientName(e.target.value)}
-              />
-              <p className="text-[11px] text-muted-foreground mt-1">
-                This helps you track who you shared with. The link expires in 24 hours.
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
-            <Button onClick={createLink} disabled={creating}>
-              {creating ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Link2 className="h-4 w-4 mr-1" />}
-              Create & Copy Link
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Ceremony sheet */}
+      <ShareCeremonySheet
+        open={showCreate}
+        onOpenChange={setShowCreate}
+        onCreate={createLink}
+        onComplete={loadLinks}
+      />
     </div>
   );
 };
