@@ -15,6 +15,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ClinicalRiskDashboard from "@/components/ClinicalRiskDashboard";
 import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
+import PageHero from "@/components/PageHero";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
