@@ -250,7 +250,7 @@ const AppHome = () => {
               ))}
             </div>
 
-            <div className="mt-4 rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="mt-4 bento-tile overflow-hidden">
               {totalRecords === 0 ? (
                 <button onClick={() => navigate("/app/records")} className="group flex items-center gap-3 w-full min-w-0 p-4 text-left hover:bg-primary/5 transition-colors">
                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
