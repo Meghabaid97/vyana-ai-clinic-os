@@ -92,14 +92,28 @@ const AppHome = () => {
     const phone = reqPhone.trim();
     if (name.length < 2) { toast({ title: "Please enter your full name", variant: "destructive" }); return; }
     if (!/^[+0-9 ()-]{7,20}$/.test(phone)) { toast({ title: "Please enter a valid phone number", variant: "destructive" }); return; }
-    if (!profile) return;
     setSavingRequired(true);
-    const { error } = await supabase.from("patients").update({ name, phone }).eq("id", profile.id);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setSavingRequired(false); return; }
+    let saveError: { message: string } | null = null;
+    if (profile) {
+      const { error } = await supabase.from("patients").update({ name, phone }).eq("id", profile.id);
+      saveError = error;
+      if (!error) setProfile({ ...profile, name, phone });
+    } else {
+      const { data, error } = await supabase
+        .from("patients")
+        .insert({ user_id: session.user.id, name, phone })
+        .select("*")
+        .maybeSingle();
+      saveError = error;
+      if (!error && data) setProfile(data as PatientProfile);
+    }
     setSavingRequired(false);
-    if (error) { toast({ title: "Could not save", description: error.message, variant: "destructive" }); return; }
-    setProfile({ ...profile, name, phone });
+    if (saveError) { toast({ title: "Could not save", description: saveError.message, variant: "destructive" }); return; }
     setRequiredOpen(false);
     toast({ title: "Profile saved", description: "You can add more details anytime." });
+    void loadData();
   };
 
   const firstName = profile?.name?.split(" ")[0] || "there";
