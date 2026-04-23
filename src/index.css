@@ -415,27 +415,47 @@
   }
 
   /* ---------- Section blend bands ----------
-     Soften the cream→cocoa handoff so dark editorial sections feel like a
-     deepening of the same warm palette, not a slam-cut to ink. Apply
-     `.section-blend-top` to the top of a dark section, `.section-blend-bottom`
-     to the bottom. Bands sample the surrounding cream so the seam dissolves. */
-  .section-blend-top::before,
-  .section-blend-bottom::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 96px;
-    pointer-events: none;
-    z-index: 2;
+     Truly seamless cream↔cocoa handoff. Instead of overlaying cream on top of
+     a solid dark section (which still shows a faint seam), we replace the dark
+     section's background with a vertical gradient that *starts and ends* in
+     the surrounding cream tone, then deepens into cocoa through a long
+     180px fade. The handoff disappears completely. Use `.section-blend` on
+     any dark section that sits between cream sections. For sections only
+     adjacent to cream on one side, use `.section-blend-top` / `-bottom`. */
+  .section-blend,
+  .section-blend-top,
+  .section-blend-bottom {
+    background-color: transparent !important;
+    position: relative;
   }
-  .section-blend-top::before {
-    top: 0;
-    background: linear-gradient(to bottom, hsl(var(--background)) 0%, hsl(var(--background) / 0) 100%);
+  .section-blend {
+    background-image: linear-gradient(
+      to bottom,
+      hsl(var(--background)) 0%,
+      hsl(var(--surface-dark)) 180px,
+      hsl(var(--surface-dark)) calc(100% - 180px),
+      hsl(var(--background)) 100%
+    ) !important;
   }
-  .section-blend-bottom::after {
-    bottom: 0;
-    background: linear-gradient(to top, hsl(var(--background)) 0%, hsl(var(--background) / 0) 100%);
+  .section-blend-top {
+    background-image: linear-gradient(
+      to bottom,
+      hsl(var(--background)) 0%,
+      hsl(var(--surface-dark)) 180px,
+      hsl(var(--surface-dark)) 100%
+    ) !important;
+  }
+  .section-blend-bottom {
+    background-image: linear-gradient(
+      to bottom,
+      hsl(var(--surface-dark)) 0%,
+      hsl(var(--surface-dark)) calc(100% - 180px),
+      hsl(var(--background)) 100%
+    ) !important;
+  }
+  /* When two dark sections sit back-to-back, no seam — they share cocoa. */
+  .section-blend-dark-to-dark {
+    background-color: hsl(var(--surface-dark)) !important;
   }
 
   /* Kinetic word reveal — staggered word-by-word fade+rise+deblur.
