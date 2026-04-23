@@ -478,7 +478,6 @@ const Auth = () => {
       const isNativeApp = Capacitor.isNativePlatform();
 
       if (isNativeApp) {
-        const { Browser } = await import("@capacitor/browser");
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
@@ -488,7 +487,16 @@ const Auth = () => {
         });
         if (error) throw error;
         if (!data?.url) throw new Error("No OAuth URL returned");
-        await Browser.open({ url: data.url, presentationStyle: "popover" });
+        // IMPORTANT: do NOT open OAuth in the in-app Capacitor Browser sheet
+        // (popover). The sheet doesn't reliably honor our `vyana://oauth-callback`
+        // custom-scheme redirect, so the user gets stuck staring at the
+        // vyana.care website chrome inside an iOS browser popover. Hand the
+        // URL to the OS-level system browser instead — `windowName: "_system"`
+        // tells the Capacitor WebView shim to launch the URL externally
+        // (Safari on iOS, Chrome on Android), and the `vyana://oauth-callback`
+        // deep link then routes cleanly back into the native app via the
+        // `appUrlOpen` listener in `main.tsx`.
+        window.open(data.url, "_system");
         return;
       }
 
