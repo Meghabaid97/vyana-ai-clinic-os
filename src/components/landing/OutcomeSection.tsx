@@ -41,7 +41,7 @@ const OutcomeSection = () => {
                 className={`reveal reveal-delay-${i + 1} ${out.visible ? "is-visible" : ""} flex items-start gap-4 rounded-xl glass-card p-5`}
               >
                 <span className="font-serif text-primary text-[22px] leading-none mt-0.5">·</span>
-                <span className="text-[15px] leading-[1.55] text-foreground/90">{o}</span>
+                <span className="text-body text-foreground/90">{o}</span>
               </div>
             ))}
           </div>
@@ -60,7 +60,7 @@ const OutcomeSection = () => {
                 key={i}
                 className={`reveal reveal-delay-${i + 1} ${flips.visible ? "is-visible" : ""} rounded-2xl glass-card p-7`}
               >
-                <p className="text-[14px] text-foreground/45 line-through">
+                <p className="text-caption text-foreground/45 line-through">
                   {o.stop}
                 </p>
                 <p className="mt-3 font-serif text-[26px] leading-[1.15] text-foreground tracking-[-0.01em]">

@@ -23,13 +23,13 @@ const StepChapter = ({ s, index, stepLabel }: { s: Step; index: number; stepLabe
           reverse ? "lg:col-start-6 lg:row-start-1" : ""
         }`}
       >
-        <div className="text-[11px] tracking-[0.3em] uppercase text-primary font-medium mb-5">
+        <div className="text-label text-primary mb-5">
           {stepLabel} {s.n}
         </div>
-        <h3 className="font-serif text-[36px] sm:text-[52px] lg:text-[64px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
+        <h3 className="text-section text-surface-dark-foreground">
           {s.title}
         </h3>
-        <p className="mt-6 text-[17px] leading-[1.65] text-surface-dark-muted max-w-[520px]">
+        <p className="mt-6 text-body text-surface-dark-muted max-w-[520px]">
           {s.body}
         </p>
       </div>
@@ -66,7 +66,7 @@ const HowItWorks = () => {
           <p className="font-serif italic text-[15px] text-primary/90 mb-5">
             {t("how.eyebrow")}
           </p>
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-[72px] leading-[1.02] tracking-[-0.02em] text-surface-dark-foreground">
+          <h2 className="text-section text-surface-dark-foreground">
             {t("how.title.l1")}
             <br />
             <em className="italic text-primary font-normal">{t("how.title.l2")}</em>
