@@ -610,7 +610,7 @@ const WhyVyana = () => {
 
             <div className="flex flex-wrap justify-center gap-3 mt-12">
               <Button
-                className="group h-11 px-6 text-[14px] rounded-full"
+                className="vt-cta-pill group h-11 px-6 text-[14px] rounded-full"
                 onClick={() => navigate("/request-access")}
               >
                 Get early access
