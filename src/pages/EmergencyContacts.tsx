@@ -47,6 +47,7 @@ const EmergencyContacts = () => {
   const [accessLogs, setAccessLogs] = useState<AccessLog[]>([]);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [patientName, setPatientName] = useState("Patient");
+  const [hasSession, setHasSession] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
