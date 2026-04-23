@@ -151,12 +151,12 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
   /** Build a friendly headline summarizing today's vitals. */
   const headline = useMemo(() => {
     if (tiles.length === 0) return null;
-    const okCount = tiles.filter((t) => statusOf(t.latest, t.def.range) === "ok").length;
+    const okCount = tiles.filter((t) => vitalStatus(t.latest, t.def.range) === "normal").length;
     const flagged = tiles.find((t) => {
-      const s = statusOf(t.latest, t.def.range);
+      const s = vitalStatus(t.latest, t.def.range);
       return s === "high" || s === "low";
     });
-    const watch = tiles.find((t) => statusOf(t.latest, t.def.range) === "watch");
+    const watch = tiles.find((t) => vitalStatus(t.latest, t.def.range) === "watch");
     if (flagged) {
       return { mood: "needs a chat", emoji: flagged.def.emoji, detail: `${flagged.def.label.toLowerCase()} is off-band` };
     }
