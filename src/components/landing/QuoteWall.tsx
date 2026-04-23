@@ -52,7 +52,7 @@ const QuoteWall = () => {
               </blockquote>
               <figcaption className="mt-6 flex items-center gap-3">
                 <span className="block w-6 h-px bg-primary/50" />
-                <span className="text-[13px] text-foreground/70">
+                <span className="text-caption text-foreground/70">
                   <span className="font-semibold text-foreground">{q.attribution}</span>
                   <span className="text-foreground/50"> · {q.context}</span>
                 </span>

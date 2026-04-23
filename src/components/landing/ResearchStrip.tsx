@@ -44,7 +44,7 @@ const ResearchStrip = () => {
             <br />
             <em className="italic text-primary font-normal">and public-health research.</em>
           </h2>
-          <p className="mt-5 text-[15px] text-muted-foreground leading-relaxed">
+          <p className="mt-5 text-body text-muted-foreground">
             Vyana is built on a quiet thesis: most preventable harm in Indian
             healthcare comes from missing context, not missing medicine. The
             literature agrees.
@@ -54,13 +54,13 @@ const ResearchStrip = () => {
         <div className="grid md:grid-cols-2 gap-x-10 gap-y-10">
           {citations.map((c, i) => (
             <div key={i} className="rounded-2xl glass-card p-6 space-y-2.5">
-              <h3 className="font-serif text-[19px] text-foreground leading-snug">
+              <h3 className="font-serif text-card-title text-foreground">
                 {c.title}
               </h3>
-              <p className="text-[12px] text-muted-foreground italic leading-relaxed">
+              <p className="text-caption text-muted-foreground italic">
                 {c.cite}
               </p>
-              <p className="text-[14px] text-foreground/85 leading-[1.65]">
+              <p className="text-caption text-foreground/85 leading-[1.65]">
                 {c.line}
               </p>
             </div>

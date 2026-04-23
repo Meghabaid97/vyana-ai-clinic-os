@@ -30,7 +30,7 @@ const ResearchAndTeam = () => {
             <br />
             <em className="italic text-primary font-normal">{t("research.title.l2")}</em>
           </h2>
-          <p className="mt-6 text-[17px] text-surface-dark-muted leading-[1.65] max-w-[560px]">
+          <p className="mt-6 text-body text-surface-dark-muted max-w-[560px]">
             {t("research.sub")}
           </p>
         </div>
@@ -45,13 +45,13 @@ const ResearchAndTeam = () => {
                 key={i}
                 className={`reveal reveal-delay-${i + 1} ${left.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-7`}
               >
-                <h3 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-2">
+                <h3 className="font-serif text-card-title text-surface-dark-foreground mb-2">
                   {c.title}
                 </h3>
-                <p className="font-serif italic text-[12.5px] text-surface-dark-muted/80 leading-relaxed mb-4">
+                <p className="font-serif italic text-caption text-surface-dark-muted/80 mb-4">
                   {c.cite}
                 </p>
-                <p className="text-[14.5px] text-surface-dark-foreground/85 leading-[1.65]">
+                <p className="text-caption text-surface-dark-foreground/85 leading-[1.65]">
                   {c.line}
                 </p>
               </article>
@@ -89,25 +89,25 @@ const ResearchAndTeam = () => {
             </div>
 
             <article className="rounded-2xl glass-card-dark p-7">
-              <h4 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-1">
+              <h4 className="font-serif text-card-title text-surface-dark-foreground mb-1">
                 Megha Baid
               </h4>
-              <p className="text-[13px] text-primary font-medium mb-4">
+              <p className="text-caption text-primary font-medium mb-4">
                 {t("research.megha.role")}
               </p>
-              <p className="text-[14.5px] text-surface-dark-muted leading-[1.7]">
+              <p className="text-caption text-surface-dark-muted leading-[1.7]">
                 {t("research.megha.bio")}
               </p>
             </article>
 
             <article className="rounded-2xl glass-card-dark p-7">
-              <h4 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-1">
+              <h4 className="font-serif text-card-title text-surface-dark-foreground mb-1">
                 {t("research.cab.title")}
               </h4>
-              <p className="text-[13px] text-primary font-medium mb-4">
+              <p className="text-caption text-primary font-medium mb-4">
                 {t("research.cab.tag")}
               </p>
-              <p className="text-[14.5px] text-surface-dark-muted leading-[1.7]">
+              <p className="text-caption text-surface-dark-muted leading-[1.7]">
                 {t("research.cab.body")}
               </p>
             </article>
