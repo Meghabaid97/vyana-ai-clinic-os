@@ -166,7 +166,7 @@ const AppShell = () => {
           <div className="flex items-center min-w-0 flex-1">
             {isSubRoute ? (
               <button
-                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
+                onClick={() => (window.history.length > 1 ? vtNavigate(-1) : vtNavigate("/app"))}
                 aria-label="Go back"
                 className="-ml-1.5 inline-flex items-center gap-0.5 h-9 px-1.5 rounded-lg text-primary active:bg-muted transition-colors min-w-0"
               >
@@ -206,7 +206,7 @@ const AppShell = () => {
         {/* Primary row */}
         <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center gap-6">
           <button
-            onClick={() => navigate("/app")}
+            onClick={() => vtNavigate("/app")}
             className="font-display text-3xl text-foreground tracking-tight leading-none shrink-0"
             aria-label="Vyana home"
           >
@@ -242,7 +242,7 @@ const AppShell = () => {
             <NotificationBell />
             <button
               data-tour="nav-profile"
-              onClick={() => navigate("/app/profile")}
+              onClick={() => vtNavigate("/app/profile")}
               className="flex items-center gap-2 rounded-full px-3 h-10 hover:bg-muted transition-colors"
             >
               <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-bold text-primary">
@@ -272,7 +272,7 @@ const AppShell = () => {
                 <button
                   key={tab.id}
                   data-tour={`nav-${tab.id}`}
-                  onClick={() => navigate(tab.path)}
+                  onClick={() => vtNavigate(tab.path)}
                   className={cn(
                     "inline-flex items-center gap-2 px-3.5 h-8 rounded-full text-[13px] font-medium transition-colors",
                     isActive
@@ -293,7 +293,7 @@ const AppShell = () => {
           <div className="border-t border-border">
             <div className="max-w-[1400px] mx-auto px-6 h-10 flex items-center gap-2">
               <button
-                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/app"))}
+                onClick={() => (window.history.length > 1 ? vtNavigate(-1) : vtNavigate("/app"))}
                 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -323,7 +323,7 @@ const AppShell = () => {
               <button
                 key={tab.id}
                 data-tour={`nav-${tab.id}`}
-                onClick={() => navigate(tab.path)}
+                onClick={() => vtNavigate(tab.path)}
                 aria-label={tab.label}
                 className={cn(
                   "flex min-w-0 flex-col items-center justify-center gap-[2px] h-full px-0 transition-colors active:bg-muted/40",
@@ -353,9 +353,9 @@ const AppShell = () => {
             <span>Never explain your medical history again.</span>
           </div>
           <div className="flex items-center gap-5">
-            <button onClick={() => navigate("/app/support")} className="hover:text-foreground transition-colors">Support</button>
-            <button onClick={() => navigate("/legal")} className="hover:text-foreground transition-colors">Privacy</button>
-            <button onClick={() => navigate("/why-vyana")} className="hover:text-foreground transition-colors">Our story</button>
+            <button onClick={() => vtNavigate("/app/support")} className="hover:text-foreground transition-colors">Support</button>
+            <button onClick={() => vtNavigate("/legal")} className="hover:text-foreground transition-colors">Privacy</button>
+            <button onClick={() => vtNavigate("/why-vyana")} className="hover:text-foreground transition-colors">Our story</button>
           </div>
         </div>
       </footer>
