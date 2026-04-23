@@ -11,10 +11,16 @@ import SpotlightTour, { hasSeenTour } from "@/components/SpotlightTour";
 
 const tabs = [
   { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
-  { id: "claims", label: "Claims", shortLabel: "Claim", icon: Heart, path: "/app/recovery" },
-  { id: "trends", label: "Trends", shortLabel: "Trnd", icon: TrendingUp, path: "/app/trends" },
-  { id: "records", label: "Records", shortLabel: "Files", icon: FolderOpen, path: "/app/records" },
   { id: "briefing", label: "Briefing", shortLabel: "Brief", icon: Stethoscope, path: "/app/briefing" },
+  { id: "trends", label: "Trends", shortLabel: "Trends", icon: TrendingUp, path: "/app/trends" },
+  { id: "records", label: "Records", shortLabel: "Files", icon: FolderOpen, path: "/app/records" },
+  { id: "claims", label: "Claims", shortLabel: "Claim", icon: Heart, path: "/app/recovery" },
+  { id: "you", label: "You", shortLabel: "You", icon: User, path: "/app/profile" },
+];
+
+// Tabs shown in the desktop secondary nav (includes Emergency)
+const desktopTabs = [
+  ...tabs.slice(0, 5),
   { id: "emergency", label: "Emergency", shortLabel: "SOS", icon: Shield, path: "/app/emergency-contacts" },
 ];
 
