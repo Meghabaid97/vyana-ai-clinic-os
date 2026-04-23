@@ -373,12 +373,13 @@ const HealthTrends = () => {
     val: number | null | undefined,
     low: number,
     high: number,
+    key?: string,
   ): VitalStatus | "none" => {
     if (val === null || val === undefined) return "none";
     const range: { low?: number; high?: number } = {};
     if (low > 0) range.low = low;
     if (high > 0 && high < 999) range.high = high;
-    return vitalStatus(val, range);
+    return vitalStatus(val, range, key);
   };
 
   /** Pick the foreground color class for a vital's value, given its status. */
