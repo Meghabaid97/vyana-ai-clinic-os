@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Lock, Clock, Check, FileText, MessageCircle, Copy, Loader2 } from "lucide-react";
+import { Lock, Clock, Check, FileText, MessageCircle, Copy, Loader2, QrCode, ArrowLeft } from "lucide-react";
 
 type Stage =
   | "form"        // ask for recipient name
   | "packaging"   // card folds
   | "locking"    // lock clicks shut
   | "timing"      // 24h timer starts ticking
-  | "ready";     // copied to WhatsApp
+  | "ready"       // copied to WhatsApp
+  | "qr";         // show QR code for doctor to scan
 
 interface Props {
   open: boolean;
