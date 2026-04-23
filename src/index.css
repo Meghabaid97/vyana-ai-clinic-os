@@ -624,6 +624,32 @@
     from { opacity: 0; transform: translateY(6px); }
   }
 
+  /* Vital sparkline draw-in (calm) */
+  @keyframes vital-sparkline-draw {
+    from { stroke-dashoffset: var(--spark-len, 200); }
+    to   { stroke-dashoffset: 0; }
+  }
+  .vital-sparkline-path {
+    stroke-dasharray: var(--spark-len, 200);
+    stroke-dashoffset: var(--spark-len, 200);
+  }
+  .vital-sparkline-path.is-visible {
+    animation: vital-sparkline-draw 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* Calm status pulse — only used when attention is needed */
+  @keyframes vital-status-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--pulse-color, hsl(var(--status-watch) / 0.55)); }
+    50%      { box-shadow: 0 0 0 6px hsl(var(--status-watch) / 0); }
+  }
+  .vital-status-dot {
+    animation: vital-status-pulse 2.4s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vital-sparkline-path { stroke-dashoffset: 0; animation: none; }
+    .vital-status-dot { animation: none; }
+  }
+
   /* Shared elements morph across routes */
   .vt-wordmark { view-transition-name: vyana-wordmark; }
   .vt-cta-pill { view-transition-name: vyana-cta-pill; }
