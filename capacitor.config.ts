@@ -35,7 +35,11 @@ const config: CapacitorConfig = {
         },
       }),
   ios: {
-    contentInset: 'always',
+    // Status bar / home indicator clearance is handled in CSS via the
+    // .safe-area-top / .safe-area-bottom utilities (env(safe-area-inset-*)).
+    // Using contentInset:'always' on top of that creates a double inset
+    // that shows up as a thick empty band under the status bar.
+    contentInset: 'never',
     limitsNavigationsToAppBoundDomains: false,
   },
 };
