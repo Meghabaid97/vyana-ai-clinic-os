@@ -43,7 +43,7 @@ const ResearchAndTeam = () => {
             {citations.map((c, i) => (
               <article
                 key={i}
-                className={`reveal reveal-delay-${i + 1} ${left.visible ? "is-visible" : ""} rounded-2xl glass-card-dark p-7`}
+                className={`reveal reveal-delay-${i + 1} ${left.visible ? "is-visible" : ""} rounded-2xl border border-white/10 bg-white/[0.03] p-7`}
               >
                 <h3 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-2">
                   {c.title}
@@ -62,7 +62,7 @@ const ResearchAndTeam = () => {
             ref={right.ref}
             className={`reveal ${right.visible ? "is-visible" : ""} space-y-5`}
           >
-            <div className="rounded-2xl glass-card-dark p-7">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
               <p className="text-[11px] tracking-[0.3em] uppercase text-surface-dark-muted/80 mb-5">
                 {t("research.builtBy")}
               </p>
@@ -88,7 +88,7 @@ const ResearchAndTeam = () => {
               </div>
             </div>
 
-            <article className="rounded-2xl glass-card-dark p-7">
+            <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
               <h4 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-1">
                 Megha Baid
               </h4>
@@ -100,7 +100,7 @@ const ResearchAndTeam = () => {
               </p>
             </article>
 
-            <article className="rounded-2xl glass-card-dark p-7">
+            <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
               <h4 className="font-serif text-[22px] text-surface-dark-foreground leading-tight mb-1">
                 {t("research.cab.title")}
               </h4>
