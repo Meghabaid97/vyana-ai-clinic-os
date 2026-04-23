@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUp, ArrowDown, Minus, Upload, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  vitalStatus,
+  STATUS_TONE,
+  STATUS_COPY,
+  type VitalStatus,
+} from "@/lib/vitalStatus";
 
 interface Props {
   patientId: string | null;
