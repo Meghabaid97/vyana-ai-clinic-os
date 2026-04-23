@@ -608,7 +608,7 @@
 @supports (view-transition-name: none) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation-duration: 240ms;
+    animation-duration: 320ms;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
   ::view-transition-old(root) {
@@ -618,14 +618,31 @@
     animation-name: vyana-fade-in;
   }
   @keyframes vyana-fade-out {
-    to { opacity: 0; }
+    to { opacity: 0; transform: translateY(-4px); }
   }
   @keyframes vyana-fade-in {
-    from { opacity: 0; }
+    from { opacity: 0; transform: translateY(6px); }
   }
+
+  /* Shared elements morph across routes */
+  .vt-wordmark { view-transition-name: vyana-wordmark; }
+  .vt-cta-pill { view-transition-name: vyana-cta-pill; }
+
+  ::view-transition-old(vyana-wordmark),
+  ::view-transition-new(vyana-wordmark),
+  ::view-transition-old(vyana-cta-pill),
+  ::view-transition-new(vyana-cta-pill) {
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     ::view-transition-old(root),
-    ::view-transition-new(root) {
+    ::view-transition-new(root),
+    ::view-transition-old(vyana-wordmark),
+    ::view-transition-new(vyana-wordmark),
+    ::view-transition-old(vyana-cta-pill),
+    ::view-transition-new(vyana-cta-pill) {
       animation: none;
     }
   }
