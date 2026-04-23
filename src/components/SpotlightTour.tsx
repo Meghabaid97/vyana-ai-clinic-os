@@ -88,9 +88,60 @@ interface Props {
 }
 
 const PADDING = 8;
-// How long to wait for a step's target to appear before treating it as "missing"
-// and falling back to a centered card so the user is never stuck.
 const TARGET_WAIT_MS = 1200;
+
+const getScrollParent = (el: HTMLElement | null): HTMLElement | null => {
+  let node = el?.parentElement ?? null;
+
+  while (node) {
+    const { overflowY } = window.getComputedStyle(node);
+    const isScrollable = /(auto|scroll|overlay)/.test(overflowY) && node.scrollHeight > node.clientHeight;
+
+    if (isScrollable) return node;
+    node = node.parentElement;
+  }
+
+  return document.scrollingElement instanceof HTMLElement ? document.scrollingElement : null;
+};
+
+const getVisibleBounds = (container: HTMLElement | null) => {
+  const isMobile = window.innerWidth < 1024;
+  const topInset = isMobile ? 8 : 16;
+  const bottomInset = isMobile ? 96 : 24;
+
+  if (!container || container === document.documentElement || container === document.body) {
+    return {
+      top: topInset,
+      bottom: window.innerHeight - bottomInset,
+      height: window.innerHeight - topInset - bottomInset,
+    };
+  }
+
+  const rect = container.getBoundingClientRect();
+  return {
+    top: rect.top + topInset,
+    bottom: Math.min(rect.bottom, window.innerHeight - bottomInset),
+    height: Math.min(rect.bottom, window.innerHeight - bottomInset) - (rect.top + topInset),
+  };
+};
+
+const scrollTargetIntoView = (el: HTMLElement) => {
+  const container = getScrollParent(el);
+  const visible = getVisibleBounds(container);
+  const targetRect = el.getBoundingClientRect();
+  const targetHeight = Math.max(targetRect.height, 1);
+  const desiredViewportTop = visible.top + Math.max((visible.height - targetHeight) / 2, 24);
+  const delta = targetRect.top - desiredViewportTop;
+
+  if (Math.abs(delta) < 6) return;
+
+  if (!container || container === document.documentElement || container === document.body) {
+    window.scrollTo({ top: window.scrollY + delta, behavior: "auto" });
+    return;
+  }
+
+  container.scrollTo({ top: container.scrollTop + delta, behavior: "auto" });
+};
 
 const SpotlightTour = ({ open, onClose }: Props) => {
   const navigate = useNavigate();
@@ -102,7 +153,6 @@ const SpotlightTour = ({ open, onClose }: Props) => {
 
   const step = STEPS[stepIdx];
 
-  // Reset internal state whenever the tour opens
   useEffect(() => {
     if (open) {
       setStepIdx(0);
@@ -112,7 +162,6 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     }
   }, [open]);
 
-  // Navigate to the step's path if needed (only once per step to avoid loops)
   useEffect(() => {
     if (!open) return;
     if (!step.path) return;
@@ -123,46 +172,38 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     }
   }, [open, stepIdx, step.path, location.pathname, navigate]);
 
-  // Measure target element with retries — if it never shows up, fall back to centered.
-  // Keep this CHEAP on mobile: instant scroll (no smooth animation), no scroll listeners.
   useLayoutEffect(() => {
     if (!open) return;
     setTargetMissing(false);
-    // Clear the previous step's highlight immediately so the user sees movement
-    // and never gets visually "stuck" on the old spotlight while we measure.
     setRect(null);
 
-    if (!step.target) {
-      return;
-    }
+    if (!step.target) return;
 
     let raf = 0;
+    let settleTimeout = 0;
     let cancelled = false;
     let attempts = 0;
     const maxAttempts = Math.ceil(TARGET_WAIT_MS / 100);
 
-    // Bottom tab bar is fixed ~54px + safe-area; treat anything within ~140px
-    // of the bottom edge as "covered" and worth scrolling into view.
-    const BOTTOM_OBSCURED = 140;
-    const TOP_OBSCURED = 80;
-
     const commitRect = (el: HTMLElement) => {
-      const r2 = el.getBoundingClientRect();
-      if (r2.width === 0 || r2.height === 0) {
+      const next = el.getBoundingClientRect();
+      if (next.width === 0 || next.height === 0) {
         setRect(null);
         setTargetMissing(true);
         return;
       }
+
       setRect({
-        top: r2.top - PADDING,
-        left: r2.left - PADDING,
-        width: r2.width + PADDING * 2,
-        height: r2.height + PADDING * 2,
+        top: next.top - PADDING,
+        left: next.left - PADDING,
+        width: next.width + PADDING * 2,
+        height: next.height + PADDING * 2,
       });
     };
 
     const measure = () => {
       if (cancelled) return;
+
       const el = document.querySelector(step.target as string) as HTMLElement | null;
       if (!el) {
         attempts += 1;
@@ -171,31 +212,23 @@ const SpotlightTour = ({ open, onClose }: Props) => {
           setTargetMissing(true);
           return;
         }
-        setTimeout(measure, 100);
+        settleTimeout = window.setTimeout(measure, 100);
         return;
       }
 
-      const r = el.getBoundingClientRect();
-      const offscreen =
-        r.top < TOP_OBSCURED || r.bottom > window.innerHeight - BOTTOM_OBSCURED;
+      const current = el.getBoundingClientRect();
+      const visible = getVisibleBounds(getScrollParent(el));
+      const offscreen = current.top < visible.top || current.bottom > visible.bottom;
 
       if (offscreen) {
-        try {
-          el.scrollIntoView({ block: "center" });
-        } catch {
-          /* older browsers */
-        }
-        // Mobile scroll containers can take >1 frame to settle. Wait a beat,
-        // then re-check; if the element is STILL covered (e.g. the scroll
-        // container couldn't scroll far enough because the target lives near
-        // the page edge), commit anyway so the user is never stuck.
-        setTimeout(() => {
+        scrollTargetIntoView(el);
+        settleTimeout = window.setTimeout(() => {
           if (cancelled) return;
           raf = requestAnimationFrame(() => {
             if (cancelled) return;
             commitRect(el);
           });
-        }, 220);
+        }, 260);
         return;
       }
 
@@ -205,16 +238,14 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       });
     };
 
-    // Wait a tick for navigation/layout to settle
-    const t = setTimeout(measure, 150);
-    // Only re-measure on resize (orientation change). Don't listen to scroll —
-    // that fires constantly during the instant scroll above and pegs the main thread.
+    const t = window.setTimeout(measure, 150);
     const onResize = () => measure();
     window.addEventListener("resize", onResize);
 
     return () => {
       cancelled = true;
-      clearTimeout(t);
+      window.clearTimeout(t);
+      window.clearTimeout(settleTimeout);
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
     };
