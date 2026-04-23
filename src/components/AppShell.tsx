@@ -18,8 +18,12 @@ const tabs = [
   { id: "profile", label: "Profile", shortLabel: "Profile", icon: User, path: "/app/profile" },
 ];
 
-// Desktop secondary nav uses the same tab set
-const desktopTabs = tabs;
+// Desktop secondary nav: Profile is redundant (account chip is in top bar),
+// so we surface Emergency instead.
+const desktopTabs = [
+  ...tabs.slice(0, 5),
+  { id: "emergency", label: "Emergency", shortLabel: "SOS", icon: Shield, path: "/app/emergency-contacts" },
+];
 
 // Sub-route titles (routes inside /app that aren't a primary tab)
 const subRouteTitles: Record<string, string> = {
