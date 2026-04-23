@@ -268,7 +268,7 @@ const ClaimAssistant = () => {
       toast({ title: "Record attached", description: `${record.file_name} added as ${DOC_CATEGORIES.find(c => c.id === pickerCategory)?.label}` });
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Failed to attach record", description: err.message, variant: "destructive" });
+      toast({ title: "Couldn't attach that record", description: err.message, variant: "destructive" });
     } finally {
       setDownloadingRecord(null);
     }
@@ -304,7 +304,7 @@ const ClaimAssistant = () => {
       if (data?.error) throw new Error(data.error);
 
       setExtracted(data);
-      toast({ title: "Data extracted", description: "Discharge summary processed successfully" });
+      toast({ title: "Got it", description: "Your discharge summary is ready to use" });
 
       // Auto-create medication reminders from extracted medications
       if (patientId && data?.medicalSummary?.medicationsAtDischarge?.length) {
@@ -326,7 +326,7 @@ const ClaimAssistant = () => {
       }
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Extraction failed", description: err.message || "Could not process document", variant: "destructive" });
+      toast({ title: "Couldn't read this document", description: err.message || "Try a clearer scan or photo", variant: "destructive" });
     } finally {
       setExtracting(false);
     }
@@ -458,10 +458,10 @@ const ClaimAssistant = () => {
         insurance,
         uploadedCategories: docs.map(d => d.category),
       });
-      toast({ title: "Claim form generated", description: "PDF downloaded successfully" });
+      toast({ title: "Your claim is ready", description: "PDF saved to your downloads" });
     } catch (err: any) {
       console.error(err);
-      toast({ title: "PDF generation failed", description: err.message, variant: "destructive" });
+      toast({ title: "Couldn't build your claim PDF", description: err.message, variant: "destructive" });
     } finally {
       setGeneratingPdf(false);
     }

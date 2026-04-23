@@ -331,7 +331,7 @@ const HealthTrends = () => {
       setTrendAnalysis(data);
     } catch (err: any) {
       console.error("Trend analysis error:", err);
-      toast({ title: "Error", description: "Failed to analyze trends", variant: "destructive" });
+      toast({ title: "Couldn't read your trends", description: "Give it another try in a moment", variant: "destructive" });
     } finally {
       setIsAnalyzingTrends(false);
     }
