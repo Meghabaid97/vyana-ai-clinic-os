@@ -160,8 +160,28 @@
   .shadow-warm {
     box-shadow: none;
   }
+  /* Glassmorphism: frosted, layered surfaces so drill-downs feel stacked over the previous view */
   .glass {
-    @apply bg-background border border-border;
+    background-color: hsl(var(--background) / 0.62);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+    @apply border border-border/60;
+  }
+  .glass-strong {
+    background-color: hsl(var(--card) / 0.78);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    backdrop-filter: blur(28px) saturate(160%);
+    @apply border border-border/60;
+  }
+  .glass-overlay {
+    background-color: hsl(var(--foreground) / 0.32);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    backdrop-filter: blur(10px) saturate(120%);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass { background-color: hsl(var(--background) / 0.95); }
+    .glass-strong { background-color: hsl(var(--card) / 0.98); }
+    .glass-overlay { background-color: hsl(var(--foreground) / 0.7); }
   }
   .surface-warm {
     @apply bg-card border border-border;
