@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUp, ArrowDown, Minus, Upload, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  vitalStatus,
+  STATUS_TONE,
+  STATUS_COPY,
+  type VitalStatus,
+} from "@/lib/vitalStatus";
 
 interface Props {
   patientId: string | null;
@@ -43,28 +49,7 @@ interface VitalSeries {
 
 const fmt = (v: number, d = 1) => (Number.isInteger(v) ? v.toString() : v.toFixed(d));
 
-const statusOf = (v: number, range?: VitalDef["range"]): "ok" | "watch" | "high" | "low" => {
-  if (!range) return "ok";
-  if (range.high != null && v > range.high) return v > range.high * 1.15 ? "high" : "watch";
-  if (range.low != null && v < range.low) return v < range.low * 0.85 ? "low" : "watch";
-  return "ok";
-};
-
-const STATUS_COPY: Record<"ok" | "watch" | "high" | "low", string> = {
-  ok: "on point",
-  watch: "keep an eye",
-  high: "a bit high",
-  low: "a bit low",
-};
-
-const STATUS_TONE: Record<"ok" | "watch" | "high" | "low", { chip: string; bar: string; track: string }> = {
-  ok:    { chip: "bg-emerald-500/12 text-emerald-700",      bar: "bg-emerald-500",     track: "bg-emerald-500/15" },
-  watch: { chip: "bg-amber-500/15 text-amber-700",          bar: "bg-amber-500",       track: "bg-amber-500/15" },
-  high:  { chip: "bg-destructive/12 text-destructive",      bar: "bg-destructive",     track: "bg-destructive/15" },
-  low:   { chip: "bg-sky-500/15 text-sky-700",              bar: "bg-sky-500",         track: "bg-sky-500/15" },
-};
-
-const Sparkline = ({ values, tone }: { values: number[]; tone: "ok" | "watch" | "high" | "low" }) => {
+const Sparkline = ({ values, tone }: { values: number[]; tone: VitalStatus }) => {
   if (values.length < 2) return <div className="h-5" />;
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -75,15 +60,9 @@ const Sparkline = ({ values, tone }: { values: number[]; tone: "ok" | "watch" | 
   const pts = values
     .map((v, i) => `${(i * step).toFixed(1)},${(h - ((v - min) / range) * h).toFixed(1)}`)
     .join(" ");
-  const stroke =
-    tone === "high" || tone === "low"
-      ? "hsl(var(--destructive))"
-      : tone === "watch"
-        ? "hsl(38 92% 50%)"
-        : "hsl(var(--primary))";
   return (
     <svg width={w} height={h} className="block opacity-80">
-      <polyline points={pts} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+      <polyline points={pts} fill="none" stroke={STATUS_TONE[tone].stroke} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 };
@@ -98,7 +77,7 @@ const RangeBar = ({
   value: number;
   axis: { min: number; max: number };
   range?: VitalDef["range"];
-  status: "ok" | "watch" | "high" | "low";
+  status: VitalStatus;
 }) => {
   const span = axis.max - axis.min || 1;
   const pct = (n: number) => Math.max(0, Math.min(100, ((n - axis.min) / span) * 100));
@@ -109,9 +88,9 @@ const RangeBar = ({
   const tone = STATUS_TONE[status];
   return (
     <div className="relative h-1.5 w-full rounded-full bg-muted">
-      {/* healthy band */}
+      {/* healthy band — always sage, regardless of current dot status */}
       <div
-        className="absolute top-0 h-1.5 rounded-full bg-emerald-500/25"
+        className="absolute top-0 h-1.5 rounded-full bg-status-normal/25"
         style={{ left: `${bandLeft}%`, width: `${bandWidth}%` }}
       />
       {/* dot */}
@@ -172,12 +151,12 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
   /** Build a friendly headline summarizing today's vitals. */
   const headline = useMemo(() => {
     if (tiles.length === 0) return null;
-    const okCount = tiles.filter((t) => statusOf(t.latest, t.def.range) === "ok").length;
+    const okCount = tiles.filter((t) => vitalStatus(t.latest, t.def.range) === "normal").length;
     const flagged = tiles.find((t) => {
-      const s = statusOf(t.latest, t.def.range);
+      const s = vitalStatus(t.latest, t.def.range);
       return s === "high" || s === "low";
     });
-    const watch = tiles.find((t) => statusOf(t.latest, t.def.range) === "watch");
+    const watch = tiles.find((t) => vitalStatus(t.latest, t.def.range) === "watch");
     if (flagged) {
       return { mood: "needs a chat", emoji: flagged.def.emoji, detail: `${flagged.def.label.toLowerCase()} is off-band` };
     }
@@ -239,7 +218,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
             {tiles.map(({ def, values, latest, prior }) => {
-              const status = statusOf(latest, def.range);
+              const status = vitalStatus(latest, def.range);
               const tone = STATUS_TONE[status];
               const delta = prior != null ? latest - prior : null;
               const dir = delta == null || Math.abs(delta) < 0.0001 ? "flat" : delta > 0 ? "up" : "down";

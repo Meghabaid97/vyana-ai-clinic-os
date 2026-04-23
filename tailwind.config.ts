@@ -53,6 +53,12 @@ export default {
           muted: "hsl(var(--surface-dark-muted))",
           border: "hsl(var(--surface-dark-border))",
         },
+        status: {
+          normal: "hsl(var(--status-normal))",
+          watch: "hsl(var(--status-watch))",
+          high: "hsl(var(--status-high))",
+          low: "hsl(var(--status-low))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
