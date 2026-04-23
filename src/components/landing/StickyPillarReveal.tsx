@@ -193,7 +193,6 @@ const StickyPillarReveal = () => {
               </div>
             </div>
           </div>
-          </div>
         </div>
       </div>
 
