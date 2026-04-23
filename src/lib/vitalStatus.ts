@@ -18,14 +18,69 @@ export interface VitalRange {
   high?: number;
 }
 
-/** Classify a vital reading against its healthy band. */
-export function vitalStatus(value: number, range?: VitalRange): VitalStatus {
+/**
+ * Per-vital normalizers: coerce common unit-entry mistakes into the canonical
+ * unit used by the healthy ranges. Keep these conservative — only collapse
+ * obvious order-of-magnitude errors, never silently rescale plausible values.
+ *
+ * Canonical units match VITAL_DEFS in LatestVitalsStrip / HealthTrends:
+ *   hba1c → %, weight → kg, platelet_count → /μL, creatinine/hemoglobin → mg/dL or g/dL
+ */
+const NORMALIZERS: Record<string, (v: number) => number> = {
+  // HbA1c is a percent; if entered as a fraction (e.g. 0.075), scale up.
+  hba1c: (v) => (v > 0 && v < 1 ? v * 100 : v),
+  // Weight in kg; if entered in grams (>= 1000), convert.
+  weight: (v) => (v >= 1000 ? v / 1000 : v),
+  // Platelets canonical /μL; if entered in lakhs (e.g. 2.5), scale to absolute.
+  platelet_count: (v) => (v > 0 && v < 1000 ? v * 100000 : v),
+  // WBC canonical /μL; if entered in thousands (e.g. 7.2), scale up.
+  wbc: (v) => (v > 0 && v < 100 ? v * 1000 : v),
+  // Body temp canonical °C; if entered in °F (>= 90), convert.
+  temperature: (v) => (v >= 90 ? ((v - 32) * 5) / 9 : v),
+};
+
+/**
+ * Normalize a raw reading for a known vital key into its canonical unit.
+ * Returns the original value when no normalizer is registered.
+ */
+export function normalizeVital(key: string, value: number): number {
+  const fn = NORMALIZERS[key];
+  return fn ? fn(value) : value;
+}
+
+/** Sensible decimal places per canonical unit, used for display formatting. */
+const DECIMALS: Record<string, number> = {
+  hba1c: 1,
+  weight: 1,
+  hemoglobin: 1,
+  creatinine: 2,
+  tsh: 2,
+  bilirubin: 1,
+  albumin: 1,
+  uric_acid: 1,
+  rbc: 1,
+  bmi: 1,
+  temperature: 1,
+};
+
+/** Format a normalized vital with the right precision for its unit. */
+export function formatVital(key: string, value: number, fallback = 1): string {
+  const d = DECIMALS[key] ?? fallback;
+  return d > 0 && !Number.isInteger(value) ? value.toFixed(d) : String(Math.round(value));
+}
+
+/**
+ * Classify a vital reading against its healthy band.
+ * Pass `key` so the value is normalized to canonical units before comparison.
+ */
+export function vitalStatus(value: number, range?: VitalRange, key?: string): VitalStatus {
+  const v = key ? normalizeVital(key, value) : value;
   if (!range) return "normal";
-  if (range.high != null && value > range.high) {
-    return value > range.high * 1.15 ? "high" : "watch";
+  if (range.high != null && v > range.high) {
+    return v > range.high * 1.15 ? "high" : "watch";
   }
-  if (range.low != null && value < range.low) {
-    return value < range.low * 0.85 ? "low" : "watch";
+  if (range.low != null && v < range.low) {
+    return v < range.low * 0.85 ? "low" : "watch";
   }
   return "normal";
 }
