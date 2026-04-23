@@ -31,6 +31,11 @@ const AppHome = () => {
   const [bannerDismissed, setBannerDismissed] = useState<boolean>(() =>
     typeof window !== "undefined" && localStorage.getItem(PROFILE_BANNER_DISMISSED_KEY) === "1"
   );
+  const [requiredOpen, setRequiredOpen] = useState(false);
+  const [reqName, setReqName] = useState("");
+  const [reqPhone, setReqPhone] = useState("");
+  const [savingRequired, setSavingRequired] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => { void loadData(); }, []);
 
@@ -39,9 +44,17 @@ const AppHome = () => {
     if (!session) return;
     const { data: p } = await supabase
       .from("patients").select("*")
-      .eq("user_id", session.user.id).single();
+      .eq("user_id", session.user.id).maybeSingle();
     if (!p) return;
     setProfile(p);
+
+    // Mandatory: name + phone. ABHA + DOB are soft nudges only.
+    const missingRequired = !p.name?.trim() || !p.phone?.trim();
+    if (missingRequired) {
+      setReqName(p.name || "");
+      setReqPhone(p.phone || "");
+      setRequiredOpen(true);
+    }
 
     const { data: r } = await supabase
       .from("health_records")
@@ -61,11 +74,27 @@ const AppHome = () => {
     }
   };
 
+  const saveRequired = async () => {
+    const name = reqName.trim();
+    const phone = reqPhone.trim();
+    if (name.length < 2) { toast({ title: "Please enter your full name", variant: "destructive" }); return; }
+    if (!/^[+0-9 ()-]{7,20}$/.test(phone)) { toast({ title: "Please enter a valid phone number", variant: "destructive" }); return; }
+    if (!profile) return;
+    setSavingRequired(true);
+    const { error } = await supabase.from("patients").update({ name, phone }).eq("id", profile.id);
+    setSavingRequired(false);
+    if (error) { toast({ title: "Could not save", description: error.message, variant: "destructive" }); return; }
+    setProfile({ ...profile, name, phone });
+    setRequiredOpen(false);
+    toast({ title: "Profile saved", description: "You can add more details anytime." });
+  };
+
   const firstName = profile?.name?.split(" ")[0] || "there";
   const totalRecords = recordCount + consultationCount;
   const hasRecords = totalRecords > 0;
-  const profileIncomplete = !!profile && (!profile.phone || !profile.date_of_birth || !profile.national_health_id);
-  const showProfileBanner = profileIncomplete && !bannerDismissed;
+  // Soft nudge for the optional-but-recommended fields (DOB + ABHA).
+  const profileIncomplete = !!profile && (!profile.date_of_birth || !profile.national_health_id);
+  const showProfileBanner = profileIncomplete && !bannerDismissed && !requiredOpen;
 
   const dismissBanner = () => {
     localStorage.setItem(PROFILE_BANNER_DISMISSED_KEY, "1");
