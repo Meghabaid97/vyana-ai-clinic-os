@@ -30,15 +30,15 @@ const PortraitCTA = () => {
   return (
     <section
       id="contact"
-      className="aurora-warm-soft relative bg-background py-28 lg:py-36"
+      className="mood mood-cocoa-warm from-cream to-cream relative py-28 lg:py-36"
     >
       <div className="relative z-10 max-w-[640px] mx-auto px-6 text-center">
-        <h2 className="text-section text-foreground">
+        <h2 className="text-section text-surface-dark-foreground">
           {t("cta.title.l1")}
           <br />
           <em className="italic text-primary font-normal">{t("cta.title.l2")}</em>
         </h2>
-        <p className="mt-6 text-body text-foreground/70 max-w-[480px] mx-auto">
+        <p className="mt-6 text-body text-surface-dark-muted max-w-[480px] mx-auto">
           {t("cta.sub")}
         </p>
 
@@ -49,7 +49,7 @@ const PortraitCTA = () => {
             placeholder={t("cta.email")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-12 bg-card border-border focus-visible:ring-primary"
+            className="h-12 bg-white/[0.06] border-white/15 text-surface-dark-foreground placeholder:text-surface-dark-muted/70 focus-visible:ring-primary"
           />
           <div className="grid grid-cols-2 gap-3">
             <Input
@@ -57,14 +57,14 @@ const PortraitCTA = () => {
               placeholder={t("cta.relation")}
               value={relation}
               onChange={(e) => setRelation(e.target.value)}
-              className="h-12 bg-card border-border focus-visible:ring-primary"
+              className="h-12 bg-white/[0.06] border-white/15 text-surface-dark-foreground placeholder:text-surface-dark-muted/70 focus-visible:ring-primary"
             />
             <Input
               type="text"
               placeholder={t("cta.city")}
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="h-12 bg-card border-border focus-visible:ring-primary"
+              className="h-12 bg-white/[0.06] border-white/15 text-surface-dark-foreground placeholder:text-surface-dark-muted/70 focus-visible:ring-primary"
             />
           </div>
           <Button
@@ -79,8 +79,8 @@ const PortraitCTA = () => {
           </Button>
         </form>
 
-        <div className="mt-10 pt-6 border-t border-border flex flex-col items-center gap-1.5">
-          <p className="text-label text-foreground/55">
+        <div className="mt-10 pt-6 border-t border-white/15 flex flex-col items-center gap-1.5">
+          <p className="text-label text-surface-dark-muted/80">
             {t("cta.signoff")}
           </p>
           <span
@@ -94,7 +94,7 @@ const PortraitCTA = () => {
           >
             Megha
           </span>
-          <p className="text-label text-foreground/45 mt-1">
+          <p className="text-label text-surface-dark-muted/60 mt-1">
             {t("cta.role")}
           </p>
         </div>
