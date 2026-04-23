@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, FolderOpen, Upload, ChevronRight, Shield } from "lucide-react";
-import HealthRecordsTab from "@/components/HealthRecordsTab";
+
+const HealthRecordsTab = lazy(() => import("@/components/HealthRecordsTab"));
 
 interface PatientProfile {
   id: string;
