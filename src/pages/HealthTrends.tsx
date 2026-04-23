@@ -724,10 +724,18 @@ const HealthTrends = () => {
               return (
                 <HoverCard key={vi} openDelay={200}>
                   <HoverCardTrigger asChild>
-                    <div id={`vital-${vital.key}`} className="rounded-xl border border-border bg-card p-3.5 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors scroll-mt-24">
-                      <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${vital.status === "warning" ? "bg-destructive/10" : "bg-primary/10"}`}>
-                        <vital.icon className={`h-4 w-4 ${vital.status === "warning" ? "text-destructive" : "text-primary"}`} />
-                      </div>
+                      {(() => {
+                        // Off-band = anything except "normal" or "none". Use the matching status tone for the icon chip.
+                        const offBand = vital.status !== "normal" && vital.status !== "none";
+                        const tone = offBand && vital.status !== "none" ? STATUS_TONE[vital.status] : null;
+                        return (
+                          <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${tone ? tone.track : "bg-primary/10"}`}>
+                            <vital.icon className={`h-4 w-4 ${offBand ? statusColor(vital.status) : "text-primary"}`} />
+                          </div>
+                        );
+                      })()}
+                      <div id={`vital-${vital.key}`} className="rounded-xl border border-border bg-card p-3.5 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors scroll-mt-24 w-full">
+                        {/* outer wrapper retained via the parent HoverCardTrigger; this inner div carries the original layout */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-[13px] font-medium text-foreground truncate">{vital.label}</p>
