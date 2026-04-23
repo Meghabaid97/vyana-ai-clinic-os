@@ -57,21 +57,38 @@ const AppShell = () => {
 
   useEffect(() => {
     let cancelled = false;
+    let loadedForUser: string | null = null;
 
     const loadPatient = async (userId: string) => {
-      const { data } = await supabase.from("patients").select("name, pincode, city").eq("user_id", userId).maybeSingle();
+      // Dedupe: skip if we've already loaded for this user in this mount
+      if (loadedForUser === userId) return;
+      loadedForUser = userId;
+
+      const { data } = await supabase
+        .from("patients")
+        .select("name, pincode, city")
+        .eq("user_id", userId)
+        .maybeSingle();
       if (cancelled) return;
       if (data) {
         setPatientName(data.name);
         setLocation_({ pincode: data.pincode, city: data.city });
       }
-      await supabase.from("patients").update({ last_app_open_at: new Date().toISOString() }).eq("user_id", userId);
+      // Fire-and-forget: don't await, don't block UI
+      void supabase
+        .from("patients")
+        .update({ last_app_open_at: new Date().toISOString() })
+        .eq("user_id", userId);
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (cancelled) return;
-      if (session) {
+      // Only react to real sign-in events, not every token refresh / tab focus
+      if (event === "SIGNED_IN" && session) {
         void loadPatient(session.user.id);
+      }
+      if (event === "SIGNED_OUT") {
+        loadedForUser = null;
       }
     });
 
