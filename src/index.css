@@ -65,6 +65,13 @@
     --sidebar-accent-foreground: 22 22% 14%;
     --sidebar-border: 30 18% 84%;
     --sidebar-ring: 14 62% 54%;
+
+    /* Clinical status — warm-canvas palette for vitals/lab indicators.
+       Four states match the in-app statusOf(): ok / watch / high / low. */
+    --status-normal: 152 45% 38%;     /* sage green */
+    --status-watch:  35 88% 45%;      /* warm amber */
+    --status-high:   0 65% 50%;       /* terracotta-leaning red */
+    --status-low:    205 60% 45%;     /* muted indigo */
   }
 
   .dark {
