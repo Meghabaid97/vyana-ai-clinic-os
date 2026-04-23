@@ -3,24 +3,20 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowRight, X, Sparkles } from "lucide-react";
 
 export interface TourStep {
-  /** CSS selector or `data-tour` id of the element to highlight. Use `null` for centered intro. */
   target: string | null;
-  /** Path to navigate to before showing this step. */
   path?: string;
   eyebrow: string;
   title: string;
   body: string;
 }
 
-// Steps reference targets that exist on /app + the current bottom-tab IDs
-// (home, briefing, trends, records, claims, profile) plus the Emergency quick action on Home.
 const STEPS: TourStep[] = [
   {
     target: null,
     path: "/app",
     eyebrow: "Welcome to Vyana",
     title: "A 60-second tour of your health home.",
-    body: "We will show you the few things that matter. Skip anytime — you can replay this from the top bar.",
+    body: "We will show you the few things that matter. Skip anytime. You can replay this from the top bar.",
   },
   {
     target: '[data-tour="briefing-hero"]',
@@ -41,21 +37,21 @@ const STEPS: TourStep[] = [
     path: "/app",
     eyebrow: "Step 3 of 6",
     title: "See what is changing.",
-    body: "Track 33+ vitals over time. Spot trends before they become problems.",
+    body: "Track vitals over time and spot meaningful changes early.",
   },
   {
     target: '[data-tour="nav-claims"]',
     path: "/app",
     eyebrow: "Step 4 of 6",
     title: "Insurance claims, automated.",
-    body: "Drop a discharge summary in. We assemble the paperwork your insurer needs.",
+    body: "Drop a discharge summary in and Vyana assembles the paperwork your insurer needs.",
   },
   {
     target: '[data-tour="emergency-quick-action"]',
     path: "/app",
     eyebrow: "Step 5 of 6",
     title: "Emergency access, one tap away.",
-    body: "Set up trusted contacts so loved ones can reach your critical health info in a crisis. Find it on your home screen.",
+    body: "Set up trusted contacts so loved ones can reach your critical health info in a crisis.",
   },
   {
     target: '[data-tour="nav-profile"]',
@@ -100,7 +96,27 @@ const SpotlightTour = ({ open, onClose }: Props) => {
 
   const step = STEPS[stepIdx];
 
-  // Reset when tour opens
+  useEffect(() => {
+    if (!open) return;
+
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyTouchAction = document.body.style.touchAction;
+    const previousOverscroll = document.body.style.overscrollBehavior;
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    document.body.style.overscrollBehavior = "none";
+
+    return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.body.style.touchAction = previousBodyTouchAction;
+      document.body.style.overscrollBehavior = previousOverscroll;
+    };
+  }, [open]);
+
   useEffect(() => {
     if (open) {
       setStepIdx(0);
@@ -110,7 +126,6 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     }
   }, [open]);
 
-  // Navigate to step path once per step
   useEffect(() => {
     if (!open) return;
     if (!step.path) return;
@@ -121,11 +136,6 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     }
   }, [open, stepIdx, step.path, location.pathname, navigate]);
 
-  // Measure target. Simple, robust:
-  //   1. Clear old rect immediately
-  //   2. Poll for the element (up to TARGET_WAIT_MS)
-  //   3. Once found, scroll into view, wait one frame, commit measurement
-  //   4. If never found, mark missing — card centers itself
   useEffect(() => {
     if (!open) return;
     setTargetMissing(false);
@@ -148,8 +158,8 @@ const SpotlightTour = ({ open, onClose }: Props) => {
         return;
       }
       setRect({
-        top: r.top - PADDING,
-        left: r.left - PADDING,
+        top: Math.max(8, r.top - PADDING),
+        left: Math.max(8, r.left - PADDING),
         width: r.width + PADDING * 2,
         height: r.height + PADDING * 2,
       });
@@ -169,29 +179,24 @@ const SpotlightTour = ({ open, onClose }: Props) => {
         return;
       }
 
-      // Try to scroll element into view (best-effort, ignore failures)
       try {
-        el.scrollIntoView({ block: "center", inline: "nearest" });
+        el.scrollIntoView({ block: "center", inline: "nearest", behavior: "auto" });
       } catch {
-        /* noop */
       }
 
-      // Wait for scroll to settle (mobile scroll containers can take a beat),
-      // then commit. Always commit — never re-check offscreen, never loop.
       settleTimer = window.setTimeout(() => {
         if (cancelled) return;
         raf = requestAnimationFrame(() => commit(el));
       }, 220);
     };
 
-    // Initial delay to allow route navigation / layout settle
     pollTimer = window.setTimeout(tryFind, 120);
 
     const onResize = () => {
-      // On viewport resize, re-measure the existing element if present
       const el = document.querySelector(step.target as string) as HTMLElement | null;
       if (el) commit(el);
     };
+
     window.addEventListener("resize", onResize);
 
     return () => {
@@ -222,7 +227,6 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     setStepIdx(0);
   }, [onClose]);
 
-  // Keyboard navigation
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -236,12 +240,11 @@ const SpotlightTour = ({ open, onClose }: Props) => {
 
   if (!open) return null;
 
-  // Card position: clamp to viewport, account for safe areas + bottom tab bar (~52px)
   const getCardStyle = (): React.CSSProperties => {
     const isMobile = window.innerWidth < 1024;
     const cardWidth = Math.min(360, window.innerWidth - 24);
-    const safeBottom = isMobile ? 76 : 24; // bottom tab bar + breathing room
-    const safeTop = isMobile ? 56 : 24; // mobile header
+    const safeBottom = isMobile ? 76 : 24;
+    const safeTop = isMobile ? 56 : 24;
 
     if (!rect) {
       return {
@@ -269,7 +272,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
         maxHeight: `calc(100vh - ${top + safeBottom}px)`,
       };
     }
-    // Place above
+
     const bottomEdge = rect.top - 12;
     return {
       top: Math.max(safeTop, bottomEdge - 280),
@@ -280,9 +283,10 @@ const SpotlightTour = ({ open, onClose }: Props) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] animate-fade-in">
-      {/* SVG mask — dim everything except the highlighted rect */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-auto" onClick={handleSkip}>
+    <div className="fixed inset-0 z-[100] animate-fade-in overscroll-none">
+      <div className="absolute inset-0 bg-foreground/72" onClick={handleSkip} aria-hidden="true" />
+
+      <svg className="absolute inset-0 h-full w-full pointer-events-none" aria-hidden="true">
         <defs>
           <mask id="spotlight-mask">
             <rect width="100%" height="100%" fill="white" />
@@ -298,12 +302,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
             )}
           </mask>
         </defs>
-        <rect
-          width="100%"
-          height="100%"
-          fill="hsl(var(--foreground) / 0.72)"
-          mask="url(#spotlight-mask)"
-        />
+        <rect width="100%" height="100%" fill="hsl(var(--foreground) / 0.72)" mask="url(#spotlight-mask)" />
         {rect && (
           <rect
             x={rect.left}
@@ -314,14 +313,12 @@ const SpotlightTour = ({ open, onClose }: Props) => {
             fill="none"
             stroke="hsl(var(--primary))"
             strokeWidth={2}
-            className="pointer-events-none"
           />
         )}
       </svg>
 
-      {/* Card */}
       <div
-        className="absolute rounded-2xl bg-background border border-border shadow-2xl p-4 sm:p-5 animate-scale-in overflow-y-auto"
+        className="absolute rounded-2xl bg-background border border-border shadow-2xl p-4 sm:p-5 overflow-y-auto"
         style={getCardStyle()}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -351,12 +348,11 @@ const SpotlightTour = ({ open, onClose }: Props) => {
         </p>
 
         {targetMissing && step.target && (
-          <p className="mt-2 text-[11px] text-muted-foreground/80 italic">
-            (This control is on another screen — continue to next step.)
+          <p className="mt-2 text-[11px] italic text-muted-foreground/80">
+            This control is off-screen for this layout. Continue to the next step.
           </p>
         )}
 
-        {/* Progress dots */}
         <div className="mt-4 flex items-center gap-1.5">
           {STEPS.map((_, i) => (
             <button
