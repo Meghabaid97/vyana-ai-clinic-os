@@ -481,6 +481,12 @@ const PatientBriefing = () => {
           )}
         </>
       )}
+
+      <ShareCeremonySheet
+        open={shareSheetOpen}
+        onOpenChange={setShareSheetOpen}
+        onCreate={createShareLink}
+      />
     </div>
   );
 };
