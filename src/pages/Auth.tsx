@@ -14,6 +14,7 @@ import { validatePassword, validateEmail, validateHealthId } from "@/lib/validat
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import LanguageSelector from "@/components/LanguageSelector";
 import { t, useLanguage } from "@/lib/i18n";
+import { buildCustomerWebUrl, NATIVE_OAUTH_REDIRECT } from "@/lib/customerUrls";
 
 type UserRole = "patient";
 type AuthMode = "password" | "otp";
@@ -390,7 +391,7 @@ const Auth = () => {
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth`,
+            emailRedirectTo: buildCustomerWebUrl("/auth"),
             data: {
               role: signupDraft.role,
               name: signupDraft.name,
@@ -444,7 +445,7 @@ const Auth = () => {
         setLoading(false);
         return;
       }
-      const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth` } });
+      const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: buildCustomerWebUrl("/auth") } });
       if (error) { recordAttempt(); throw error; }
       setOtpSent(true);
       toast({ title: t("auth.otpSent"), description: "Check your email inbox" });
@@ -466,41 +467,6 @@ const Auth = () => {
       toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
     } finally { setLoading(false); }
   };
-
-  /**
-   * Resolve the canonical web origin for OAuth.
-   *
-   * Why: Lovable's `/~oauth/*` proxy only resolves on hosts that are "Active"
-   * custom domains. If a user hits the apex (e.g. vyana.care) but only the
-   * `www` variant is wired up, `/~oauth/initiate` 404s mid-flow.
-   *
-   * Strategy:
-   *   1. If we're already on the canonical host, use it as-is.
-   *   2. If we're on the apex of a known custom domain, hop to `www`.
-   *   3. Otherwise, fall back to current origin (works for *.lovable.app and previews).
-   */
-  const resolveOAuthOrigin = (): string => {
-    const { protocol, host, origin } = window.location;
-
-    // Hosts known to be "Active" in Lovable for this project.
-    const PRIMARY_HOSTS = ["www.vyana.care"];
-    const APEX_TO_WWW: Record<string, string> = {
-      "vyana.care": "www.vyana.care",
-    };
-
-    if (PRIMARY_HOSTS.includes(host)) return origin;
-    if (APEX_TO_WWW[host]) return `${protocol}//${APEX_TO_WWW[host]}`;
-    return origin;
-  };
-
-  // Customer-facing production web origin. We NEVER want OAuth to fall back
-  // to a Lovable preview/published URL (e.g. *.lovable.app), even when the
-  // user is signing in from the Lovable preview environment. Supabase will
-  // only honor `redirectTo` if it matches an entry in the URI allow-list.
-  const PRODUCTION_WEB_ORIGIN = "https://www.vyana.care";
-  // Native deep-link scheme registered in capacitor.config.ts + iOS/Android.
-  // Handled in src/main.tsx via the Capacitor App `appUrlOpen` listener.
-  const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
 
   const handleGoogleAuth = async () => {
     try {
@@ -529,7 +495,7 @@ const Auth = () => {
       // *.lovable.app fallback never appears to customers.
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${PRODUCTION_WEB_ORIGIN}/app` },
+        options: { redirectTo: buildCustomerWebUrl("/app") },
       });
       if (error) {
         throw error;

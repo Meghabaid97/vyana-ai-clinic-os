@@ -17,6 +17,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter,
   DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
+import { buildEmergencyAccessUrl } from "@/lib/customerUrls";
 
 interface EmergencyContact {
   id: string;
@@ -151,8 +152,7 @@ const EmergencyContacts = () => {
     }
   };
 
-  const buildAccessLink = (token: string) =>
-    `${window.location.origin}/emergency-access/${token}`;
+  const buildAccessLink = (token: string) => buildEmergencyAccessUrl(token);
 
   const copyAccessLink = (token: string) => {
     navigator.clipboard.writeText(buildAccessLink(token));

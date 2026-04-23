@@ -10,6 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { buildEmergencyAccessUrl } from "@/lib/customerUrls";
 
 interface ShareLink {
   id: string;
@@ -61,7 +62,7 @@ const ShareRecords = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else if (data) {
-      const shareUrl = `${window.location.origin}/emergency-access/${data.token}`;
+      const shareUrl = buildEmergencyAccessUrl(data.token);
       await navigator.clipboard.writeText(shareUrl);
       toast({ title: "Link created & copied!", description: "Share this link with your doctor. Expires in 24 hours." });
       setShowCreate(false);
@@ -72,7 +73,7 @@ const ShareRecords = () => {
   };
 
   const copyLink = async (token: string) => {
-    const url = `${window.location.origin}/emergency-access/${token}`;
+    const url = buildEmergencyAccessUrl(token);
     await navigator.clipboard.writeText(url);
     toast({ title: "Link copied!", description: "Share this with your doctor." });
   };
