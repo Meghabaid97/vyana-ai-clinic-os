@@ -1,15 +1,12 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode, Trash2,
+  Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 
 interface ShareLink {
   id: string;
@@ -26,8 +23,6 @@ const ShareRecords = () => {
   const [loading, setLoading] = useState(true);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
-  const [recipientName, setRecipientName] = useState("");
-  const [creating, setCreating] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => { loadLinks(); }, []);
@@ -50,25 +45,19 @@ const ShareRecords = () => {
     setLoading(false);
   };
 
-  const createLink = async () => {
-    if (!patientId) return;
-    setCreating(true);
+  const createLink = async (recipientName: string): Promise<string | null> => {
+    if (!patientId) return null;
     const { data, error } = await supabase.from("shared_record_links").insert({
       patient_id: patientId,
-      recipient_name: recipientName.trim() || null,
+      recipient_name: recipientName || null,
     }).select().single() as { data: ShareLink | null; error: any };
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else if (data) {
-      const shareUrl = `${window.location.origin}/emergency-access/${data.token}`;
-      await navigator.clipboard.writeText(shareUrl);
-      toast({ title: "Link created & copied!", description: "Share this link with your doctor. Expires in 24 hours." });
-      setShowCreate(false);
-      setRecipientName("");
-      await loadLinks();
+      return null;
     }
-    setCreating(false);
+    if (!data) return null;
+    return `${window.location.origin}/emergency-access/${data.token}`;
   };
 
   const copyLink = async (token: string) => {
@@ -184,37 +173,13 @@ const ShareRecords = () => {
         </section>
       )}
 
-      {/* Create Dialog */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Link2 className="h-5 w-5 text-primary" />
-              Create Share Link
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <label className="text-sm font-medium text-foreground">Doctor's Name (optional)</label>
-              <Input
-                placeholder="e.g. Dr. Sharma"
-                value={recipientName}
-                onChange={(e) => setRecipientName(e.target.value)}
-              />
-              <p className="text-[11px] text-muted-foreground mt-1">
-                This helps you track who you shared with. The link expires in 24 hours.
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
-            <Button onClick={createLink} disabled={creating}>
-              {creating ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Link2 className="h-4 w-4 mr-1" />}
-              Create & Copy Link
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Ceremony sheet */}
+      <ShareCeremonySheet
+        open={showCreate}
+        onOpenChange={setShowCreate}
+        onCreate={createLink}
+        onComplete={loadLinks}
+      />
     </div>
   );
 };
