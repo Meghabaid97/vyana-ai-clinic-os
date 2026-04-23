@@ -119,7 +119,7 @@ const AppShell = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-background flex flex-col">
       {/* ============ MOBILE TOP BAR (hidden on lg+) ============ */}
       <header className="lg:hidden bg-background/95 border-b border-border sticky top-0 z-50 safe-area-top backdrop-blur-sm">
         <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center justify-between gap-2">
@@ -267,8 +267,8 @@ const AppShell = () => {
 
       {/* ============ CONTENT ============ */}
       {/* Mobile: full-bleed scroll. Desktop: centered max-width container */}
-      <main className="flex-1 overflow-y-auto pb-20 lg:pb-10">
-        <div className="lg:max-w-[1400px] lg:mx-auto lg:px-6 lg:py-6">
+      <main className="flex-1 w-full max-w-full overflow-x-hidden overflow-y-auto pb-20 lg:pb-10">
+        <div className="w-full max-w-full lg:max-w-[1400px] lg:mx-auto lg:px-6 lg:py-6">
           <Outlet />
         </div>
       </main>

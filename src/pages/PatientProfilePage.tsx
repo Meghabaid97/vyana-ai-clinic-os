@@ -191,12 +191,10 @@ const PatientProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <PatientHeader patientName={profile?.name || "Patient"} title={t("patient.dashboard")} />
-
-      <div className="max-w-6xl mx-auto px-6 py-8">
+    <div className="min-h-screen bg-background w-full max-w-full overflow-x-hidden">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
           <StatsCard icon={FileText} label={t("patient.totalRecords")} value={healthRecords.length + consultations.length} color="primary" />
           <StatsCard icon={Heart} label={t("patient.activeConditions")} value={conditions.length} color="accent" />
           <StatsCard icon={Pill} label={t("patient.currentMedications")} value={medications.length} color="secondary" />
@@ -227,12 +225,12 @@ const PatientProfilePage = () => {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 mb-8">
-            <TabsTrigger value="overview" className="text-xs md:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="records" className="text-xs md:text-sm">{t("patient.healthRecords")}</TabsTrigger>
-            <TabsTrigger value="trends" className="text-xs md:text-sm">{t("patient.trends")}</TabsTrigger>
-            <TabsTrigger value="summary" className="text-xs md:text-sm">Summary</TabsTrigger>
-            <TabsTrigger value="tools" className="text-xs md:text-sm">Tools</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 mb-6 sm:mb-8 h-auto">
+            <TabsTrigger value="overview" className="text-[11px] sm:text-sm px-1 sm:px-3">Overview</TabsTrigger>
+            <TabsTrigger value="records" className="text-[11px] sm:text-sm px-1 sm:px-3">Records</TabsTrigger>
+            <TabsTrigger value="trends" className="text-[11px] sm:text-sm px-1 sm:px-3">Trends</TabsTrigger>
+            <TabsTrigger value="summary" className="text-[11px] sm:text-sm px-1 sm:px-3">Summary</TabsTrigger>
+            <TabsTrigger value="tools" className="text-[11px] sm:text-sm px-1 sm:px-3">Tools</TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW TAB */}
