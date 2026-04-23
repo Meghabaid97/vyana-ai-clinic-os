@@ -64,7 +64,7 @@ const ShareReceive = () => {
           return;
         }
         if (f.size > 10 * 1024 * 1024) {
-          toast({ title: "File too large", description: "Maximum 10MB.", variant: "destructive" });
+          toast({ title: "That file's too large", description: "Files need to be under 10 MB", variant: "destructive" });
           sessionStorage.removeItem("vyana_pending_shared_file");
           navigate("/app");
           return;
@@ -72,7 +72,7 @@ const ShareReceive = () => {
         setFile(f);
       } catch (e: any) {
         console.error("Failed to read shared file", e);
-        toast({ title: "Could not read file", description: e.message || "Try sharing again.", variant: "destructive" });
+        toast({ title: "Couldn't open that file", description: e.message || "Try sharing it again", variant: "destructive" });
         sessionStorage.removeItem("vyana_pending_shared_file");
         navigate("/app");
       } finally {
@@ -110,7 +110,7 @@ const ShareReceive = () => {
       );
     } catch (e: any) {
       console.error("Share-receive save failed", e);
-      toast({ title: "Could not save", description: e.message || "Try again.", variant: "destructive" });
+      toast({ title: "Couldn't save to your records", description: e.message || "Give it another try", variant: "destructive" });
     } finally {
       setSaving(false);
     }
