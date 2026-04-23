@@ -149,7 +149,7 @@ const AppHome = () => {
                 Finish setting up your profile
               </p>
               <p className="text-[11.5px] text-muted-foreground mt-0.5 leading-snug">
-                Add your phone, date of birth, and ABHA ID so we can personalize your care.
+                Add your date of birth and ABHA ID so we can personalize your care.
               </p>
             </div>
             <button
