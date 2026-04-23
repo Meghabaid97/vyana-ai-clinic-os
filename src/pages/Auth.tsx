@@ -487,21 +487,16 @@ const Auth = () => {
         });
         if (error) throw error;
         if (!data?.url) throw new Error("No OAuth URL returned");
-        // IMPORTANT: do NOT open OAuth in the in-app Capacitor Browser sheet.
-        // The in-app sheet does not reliably honor the `vyana://oauth-callback`
-        // custom-scheme redirect, which leaves the user staring at the
-        // vyana.care website chrome inside an iOS browser popover. Instead,
-        // hand the URL to the OS so Safari/Chrome handles Google sign-in and
-        // the custom-scheme deep link routes cleanly back into the native app
-        // via the `appUrlOpen` listener in `main.tsx`.
-        try {
-          const { App: CapacitorApp } = await import("@capacitor/app");
-          // openUrl on iOS/Android opens the URL in the system browser.
-          await CapacitorApp.openUrl({ url: data.url });
-        } catch {
-          // Last-resort fallback: navigate the main webview itself.
-          window.location.href = data.url;
-        }
+        // IMPORTANT: do NOT open OAuth in the in-app Capacitor Browser sheet
+        // (popover). The sheet doesn't reliably honor our `vyana://oauth-callback`
+        // custom-scheme redirect, so the user gets stuck staring at the
+        // vyana.care website chrome inside an iOS browser popover. Hand the
+        // URL to the OS-level system browser instead — `windowName: "_system"`
+        // tells the Capacitor WebView shim to launch the URL externally
+        // (Safari on iOS, Chrome on Android), and the `vyana://oauth-callback`
+        // deep link then routes cleanly back into the native app via the
+        // `appUrlOpen` listener in `main.tsx`.
+        window.open(data.url, "_system");
         return;
       }
 
