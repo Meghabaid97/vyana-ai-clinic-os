@@ -133,6 +133,7 @@ case "$MODE" in
     npx cap add ios
     generate_app_icon
     npx cap sync ios
+    verify_app_icon
     c_green "Done. Opening Xcode — do File → Packages → Reset Package Caches once."
     npx cap open ios
     ;;
