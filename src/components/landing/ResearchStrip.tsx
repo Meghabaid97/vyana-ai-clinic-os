@@ -36,10 +36,10 @@ const ResearchStrip = () => {
     <section id="research" className="py-24 lg:py-32 bg-muted/40 border-y border-border">
       <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
         <div className="max-w-[640px] mb-14">
-          <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-4">
+          <p className="text-label text-primary mb-4">
             III &nbsp;·&nbsp; The science
           </p>
-          <h2 className="font-serif text-3xl sm:text-5xl leading-[1.05] tracking-[-0.02em] text-foreground">
+          <h2 className="text-section text-foreground">
             Grounded in clinical
             <br />
             <em className="italic text-primary font-normal">and public-health research.</em>
