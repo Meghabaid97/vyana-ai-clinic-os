@@ -1,4 +1,4 @@
-import { useRef, type WheelEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import RxExtractArtifact from "./pillar-artifacts/RxExtractArtifact";
 import TimelineArtifact from "./pillar-artifacts/TimelineArtifact";
@@ -62,22 +62,112 @@ const pillars: Pillar[] = [
   },
 ];
 
+type DragState = {
+  active: boolean;
+  pointerId: number | null;
+  startY: number;
+  startScrollTop: number;
+};
+
+const WHEEL_EPSILON = 1;
+
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
 const StickyPillarReveal = () => {
+  const sceneRef = useRef<HTMLDivElement>(null);
   const scrollRootRef = useRef<HTMLDivElement>(null);
+  const dragStateRef = useRef<DragState>({
+    active: false,
+    pointerId: null,
+    startY: 0,
+    startScrollTop: 0,
+  });
+  const [isDragging, setIsDragging] = useState(false);
   const { active, registerRef } = useActiveSection(pillars.length, scrollRootRef);
 
-  const handleDesktopWheel = (event: WheelEvent<HTMLDivElement>) => {
+  useEffect(() => {
+    const scene = sceneRef.current;
+    const scroller = scrollRootRef.current;
+    if (!scene || !scroller) return;
+
+    const normalizeDelta = (event: WheelEvent) => {
+      if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) return event.deltaY * 18;
+      if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) return event.deltaY * scroller.clientHeight * 0.9;
+      return event.deltaY;
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      if (window.innerWidth < 1024) return;
+
+      const deltaY = normalizeDelta(event);
+      if (Math.abs(deltaY) < WHEEL_EPSILON) return;
+
+      const rect = scene.getBoundingClientRect();
+      const headerOffset = 56;
+      const isSceneOnScreen = rect.top < window.innerHeight && rect.bottom > headerOffset;
+      if (!isSceneOnScreen) return;
+
+      const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+      const currentScroll = scroller.scrollTop;
+      const nextScroll = clamp(currentScroll + deltaY, 0, maxScroll);
+      const didConsume = Math.abs(nextScroll - currentScroll) > WHEEL_EPSILON;
+
+      if (!didConsume) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      scroller.scrollTop = nextScroll;
+    };
+
+    scene.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      scene.removeEventListener("wheel", onWheel);
+    };
+  }, []);
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (window.innerWidth < 1024 || event.pointerType !== "mouse" || event.button !== 0) return;
+
     const scroller = scrollRootRef.current;
     if (!scroller) return;
 
-    const goingDown = event.deltaY > 0;
-    const goingUp = event.deltaY < 0;
-    const atTop = scroller.scrollTop <= 0;
-    const atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
+    dragStateRef.current = {
+      active: true,
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startScrollTop: scroller.scrollTop,
+    };
 
-    if ((goingDown && !atBottom) || (goingUp && !atTop)) {
-      event.preventDefault();
-      scroller.scrollTop += event.deltaY;
+    setIsDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const scroller = scrollRootRef.current;
+    const dragState = dragStateRef.current;
+    if (!scroller || !dragState.active || dragState.pointerId !== event.pointerId) return;
+
+    const deltaY = event.clientY - dragState.startY;
+    const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+    scroller.scrollTop = clamp(dragState.startScrollTop - deltaY, 0, maxScroll);
+    event.preventDefault();
+  };
+
+  const handlePointerEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const dragState = dragStateRef.current;
+    if (!dragState.active || dragState.pointerId !== event.pointerId) return;
+
+    dragStateRef.current = {
+      active: false,
+      pointerId: null,
+      startY: 0,
+      startScrollTop: 0,
+    };
+
+    setIsDragging(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
     }
   };
 
@@ -96,13 +186,19 @@ const StickyPillarReveal = () => {
 
       <div className="hidden lg:block max-w-[1280px] mx-auto px-12">
         <div
+          ref={sceneRef}
           className="grid grid-cols-[minmax(0,1fr)_560px] gap-20 h-[calc(100svh-10rem)] min-h-[680px]"
-          onWheelCapture={handleDesktopWheel}
         >
           <div className="flex flex-col min-h-0">
             <div
               ref={scrollRootRef}
-              className="relative flex-1 min-h-0 overflow-y-auto pr-8 overscroll-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerEnd}
+              onPointerCancel={handlePointerEnd}
+              className={`relative flex-1 min-h-0 overflow-y-auto pr-8 overscroll-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+                isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+              }`}
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-background to-transparent z-10" />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent z-10" />
@@ -146,18 +242,17 @@ const StickyPillarReveal = () => {
             </div>
           </div>
 
-          <div className="relative h-full">
+          <div className="relative h-full overflow-hidden">
             <div className="relative h-full rounded-[28px] bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)] border border-border/40 shadow-[0_40px_100px_-40px_hsl(22_25%_15%/0.25)] overflow-hidden">
               <div
                 className="absolute inset-0 opacity-[0.04]"
                 style={{
-                  backgroundImage:
-                    "radial-gradient(hsl(22 25% 15%) 1px, transparent 1px)",
+                  backgroundImage: "radial-gradient(hsl(22 25% 15%) 1px, transparent 1px)",
                   backgroundSize: "20px 20px",
                 }}
               />
 
-              <div className="absolute top-6 left-6 z-10">
+              <div className="absolute top-6 left-6 z-10 pointer-events-none">
                 <p className="text-[10px] uppercase tracking-[0.25em] text-foreground/50 font-medium">
                   Live preview
                 </p>
@@ -169,7 +264,7 @@ const StickyPillarReveal = () => {
                 </p>
               </div>
 
-              <div className="absolute top-6 right-6 z-10 flex gap-1.5">
+              <div className="absolute top-6 right-6 z-10 flex gap-1.5 pointer-events-none">
                 {pillars.map((_, i) => (
                   <span
                     key={i}
@@ -180,7 +275,7 @@ const StickyPillarReveal = () => {
                 ))}
               </div>
 
-              <div className="absolute inset-0 flex items-center justify-center px-8">
+              <div className="absolute inset-0 flex items-center justify-center px-8 pointer-events-none">
                 {pillars.map((p, i) => {
                   const Artifact = p.Artifact;
                   return (
@@ -188,10 +283,10 @@ const StickyPillarReveal = () => {
                       key={i}
                       className={`absolute inset-0 flex items-center justify-center px-8 transition-all duration-500 ${
                         active === i
-                          ? "opacity-100 translate-y-0 pointer-events-auto"
+                          ? "opacity-100 translate-y-0"
                           : active > i
-                            ? "opacity-0 -translate-y-4 pointer-events-none"
-                            : "opacity-0 translate-y-4 pointer-events-none"
+                            ? "opacity-0 -translate-y-4"
+                            : "opacity-0 translate-y-4"
                       }`}
                     >
                       <Artifact />
