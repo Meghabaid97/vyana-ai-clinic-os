@@ -324,40 +324,52 @@ const StickyPillarReveal = () => {
                   : "bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)]"
               }`}
             >
-              <div
-                className="absolute inset-0 opacity-[0.04]"
-                style={{
-                  backgroundImage: "radial-gradient(hsl(22 25% 15%) 1px, transparent 1px)",
-                  backgroundSize: "20px 20px",
-                }}
-              />
+              {!activeBeat.fullBleed && (
+                <div
+                  className="absolute inset-0 opacity-[0.04]"
+                  style={{
+                    backgroundImage: "radial-gradient(hsl(22 25% 15%) 1px, transparent 1px)",
+                    backgroundSize: "20px 20px",
+                  }}
+                />
+              )}
 
               <div className="absolute top-6 left-6 z-10 pointer-events-none">
-                <p className="text-[10px] uppercase tracking-[0.25em] text-foreground/50 font-medium">
+                <p
+                  className={`text-[10px] uppercase tracking-[0.25em] font-medium ${
+                    activeBeat.fullBleed ? "text-white/55" : "text-foreground/50"
+                  }`}
+                >
                   Live preview
                 </p>
                 <p
                   key={active}
-                  className="font-serif text-[15px] text-foreground mt-1 animate-fade-in"
+                  className={`font-serif text-[15px] mt-1 animate-fade-in ${
+                    activeBeat.fullBleed ? "text-white" : "text-foreground"
+                  }`}
                 >
-                  {pillars[active].framework}
+                  {activeBeat.framework}
                 </p>
               </div>
 
               <div className="absolute top-6 right-6 z-10 flex gap-1.5 pointer-events-none">
-                {pillars.map((_, i) => (
+                {beats.map((_, i) => (
                   <span
                     key={i}
                     className={`h-1 rounded-full transition-all duration-500 ${
-                      active === i ? "w-6 bg-primary" : "w-1.5 bg-foreground/20"
+                      active === i
+                        ? "w-6 bg-primary"
+                        : activeBeat.fullBleed
+                          ? "w-1.5 bg-white/25"
+                          : "w-1.5 bg-foreground/20"
                     }`}
                   />
                 ))}
               </div>
 
               <div className="absolute inset-0 flex items-center justify-center px-8 pointer-events-none">
-                {pillars.map((p, i) => {
-                  const Artifact = p.Artifact;
+                {beats.map((b, i) => {
+                  const Artifact = b.Artifact;
                   return (
                     <div
                       key={i}
@@ -380,28 +392,37 @@ const StickyPillarReveal = () => {
       </div>
 
       <div className="lg:hidden max-w-[560px] mx-auto px-6 space-y-20">
-        {pillars.map((p, i) => {
-          const Artifact = p.Artifact;
+        {beats.map((b, i) => {
+          const Artifact = b.Artifact;
           return (
             <div key={i} className="space-y-7">
               <div>
                 <div className="flex items-baseline gap-3 mb-4">
                   <span className="font-serif italic text-[14px] text-primary">
-                    {p.numeral}
+                    {b.numeral}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                    {b.eyebrow}
                   </span>
                   <span className="h-px flex-1 bg-border" />
                 </div>
                 <h3 className="font-serif text-[26px] leading-[1.15] text-foreground mb-4">
-                  {p.framework}
+                  {b.framework}
                 </h3>
                 <p className="font-serif italic text-[13px] text-muted-foreground leading-[1.65] mb-4 pl-3 border-l-2 border-primary/30">
-                  {p.citation}
+                  {b.citation}
                 </p>
                 <p className="text-[15px] leading-[1.6] text-foreground/85">
-                  {p.takeaway}
+                  {b.takeaway}
                 </p>
               </div>
-              <div className="rounded-2xl bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)] border border-border/40 p-6">
+              <div
+                className={`rounded-2xl border border-border/40 p-6 ${
+                  b.fullBleed
+                    ? "bg-[hsl(22_25%_10%)]"
+                    : "bg-gradient-to-br from-[hsl(36_30%_94%)] to-[hsl(36_25%_88%)]"
+                }`}
+              >
                 <Artifact />
               </div>
             </div>
