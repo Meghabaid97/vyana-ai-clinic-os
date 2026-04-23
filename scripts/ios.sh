@@ -41,6 +41,21 @@ ensure_ios_platform() {
   fi
 }
 
+# Regenerate the iOS AppIcon from assets/icon.png. Capacitor wipes the
+# AppIcon.appiconset on every `cap add ios`, so we have to re-run this
+# every time or the home-screen icon goes blank.
+generate_app_icon() {
+  if [[ ! -f assets/icon.png ]]; then
+    c_yellow "assets/icon.png missing — skipping icon generation."
+    return
+  fi
+  c_blue "Generating iOS AppIcon from assets/icon.png..."
+  npx --yes @capacitor/assets generate --ios \
+    --iconBackgroundColor "#FFFFFF" \
+    --iconBackgroundColorDark "#0F172A" \
+    >/dev/null 2>&1 || c_yellow "Icon generation failed (non-fatal). Run manually: npx @capacitor/assets generate --ios"
+}
+
 case "$MODE" in
   dev)
     require_root
