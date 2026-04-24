@@ -245,7 +245,8 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
                 <span className="text-[12px] font-medium text-foreground text-center leading-tight">{s.label}</span>
               </button>
             ))}
-          </div>
+            </div>
+          </>
         )}
 
         {step === "details" && def && (
