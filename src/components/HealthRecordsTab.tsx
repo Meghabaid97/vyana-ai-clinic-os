@@ -390,6 +390,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
               ref={fileInputRef}
               type="file"
               accept=".pdf,.jpg,.jpeg,.png,.webp"
+              multiple
               onChange={handleFileUpload}
               className="hidden"
             />
@@ -491,6 +492,11 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                               <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0 h-5">
                                 <Sparkles className="h-2.5 w-2.5 mr-1" />
                                 Summary
+                              </Badge>
+                            )}
+                            {record.document_type && (
+                              <Badge variant="outline" className="rounded-full text-[10px] px-2 py-0 h-5">
+                                {record.document_type}
                               </Badge>
                             )}
                             {record.consent_shared_with && record.consent_shared_with.length > 0 && (
