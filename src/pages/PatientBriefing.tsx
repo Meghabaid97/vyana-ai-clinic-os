@@ -200,10 +200,10 @@ const PatientBriefing = () => {
     <div className="animate-fade-in">
       <section className="px-5 pt-8 pb-4">
         <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">
-          My Briefing
+          {t("briefing.title")}
         </h1>
         <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-          Generate your clinical summary to share with any doctor, instantly.
+          {t("briefing.subtitle")}
         </p>
       </section>
 
@@ -214,18 +214,18 @@ const PatientBriefing = () => {
             <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Stethoscope className="h-7 w-7 text-primary" />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-2">Doctor-Ready Summary</h2>
+            <h2 className="text-lg font-bold text-foreground mb-2">{t("briefing.cta.title")}</h2>
             <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
-              AI analyzes your records, vitals, and medications to create a summary any doctor can read in 30 seconds.
+              {t("briefing.cta.desc")}
             </p>
             <div className="text-left max-w-xs mx-auto mb-5 rounded-lg bg-background/60 border border-border p-3">
-              <p className="text-[12px] font-semibold text-foreground mb-2">Your summary will include:</p>
+              <p className="text-[12px] font-semibold text-foreground mb-2">{t("briefing.cta.includeTitle")}</p>
               <ul className="space-y-1.5">
                 {[
-                  "Conditions & diagnoses",
-                  "Medications history",
-                  "Key vitals & trends",
-                  "Recent symptoms from your journal",
+                  t("briefing.cta.inc1"),
+                  t("briefing.cta.inc2"),
+                  t("briefing.cta.inc3"),
+                  t("briefing.cta.inc4"),
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2 text-[12px] text-muted-foreground">
                     <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
@@ -242,9 +242,9 @@ const PatientBriefing = () => {
                 size="lg"
               >
                 {isLoading ? (
-                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Generating...</>
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> {t("briefing.cta.generating")}</>
                 ) : (
-                  <><Sparkles className="h-4 w-4 mr-2" /> Generate My Briefing</>
+                  <><Sparkles className="h-4 w-4 mr-2" /> {t("briefing.cta.generate")}</>
                 )}
               </Button>
               <button
@@ -252,7 +252,7 @@ const PatientBriefing = () => {
                 className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
               >
                 <Play className="h-3 w-3 fill-current" />
-                Or preview with sample data
+                {t("briefing.cta.preview")}
               </button>
             </div>
           </div>
