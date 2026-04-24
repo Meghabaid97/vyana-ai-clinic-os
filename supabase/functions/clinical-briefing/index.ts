@@ -52,7 +52,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { patientHealthId, consultations, healthRecordSummaries, vitalHistory, medicationReminders } = await req.json();
+    const { patientHealthId, consultations, healthRecordSummaries, vitalHistory, medicationReminders, symptomLogs } = await req.json();
 
     // Build patient context
     const consultationContext = (consultations || []).map((c: any, i: number) => {
