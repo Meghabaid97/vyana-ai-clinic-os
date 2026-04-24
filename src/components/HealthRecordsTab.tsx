@@ -459,6 +459,27 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
             </SelectContent>
           </Select>
         </div>
+        {batchScanItems.length > 1 && (
+          <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs font-semibold text-foreground">Batch scan</span>
+              <Badge variant="secondary" className="rounded-full text-[10px]">
+                {batchScanItems.length} files
+              </Badge>
+            </div>
+            <div className="space-y-1.5">
+              {batchScanItems.slice(0, 5).map((item, index) => (
+                <div key={`${item.name}-${index}`} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="truncate text-muted-foreground">{item.name}</span>
+                  <span className="shrink-0 capitalize text-primary">{item.status}</span>
+                </div>
+              ))}
+              {batchScanItems.length > 5 && (
+                <p className="text-[11px] text-muted-foreground">+{batchScanItems.length - 5} more files</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Privacy Notice */}
