@@ -467,11 +467,11 @@ const DoctorVisitMode = () => {
             </section>
           )}
 
-          {/* 4. Share */}
+          {/* 5. Share */}
           <section className="pt-2 pb-6">
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
               <div className="flex items-center gap-2 mb-3">
-                <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">4</span>
+                <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">5</span>
                 <h3 className="text-[13px] font-bold text-foreground">Share with your doctor</h3>
               </div>
               <div className="grid grid-cols-2 gap-2">
