@@ -221,8 +221,22 @@ ${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` 
               },
               description: "Correlations between medication changes and lab value changes",
             },
+            recent_symptoms: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  symptom: { type: "string", description: "Symptom name" },
+                  frequency: { type: "string", description: "e.g. '6× in 30 days'" },
+                  avg_severity: { type: "string", description: "e.g. '7/10'" },
+                  pattern: { type: "string", description: "Triggers or timing patterns observed, if any" },
+                },
+                required: ["symptom", "frequency", "avg_severity"],
+              },
+              description: "Patient-reported symptoms from health journal, summarized for the doctor. Empty array if none.",
+            },
           },
-          required: ["patient_overview", "key_trends", "current_medications", "red_flags", "recent_changes", "soap_note", "medication_correlations"],
+          required: ["patient_overview", "key_trends", "current_medications", "red_flags", "recent_changes", "soap_note", "medication_correlations", "recent_symptoms"],
         },
       },
     }];
