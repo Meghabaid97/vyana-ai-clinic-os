@@ -67,6 +67,82 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
     setArr(arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v]);
   };
 
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = MediaRecorder.isTypeSupported("audio/webm")
+        ? "audio/webm"
+        : MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "";
+      const mr = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      chunksRef.current = [];
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: mr.mimeType || "audio/webm" });
+        await parseVoice(blob);
+      };
+      mediaRecorderRef.current = mr;
+      mr.start();
+      setRecording(true);
+      setTimeout(() => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+          mediaRecorderRef.current.stop();
+          setRecording(false);
+        }
+      }, 30000);
+    } catch {
+      toast({ title: "Mic blocked", description: "Allow microphone access to use voice.", variant: "destructive" });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+    }
+  };
+
+  const parseVoice = async (blob: Blob) => {
+    setParsing(true);
+    try {
+      const buf = await blob.arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      let binary = "";
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+      }
+      const audioBase64 = btoa(binary);
+      const { data, error } = await supabase.functions.invoke("voice-symptom-parse", {
+        body: { audioBase64, mimeType: blob.type },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const id = VALID_IDS.has(data?.symptom_type) ? data.symptom_type : "other";
+      const d = symptomById(id);
+      setSymptomId(id);
+      if (id === "other") setCustomName(String(data?.custom_symptom_name || "").slice(0, 80));
+      const sev = Number(data?.severity);
+      setSeverity(Number.isFinite(sev) ? Math.min(10, Math.max(1, Math.round(sev))) : 5);
+      setDuration(String(data?.duration || "").slice(0, 50));
+      setBodyLocation(String(data?.body_location || d.defaultLocation || "").slice(0, 50));
+      const filt = (arr: any, pool: string[]) =>
+        Array.isArray(arr) ? arr.map(String).filter((x) => pool.includes(x)) : [];
+      setTriggers(filt(data?.triggers, d.commonTriggers));
+      setAssociated(filt(data?.associated_symptoms, d.commonAssociated));
+      setMedsTaken(Array.isArray(data?.medications_taken) ? data.medications_taken.join(", ") : "");
+      setNotes(String(data?.notes || data?.transcript || "").slice(0, 500));
+      setTranscript(String(data?.transcript || ""));
+      setStep("details");
+      toast({ title: "Filled from your voice", description: "Review and edit before saving." });
+    } catch (e) {
+      toast({ title: "Couldn't parse voice", description: e instanceof Error ? e.message : "Try typing instead", variant: "destructive" });
+    } finally {
+      setParsing(false);
+    }
+  };
+
   const save = async () => {
     if (!patientId) return;
     if (symptomId === "other" && customName.trim().length < 2) {
