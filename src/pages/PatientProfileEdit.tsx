@@ -345,20 +345,37 @@ const PatientProfileEdit = () => {
       {/* Menu Items, Nykaa style */}
       <section className="px-5 pt-2">
         {menuItems.map((item, i) => (
-          <button
-            key={i}
-            onClick={() => item.path && navigate(item.path)}
-            className="w-full flex items-center justify-between py-3.5 border-b border-border"
-          >
-            <div className="flex items-center gap-3">
-              <item.icon className="h-5 w-5 text-muted-foreground" />
-              <div className="text-left">
-                <p className="text-[15px] font-medium text-foreground">{item.label}</p>
-                <p className="text-xs text-muted-foreground">{item.desc}</p>
+          <div key={i}>
+            <button
+              onClick={() => { if (item.onClick) item.onClick(); else if (item.path) navigate(item.path); }}
+              className="w-full flex items-center justify-between py-3.5 border-b border-border"
+            >
+              <div className="flex items-center gap-3">
+                <item.icon className="h-5 w-5 text-muted-foreground" />
+                <div className="text-left">
+                  <p className="text-[15px] font-medium text-foreground">{item.label}</p>
+                  <p className="text-xs text-muted-foreground">{item.desc}</p>
+                </div>
               </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          </button>
+              <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${item.label === "Account Settings" && accountMode ? "rotate-90" : ""}`} />
+            </button>
+            {item.label === "Account Settings" && accountMode && (
+              <form onSubmit={handlePasswordChange} className="py-4 space-y-3 border-b border-border animate-fade-in">
+                <div className="space-y-1.5">
+                  <Label htmlFor="new-password" className="text-xs text-muted-foreground">New password</Label>
+                  <Input id="new-password" type="password" value={passwordData.password} onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })} minLength={8} autoComplete="new-password" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">Confirm password</Label>
+                  <Input id="confirm-password" type="password" value={passwordData.confirmPassword} onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })} minLength={8} autoComplete="new-password" />
+                </div>
+                <Button type="submit" disabled={isPasswordSaving} className="w-full">
+                  {isPasswordSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
+                  Update password
+                </Button>
+              </form>
+            )}
+          </div>
         ))}
       </section>
 
