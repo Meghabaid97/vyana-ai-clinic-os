@@ -106,7 +106,6 @@ const SymptomJournal = () => {
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-xl font-bold text-foreground tracking-tight">Health Journal</h1>
-          <p className="text-[12.5px] text-muted-foreground">Memory and patterns — not diagnosis.</p>
         </div>
         <Button onClick={() => setOpenLog(true)} size="sm">
           <Plus className="h-4 w-4 mr-1" /> Log
