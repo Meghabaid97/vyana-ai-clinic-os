@@ -169,10 +169,12 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
               }
             },
             recommendations: { type: "array", items: { type: "string" } },
+            studyDate: { type: ["string", "null"] },
+            provider: { type: ["string", "null"] },
             notes: { type: "array", items: { type: "string" } },
             confidence: { type: "string", enum: ["high", "medium", "low"] }
           },
-          required: ["documentType", "findings", "radiologyImpression", "modality", "bodyPart", "diagnoses", "medications", "allergies", "vitals", "recommendations", "notes", "confidence"],
+          required: ["documentType", "findings", "radiologyImpression", "modality", "bodyPart", "diagnoses", "medications", "allergies", "vitals", "recommendations", "studyDate", "provider", "notes", "confidence"],
           additionalProperties: false
         }
       }
@@ -213,9 +215,12 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
     if (!toolArgs) throw new Error('No structured summary generated');
 
     const extracted = JSON.parse(toolArgs);
+    const normalizedStudyDate = typeof extracted.studyDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(extracted.studyDate) ? extracted.studyDate : null;
     const radiologyDetails = [
       extracted.modality ? `Modality: ${extracted.modality}` : null,
       extracted.bodyPart ? `Body Part: ${extracted.bodyPart}` : null,
+      normalizedStudyDate ? `Study Date: ${normalizedStudyDate}` : null,
+      extracted.provider ? `Doctor / Hospital: ${extracted.provider}` : null,
       extracted.radiologyImpression?.length ? `Radiologist Impression:
 ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` : null,
     ].filter(Boolean);
@@ -244,6 +249,14 @@ ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` 
       allergies: extracted.allergies || [],
       vitals: extracted.vitals || [],
       confidence: extracted.confidence || 'low',
+      radiology: {
+        modality: extracted.modality || radiologyModality || null,
+        bodyPart: extracted.bodyPart || null,
+        studyDate: normalizedStudyDate,
+        impression: extracted.radiologyImpression || [],
+        recommendations: extracted.recommendations || [],
+        provider: extracted.provider || null,
+      },
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
