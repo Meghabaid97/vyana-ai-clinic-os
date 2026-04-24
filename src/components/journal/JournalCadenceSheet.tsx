@@ -15,9 +15,9 @@ interface Props {
 
 const CADENCE_OPTIONS: { value: Cadence; hint: string }[] = [
   { value: "daily", hint: "Best if you have chronic conditions or daily meds" },
-  { value: "frequent", hint: "A gentle 2–3 nudges per week" },
+  { value: "frequent", hint: "A gentle 2 to 3 nudges per week" },
   { value: "weekly", hint: "A single weekly check-in" },
-  { value: "off", hint: "No reminders — log when you feel like it" },
+  { value: "off", hint: "No reminders. Log when you feel like it." },
 ];
 
 const JournalCadenceSheet = ({ open, onClose, patientId, onSaved }: Props) => {

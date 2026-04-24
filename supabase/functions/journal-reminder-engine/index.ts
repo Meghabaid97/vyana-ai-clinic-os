@@ -43,7 +43,7 @@ const NUDGE_TITLES = [
 ];
 
 const NUDGE_MESSAGES = [
-  "Log how you're feeling — Vyana spots patterns earlier when you check in.",
+  "Log how you're feeling. Vyana spots patterns earlier when you check in.",
   "Even a one-tap log builds your health timeline.",
   "Tap to share today's energy, sleep, or any symptom.",
 ];

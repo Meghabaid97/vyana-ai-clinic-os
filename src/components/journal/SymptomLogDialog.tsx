@@ -200,7 +200,7 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
           <DialogTitle>{step === "pick" ? "How are you feeling?" : `Log ${def?.label.toLowerCase()}`}</DialogTitle>
           <DialogDescription>
             {step === "pick"
-              ? "Pick a symptom to log. Vyana stores this safely — never a diagnosis."
+              ? "Pick a symptom to log. Vyana stores this safely. Never a diagnosis."
               : "Add as much or as little as you want."}
           </DialogDescription>
         </DialogHeader>

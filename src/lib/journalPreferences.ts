@@ -70,7 +70,7 @@ export async function recordLogForStreak(patientId: string): Promise<number> {
   return newStreak;
 }
 
-/** Whether the streak is "stale" — user hasn't logged within the cadence window. */
+/** Whether the streak is "stale": user hasn't logged within the cadence window. */
 export function isStreakStale(pref: JournalPreference | null): boolean {
   if (!pref || !pref.last_logged_date) return true;
   const last = new Date(pref.last_logged_date + "T00:00:00");
