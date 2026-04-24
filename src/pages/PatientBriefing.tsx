@@ -35,6 +35,7 @@ const PatientBriefing = () => {
   const [isDemo, setIsDemo] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [shareSheetOpen, setShareSheetOpen] = useState(false);
+  const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
   const { toast } = useToast();
 
   const createShareLink = async (recipientName: string): Promise<string | null> => {
