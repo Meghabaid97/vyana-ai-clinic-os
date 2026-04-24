@@ -24,13 +24,6 @@ const CHRONIC_KEYWORDS = [
 
 const DISCHARGE_HINTS = ["discharge", "post-op", "post operative", "post-operative"];
 
-const CADENCE_LABEL: Record<Cadence, string> = {
-  daily: "Daily check-ins",
-  frequent: "A few times a week",
-  weekly: "Weekly",
-  off: "Off",
-};
-
 type Cadence = "daily" | "frequent" | "weekly" | "off";
 
 interface Pref {
@@ -43,6 +36,13 @@ interface Pref {
   preferred_hour: number;
   current_streak: number;
 }
+
+const CADENCE_LABEL: Record<Cadence, string> = {
+  daily: "Daily check-ins",
+  frequent: "A few times a week",
+  weekly: "Weekly",
+  off: "Off",
+};
 
 const NUDGE_TITLES = [
   "How are you feeling today?",
