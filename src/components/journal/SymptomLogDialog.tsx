@@ -196,8 +196,46 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
         </DialogHeader>
 
         {step === "pick" && (
-          <div className="grid grid-cols-3 gap-2 py-2">
-            {SYMPTOM_CATALOG.map((s) => (
+          <>
+            {/* Voice quick-fill */}
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-3 mb-1">
+              <div className="flex items-start gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12.5px] font-semibold text-foreground flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" /> Just speak it
+                  </p>
+                  <p className="text-[11.5px] text-muted-foreground mt-0.5 leading-snug">
+                    e.g. "Bad headache since morning, took Crocin, feels worse after screen."
+                  </p>
+                </div>
+                {!recording && !parsing && (
+                  <Button size="sm" onClick={startRecording} className="shrink-0">
+                    <Mic className="h-4 w-4 mr-1" /> Record
+                  </Button>
+                )}
+                {recording && (
+                  <Button size="sm" variant="destructive" onClick={stopRecording} className="shrink-0">
+                    <Square className="h-3.5 w-3.5 mr-1 fill-current" /> Stop
+                  </Button>
+                )}
+                {parsing && (
+                  <Button size="sm" disabled className="shrink-0">
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" /> Reading
+                  </Button>
+                )}
+              </div>
+              {recording && (
+                <p className="text-[10.5px] text-primary mt-2 flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
+                  Listening… tap Stop when done (auto-stops at 30s)
+                </p>
+              )}
+            </div>
+
+            <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground text-center my-2">or pick one</p>
+
+            <div className="grid grid-cols-3 gap-2 py-1">
+              {SYMPTOM_CATALOG.map((s) => (
               <button
                 key={s.id}
                 onClick={() => pickSymptom(s.id)}
