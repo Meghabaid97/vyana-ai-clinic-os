@@ -71,6 +71,11 @@ export const SAMPLE_BRIEFING = {
       supporting_data: "LDL fell from 142 to 98 mg/dL within 8 weeks of dose increase to 40mg",
     },
   ],
+  recent_symptoms: [
+    { symptom: "Headache", frequency: "9× in 30 days", avg_severity: "7/10", pattern: "Often after meals or low sleep; nausea sometimes" },
+    { symptom: "Fatigue", frequency: "6× in 30 days", avg_severity: "6/10", pattern: "Worse on days after poor sleep" },
+    { symptom: "Stomach pain", frequency: "3× in 30 days", avg_severity: "5/10", pattern: "After dairy meals" },
+  ],
   disclaimer:
     "This is a demo briefing using sample patient data. AI-generated content for illustration only, not real clinical data.",
 } as const;
