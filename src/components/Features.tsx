@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { tLanding } from "@/lib/i18n-landing";
+import { useLandingT } from "@/lib/i18n-landing";
 import { useReveal } from "@/hooks/use-reveal";
 
 const featureKeys = [
@@ -12,15 +11,9 @@ const featureKeys = [
 ];
 
 const Features = () => {
-  const [, setLangTick] = useState(0);
+  const t = useLandingT();
   const header = useReveal<HTMLDivElement>();
   const grid = useReveal<HTMLDivElement>();
-
-  useEffect(() => {
-    const handler = () => setLangTick((t) => t + 1);
-    window.addEventListener("vyana-lang-change", handler);
-    return () => window.removeEventListener("vyana-lang-change", handler);
-  }, []);
 
   return (
     <section id="features" className="py-16 bg-muted/40">
@@ -30,11 +23,11 @@ const Features = () => {
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[540px] mb-10`}
         >
           <h2 className="text-2xl font-bold text-foreground mb-2">
-            {tLanding("landing.featuresTitle")}{" "}
-            <span className="text-primary">{tLanding("landing.featuresHighlight")}</span>
+            {t("landing.featuresTitle")}{" "}
+            <span className="text-primary">{t("landing.featuresHighlight")}</span>
           </h2>
           <p className="text-muted-foreground text-[15px]">
-            {tLanding("landing.featuresSub")}
+            {t("landing.featuresSub")}
           </p>
         </div>
 
@@ -46,10 +39,10 @@ const Features = () => {
             >
               <span className="text-lg mb-2.5 block">{f.emoji}</span>
               <h3 className="text-sm font-semibold text-foreground mb-1">
-                {tLanding(f.titleKey)}
+                {t(f.titleKey)}
               </h3>
               <p className="text-muted-foreground text-[13px] leading-relaxed">
-                {tLanding(f.descKey)}
+                {t(f.descKey)}
               </p>
             </div>
           ))}

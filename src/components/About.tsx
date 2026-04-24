@@ -1,18 +1,11 @@
-import { useState, useEffect } from "react";
-import { tLanding } from "@/lib/i18n-landing";
+import { useLandingT } from "@/lib/i18n-landing";
 import { useReveal } from "@/hooks/use-reveal";
 
 const About = () => {
-  const [, setLangTick] = useState(0);
+  const t = useLandingT();
   const header = useReveal<HTMLDivElement>();
   const grid = useReveal<HTMLDivElement>();
   const footer = useReveal<HTMLDivElement>();
-
-  useEffect(() => {
-    const handler = () => setLangTick((t) => t + 1);
-    window.addEventListener("vyana-lang-change", handler);
-    return () => window.removeEventListener("vyana-lang-change", handler);
-  }, []);
 
   return (
     <section id="about" className="py-16">
@@ -22,11 +15,11 @@ const About = () => {
           className={`reveal ${header.visible ? "is-visible" : ""} max-w-[540px] mb-10`}
         >
           <h2 className="text-2xl font-bold text-foreground mb-2">
-            {tLanding("landing.problemTitle")}{" "}
-            <span className="text-primary">{tLanding("landing.problemHighlight")}</span>
+            {t("landing.problemTitle")}{" "}
+            <span className="text-primary">{t("landing.problemHighlight")}</span>
           </h2>
           <p className="text-muted-foreground text-[15px] leading-relaxed">
-            {tLanding("landing.problemSub")}
+            {t("landing.problemSub")}
           </p>
         </div>
 
@@ -42,10 +35,10 @@ const About = () => {
             >
               <span className="text-xl mb-3 block">{beat.emoji}</span>
               <h3 className="text-sm font-semibold text-foreground mb-1.5">
-                {tLanding(beat.titleKey)}
+                {t(beat.titleKey)}
               </h3>
               <p className="text-muted-foreground text-[13px] leading-relaxed">
-                {tLanding(beat.textKey)}
+                {t(beat.textKey)}
               </p>
             </div>
           ))}
@@ -56,8 +49,8 @@ const About = () => {
           className={`reveal ${footer.visible ? "is-visible" : ""} mt-8 max-w-[540px] bg-muted/60 rounded-lg p-5 border border-border`}
         >
           <p className="text-[15px] text-foreground leading-relaxed">
-            {tLanding("landing.vyanaHolds")}{" "}
-            <span className="text-primary font-medium">{tLanding("landing.itsThere")}</span>.
+            {t("landing.vyanaHolds")}{" "}
+            <span className="text-primary font-medium">{t("landing.itsThere")}</span>.
           </p>
         </div>
       </div>
