@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import SymptomLogDialog from "@/components/journal/SymptomLogDialog";
 import { symptomById } from "@/lib/symptomCatalog";
+import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS } from "@/lib/symptomFreshness";
 
 interface Log {
   id: string;
