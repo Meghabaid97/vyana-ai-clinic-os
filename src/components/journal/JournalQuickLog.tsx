@@ -4,6 +4,7 @@ import { Heart, Plus, ArrowRight, Flame, Settings2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import SymptomLogDialog from "./SymptomLogDialog";
 import JournalCadenceSheet from "./JournalCadenceSheet";
+import JournalStreakChart from "./JournalStreakChart";
 import { symptomById } from "@/lib/symptomCatalog";
 import {
   CADENCE_LABEL,
@@ -32,6 +33,7 @@ const JournalQuickLog = ({ patientId }: Props) => {
   const [recent, setRecent] = useState<RecentLog[]>([]);
   const [todayCount, setTodayCount] = useState(0);
   const [pref, setPref] = useState<JournalPreference | null>(null);
+  const [chartKey, setChartKey] = useState(0);
 
   const load = useCallback(async () => {
     if (!patientId) return;
@@ -62,6 +64,7 @@ const JournalQuickLog = ({ patientId }: Props) => {
 
   const handleLogged = async () => {
     if (patientId) await recordLogForStreak(patientId);
+    setChartKey((k) => k + 1);
     await load();
   };
 
@@ -119,6 +122,11 @@ const JournalQuickLog = ({ patientId }: Props) => {
               Start a streak. Even one log builds your story.
             </p>
           )}
+
+          {/* 4-week streak history */}
+          <div className="mt-3.5">
+            <JournalStreakChart patientId={patientId} refreshKey={chartKey} />
+          </div>
 
           <div className="mt-3.5 flex items-center gap-2">
             <button
