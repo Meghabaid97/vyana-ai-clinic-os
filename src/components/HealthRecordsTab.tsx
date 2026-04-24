@@ -261,7 +261,16 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
       const { error: updateError } = await supabase
         .from("health_records")
-        .update({ ai_summary: data.summary })
+        .update({
+          ai_summary: data.summary,
+          document_type: data.documentType,
+          important_findings: data.importantFindings || [],
+          medications: data.medications || [],
+          allergies: data.allergies || [],
+          diagnoses: data.diagnoses || [],
+          extracted_vitals: data.vitals || [],
+          ai_confidence: data.confidence,
+        })
         .eq("id", record.id);
 
       if (updateError) throw updateError;
