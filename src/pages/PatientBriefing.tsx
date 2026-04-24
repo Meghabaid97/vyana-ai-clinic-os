@@ -97,7 +97,7 @@ const PatientBriefing = () => {
         .maybeSingle();
 
       if (!patient) {
-        toast({ title: "Complete your profile first", variant: "destructive" });
+        toast({ title: t("briefing.toast.profileFirst"), variant: "destructive" });
         return;
       }
 
@@ -130,7 +130,7 @@ const PatientBriefing = () => {
       setBriefing(data);
     } catch (err: any) {
       console.error("Briefing error:", err);
-      toast({ title: "Error", description: "Failed to generate briefing", variant: "destructive" });
+      toast({ title: t("briefing.toast.errTitle"), description: t("briefing.toast.errDesc"), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -186,7 +186,7 @@ const PatientBriefing = () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast({ title: "Copied to clipboard" });
+    toast({ title: t("briefing.copied") });
   };
 
   const dirIcon = (d: string) => {
