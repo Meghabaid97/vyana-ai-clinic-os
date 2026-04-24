@@ -68,12 +68,20 @@ interface HealthRecordsTabProps {
   doctors: DoctorForConsent[];
 }
 
+interface BatchScanItem {
+  name: string;
+  size: number;
+  type: string;
+  status: "queued" | "uploading" | "analyzing" | "done" | "error";
+}
+
 const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps) => {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadState, setUploadState] = useState<ButtonState>("idle");
   const [isSummarizing, setIsSummarizing] = useState<string | null>(null);
+  const [batchScanItems, setBatchScanItems] = useState<BatchScanItem[]>([]);
   const [showConsentDialog, setShowConsentDialog] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<HealthRecord | null>(null);
   const [selectedDoctors, setSelectedDoctors] = useState<Set<string>>(new Set());
