@@ -635,6 +635,20 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {formatFileSize(record.file_size)} • {formatDate(record.uploaded_at)}
                           </p>
+                          {record.category === "radiology_imaging" && (
+                            <div className="mt-2 rounded-lg border border-border bg-muted/30 p-2 space-y-1">
+                              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground">
+                                <Camera className="h-3.5 w-3.5 text-primary" /> Radiology Details
+                              </div>
+                              <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                                <span>Type: {[record.radiology_modality, record.radiology_body_part].filter(Boolean).join(" ") || record.document_type || "Pending"}</span>
+                                <span>Date: {record.radiology_study_date ? formatDate(record.radiology_study_date) : formatDate(record.uploaded_at)}</span>
+                                {record.radiology_provider && <span className="col-span-2 truncate">Provider: {record.radiology_provider}</span>}
+                                {record.radiology_impression?.[0] && <span className="col-span-2 line-clamp-2">Impression: {record.radiology_impression[0]}</span>}
+                                {record.radiology_recommendations?.[0] && <span className="col-span-2 line-clamp-2">Follow-up: {record.radiology_recommendations[0]}</span>}
+                              </div>
+                            </div>
+                          )}
                           <div className="flex flex-wrap gap-1.5 mt-2">
                             {record.ai_summary && (
                               <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0 h-5">
@@ -815,6 +829,18 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
               <div className="p-4 rounded-lg bg-muted/40 border border-border whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                 {viewingSummary.ai_summary}
               </div>
+              {viewingSummary.category === "radiology_imaging" && (
+                <div className="p-4 rounded-lg border border-border bg-card space-y-2">
+                  <h4 className="text-sm font-semibold text-foreground">Radiology Details</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                    <p>Type: {[viewingSummary.radiology_modality, viewingSummary.radiology_body_part].filter(Boolean).join(" ") || "Not extracted"}</p>
+                    <p>Date: {viewingSummary.radiology_study_date ? formatDate(viewingSummary.radiology_study_date) : "Not extracted"}</p>
+                    <p className="sm:col-span-2">Provider: {viewingSummary.radiology_provider || "Not extracted"}</p>
+                    <p className="sm:col-span-2">Impression: {viewingSummary.radiology_impression?.join(" • ") || "Not extracted"}</p>
+                    <p className="sm:col-span-2">Follow-up advice: {viewingSummary.radiology_recommendations?.join(" • ") || "Not extracted"}</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
