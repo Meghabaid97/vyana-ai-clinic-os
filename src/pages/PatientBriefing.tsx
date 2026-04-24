@@ -13,6 +13,7 @@ import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { BriefingResultSkeleton } from "@/components/ui/page-skeletons";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
+import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
