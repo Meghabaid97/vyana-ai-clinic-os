@@ -116,7 +116,7 @@ const JournalQuickLog = ({ patientId }: Props) => {
           )}
           {streak === 0 && stale && (
             <p className="mt-3 text-[11.5px] text-muted-foreground">
-              Start a streak — even one log builds your story.
+              Start a streak. Even one log builds your story.
             </p>
           )}
 
