@@ -484,8 +484,8 @@ const HealthTrends = () => {
     <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
       <PageHero
         icon={TrendingUp}
-        title="Health Trends"
-        subtitle="Vitals, labs, and what shifted since your last visit."
+        title={t("trends.title")}
+        subtitle={t("trends.subtitle")}
       />
 
       {/* Lead: What changed since last visit (the killer feature) */}
@@ -498,24 +498,24 @@ const HealthTrends = () => {
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="h-4 w-4 text-primary" />
-              <h2 className="text-[14px] font-semibold text-foreground">What you'll see here</h2>
+              <h2 className="text-[14px] font-semibold text-foreground">{t("trends.preview.title")}</h2>
             </div>
             <div className="space-y-2 mb-4">
               <div className="flex items-start gap-2 rounded-lg bg-background/60 p-2.5">
                 <ArrowUp className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
                 <p className="text-[12px] text-foreground leading-snug">
-                  Your HbA1c increased from <span className="font-semibold">5.4 → 5.8</span> over 3 months
+                  {t("trends.preview.example1", { from: "5.4", to: "5.8" })}
                 </p>
               </div>
               <div className="flex items-start gap-2 rounded-lg bg-background/60 p-2.5">
                 <ArrowDown className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
                 <p className="text-[12px] text-foreground leading-snug">
-                  Cholesterol improved after medication change
+                  {t("trends.preview.example2")}
                 </p>
               </div>
             </div>
             <p className="text-[12px] font-medium text-primary">
-              Upload {records.length === 0 ? "2 reports" : "1 more report"} to unlock your trends
+              {t("trends.preview.uploadCta", { what: records.length === 0 ? t("trends.preview.twoReports") : t("trends.preview.oneMore") })}
             </p>
           </div>
         </section>
@@ -525,19 +525,19 @@ const HealthTrends = () => {
         <div className="flex gap-2">
           <div className="flex-1 rounded-xl border border-border bg-card p-3 text-center">
             <p className="text-xl font-bold text-foreground">{records.length}</p>
-            <p className="text-[10px] text-muted-foreground">Records</p>
+            <p className="text-[10px] text-muted-foreground">{t("trends.stats.records")}</p>
           </div>
           <div className="flex-1 rounded-xl border border-border bg-card p-3 text-center">
             <p className="text-xl font-bold text-foreground">{consultationCount}</p>
-            <p className="text-[10px] text-muted-foreground">Visits</p>
+            <p className="text-[10px] text-muted-foreground">{t("trends.stats.visits")}</p>
           </div>
           <div className="flex-1 rounded-xl border border-border bg-card p-3 text-center">
             <p className="text-xl font-bold text-foreground">{vitalHistory.length}</p>
-            <p className="text-[10px] text-muted-foreground">Snapshots</p>
+            <p className="text-[10px] text-muted-foreground">{t("trends.stats.snapshots")}</p>
           </div>
           <div className="flex-1 rounded-xl border border-border bg-card p-3 text-center">
-            <p className="text-xl font-bold text-primary">{isAnalyzing ? "Syncing" : "Ready"}</p>
-            <p className="text-[10px] text-muted-foreground">Analyzer</p>
+            <p className="text-xl font-bold text-primary">{isAnalyzing ? t("trends.stats.syncing") : t("trends.stats.ready")}</p>
+            <p className="text-[10px] text-muted-foreground">{t("trends.stats.analyzer")}</p>
           </div>
         </div>
       </section>
@@ -549,10 +549,10 @@ const HealthTrends = () => {
             <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[13px] font-medium text-foreground">Source:</span>
+                <span className="text-[13px] font-medium text-foreground">{t("trends.source")}</span>
                 <span className="text-[12px] text-muted-foreground truncate">{sourceFileName}</span>
                 <Badge variant="outline" className={`text-[10px] ${confidenceConfig[confidence as keyof typeof confidenceConfig]?.color || ""}`}>
-                  {confidenceConfig[confidence as keyof typeof confidenceConfig]?.label || confidence} confidence
+                  {confidenceConfig[confidence as keyof typeof confidenceConfig]?.label || confidence} {t("trends.confidenceSuffix")}
                 </Badge>
               </div>
             </div>
@@ -567,16 +567,16 @@ const HealthTrends = () => {
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-[15px] font-bold text-foreground">AI Health Analyzer</h2>
+              <h2 className="text-[15px] font-bold text-foreground">{t("trends.analyzer.title")}</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Automatically refreshes the latest report, then extracts structured values safely.
+                {t("trends.analyzer.desc")}
               </p>
             </div>
           </div>
 
           {isAnalyzing && (
             <div className="rounded-lg bg-card border border-border p-4 mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> Refreshing latest report and filling Trends...
+              <Loader2 className="h-4 w-4 animate-spin" /> {t("trends.analyzer.refreshing")}
             </div>
           )}
 
@@ -587,7 +587,7 @@ const HealthTrends = () => {
               )}
               {analysisResult.risks && analysisResult.risks.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Risk Indicators</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("trends.analyzer.risksTitle")}</p>
                   {analysisResult.risks.map((risk, i) => (
                     <div key={i} className="rounded-lg bg-muted/50 p-3">
                       <div className="flex items-center gap-2 mb-1">
@@ -602,7 +602,7 @@ const HealthTrends = () => {
               )}
               {analysisResult.recommendations && analysisResult.recommendations.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Recommendations</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("trends.analyzer.recsTitle")}</p>
                   <ul className="space-y-1">
                     {analysisResult.recommendations.map((rec, i) => (
                       <li key={i} className="text-[12px] text-foreground flex gap-2"><ArrowRight className="h-3 w-3 text-primary mt-0.5 shrink-0" />{rec}</li>
@@ -622,15 +622,15 @@ const HealthTrends = () => {
             className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50"
           >
             {isAnalyzing ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> Syncing latest report...</>
+              <><Loader2 className="h-4 w-4 animate-spin" /> {t("trends.analyzer.syncing")}</>
             ) : (
-              <><Sparkles className="h-4 w-4" /> Refresh latest report</>
+              <><Sparkles className="h-4 w-4" /> {t("trends.analyzer.refresh")}</>
             )}
           </button>
 
           {records.length === 0 && (
             <p className="text-[11px] text-muted-foreground mt-2 text-center">
-              Upload a health record and Trends will populate automatically.
+              {t("trends.analyzer.uploadHint")}
             </p>
           )}
         </div>
@@ -642,10 +642,10 @@ const HealthTrends = () => {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
-              <h2 className="text-[15px] font-bold text-foreground">Longitudinal Insights</h2>
+              <h2 className="text-[15px] font-bold text-foreground">{t("trends.long.title")}</h2>
             </div>
             <Badge variant="outline" className="text-[10px]">
-              {vitalHistory.length} snapshots
+              {vitalHistory.length} {t("trends.long.snapshots")}
             </Badge>
           </div>
 
@@ -658,7 +658,7 @@ const HealthTrends = () => {
               {trendAnalysis.risk_flags.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-destructive uppercase tracking-wider flex items-center gap-1">
-                    <AlertTriangle className="h-3 w-3" /> Risk Flags
+                    <AlertTriangle className="h-3 w-3" /> {t("trends.long.riskFlags")}
                   </p>
                   {trendAnalysis.risk_flags.map((rf, i) => (
                     <div key={i} className={`rounded-lg p-3 border ${rf.severity === "high" ? "bg-destructive/10 border-destructive/30" : rf.severity === "medium" ? "bg-yellow-500/10 border-yellow-500/30" : "bg-muted/50 border-border"}`}>
@@ -672,7 +672,7 @@ const HealthTrends = () => {
               {trendAnalysis.correlations.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                    <Pill className="h-3 w-3" /> Medication-Lab Correlations
+                    <Pill className="h-3 w-3" /> {t("trends.long.correlations")}
                   </p>
                   {trendAnalysis.correlations.map((c, i) => (
                     <div key={i} className="rounded-lg border border-border p-3">
@@ -695,8 +695,8 @@ const HealthTrends = () => {
           ) : (
             <p className="text-xs text-muted-foreground">
               {vitalHistory.length < 2
-                ? "Upload at least 2 health reports to unlock longitudinal trend analysis."
-                : "Click below to analyze trends across your health snapshots."}
+                ? t("trends.long.empty.few")
+                : t("trends.long.empty.ready")}
             </p>
           )}
 
@@ -706,9 +706,9 @@ const HealthTrends = () => {
             className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50"
           >
             {isAnalyzingTrends ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing trends...</>
+              <><Loader2 className="h-4 w-4 animate-spin" /> {t("trends.long.analyzing")}</>
             ) : (
-              <><TrendingUp className="h-4 w-4" /> Analyze Trends & Correlations</>
+              <><TrendingUp className="h-4 w-4" /> {t("trends.long.cta")}</>
             )}
           </button>
         </div>
@@ -755,10 +755,10 @@ const HealthTrends = () => {
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <p className="text-[11px] text-muted-foreground">Normal: {vital.range} {vital.unit}</p>
+                          <p className="text-[11px] text-muted-foreground">{t("trends.vital.normal")} {vital.range} {vital.unit}</p>
                           {timeline.length > 1 && (
                             <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-primary/20 text-primary">
-                              {timeline.length} readings
+                              {timeline.length} {t("trends.vital.readings")}
                             </Badge>
                           )}
                           {trend && (
@@ -785,16 +785,16 @@ const HealthTrends = () => {
                         </div>
                         {source && (
                           <div className="rounded-lg bg-muted/50 p-2">
-                            <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Source citation</p>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">{t("trends.hover.source")}</p>
                             <p className="text-[11px] text-foreground italic">"{source}"</p>
                           </div>
                         )}
                         <div className="text-[11px] text-muted-foreground">
-                          <span className="font-medium">From:</span> {sourceFileName}
+                          <span className="font-medium">{t("trends.hover.from")}</span> {sourceFileName}
                         </div>
                         {timeline.length > 1 && (
                           <div>
-                            <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">History</p>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">{t("trends.hover.history")}</p>
                             <div className="space-y-1">
                               {timeline.map((t, ti) => (
                                 <div key={ti} className="flex items-center justify-between text-[11px]">
