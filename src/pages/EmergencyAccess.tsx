@@ -5,12 +5,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   AlertTriangle, FileText, Heart, Loader2, Shield, Stethoscope,
-  Pill, Activity, Calendar, ArrowLeft, Home,
+  Pill, Activity, Calendar, ArrowLeft, Home, ClipboardList, Siren,
 } from "lucide-react";
 
 interface PatientSummary {
   name: string;
   age: number | null;
+  phone: string | null;
+  weight: number | null;
+  city: string | null;
+  emergencyContactName: string;
+  emergencyContactRelationship: string;
+  generatedAt: string;
   consultationCount: number;
   recordCount: number;
   consultations: {
@@ -25,8 +31,34 @@ interface PatientSummary {
     file_type: string;
     uploaded_at: string;
     ai_summary: string | null;
+    document_type: string | null;
+    important_findings: unknown;
+    medications: unknown;
+    allergies: unknown;
+    diagnoses: unknown;
+    extracted_vitals: unknown;
+    ai_confidence: string | null;
+  }[];
+  activeMedications: {
+    medication_name: string;
+    dosage: string | null;
+    frequency: string;
+    time_slots: string[];
+    notes: string | null;
   }[];
 }
+
+const toTextList = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => {
+    if (typeof item === "string") return item;
+    if (item && typeof item === "object") {
+      const record = item as Record<string, unknown>;
+      return String(record.name || record.finding || record.diagnosis || record.medication || record.value || record.text || "").trim();
+    }
+    return "";
+  }).filter(Boolean);
+};
 
 const parseFhirDiagnoses = (fhirData: string): string[] => {
   try {
@@ -123,6 +155,20 @@ const EmergencyAccess = () => {
     );
   }
 
+  const recordDiagnoses = Array.from(new Set(summary.healthRecords.flatMap(r => toTextList(r.diagnoses))));
+  const recordMedications = Array.from(new Set(summary.healthRecords.flatMap(r => toTextList(r.medications))));
+  const recordAllergies = Array.from(new Set(summary.healthRecords.flatMap(r => toTextList(r.allergies))));
+  const recordFindings = Array.from(new Set(summary.healthRecords.flatMap(r => toTextList(r.important_findings)))).slice(0, 8);
+  const recordVitals = summary.healthRecords.flatMap(r => toTextList(r.extracted_vitals)).slice(0, 8);
+  const fhirDiagnoses = Array.from(new Set(summary.consultations.flatMap(c => parseFhirDiagnoses(c.fhir_data))));
+  const fhirMedications = Array.from(new Set(summary.consultations.flatMap(c => parseFhirMedications(c.fhir_data))));
+  const diagnoses = Array.from(new Set([...recordDiagnoses, ...fhirDiagnoses]));
+  const medications = Array.from(new Set([
+    ...summary.activeMedications.map(m => [m.medication_name, m.dosage].filter(Boolean).join(" • ")),
+    ...recordMedications,
+    ...fhirMedications,
+  ]));
+
   return (
     <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
       {/* Top bar */}
@@ -148,26 +194,41 @@ const EmergencyAccess = () => {
             <h1 className="text-xl font-bold text-foreground">{summary.name}'s Records</h1>
             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
               {summary.age && <span>Age: {summary.age}y</span>}
+              {summary.phone && <span>{summary.phone}</span>}
+              {summary.city && <span>{summary.city}</span>}
               <span>{summary.consultationCount} consultation{summary.consultationCount !== 1 ? "s" : ""}</span>
               <span>{summary.recordCount} record{summary.recordCount !== 1 ? "s" : ""}</span>
             </div>
+            <p className="text-[11px] text-muted-foreground mt-2">
+              Opened by {summary.emergencyContactName} ({summary.emergencyContactRelationship}) • Updated {new Date(summary.generatedAt).toLocaleString("en-IN")}
+            </p>
           </div>
 
-          {/* Diagnoses & Medications */}
-          {summary.consultations.length > 0 && (
-            <div className="grid grid-cols-1 gap-3 mb-5">
+          {/* Critical summary */}
+          <div className="grid grid-cols-1 gap-3 mb-5">
+              <Card className="border-destructive/30">
+                <CardContent className="p-4">
+                  <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
+                    <Siren className="h-4 w-4 text-destructive" /> Allergies
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {recordAllergies.map((a, i) => (
+                      <span key={i} className="text-[11px] bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">{a}</span>
+                    ))}
+                    {recordAllergies.length === 0 && <p className="text-xs text-muted-foreground">No allergies extracted from records</p>}
+                  </div>
+                </CardContent>
+              </Card>
               <Card>
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
                     <Stethoscope className="h-4 w-4 text-primary" /> Diagnoses
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
-                    {Array.from(new Set(
-                      summary.consultations.flatMap(c => parseFhirDiagnoses(c.fhir_data))
-                    )).map((d, i) => (
+                    {diagnoses.map((d, i) => (
                       <span key={i} className="text-[11px] bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">{d}</span>
                     ))}
-                    {summary.consultations.flatMap(c => parseFhirDiagnoses(c.fhir_data)).length === 0 && (
+                    {diagnoses.length === 0 && (
                       <p className="text-xs text-muted-foreground">No diagnoses on record</p>
                     )}
                   </div>
@@ -179,19 +240,31 @@ const EmergencyAccess = () => {
                     <Pill className="h-4 w-4 text-primary" /> Medications
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
-                    {Array.from(new Set(
-                      summary.consultations.flatMap(c => parseFhirMedications(c.fhir_data))
-                    )).map((m, i) => (
+                    {medications.map((m, i) => (
                       <span key={i} className="text-[11px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">{m}</span>
                     ))}
-                    {summary.consultations.flatMap(c => parseFhirMedications(c.fhir_data)).length === 0 && (
+                    {medications.length === 0 && (
                       <p className="text-xs text-muted-foreground">No medications on record</p>
                     )}
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          )}
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
+                    <ClipboardList className="h-4 w-4 text-primary" /> Important Findings & Vitals
+                  </h3>
+                  <div className="space-y-1.5">
+                    {[...recordFindings, ...recordVitals].map((finding, i) => (
+                      <p key={i} className="text-xs text-muted-foreground">• {finding}</p>
+                    ))}
+                    {recordFindings.length === 0 && recordVitals.length === 0 && (
+                      <p className="text-xs text-muted-foreground">No critical findings extracted yet</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+          </div>
 
           {/* Consultations */}
           <h2 className="text-base font-semibold mb-3 flex items-center gap-2">

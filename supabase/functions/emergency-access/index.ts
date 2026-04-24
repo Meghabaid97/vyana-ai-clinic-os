@@ -13,7 +13,8 @@ serve(async (req) => {
 
   try {
     const { access_token } = await req.json();
-    if (!access_token || typeof access_token !== "string") {
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!access_token || typeof access_token !== "string" || !uuidPattern.test(access_token)) {
       return new Response(JSON.stringify({ error: "Invalid access token" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -28,7 +29,7 @@ serve(async (req) => {
     // Find the emergency contact by token
     const { data: contact, error: contactError } = await adminClient
       .from("emergency_contacts")
-      .select("id, patient_id, is_active, contact_name")
+      .select("id, patient_id, is_active, contact_name, relationship")
       .eq("access_token", access_token)
       .single();
 
@@ -57,7 +58,7 @@ serve(async (req) => {
     // Fetch patient info
     const { data: patient } = await adminClient
       .from("patients")
-      .select("name, age, national_health_id")
+      .select("name, age, phone, national_health_id, weight, city")
       .eq("id", contact.patient_id)
       .single();
 
@@ -83,17 +84,33 @@ serve(async (req) => {
     // Fetch health records
     const { data: healthRecords } = await adminClient
       .from("health_records")
-      .select("id, file_name, file_type, uploaded_at, ai_summary")
+      .select("id, file_name, file_type, uploaded_at, ai_summary, document_type, important_findings, medications, allergies, diagnoses, extracted_vitals, ai_confidence")
       .eq("patient_id", contact.patient_id)
-      .order("uploaded_at", { ascending: false });
+      .order("uploaded_at", { ascending: false })
+      .limit(50);
+
+    const { data: activeMedicationReminders } = await adminClient
+      .from("medication_reminders")
+      .select("medication_name, dosage, frequency, time_slots, notes")
+      .eq("patient_id", contact.patient_id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(30);
 
     const summary = {
       name: patient.name,
       age: patient.age,
+      phone: patient.phone,
+      weight: patient.weight,
+      city: patient.city,
+      emergencyContactName: contact.contact_name,
+      emergencyContactRelationship: contact.relationship,
       consultationCount: consultations.length,
       recordCount: healthRecords?.length || 0,
       consultations,
       healthRecords: healthRecords || [],
+      activeMedications: activeMedicationReminders || [],
+      generatedAt: new Date().toISOString(),
     };
 
     return new Response(JSON.stringify(summary), {

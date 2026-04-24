@@ -142,6 +142,22 @@ const EmergencyContacts = () => {
     }
   };
 
+  const regenerateAccessLink = async (contact: EmergencyContact) => {
+    try {
+      const nextToken = crypto.randomUUID();
+      const { error } = await supabase
+        .from("emergency_contacts")
+        .update({ access_token: nextToken })
+        .eq("id", contact.id);
+      if (error) throw error;
+      setContacts(prev => prev.map(c => c.id === contact.id ? { ...c, access_token: nextToken } : c));
+      await navigator.clipboard.writeText(buildAccessLink(nextToken));
+      toast({ title: "New link copied", description: "The old emergency link no longer works." });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
   const deleteContact = async (id: string) => {
     try {
       const { error } = await supabase.from("emergency_contacts").delete().eq("id", id);
@@ -376,11 +392,7 @@ const EmergencyContacts = () => {
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                      <Button
-                        size="sm"
-                        onClick={() => shareViaWhatsApp(contact)}
-                        className="gap-1.5 bg-[#25D366] hover:bg-[#1DA851] text-white"
-                      >
+                      <Button size="sm" onClick={() => shareViaWhatsApp(contact)} className="gap-1.5">
                         <Share2 className="h-3.5 w-3.5" />
                         WhatsApp
                       </Button>
@@ -392,6 +404,15 @@ const EmergencyContacts = () => {
                       >
                         <Copy className="h-3.5 w-3.5" />
                         Copy Link
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => regenerateAccessLink(contact)}
+                        className="gap-1.5"
+                      >
+                        <Shield className="h-3.5 w-3.5" />
+                        Regenerate
                       </Button>
                       <Switch
                         checked={contact.is_active}
