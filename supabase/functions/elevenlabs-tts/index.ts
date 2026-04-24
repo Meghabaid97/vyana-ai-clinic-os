@@ -22,7 +22,7 @@ const ALLOWED_VOICES = new Set<string>([
 
 const MAX_TEXT_LENGTH = 2000;
 
-async function checkRateLimit(adminClient: ReturnType<typeof createClient>, userId: string, maxPerHour = 20) {
+async function checkRateLimit(adminClient: any, userId: string, maxPerHour = 20) {
   const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
   const { data } = await adminClient
     .from("api_usage")
@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: t }), { status: resp.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const buf = await resp.arrayBuffer();
-    const audioContent = base64Encode(new Uint8Array(buf));
+    const audioContent = base64Encode(buf);
     return new Response(JSON.stringify({ audioContent }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
