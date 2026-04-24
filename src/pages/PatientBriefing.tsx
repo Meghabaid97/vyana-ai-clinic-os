@@ -397,20 +397,20 @@ const PatientBriefing = () => {
                   <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.trends")}</h3>
                 </div>
                 <div className="space-y-2">
-                  {briefing.key_trends.map((t, i) => (
+                  {briefing.key_trends.map((kt, i) => (
                     <div key={i} className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2">
-                      {dirIcon(t.direction)}
+                      {dirIcon(kt.direction)}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[13px] font-medium text-foreground">{t.vital}</span>
-                          {t.concern_level === "action_needed" && (
+                          <span className="text-[13px] font-medium text-foreground">{kt.vital}</span>
+                          {kt.concern_level === "action_needed" && (
                             <Badge variant="destructive" className="text-[9px]">{t("briefing.badge.actionNeeded")}</Badge>
                           )}
-                          {t.concern_level === "monitor" && (
+                          {kt.concern_level === "monitor" && (
                             <Badge variant="outline" className="text-[9px] border-yellow-500/30 text-yellow-600">{t("briefing.badge.monitor")}</Badge>
                           )}
                         </div>
-                        <p className="text-[11px] text-muted-foreground">{t.detail}</p>
+                        <p className="text-[11px] text-muted-foreground">{kt.detail}</p>
                       </div>
                     </div>
                   ))}
