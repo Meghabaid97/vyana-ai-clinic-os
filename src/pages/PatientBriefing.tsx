@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, Pill, FileText,
   Share2, Copy, CheckCircle2, Heart, Brain, Stethoscope,
-  ArrowUp, ArrowDown, Minus, Activity, Play, QrCode,
+  ArrowUp, ArrowDown, Minus, Activity, Play, QrCode, NotebookPen,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ interface Briefing {
   recent_changes: string[];
   soap_note: { subjective: string; objective: string; assessment: string; plan: string };
   medication_correlations: Array<{ observation: string; confidence: string; supporting_data: string }>;
+  recent_symptoms?: Array<{ symptom: string; frequency: string; avg_severity: string; pattern?: string }>;
   disclaimer?: string;
 }
 
