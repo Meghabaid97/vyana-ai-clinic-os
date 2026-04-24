@@ -10,21 +10,32 @@ const corsHeaders = {
 const SYSTEM = `You convert a patient's spoken symptom note into structured JSON for a health journal.
 You are NOT a doctor. Do NOT diagnose. Only extract what the user said.
 
+LANGUAGE HANDLING (critical):
+- The patient may speak in English, Hindi, Hinglish, Tamil, Telugu, Kannada, Malayalam, Marathi, Bengali, Gujarati, Punjabi, Urdu, or any mix.
+- First, auto-detect the spoken language. Do NOT assume English.
+- Transcribe faithfully in the ORIGINAL language and script in "transcript".
+- Always also produce an English version in "transcript_en" so downstream analytics work.
+- All structured fields (triggers, body_location, associated_symptoms, medications_taken, notes, custom_symptom_name) MUST be in English. Translate native terms (e.g. "सिरदर्द" → "headache", "बुखार" → "fever", "पेट दर्द" → "stomach pain", "जी मिचलाना" → "nausea", "चक्कर" → "dizziness", "थकान" → "fatigue", "खांसी" → "cough", "क्रोसिन" → "Crocin", "पैरासिटामोल" → "Paracetamol").
+- Map severity words across languages: mild / हल्का / थोड़ा ≈ 3, moderate / सामान्य ≈ 5, bad / तेज़ / ज़्यादा ≈ 7, severe / बहुत तेज़ / असहनीय ≈ 9. Default 5 if unsure.
+- Keep medication brand names as commonly written (Crocin, Dolo, Combiflam, Paracetamol, etc.).
+
 Allowed symptom_type values: headache, fatigue, fever, cough, stomach_pain, skin, menstrual, mental, other.
-If none clearly match, use "other" and put the user's term in custom_symptom_name.
+If none clearly match, use "other" and put the user's term (translated to English) in custom_symptom_name.
 
 Return ONLY valid JSON matching this shape:
 {
   "symptom_type": "headache" | "fatigue" | "fever" | "cough" | "stomach_pain" | "skin" | "menstrual" | "mental" | "other",
   "custom_symptom_name": string | null,
-  "severity": number,            // 1-10, infer from words like "mild"=3, "moderate"=5, "bad"=7, "severe"=9. Default 5.
-  "duration": string | null,     // e.g. "2 hours", "since morning"
-  "body_location": string | null,
-  "triggers": string[],          // short tags
-  "associated_symptoms": string[],
-  "medications_taken": string[], // names only
-  "notes": string | null,        // a short clean version of what they said
-  "transcript": string           // the raw transcript
+  "severity": number,            // 1-10
+  "duration": string | null,     // English, e.g. "2 hours", "since morning"
+  "body_location": string | null,// English
+  "triggers": string[],          // English short tags
+  "associated_symptoms": string[], // English
+  "medications_taken": string[], // English / brand names
+  "notes": string | null,        // short clean English summary of what they said
+  "transcript": string,          // raw transcript in the original language and script
+  "transcript_en": string,       // English translation of the transcript
+  "detected_language": string    // BCP-47 like "en", "hi", "hi-Latn" (Hinglish), "ta", "te", "bn", "mr", "gu", "kn", "ml", "pa", "ur"
 }`;
 
 Deno.serve(async (req) => {
@@ -93,7 +104,7 @@ Deno.serve(async (req) => {
           {
             role: "user",
             content: [
-              { type: "text", text: "Transcribe this voice note and extract symptom fields as JSON." },
+              { type: "text", text: "Detect the spoken language, transcribe in original script, then extract symptom fields as JSON per the schema. Translate all structured fields to English." },
               { type: "input_audio", input_audio: { data: audioBase64, format: (mimeType || "audio/webm").includes("mp4") ? "mp4" : "webm" } },
             ],
           },

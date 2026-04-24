@@ -132,10 +132,20 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
       setTriggers(filt(data?.triggers, d.commonTriggers));
       setAssociated(filt(data?.associated_symptoms, d.commonAssociated));
       setMedsTaken(Array.isArray(data?.medications_taken) ? data.medications_taken.join(", ") : "");
-      setNotes(String(data?.notes || data?.transcript || "").slice(0, 500));
+      setNotes(String(data?.notes || data?.transcript_en || data?.transcript || "").slice(0, 500));
       setTranscript(String(data?.transcript || ""));
       setStep("details");
-      toast({ title: "Filled from your voice", description: "Review and edit before saving." });
+      const lang = String(data?.detected_language || "").toLowerCase();
+      const langLabel: Record<string, string> = {
+        en: "English", hi: "Hindi", "hi-latn": "Hinglish", ta: "Tamil", te: "Telugu",
+        bn: "Bengali", mr: "Marathi", gu: "Gujarati", kn: "Kannada", ml: "Malayalam",
+        pa: "Punjabi", ur: "Urdu",
+      };
+      const friendly = langLabel[lang] || (lang ? lang.toUpperCase() : "");
+      toast({
+        title: friendly ? `Filled from your voice (${friendly})` : "Filled from your voice",
+        description: "Review and edit before saving.",
+      });
     } catch (e) {
       toast({ title: "Couldn't parse voice", description: e instanceof Error ? e.message : "Try typing instead", variant: "destructive" });
     } finally {
