@@ -175,35 +175,51 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
     setIsUploading(true);
     setUploadState("loading");
+    setBatchScanItems(selectedFiles.map((file) => ({
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      status: "queued",
+    })));
     try {
       const pdfFiles = selectedFiles.filter((file) => file.type === "application/pdf");
       const imageFiles = selectedFiles.filter((file) => file.type.startsWith("image/"));
-      if (pdfFiles.length > 0 && imageFiles.length > 0) {
-        throw new Error("Upload either PDFs or images together, not both in one batch.");
+      const uploadFiles: File[] = [
+        ...pdfFiles,
+        ...(imageFiles.length > 0 ? [await imageFilesToPdf(imageFiles)] : []),
+      ];
+
+      const uploadedRecords: HealthRecord[] = [];
+      for (const [index, file] of uploadFiles.entries()) {
+        setBatchScanItems((items) => items.map((item, itemIndex) => {
+          if (pdfFiles.length > 0 && item.name === file.name) return { ...item, status: "uploading" };
+          if (file.type === "application/pdf" && imageFiles.length > 0 && itemIndex >= pdfFiles.length) return { ...item, status: "uploading" };
+          return item;
+        }));
+
+        const filePath = `${userId}/${Date.now()}_${index}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("health-records")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: insertedRecord, error: dbError } = await supabase
+          .from("health_records")
+          .insert({
+            patient_id: patientId,
+            file_name: file.name,
+            file_path: filePath,
+            file_type: file.type,
+            file_size: file.size,
+            category: uploadCategory,
+          })
+          .select()
+          .single();
+
+        if (dbError) throw dbError;
+        uploadedRecords.push(insertedRecord as unknown as HealthRecord);
       }
-      const file = imageFiles.length > 0 ? await imageFilesToPdf(imageFiles) : pdfFiles[0];
-
-      const filePath = `${userId}/${Date.now()}_${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("health-records")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: insertedRecord, error: dbError } = await supabase
-        .from("health_records")
-        .insert({
-          patient_id: patientId,
-          file_name: file.name,
-          file_path: filePath,
-          file_type: file.type,
-          file_size: file.size,
-          category: uploadCategory,
-        })
-        .select()
-        .single();
-
-      if (dbError) throw dbError;
 
       toast({
         title: "File uploaded",
@@ -214,13 +230,18 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       setTimeout(() => setUploadState("idle"), 1800);
 
       await loadRecords();
-      await summarizeRecord(insertedRecord as unknown as HealthRecord);
+      for (const record of uploadedRecords) {
+        setBatchScanItems((items) => items.map((item) => ({ ...item, status: item.status === "uploading" ? "analyzing" : item.status })));
+        await summarizeRecord(record);
+      }
+      setBatchScanItems((items) => items.map((item) => ({ ...item, status: "done" })));
 
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } catch (error: any) {
       console.error("Error uploading file:", error);
+      setBatchScanItems((items) => items.map((item) => item.status === "done" ? item : { ...item, status: "error" }));
       toast({
         title: "Upload failed",
         description: error.message || "Failed to upload file",
