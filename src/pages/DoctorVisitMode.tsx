@@ -386,6 +386,34 @@ const DoctorVisitMode = () => {
             </div>
           </section>
 
+          {/* 4. Recent symptoms (from health journal) */}
+          {briefing.recent_symptoms && briefing.recent_symptoms.length > 0 && (
+            <section className="pb-3">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">4</span>
+                  <h3 className="text-[13px] font-bold text-foreground">Recent symptoms</h3>
+                  <Badge variant="outline" className="text-[9px] ml-auto">self-reported · 90d</Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground mb-3 ml-7">From your health journal</p>
+                <div className="space-y-2">
+                  {briefing.recent_symptoms.map((s, i) => (
+                    <div key={i} className="rounded-lg bg-muted/50 px-3 py-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <NotebookPen className="h-3.5 w-3.5 text-primary shrink-0" />
+                          <span className="text-[13px] font-medium text-foreground capitalize truncate">{s.symptom}</span>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground shrink-0">{s.frequency} · {s.avg_severity}</span>
+                      </div>
+                      {s.pattern && <p className="text-[11px] text-muted-foreground mt-1 ml-5">{s.pattern}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* SOAP Note */}
           {briefing.soap_note && (
             <section className="pb-3">
