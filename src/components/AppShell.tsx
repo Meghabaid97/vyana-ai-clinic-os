@@ -16,36 +16,36 @@ const TOUR_STORAGE_KEY = "vyana-tour-completed-v1";
 const hasSeenTour = () => typeof window !== "undefined" && localStorage.getItem(TOUR_STORAGE_KEY) === "1";
 const markTourSeen = () => { if (typeof window !== "undefined") localStorage.setItem(TOUR_STORAGE_KEY, "1"); };
 
-const tabs = [
-  { id: "home", label: "Home", shortLabel: "Home", icon: Home, path: "/app" },
-  { id: "briefing", label: "Briefing", shortLabel: "Brief", icon: Stethoscope, path: "/app/briefing" },
-  { id: "trends", label: "Trends", shortLabel: "Trends", icon: TrendingUp, path: "/app/trends" },
-  { id: "records", label: "Records", shortLabel: "Records", icon: FolderOpen, path: "/app/records" },
-  { id: "claims", label: "Claims", shortLabel: "Claim", icon: Heart, path: "/app/recovery" },
-  { id: "profile", label: "Profile", shortLabel: "Profile", icon: User, path: "/app/profile" },
+const buildTabs = (t: (k: string, p?: any) => string) => [
+  { id: "home", label: t("app.tab.home"), shortLabel: t("app.tabShort.home"), icon: Home, path: "/app" },
+  { id: "briefing", label: t("app.tab.briefing"), shortLabel: t("app.tabShort.briefing"), icon: Stethoscope, path: "/app/briefing" },
+  { id: "trends", label: t("app.tab.trends"), shortLabel: t("app.tabShort.trends"), icon: TrendingUp, path: "/app/trends" },
+  { id: "records", label: t("app.tab.records"), shortLabel: t("app.tabShort.records"), icon: FolderOpen, path: "/app/records" },
+  { id: "claims", label: t("app.tab.claims"), shortLabel: t("app.tabShort.claims"), icon: Heart, path: "/app/recovery" },
+  { id: "profile", label: t("app.tab.profile"), shortLabel: t("app.tabShort.profile"), icon: User, path: "/app/profile" },
 ];
 
-// Desktop secondary nav: Profile is redundant (account chip is in top bar),
-// so we surface Emergency instead.
-const desktopTabs = [
-  ...tabs.slice(0, 5),
-  { id: "emergency", label: "Emergency", shortLabel: "SOS", icon: Shield, path: "/app/emergency-contacts" },
-];
-
-// Sub-route titles (routes inside /app that aren't a primary tab)
-const subRouteTitles: Record<string, string> = {
-  "/app/timeline": "Timeline",
-  "/app/vaccinations": "Vaccinations",
-  "/app/medications": "Medications",
-  "/app/prescription-reader": "Prescription Reader",
-  "/app/share": "Share Records",
-  "/app/story": "Our Story",
-  "/app/support": "Help & Support",
-  "/app/medical-history": "Medical History",
-  "/app/emergency-contacts": "Emergency Contacts",
-  "/app/visit": "Doctor Visit Mode",
-  "/app/journal": "Health Journal",
+const buildDesktopTabs = (t: (k: string, p?: any) => string) => {
+  const base = buildTabs(t);
+  return [
+    ...base.slice(0, 5),
+    { id: "emergency", label: t("app.tab.emergency"), shortLabel: t("app.tabShort.emergency"), icon: Shield, path: "/app/emergency-contacts" },
+  ];
 };
+
+const buildSubRouteTitles = (t: (k: string, p?: any) => string): Record<string, string> => ({
+  "/app/timeline": t("app.sub.timeline"),
+  "/app/vaccinations": t("app.sub.vaccinations"),
+  "/app/medications": t("app.sub.medications"),
+  "/app/prescription-reader": t("app.sub.prescriptionReader"),
+  "/app/share": t("app.sub.share"),
+  "/app/story": t("app.sub.story"),
+  "/app/support": t("app.sub.support"),
+  "/app/medical-history": t("app.sub.medicalHistory"),
+  "/app/emergency-contacts": t("app.sub.emergencyContacts"),
+  "/app/visit": t("app.sub.visit"),
+  "/app/journal": t("app.sub.journal"),
+});
 
 const AppShell = () => {
   const navigate = useNavigate();
