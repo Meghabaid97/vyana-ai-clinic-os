@@ -13,6 +13,7 @@ import { SAMPLE_BRIEFING, SAMPLE_PATIENT } from "@/lib/sampleBriefingData";
 import { Change, computeChangesSinceLastVisit, SAMPLE_CHANGES } from "@/lib/changesSinceLastVisit";
 import PageHero from "@/components/PageHero";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
+import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
