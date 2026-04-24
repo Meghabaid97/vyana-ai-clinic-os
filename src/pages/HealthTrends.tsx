@@ -179,7 +179,7 @@ const HealthTrends = () => {
     return await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error("Could not read latest report"));
+      reader.onerror = () => reject(new Error(t("trends.toast.readErr")));
       reader.readAsDataURL(blob);
     });
   };
@@ -192,7 +192,7 @@ const HealthTrends = () => {
       .createSignedUrl(record.file_path, 60);
 
     if (signedUrlError || !signedUrlData?.signedUrl) {
-      throw new Error("Could not access latest report");
+      throw new Error(t("trends.toast.accessErr"));
     }
 
     const fileContent = await toDataUrl(signedUrlData.signedUrl);
@@ -206,7 +206,7 @@ const HealthTrends = () => {
     });
 
     if (error || !data?.summary) {
-      throw new Error(error?.message || "Could not summarize latest report safely");
+      throw new Error(error?.message || t("trends.toast.summarizeErr"));
     }
 
     const { error: updateError } = await supabase
@@ -215,7 +215,7 @@ const HealthTrends = () => {
       .eq("id", record.id);
 
     if (updateError) {
-      throw new Error(updateError.message || "Could not save latest report summary");
+      throw new Error(updateError.message || t("trends.toast.saveErr"));
     }
 
     const updatedRecord = { ...record, ai_summary: data.summary };
