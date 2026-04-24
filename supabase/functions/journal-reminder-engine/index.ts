@@ -182,7 +182,7 @@ Deno.serve(async (req: Request) => {
         continue;
       }
 
-      // Insert notification
+      // Insert in-app notification
       const { error: nErr } = await supabase.from("notifications").insert({
         user_id: patient.user_id,
         title: pick(NUDGE_TITLES),
@@ -193,6 +193,32 @@ Deno.serve(async (req: Request) => {
       });
       if (nErr) { skipped++; continue; }
 
+      // Resolve email via auth admin and dispatch a transactional email.
+      // Suppression + queueing + retries are handled by send-transactional-email.
+      try {
+        const { data: userResp } = await supabase.auth.admin.getUserById(patient.user_id);
+        const email = userResp?.user?.email;
+        if (email) {
+          const todayKey = istNow.toISOString().slice(0, 10);
+          await supabase.functions.invoke("send-transactional-email", {
+            body: {
+              templateName: "journal-reminder",
+              recipientEmail: email,
+              idempotencyKey: `journal-reminder-${pref.id}-${todayKey}`,
+              templateData: {
+                name: (patient as any).name?.split(" ")?.[0] ?? undefined,
+                streakDays: pref.current_streak ?? 0,
+                cadenceLabel: CADENCE_LABEL[cadence],
+              },
+            },
+          });
+          emailed++;
+        }
+      } catch (emailErr) {
+        console.warn("journal-reminder email failed", { patientId: patient.id, err: String(emailErr) });
+        // Non-fatal — in-app notification still landed.
+      }
+
       await supabase
         .from("journal_preferences")
         .update({ last_nudged_at: now.toISOString() })
@@ -201,7 +227,7 @@ Deno.serve(async (req: Request) => {
     }
 
     return new Response(
-      JSON.stringify({ ok: true, nudged, skipped, scanned: patients?.length ?? 0 }),
+      JSON.stringify({ ok: true, nudged, emailed, skipped, scanned: patients?.length ?? 0 }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
