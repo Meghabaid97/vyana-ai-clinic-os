@@ -34,7 +34,15 @@ interface Pref {
   last_nudged_at: string | null;
   last_logged_date: string | null;
   preferred_hour: number;
+  current_streak: number;
 }
+
+const CADENCE_LABEL: Record<Cadence, string> = {
+  daily: "Daily check-ins",
+  frequent: "A few times a week",
+  weekly: "Weekly",
+  off: "Off",
+};
 
 const NUDGE_TITLES = [
   "How are you feeling today?",
@@ -85,15 +93,20 @@ Deno.serve(async (req: Request) => {
     if (pErr) throw pErr;
 
     const now = new Date();
-    const currentHour = now.getUTCHours(); // cron is UTC; preferred_hour stored UTC for now
+    // preferred_hour is interpreted as IST (UTC+5:30) since Vyana is India-only.
+    // IST hour = (UTC hour + 5) when minutes >= 30, else (UTC hour + 5).
+    // Simpler: add 330 minutes to UTC and read the hour.
+    const istNow = new Date(now.getTime() + 330 * 60 * 1000);
+    const currentHourIST = istNow.getUTCHours();
     let nudged = 0;
     let skipped = 0;
+    let emailed = 0;
 
     for (const patient of patients ?? []) {
       // Load or create preferences
       const { data: existing } = await supabase
         .from("journal_preferences")
-        .select("id, patient_id, cadence, auto_cadence, last_nudged_at, last_logged_date, preferred_hour")
+        .select("id, patient_id, cadence, auto_cadence, last_nudged_at, last_logged_date, preferred_hour, current_streak")
         .eq("patient_id", patient.id)
         .maybeSingle();
 
@@ -110,9 +123,10 @@ Deno.serve(async (req: Request) => {
         pref = existing as Pref;
       }
 
-      // Hour gate: only nudge in a 2-hour window around preferred_hour
-      const hourDiff = Math.abs(currentHour - pref.preferred_hour);
-      if (hourDiff > 1 && hourDiff < 23) { skipped++; continue; }
+      // Hour gate (IST): only nudge in a ±1h window around preferred_hour (IST).
+      const hourDiff = Math.abs(currentHourIST - pref.preferred_hour);
+      const wrappedDiff = Math.min(hourDiff, 24 - hourDiff);
+      if (wrappedDiff > 1) { skipped++; continue; }
 
       // Resolve effective cadence
       let cadence: Cadence = pref.cadence;
@@ -168,7 +182,7 @@ Deno.serve(async (req: Request) => {
         continue;
       }
 
-      // Insert notification
+      // Insert in-app notification
       const { error: nErr } = await supabase.from("notifications").insert({
         user_id: patient.user_id,
         title: pick(NUDGE_TITLES),
@@ -179,6 +193,32 @@ Deno.serve(async (req: Request) => {
       });
       if (nErr) { skipped++; continue; }
 
+      // Resolve email via auth admin and dispatch a transactional email.
+      // Suppression + queueing + retries are handled by send-transactional-email.
+      try {
+        const { data: userResp } = await supabase.auth.admin.getUserById(patient.user_id);
+        const email = userResp?.user?.email;
+        if (email) {
+          const todayKey = istNow.toISOString().slice(0, 10);
+          await supabase.functions.invoke("send-transactional-email", {
+            body: {
+              templateName: "journal-reminder",
+              recipientEmail: email,
+              idempotencyKey: `journal-reminder-${pref.id}-${todayKey}`,
+              templateData: {
+                name: (patient as any).name?.split(" ")?.[0] ?? undefined,
+                streakDays: pref.current_streak ?? 0,
+                cadenceLabel: CADENCE_LABEL[cadence],
+              },
+            },
+          });
+          emailed++;
+        }
+      } catch (emailErr) {
+        console.warn("journal-reminder email failed", { patientId: patient.id, err: String(emailErr) });
+        // Non-fatal — in-app notification still landed.
+      }
+
       await supabase
         .from("journal_preferences")
         .update({ last_nudged_at: now.toISOString() })
@@ -187,7 +227,7 @@ Deno.serve(async (req: Request) => {
     }
 
     return new Response(
-      JSON.stringify({ ok: true, nudged, skipped, scanned: patients?.length ?? 0 }),
+      JSON.stringify({ ok: true, nudged, emailed, skipped, scanned: patients?.length ?? 0 }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
