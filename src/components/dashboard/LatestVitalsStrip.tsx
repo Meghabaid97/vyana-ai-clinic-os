@@ -214,7 +214,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
       {/* Playful headline card */}
       <div className="flex items-baseline justify-between mb-3">
         <h2 className="text-lg font-bold text-foreground leading-tight">
-          Today you're <span className="text-primary">{headline?.mood ?? "checking in"}</span>
+          Your vitals are <span className="text-primary">{headline?.mood ?? "checking in"}</span>
         </h2>
         <button
           onClick={() => navigate("/app/trends")}
