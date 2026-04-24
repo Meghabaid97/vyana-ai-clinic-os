@@ -353,7 +353,7 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="h-4 w-4 text-destructive" />
-                  <h3 className="text-[14px] font-bold text-destructive">Flags for Doctor</h3>
+                  <h3 className="text-[14px] font-bold text-destructive">{t("briefing.section.flags")}</h3>
                 </div>
                 <div className="space-y-2">
                   {briefing.red_flags.map((rf, i) => (
@@ -373,7 +373,7 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Pill className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Medications</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.medications")}</h3>
                 </div>
                 <div className="space-y-1.5">
                   {briefing.current_medications.map((m, i) => (
@@ -394,7 +394,7 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Key Trends</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.trends")}</h3>
                 </div>
                 <div className="space-y-2">
                   {briefing.key_trends.map((t, i) => (
@@ -404,10 +404,10 @@ const PatientBriefing = () => {
                         <div className="flex items-center gap-2">
                           <span className="text-[13px] font-medium text-foreground">{t.vital}</span>
                           {t.concern_level === "action_needed" && (
-                            <Badge variant="destructive" className="text-[9px]">action needed</Badge>
+                            <Badge variant="destructive" className="text-[9px]">{t("briefing.badge.actionNeeded")}</Badge>
                           )}
                           {t.concern_level === "monitor" && (
-                            <Badge variant="outline" className="text-[9px] border-yellow-500/30 text-yellow-600">monitor</Badge>
+                            <Badge variant="outline" className="text-[9px] border-yellow-500/30 text-yellow-600">{t("briefing.badge.monitor")}</Badge>
                           )}
                         </div>
                         <p className="text-[11px] text-muted-foreground">{t.detail}</p>
