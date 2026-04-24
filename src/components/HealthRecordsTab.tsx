@@ -14,6 +14,9 @@ import {
   FileImage,
   FolderOpen,
   Shield,
+  Camera,
+  ImagePlus,
+  ScanLine,
 } from "lucide-react";
 import {
   Dialog,
@@ -55,6 +58,13 @@ interface HealthRecord {
   diagnoses?: any;
   extracted_vitals?: any;
   ai_confidence?: string | null;
+  radiology_modality?: string | null;
+  radiology_body_part?: string | null;
+  radiology_study_date?: string | null;
+  radiology_impression?: string[] | null;
+  radiology_recommendations?: string[] | null;
+  radiology_provider?: string | null;
+  radiology_upload_kind?: string | null;
 }
 
 interface DoctorForConsent {
@@ -75,6 +85,9 @@ interface BatchScanItem {
   status: "queued" | "uploading" | "analyzing" | "done" | "error";
 }
 
+const RADIOLOGY_MODALITIES = ["X-ray", "CT", "MRI", "Ultrasound", "PET", "Other"] as const;
+type RadiologyUploadKind = "report_with_optional_films" | "film_only";
+
 const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps) => {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,8 +102,38 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [viewingSummary, setViewingSummary] = useState<HealthRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<RecordCategory>("discharge_summary");
   const [uploadCategory, setUploadCategory] = useState<RecordCategory>("discharge_summary");
+  const [radiologyModality, setRadiologyModality] = useState<string>("CT");
+  const [radiologyUploadKind, setRadiologyUploadKind] = useState<RadiologyUploadKind>("report_with_optional_films");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const isRadiologyUpload = uploadCategory === "radiology_imaging";
+
+  const cleanupScannedImage = async (file: File) => {
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+
+    const canvas = document.createElement("canvas");
+    const maxSide = 2200;
+    const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+    canvas.width = Math.round(image.width * scale);
+    canvas.height = Math.round(image.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return dataUrl;
+    ctx.filter = isRadiologyUpload ? "contrast(1.12) brightness(1.04) saturate(0.92)" : "contrast(1.06) brightness(1.02)";
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL(file.type === "image/png" ? "image/png" : "image/jpeg", 0.9);
+  };
 
   const imageFilesToPdf = async (files: File[]) => {
     const pdf = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
@@ -99,19 +142,14 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
     for (let i = 0; i < files.length; i++) {
       if (i > 0) pdf.addPage();
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(files[i]);
-      });
+      const dataUrl = await cleanupScannedImage(files[i]);
       const image = await new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(img);
         img.onerror = reject;
         img.src = dataUrl;
       });
-      const margin = 28;
+      const margin = isRadiologyUpload ? 22 : 28;
       const maxWidth = pageWidth - margin * 2;
       const maxHeight = pageHeight - margin * 2;
       const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
@@ -123,7 +161,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     const blob = pdf.output("blob");
     const name = files.length === 1
       ? `${files[0].name.replace(/\.[^.]+$/, "")}.pdf`
-      : `medical-images-${Date.now()}.pdf`;
+      : `${isRadiologyUpload ? "radiology-hardcopy-scan" : "medical-images"}-${Date.now()}.pdf`;
     return new File([blob], name, { type: "application/pdf" });
   };
 
