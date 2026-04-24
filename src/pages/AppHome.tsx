@@ -222,14 +222,14 @@ const AppHome = () => {
 
       {/* ============ BENTO BODY — varied tile sizes on lg+ ============ */}
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:mt-5 lg:auto-rows-min">
-        {/* Latest vitals — full width band */}
-        <div className="lg:col-span-6">
-          <LatestVitalsStrip patientId={profile?.id ?? null} />
-        </div>
-
         {/* Health Journal quick log */}
         <div className="lg:col-span-6">
           <JournalQuickLog patientId={profile?.id ?? null} />
+        </div>
+
+        {/* Latest vitals — full width band */}
+        <div className="lg:col-span-6">
+          <LatestVitalsStrip patientId={profile?.id ?? null} />
         </div>
 
         {/* Story so far — large primary tile (4 cols) */}
