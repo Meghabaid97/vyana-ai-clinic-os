@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/i18n";
 
 interface PatientProfile {
   id: string;
@@ -37,6 +38,7 @@ const AppHome = () => {
   const [reqPhone, setReqPhone] = useState("");
   const [savingRequired, setSavingRequired] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     void loadData();
@@ -203,14 +205,14 @@ const AppHome = () => {
         <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-4 lg:px-6 lg:pt-7 lg:pb-7 lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:flex lg:flex-col lg:justify-center">
           <div className="max-w-sm md:max-w-xl lg:max-w-none">
             <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-2 sm:mb-3">
-              Welcome back, {firstName}
+              {t("home.welcomeBack", { name: firstName })}
             </p>
             <h1 className="text-[26px] sm:text-[32px] md:text-[38px] lg:text-[44px] xl:text-5xl font-extrabold leading-[1.05] tracking-[-0.03em] text-foreground">
-              Your health story.{" "}
-              <span className="block text-primary">Always with you.</span>
+              {t("home.h1.l1")}{" "}
+              <span className="block text-primary">{t("home.h1.l2")}</span>
             </h1>
             <p className="mt-2 sm:mt-3 lg:mt-4 max-w-[34ch] md:max-w-[42ch] lg:max-w-[48ch] text-[13px] sm:text-[14px] lg:text-base text-muted-foreground leading-relaxed">
-              Never explain your medical history again. Doctor-ready in 30 seconds.
+              {t("home.subtitle")}
             </p>
           </div>
         </section>
@@ -234,14 +236,14 @@ const AppHome = () => {
 
         {/* Quick actions — Share + Emergency, sit beside vitals on desktop */}
         <section className="px-4 sm:px-5 pb-5 lg:col-span-2 lg:px-0 lg:pb-0 lg:self-start">
-          <h3 className="hidden lg:block text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Quick actions</h3>
+          <h3 className="hidden lg:block text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("home.quickActions")}</h3>
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
             <button
               onClick={() => navigate("/app/share")}
               className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
             >
               <Link2 className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Share with doctor</span>
+              <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">{t("home.shareDoctor")}</span>
             </button>
             <button
               data-tour="emergency-quick-action"
@@ -249,16 +251,16 @@ const AppHome = () => {
               className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
             >
               <Shield className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">Emergency access</span>
+              <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">{t("home.emergencyAccess")}</span>
             </button>
           </div>
 
           {/* ABHA prompt — desktop only, fills the right column under quick actions */}
           {!profile?.national_health_id && (
             <div className="mt-4 hidden lg:block rounded-xl p-4 border border-primary/20 bg-primary/5">
-              <h3 className="font-bold text-sm text-foreground">Connect your ABHA Health ID</h3>
+              <h3 className="font-bold text-sm text-foreground">{t("home.abha.title")}</h3>
               <p className="text-muted-foreground text-[13px] leading-relaxed mt-1">
-                Link your national health ID and every consultation across providers connects automatically.
+                {t("home.abha.body")}
               </p>
             </div>
           )}
@@ -267,18 +269,18 @@ const AppHome = () => {
         {/* Story so far — full width below vitals row */}
         <section className="px-4 sm:px-6 pb-5 lg:col-span-6 lg:px-0 lg:pb-0">
             <h2 className="mb-1 text-[17px] sm:text-xl md:text-2xl lg:text-2xl font-bold text-foreground leading-tight tracking-tight">
-              <span className="block sm:inline">Your story so far.</span>{" "}
-              <span className="block sm:inline text-primary">Every detail matters.</span>
+              <span className="block sm:inline">{t("home.story.title.l1")}</span>{" "}
+              <span className="block sm:inline text-primary">{t("home.story.title.l2")}</span>
             </h2>
             <p className="text-[12.5px] sm:text-[13.5px] lg:text-sm text-muted-foreground mb-3 sm:mb-4 leading-relaxed max-w-[58ch]">
-              What happens when the system forgets and families pay the price. Your records make sure that never happens.
+              {t("home.story.subtitle")}
             </p>
 
             <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-1 sm:gap-3 sm:overflow-visible sm:px-0 lg:grid-cols-3">
               {[
-                { emoji: "🏥", title: "Five minutes. A lifetime of history.", text: "A family rushes to the ER. They get five minutes to explain decades of medical history. No records. No context. Just fear." },
-                { emoji: "📋", title: "75 pages. Zero continuity.", text: "Scattered reports in thick folders. Every new doctor orders fresh tests. The clock resets. The bill climbs. Nothing connects." },
-                { emoji: "⏰", title: "Caught too late.", text: "Nobody tracks the slow changes. Conditions worsen quietly. By the time they are caught, prevention is off the table." },
+                { emoji: "🏥", title: t("home.story.beat1.title"), text: t("home.story.beat1.text") },
+                { emoji: "📋", title: t("home.story.beat2.title"), text: t("home.story.beat2.text") },
+                { emoji: "⏰", title: t("home.story.beat3.title"), text: t("home.story.beat3.text") },
               ].map((beat, i) => (
                 <div key={i} className="min-w-[84%] snap-start rounded-xl border border-border p-4 transition-colors sm:min-w-0 hover:bg-muted/50 hover:border-primary/30">
                   <span className="text-lg mb-1.5 block">{beat.emoji}</span>
@@ -295,8 +297,8 @@ const AppHome = () => {
                     <Upload className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-sm text-foreground">Upload your first record</p>
-                    <p className="text-[12px] text-muted-foreground mt-0.5">Your story starts here.</p>
+                    <p className="font-semibold text-sm text-foreground">{t("home.uploadFirst.title")}</p>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">{t("home.uploadFirst.sub")}</p>
                   </div>
                   <ArrowRight className="h-4 w-4 text-primary shrink-0 transition-transform group-hover:translate-x-0.5" />
                 </button>
@@ -318,7 +320,7 @@ const AppHome = () => {
                             <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                           </span>
                           <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
-                            Your story so far
+                            {t("home.records.eyebrow")}
                           </p>
                         </div>
                         <ArrowRight className="h-4 w-4 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
@@ -331,26 +333,26 @@ const AppHome = () => {
                             {totalRecords}
                           </span>
                           <span className="text-[14px] sm:text-base font-medium text-muted-foreground">
-                            record{totalRecords !== 1 ? "s" : ""} held
+                            {totalRecords !== 1 ? t("home.records.heldPlural") : t("home.records.held")}
                           </span>
                         </div>
                         <p className="mt-2 text-[12.5px] sm:text-[13px] text-foreground/80 leading-relaxed">
-                          Every detail you save is one less question your next doctor has to ask.
+                          {t("home.records.tagline")}
                         </p>
                       </div>
 
                       {/* Stat tiles */}
                       <div className="mt-4 grid grid-cols-3 divide-x divide-border border-t border-border bg-muted/30">
                         <div className="px-2 sm:px-4 py-2.5 sm:py-3">
-                          <p className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-muted-foreground">First</p>
+                          <p className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-muted-foreground">{t("home.records.first")}</p>
                           <p className="mt-0.5 text-[12px] sm:text-sm font-semibold text-foreground truncate">{firstDate}</p>
                         </div>
                         <div className="px-2 sm:px-4 py-2.5 sm:py-3">
-                          <p className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-muted-foreground">Latest</p>
+                          <p className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-muted-foreground">{t("home.records.latest")}</p>
                           <p className="mt-0.5 text-[12px] sm:text-sm font-semibold text-foreground truncate">{lastDate}</p>
                         </div>
                         <div className="px-2 sm:px-4 py-2.5 sm:py-3">
-                          <p className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-muted-foreground">Active days</p>
+                          <p className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-muted-foreground">{t("home.records.activeDays")}</p>
                           <p className="mt-0.5 text-[12px] sm:text-sm font-semibold text-primary">{uniqueDays}</p>
                         </div>
                       </div>
@@ -370,18 +372,18 @@ const AppHome = () => {
         <section className="px-4 sm:px-6 pb-5 lg:col-span-4 lg:px-0 lg:pb-0">
           <div className="rounded-xl border border-border overflow-hidden h-full flex flex-col">
             <div className="bg-primary/5 p-4 sm:p-5 flex-1">
-              <h2 className="text-[15px] sm:text-base lg:text-lg font-bold text-foreground mb-1.5 sm:mb-2">Why Vyana?</h2>
+              <h2 className="text-[15px] sm:text-base lg:text-lg font-bold text-foreground mb-1.5 sm:mb-2">{t("home.why.title")}</h2>
               <p className="text-[13px] sm:text-[14px] text-foreground leading-relaxed">
-                In 2005, in a small hospital in Tirupur, a family lost someone they loved. Not because the doctors didn't care. Because no one had the records. No history. No context. Just five desperate minutes to explain a lifetime.
+                {t("home.why.body1")}
               </p>
               <p className="text-[12px] sm:text-[13px] text-muted-foreground leading-relaxed mt-2 sm:mt-3">
-                Vyana exists so that never happens again. Not to your family. Not to anyone's.
+                {t("home.why.body2")}
               </p>
             </div>
             <div className="p-3 sm:p-4 flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[12.5px] sm:text-[13px] font-semibold text-foreground">Read our full story</p>
-                <p className="text-[10.5px] sm:text-[11px] text-muted-foreground">The promise behind the product.</p>
+                <p className="text-[12.5px] sm:text-[13px] font-semibold text-foreground">{t("home.why.cta.title")}</p>
+                <p className="text-[10.5px] sm:text-[11px] text-muted-foreground">{t("home.why.cta.sub")}</p>
               </div>
               <button
                 onClick={() => navigate("/why-vyana")}
@@ -398,9 +400,9 @@ const AppHome = () => {
         {!profile?.national_health_id && (
           <section className="px-4 sm:px-5 pb-5 lg:hidden">
             <div className="rounded-xl p-4 border border-primary/20 bg-primary/5 h-full">
-              <h3 className="font-bold text-sm text-foreground">Connect your ABHA Health ID</h3>
+              <h3 className="font-bold text-sm text-foreground">{t("home.abha.title")}</h3>
               <p className="text-muted-foreground text-[13px] leading-relaxed mt-1">
-                Link your national health ID and every consultation across providers connects automatically.
+                {t("home.abha.body")}
               </p>
             </div>
           </section>
@@ -409,7 +411,7 @@ const AppHome = () => {
 
       <section className="px-4 sm:px-5 pb-3 pt-3 text-center lg:hidden">
         <p className="text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">Vyana</span> · Never explain your medical history again.
+          <span className="font-semibold text-foreground">Vyana</span> · {t("home.bottom.tagline")}
         </p>
       </section>
     </div>

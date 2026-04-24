@@ -10,6 +10,7 @@ import {
   STATUS_COPY,
   type VitalStatus,
 } from "@/lib/vitalStatus";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   patientId: string | null;
@@ -139,6 +140,7 @@ const RangeBar = ({
 
 const LatestVitalsStrip = ({ patientId }: Props) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [series, setSeries] = useState<VitalSeries[]>([]);
 
@@ -214,13 +216,13 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
       {/* Playful headline card */}
       <div className="flex items-baseline justify-between mb-3">
         <h2 className="text-lg font-bold text-foreground leading-tight">
-          Your vitals are <span className="text-primary">{headline?.mood ?? "checking in"}</span>
+          {t("vitals.heading")} <span className="text-primary">{headline?.mood ?? t("vitals.headingHighlight")}</span>
         </h2>
         <button
           onClick={() => navigate("/app/trends")}
           className="text-xs text-primary font-medium shrink-0"
         >
-          See all trends
+          {t("vitals.seeAll")}
         </button>
       </div>
 
