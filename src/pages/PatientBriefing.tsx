@@ -421,12 +421,19 @@ const PatientBriefing = () => {
           {briefing.recent_symptoms && briefing.recent_symptoms.length > 0 && (
             <section className="px-5 pb-4">
               <div className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <NotebookPen className="h-4 w-4 text-primary" />
                   <h3 className="text-[14px] font-bold text-foreground">Recent Symptoms</h3>
-                  <Badge variant="outline" className="text-[9px] ml-auto">self-reported · 90d</Badge>
+                  <Badge variant="outline" className="text-[9px] ml-auto">self-reported · {SYMPTOM_WINDOW_DAYS}d</Badge>
                 </div>
-                <p className="text-[11px] text-muted-foreground mb-3">From your health journal</p>
+                <div className="mb-3 flex items-center gap-2 flex-wrap">
+                  <p className="text-[11px] text-muted-foreground">From your health journal</p>
+                  {symptomFreshness && !isDemo && (
+                    <span className={`text-[10.5px] px-1.5 py-0.5 rounded-md border ${symptomFreshness.isStale ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" : "border-border bg-muted/40 text-muted-foreground"}`}>
+                      {symptomFreshness.label}{symptomFreshness.latestAt ? ` · last: ${formatFreshDate(symptomFreshness.latestAt)}` : ""}
+                    </span>
+                  )}
+                </div>
                 <div className="space-y-2">
                   {briefing.recent_symptoms.map((s, i) => (
                     <div key={i} className="rounded-lg bg-muted/50 px-3 py-2">
