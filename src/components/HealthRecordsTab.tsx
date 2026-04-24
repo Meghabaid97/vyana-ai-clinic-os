@@ -283,6 +283,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           fileName: record.file_name,
           fileType: record.file_type,
           fileContent,
+          category: record.category,
         },
       });
 

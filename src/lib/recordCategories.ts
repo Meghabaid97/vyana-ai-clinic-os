@@ -1,10 +1,11 @@
 // Centralized record categories for health_records.category
-import { FileText, IndianRupee, Pill, ClipboardList, FolderOpen } from "lucide-react";
+import { FileText, IndianRupee, Pill, ClipboardList, FolderOpen, ScanLine } from "lucide-react";
 
 export type RecordCategory =
   | "hospital_bill"
   | "discharge_summary"
   | "prescription"
+  | "radiology_imaging"
   | "report"
   | "other";
 
@@ -12,6 +13,7 @@ export const RECORD_CATEGORIES: { id: RecordCategory; label: string; shortLabel:
   { id: "discharge_summary", label: "Discharge Summaries", shortLabel: "Discharge", icon: FileText },
   { id: "hospital_bill", label: "Hospital Bills", shortLabel: "Bills", icon: IndianRupee },
   { id: "prescription", label: "Prescriptions", shortLabel: "Rx", icon: Pill },
+  { id: "radiology_imaging", label: "Radiology / Imaging", shortLabel: "Imaging", icon: ScanLine },
   { id: "report", label: "Reports", shortLabel: "Reports", icon: ClipboardList },
   { id: "other", label: "Other", shortLabel: "Other", icon: FolderOpen },
 ];
@@ -23,6 +25,7 @@ export function mapDocCategoryToRecord(docCategory: string): RecordCategory {
     case "hospital_bill": return "hospital_bill";
     case "prescriptions": return "prescription";
     case "investigation_reports": return "report";
+    case "radiology_imaging": return "radiology_imaging";
     case "admission_note": return "discharge_summary";
     case "insurance_claim_form":
     case "id_proof":
