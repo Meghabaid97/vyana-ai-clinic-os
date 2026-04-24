@@ -48,7 +48,7 @@ const JournalQuickLog = ({ patientId }: Props) => {
 
   return (
     <section className="px-4 sm:px-5 lg:px-0 pb-3 lg:pb-0">
-      <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent overflow-hidden">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
         <div className="p-4 sm:p-5">
           <div className="flex items-start gap-3">
             <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
