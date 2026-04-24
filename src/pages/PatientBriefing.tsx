@@ -266,11 +266,11 @@ const PatientBriefing = () => {
             <div className="flex items-start gap-2 min-w-0">
               <Play className="h-3.5 w-3.5 text-yellow-700 mt-0.5 shrink-0 fill-current" />
               <p className="text-[12px] text-foreground leading-snug">
-                <span className="font-semibold">Demo data</span>, sample patient (Ramesh, 58, T2 diabetic). Generate yours from real records.
+                <span className="font-semibold">{t("briefing.demo.text")}</span>, {t("briefing.demo.suffix")}
               </p>
             </div>
             <Button onClick={clearDemo} variant="outline" size="sm" className="shrink-0 h-7 text-[11px]">
-              Exit demo
+              {t("briefing.demo.exit")}
             </Button>
           </div>
         </section>
@@ -283,8 +283,8 @@ const PatientBriefing = () => {
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
               <p className="text-[12px] text-foreground leading-snug">
-                <span className="font-semibold">Generating your briefing.</span>{" "}
-                Analyzing records, vitals, and medications…
+                <span className="font-semibold">{t("briefing.loading.title")}</span>{" "}
+                {t("briefing.loading.desc")}
               </p>
             </div>
           </section>
