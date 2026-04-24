@@ -649,6 +649,48 @@ export type Database = {
           },
         ]
       }
+      journal_preferences: {
+        Row: {
+          auto_cadence: boolean
+          cadence: string
+          created_at: string
+          current_streak: number
+          id: string
+          last_logged_date: string | null
+          last_nudged_at: string | null
+          longest_streak: number
+          patient_id: string
+          preferred_hour: number
+          updated_at: string
+        }
+        Insert: {
+          auto_cadence?: boolean
+          cadence?: string
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_logged_date?: string | null
+          last_nudged_at?: string | null
+          longest_streak?: number
+          patient_id: string
+          preferred_hour?: number
+          updated_at?: string
+        }
+        Update: {
+          auto_cadence?: boolean
+          cadence?: string
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_logged_date?: string | null
+          last_nudged_at?: string | null
+          longest_streak?: number
+          patient_id?: string
+          preferred_hour?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       medication_reminders: {
         Row: {
           created_at: string
