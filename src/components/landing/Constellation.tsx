@@ -60,6 +60,9 @@ const kindStyle = {
 
 const Constellation = () => {
   const header = useReveal<HTMLDivElement>();
+  const pivotX = (PIVOT.x / 100) * 1000;
+  const pivotY = (PIVOT.y / 100) * 625;
+  const linePath = (n: Node) => `M ${pivotX} ${pivotY} L ${(n.x / 100) * 1000} ${(n.y / 100) * 625}`;
 
   return (
     <section
@@ -158,27 +161,35 @@ const Constellation = () => {
               </linearGradient>
             </defs>
             {nodes.map((n, i) => (
-              <line
+              <path
                 key={i}
-                x1={(PIVOT.x / 100) * 1000}
-                y1={(PIVOT.y / 100) * 625}
-                x2={(n.x / 100) * 1000}
-                y2={(n.y / 100) * 625}
+                d={linePath(n)}
+                fill="none"
                 stroke="url(#line-grad)"
                 strokeWidth="1.2"
                 strokeDasharray="4 4"
               />
             ))}
+            {nodes.map((n, i) => (
+              <circle key={`pulse-${i}`} r="3.2" className="constellation-line-pulse">
+                <animateMotion
+                  dur="3.8s"
+                  begin={`${i * 0.42}s`}
+                  repeatCount="indefinite"
+                  path={linePath(n)}
+                />
+              </circle>
+            ))}
             {/* central pivot dot */}
             <circle
-              cx={(PIVOT.x / 100) * 1000}
-              cy={(PIVOT.y / 100) * 625}
+              cx={pivotX}
+              cy={pivotY}
               r="6"
               fill="hsl(14 62% 60%)"
             />
             <circle
-              cx={(PIVOT.x / 100) * 1000}
-              cy={(PIVOT.y / 100) * 625}
+              cx={pivotX}
+              cy={pivotY}
               r="14"
               fill="hsl(14 62% 60%)"
               opacity="0.18"
