@@ -43,6 +43,7 @@ const subRouteTitles: Record<string, string> = {
   "/app/medical-history": "Medical History",
   "/app/emergency-contacts": "Emergency Contacts",
   "/app/visit": "Doctor Visit Mode",
+  "/app/journal": "Health Journal",
 };
 
 const AppShell = () => {
