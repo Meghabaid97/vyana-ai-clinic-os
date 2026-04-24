@@ -14,6 +14,7 @@ import { BriefingResultSkeleton } from "@/components/ui/page-skeletons";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
+import { useLanguage } from "@/lib/i18n";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
@@ -37,17 +38,18 @@ const PatientBriefing = () => {
   const [shareSheetOpen, setShareSheetOpen] = useState(false);
   const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const createShareLink = async (recipientName: string): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      toast({ title: "Sign in required", description: "Please sign in to share your briefing.", variant: "destructive" });
+      toast({ title: t("briefing.toast.signinTitle"), description: t("briefing.toast.signinDesc"), variant: "destructive" });
       return null;
     }
     const { data: patient } = await supabase
       .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
     if (!patient) {
-      toast({ title: "Profile missing", description: "Complete your profile first.", variant: "destructive" });
+      toast({ title: t("briefing.toast.profileTitle"), description: t("briefing.toast.profileDesc"), variant: "destructive" });
       return null;
     }
     const { data, error } = await supabase.from("shared_record_links").insert({
@@ -55,7 +57,7 @@ const PatientBriefing = () => {
       recipient_name: recipientName || null,
     }).select().single() as { data: { token: string } | null; error: { message: string } | null };
     if (error || !data) {
-      toast({ title: "Could not create link", description: error?.message ?? "Unknown error", variant: "destructive" });
+      toast({ title: t("briefing.toast.linkFail"), description: error?.message ?? "Unknown error", variant: "destructive" });
       return null;
     }
     return `${window.location.origin}/emergency-access/${data.token}`;
@@ -95,7 +97,7 @@ const PatientBriefing = () => {
         .maybeSingle();
 
       if (!patient) {
-        toast({ title: "Complete your profile first", variant: "destructive" });
+        toast({ title: t("briefing.toast.profileFirst"), variant: "destructive" });
         return;
       }
 
@@ -128,7 +130,7 @@ const PatientBriefing = () => {
       setBriefing(data);
     } catch (err: any) {
       console.error("Briefing error:", err);
-      toast({ title: "Error", description: "Failed to generate briefing", variant: "destructive" });
+      toast({ title: t("briefing.toast.errTitle"), description: t("briefing.toast.errDesc"), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +186,7 @@ const PatientBriefing = () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast({ title: "Copied to clipboard" });
+    toast({ title: t("briefing.copied") });
   };
 
   const dirIcon = (d: string) => {
@@ -198,10 +200,10 @@ const PatientBriefing = () => {
     <div className="animate-fade-in">
       <section className="px-5 pt-8 pb-4">
         <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">
-          My Briefing
+          {t("briefing.title")}
         </h1>
         <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-          Generate your clinical summary to share with any doctor, instantly.
+          {t("briefing.subtitle")}
         </p>
       </section>
 
@@ -212,18 +214,18 @@ const PatientBriefing = () => {
             <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Stethoscope className="h-7 w-7 text-primary" />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-2">Doctor-Ready Summary</h2>
+            <h2 className="text-lg font-bold text-foreground mb-2">{t("briefing.cta.title")}</h2>
             <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
-              AI analyzes your records, vitals, and medications to create a summary any doctor can read in 30 seconds.
+              {t("briefing.cta.desc")}
             </p>
             <div className="text-left max-w-xs mx-auto mb-5 rounded-lg bg-background/60 border border-border p-3">
-              <p className="text-[12px] font-semibold text-foreground mb-2">Your summary will include:</p>
+              <p className="text-[12px] font-semibold text-foreground mb-2">{t("briefing.cta.includeTitle")}</p>
               <ul className="space-y-1.5">
                 {[
-                  "Conditions & diagnoses",
-                  "Medications history",
-                  "Key vitals & trends",
-                  "Recent symptoms from your journal",
+                  t("briefing.cta.inc1"),
+                  t("briefing.cta.inc2"),
+                  t("briefing.cta.inc3"),
+                  t("briefing.cta.inc4"),
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2 text-[12px] text-muted-foreground">
                     <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
@@ -240,9 +242,9 @@ const PatientBriefing = () => {
                 size="lg"
               >
                 {isLoading ? (
-                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Generating...</>
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> {t("briefing.cta.generating")}</>
                 ) : (
-                  <><Sparkles className="h-4 w-4 mr-2" /> Generate My Briefing</>
+                  <><Sparkles className="h-4 w-4 mr-2" /> {t("briefing.cta.generate")}</>
                 )}
               </Button>
               <button
@@ -250,7 +252,7 @@ const PatientBriefing = () => {
                 className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
               >
                 <Play className="h-3 w-3 fill-current" />
-                Or preview with sample data
+                {t("briefing.cta.preview")}
               </button>
             </div>
           </div>
@@ -264,11 +266,11 @@ const PatientBriefing = () => {
             <div className="flex items-start gap-2 min-w-0">
               <Play className="h-3.5 w-3.5 text-yellow-700 mt-0.5 shrink-0 fill-current" />
               <p className="text-[12px] text-foreground leading-snug">
-                <span className="font-semibold">Demo data</span>, sample patient (Ramesh, 58, T2 diabetic). Generate yours from real records.
+                <span className="font-semibold">{t("briefing.demo.text")}</span>, {t("briefing.demo.suffix")}
               </p>
             </div>
             <Button onClick={clearDemo} variant="outline" size="sm" className="shrink-0 h-7 text-[11px]">
-              Exit demo
+              {t("briefing.demo.exit")}
             </Button>
           </div>
         </section>
@@ -281,8 +283,8 @@ const PatientBriefing = () => {
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
               <p className="text-[12px] text-foreground leading-snug">
-                <span className="font-semibold">Generating your briefing.</span>{" "}
-                Analyzing records, vitals, and medications…
+                <span className="font-semibold">{t("briefing.loading.title")}</span>{" "}
+                {t("briefing.loading.desc")}
               </p>
             </div>
           </section>
@@ -301,27 +303,27 @@ const PatientBriefing = () => {
                 onClick={shareViaWhatsApp}
                 variant="outline"
                 className="flex-1"
-                loadingLabel="Preparing…"
-                successLabel="Opened WhatsApp"
-                errorLabel="Try again"
+                loadingLabel={t("briefing.share.preparing")}
+                successLabel={t("briefing.share.opened")}
+                errorLabel={t("briefing.share.try")}
                 idleIcon={<Share2 className="h-4 w-4" />}
               >
-                Share via WhatsApp
+                {t("briefing.share.whatsapp")}
               </StatefulButton>
               <Button
                 onClick={() => setShareSheetOpen(true)}
                 variant="outline"
                 className="gap-1.5"
-                aria-label="Show QR for doctor to scan"
+                aria-label={t("briefing.share.qrTitle")}
                 disabled={isDemo}
-                title={isDemo ? "QR sharing isn't available for sample data" : "Show QR"}
+                title={isDemo ? t("briefing.share.qrDisabled") : t("briefing.share.qrEnabled")}
               >
                 <QrCode className="h-4 w-4" />
               </Button>
-              <Button onClick={copyToClipboard} variant="outline" className="gap-2" aria-label="Copy briefing">
+              <Button onClick={copyToClipboard} variant="outline" className="gap-2" aria-label={t("briefing.share.copy")}>
                 {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
               </Button>
-              <Button onClick={generateBriefing} variant="outline" size="icon" disabled={isLoading} aria-label="Regenerate briefing">
+              <Button onClick={generateBriefing} variant="outline" size="icon" disabled={isLoading} aria-label={t("briefing.share.regenerate")}>
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               </Button>
             </div>
@@ -332,7 +334,7 @@ const PatientBriefing = () => {
             <div className="rounded-xl border border-border bg-card p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Heart className="h-4 w-4 text-primary" />
-                <h3 className="text-[14px] font-bold text-foreground">Overview</h3>
+                <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.overview")}</h3>
               </div>
               <p className="text-[13px] text-foreground leading-relaxed">{briefing.patient_overview.summary}</p>
               {briefing.patient_overview.key_conditions.length > 0 && (
@@ -351,7 +353,7 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="h-4 w-4 text-destructive" />
-                  <h3 className="text-[14px] font-bold text-destructive">Flags for Doctor</h3>
+                  <h3 className="text-[14px] font-bold text-destructive">{t("briefing.section.flags")}</h3>
                 </div>
                 <div className="space-y-2">
                   {briefing.red_flags.map((rf, i) => (
@@ -371,7 +373,7 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Pill className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Medications</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.medications")}</h3>
                 </div>
                 <div className="space-y-1.5">
                   {briefing.current_medications.map((m, i) => (
@@ -392,23 +394,23 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Key Trends</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.trends")}</h3>
                 </div>
                 <div className="space-y-2">
-                  {briefing.key_trends.map((t, i) => (
+                  {briefing.key_trends.map((kt, i) => (
                     <div key={i} className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2">
-                      {dirIcon(t.direction)}
+                      {dirIcon(kt.direction)}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[13px] font-medium text-foreground">{t.vital}</span>
-                          {t.concern_level === "action_needed" && (
-                            <Badge variant="destructive" className="text-[9px]">action needed</Badge>
+                          <span className="text-[13px] font-medium text-foreground">{kt.vital}</span>
+                          {kt.concern_level === "action_needed" && (
+                            <Badge variant="destructive" className="text-[9px]">{t("briefing.badge.actionNeeded")}</Badge>
                           )}
-                          {t.concern_level === "monitor" && (
-                            <Badge variant="outline" className="text-[9px] border-yellow-500/30 text-yellow-600">monitor</Badge>
+                          {kt.concern_level === "monitor" && (
+                            <Badge variant="outline" className="text-[9px] border-yellow-500/30 text-yellow-600">{t("briefing.badge.monitor")}</Badge>
                           )}
                         </div>
-                        <p className="text-[11px] text-muted-foreground">{t.detail}</p>
+                        <p className="text-[11px] text-muted-foreground">{kt.detail}</p>
                       </div>
                     </div>
                   ))}
@@ -423,14 +425,14 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <NotebookPen className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Recent Symptoms</h3>
-                  <Badge variant="outline" className="text-[9px] ml-auto">self-reported · {SYMPTOM_WINDOW_DAYS}d</Badge>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.recentSymptoms")}</h3>
+                  <Badge variant="outline" className="text-[9px] ml-auto">{t("briefing.symptoms.selfReported")} · {SYMPTOM_WINDOW_DAYS}d</Badge>
                 </div>
                 <div className="mb-3 flex items-center gap-2 flex-wrap">
-                  <p className="text-[11px] text-muted-foreground">From your health journal</p>
+                  <p className="text-[11px] text-muted-foreground">{t("briefing.symptoms.fromJournal")}</p>
                   {symptomFreshness && !isDemo && (
                     <span className={`text-[10.5px] px-1.5 py-0.5 rounded-md border ${symptomFreshness.isStale ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" : "border-border bg-muted/40 text-muted-foreground"}`}>
-                      {symptomFreshness.label}{symptomFreshness.latestAt ? ` · last: ${formatFreshDate(symptomFreshness.latestAt)}` : ""}
+                      {symptomFreshness.label}{symptomFreshness.latestAt ? ` · ${t("briefing.symptoms.last")}: ${formatFreshDate(symptomFreshness.latestAt)}` : ""}
                     </span>
                   )}
                 </div>
@@ -455,7 +457,7 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Recent Changes</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.recentChanges")}</h3>
                 </div>
                 <ul className="space-y-1">
                   {briefing.recent_changes.map((c, i) => (
@@ -474,14 +476,14 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Brain className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">SOAP Note</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.soap")}</h3>
                 </div>
                 <div className="space-y-3">
                   {[
-                    { label: "S, Subjective", value: briefing.soap_note.subjective },
-                    { label: "O, Objective", value: briefing.soap_note.objective },
-                    { label: "A, Assessment", value: briefing.soap_note.assessment },
-                    { label: "P, Plan", value: briefing.soap_note.plan },
+                    { label: t("briefing.soap.s"), value: briefing.soap_note.subjective },
+                    { label: t("briefing.soap.o"), value: briefing.soap_note.objective },
+                    { label: t("briefing.soap.a"), value: briefing.soap_note.assessment },
+                    { label: t("briefing.soap.p"), value: briefing.soap_note.plan },
                   ]
                     .filter((s) => s.value && s.value.trim() && s.value.trim().toUpperCase() !== "N/A")
                     .map((s, i) => (
@@ -501,7 +503,7 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Pill className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Medication-Lab Correlations</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.correlations")}</h3>
                 </div>
                 <div className="space-y-2">
                   {briefing.medication_correlations.map((c, i) => (
