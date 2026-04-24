@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Loader2, User, Phone, Shield, Save, ChevronRight, LogOut,
   FileText, Heart, Calendar, Bell, HelpCircle, BookOpen, Star,
-  Lock, MapPin,
+  Lock, MapPin, Share2,
 } from "lucide-react";
 
 interface PatientProfileData {
@@ -120,6 +120,30 @@ const PatientProfileEdit = () => {
     }
   };
 
+  const handleReferFriend = async () => {
+    const shareData = {
+      title: "Vyana",
+      text: "I’m using Vyana to keep my family’s health story ready for every doctor visit. Try it:",
+      url: WEB_APP_URL,
+    };
+
+    try {
+      if (typeof navigator !== "undefined" && (navigator as any).share) {
+        await (navigator as any).share(shareData);
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
+      toast({ title: "Invite copied", description: "Share it with friends and family." });
+    } catch {
+      toast({ title: "Referral link", description: WEB_APP_URL });
+    }
+  };
+
   if (isLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -132,6 +156,7 @@ const PatientProfileEdit = () => {
   ];
 
   const aboutItems = [
+    { icon: Share2, label: "Refer a friend", desc: "Invite family and friends to Vyana", path: null as string | null, onClick: handleReferFriend },
     { icon: BookOpen, label: "Our Story", desc: "Why we built Vyana", path: "/app/story" as string | null, onClick: undefined as undefined | (() => void) },
     { icon: HelpCircle, label: "Help & Support", desc: "Raise a ticket or report an issue", path: "/app/support" as string | null, onClick: undefined as undefined | (() => void) },
     { icon: Star, label: "Rate App", desc: "Rate Vyana or share with friends", path: null as string | null, onClick: handleRateApp },
