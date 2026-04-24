@@ -84,10 +84,17 @@ serve(async (req) => {
     // Fetch health records
     const { data: healthRecords } = await adminClient
       .from("health_records")
-      .select("id, file_name, file_type, uploaded_at, ai_summary, document_type, important_findings, medications, allergies, diagnoses, extracted_vitals, ai_confidence")
+      .select("id, file_name, file_path, file_type, uploaded_at, category, ai_summary, document_type, important_findings, medications, allergies, diagnoses, extracted_vitals, ai_confidence, radiology_modality, radiology_body_part, radiology_study_date, radiology_impression, radiology_recommendations, radiology_provider, radiology_upload_kind")
       .eq("patient_id", contact.patient_id)
       .order("uploaded_at", { ascending: false })
       .limit(50);
+
+    const recordsWithLinks = await Promise.all((healthRecords || []).map(async (record: any) => {
+      const { data: signed } = await adminClient.storage
+        .from("health-records")
+        .createSignedUrl(record.file_path, 60 * 60);
+      return { ...record, file_url: signed?.signedUrl || null };
+    }));
 
     const { data: activeMedicationReminders } = await adminClient
       .from("medication_reminders")
@@ -108,7 +115,7 @@ serve(async (req) => {
       consultationCount: consultations.length,
       recordCount: healthRecords?.length || 0,
       consultations,
-      healthRecords: healthRecords || [],
+      healthRecords: recordsWithLinks,
       activeMedications: activeMedicationReminders || [],
       generatedAt: new Date().toISOString(),
     };

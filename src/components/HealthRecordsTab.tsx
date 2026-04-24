@@ -14,6 +14,9 @@ import {
   FileImage,
   FolderOpen,
   Shield,
+  Camera,
+  ImagePlus,
+  ScanLine,
 } from "lucide-react";
 import {
   Dialog,
@@ -55,6 +58,13 @@ interface HealthRecord {
   diagnoses?: any;
   extracted_vitals?: any;
   ai_confidence?: string | null;
+  radiology_modality?: string | null;
+  radiology_body_part?: string | null;
+  radiology_study_date?: string | null;
+  radiology_impression?: string[] | null;
+  radiology_recommendations?: string[] | null;
+  radiology_provider?: string | null;
+  radiology_upload_kind?: string | null;
 }
 
 interface DoctorForConsent {
@@ -75,6 +85,9 @@ interface BatchScanItem {
   status: "queued" | "uploading" | "analyzing" | "done" | "error";
 }
 
+const RADIOLOGY_MODALITIES = ["X-ray", "CT", "MRI", "Ultrasound", "PET", "Other"] as const;
+type RadiologyUploadKind = "report_with_optional_films" | "film_only";
+
 const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps) => {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,8 +102,38 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [viewingSummary, setViewingSummary] = useState<HealthRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<RecordCategory>("discharge_summary");
   const [uploadCategory, setUploadCategory] = useState<RecordCategory>("discharge_summary");
+  const [radiologyModality, setRadiologyModality] = useState<string>("CT");
+  const [radiologyUploadKind, setRadiologyUploadKind] = useState<RadiologyUploadKind>("report_with_optional_films");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const isRadiologyUpload = uploadCategory === "radiology_imaging";
+
+  const cleanupScannedImage = async (file: File) => {
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+
+    const canvas = document.createElement("canvas");
+    const maxSide = 2200;
+    const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+    canvas.width = Math.round(image.width * scale);
+    canvas.height = Math.round(image.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return dataUrl;
+    ctx.filter = isRadiologyUpload ? "contrast(1.12) brightness(1.04) saturate(0.92)" : "contrast(1.06) brightness(1.02)";
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL(file.type === "image/png" ? "image/png" : "image/jpeg", 0.9);
+  };
 
   const imageFilesToPdf = async (files: File[]) => {
     const pdf = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
@@ -99,19 +142,14 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
     for (let i = 0; i < files.length; i++) {
       if (i > 0) pdf.addPage();
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(files[i]);
-      });
+      const dataUrl = await cleanupScannedImage(files[i]);
       const image = await new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(img);
         img.onerror = reject;
         img.src = dataUrl;
       });
-      const margin = 28;
+      const margin = isRadiologyUpload ? 22 : 28;
       const maxWidth = pageWidth - margin * 2;
       const maxHeight = pageHeight - margin * 2;
       const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
@@ -123,7 +161,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     const blob = pdf.output("blob");
     const name = files.length === 1
       ? `${files[0].name.replace(/\.[^.]+$/, "")}.pdf`
-      : `medical-images-${Date.now()}.pdf`;
+      : `${isRadiologyUpload ? "radiology-hardcopy-scan" : "medical-images"}-${Date.now()}.pdf`;
     return new File([blob], name, { type: "application/pdf" });
   };
 
@@ -213,6 +251,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
             file_type: file.type,
             file_size: file.size,
             category: uploadCategory,
+            radiology_modality: isRadiologyUpload ? radiologyModality : null,
+            radiology_upload_kind: isRadiologyUpload ? radiologyUploadKind : "standard",
           })
           .select()
           .single();
@@ -284,6 +324,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           fileType: record.file_type,
           fileContent,
           category: record.category,
+          radiologyModality: record.radiology_modality,
+          radiologyUploadKind: record.radiology_upload_kind,
         },
       });
 
@@ -300,6 +342,12 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           diagnoses: data.diagnoses || [],
           extracted_vitals: data.vitals || [],
           ai_confidence: data.confidence,
+          radiology_modality: data.radiology?.modality || record.radiology_modality || null,
+          radiology_body_part: data.radiology?.bodyPart || null,
+          radiology_study_date: data.radiology?.studyDate || null,
+          radiology_impression: data.radiology?.impression || [],
+          radiology_recommendations: data.radiology?.recommendations || [],
+          radiology_provider: data.radiology?.provider || null,
         })
         .eq("id", record.id);
 
@@ -460,6 +508,46 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
             </SelectContent>
           </Select>
         </div>
+        {isRadiologyUpload && (
+          <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant={radiologyUploadKind === "report_with_optional_films" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setRadiologyUploadKind("report_with_optional_films")}
+                className="rounded-lg justify-start text-xs h-9"
+              >
+                <ScanLine className="h-3.5 w-3.5 mr-1.5" /> Report first
+              </Button>
+              <Button
+                type="button"
+                variant={radiologyUploadKind === "film_only" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setRadiologyUploadKind("film_only")}
+                className="rounded-lg justify-start text-xs h-9"
+              >
+                <ImagePlus className="h-3.5 w-3.5 mr-1.5" /> Film only
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-muted-foreground shrink-0">Type:</span>
+              <Select value={radiologyModality} onValueChange={setRadiologyModality}>
+                <SelectTrigger className="h-8 rounded-lg text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {RADIOLOGY_MODALITIES.map((modality) => (
+                    <SelectItem key={modality} value={modality} className="text-xs">{modality}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              Upload written report pages first, then optional film photos. Film-only uploads are stored for viewing and are not interpreted.
+            </p>
+          </div>
+        )}
         {batchScanItems.length > 1 && (
           <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
             <div className="flex items-center justify-between gap-3">
@@ -547,6 +635,20 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {formatFileSize(record.file_size)} • {formatDate(record.uploaded_at)}
                           </p>
+                          {record.category === "radiology_imaging" && (
+                            <div className="mt-2 rounded-lg border border-border bg-muted/30 p-2 space-y-1">
+                              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground">
+                                <Camera className="h-3.5 w-3.5 text-primary" /> Radiology Details
+                              </div>
+                              <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                                <span>Type: {[record.radiology_modality, record.radiology_body_part].filter(Boolean).join(" ") || record.document_type || "Pending"}</span>
+                                <span>Date: {record.radiology_study_date ? formatDate(record.radiology_study_date) : formatDate(record.uploaded_at)}</span>
+                                {record.radiology_provider && <span className="col-span-2 truncate">Provider: {record.radiology_provider}</span>}
+                                {record.radiology_impression?.[0] && <span className="col-span-2 line-clamp-2">Impression: {record.radiology_impression[0]}</span>}
+                                {record.radiology_recommendations?.[0] && <span className="col-span-2 line-clamp-2">Follow-up: {record.radiology_recommendations[0]}</span>}
+                              </div>
+                            </div>
+                          )}
                           <div className="flex flex-wrap gap-1.5 mt-2">
                             {record.ai_summary && (
                               <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0 h-5">
@@ -727,6 +829,18 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
               <div className="p-4 rounded-lg bg-muted/40 border border-border whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                 {viewingSummary.ai_summary}
               </div>
+              {viewingSummary.category === "radiology_imaging" && (
+                <div className="p-4 rounded-lg border border-border bg-card space-y-2">
+                  <h4 className="text-sm font-semibold text-foreground">Radiology Details</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                    <p>Type: {[viewingSummary.radiology_modality, viewingSummary.radiology_body_part].filter(Boolean).join(" ") || "Not extracted"}</p>
+                    <p>Date: {viewingSummary.radiology_study_date ? formatDate(viewingSummary.radiology_study_date) : "Not extracted"}</p>
+                    <p className="sm:col-span-2">Provider: {viewingSummary.radiology_provider || "Not extracted"}</p>
+                    <p className="sm:col-span-2">Impression: {viewingSummary.radiology_impression?.join(" • ") || "Not extracted"}</p>
+                    <p className="sm:col-span-2">Follow-up advice: {viewingSummary.radiology_recommendations?.join(" • ") || "Not extracted"}</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>

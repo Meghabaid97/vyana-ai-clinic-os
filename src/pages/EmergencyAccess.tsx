@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   AlertTriangle, FileText, Heart, Loader2, Shield, Stethoscope,
   Pill, Activity, Calendar, ArrowLeft, Home, ClipboardList, Siren,
+  ScanLine, ExternalLink,
 } from "lucide-react";
 
 interface PatientSummary {
@@ -28,7 +29,9 @@ interface PatientSummary {
   healthRecords: {
     id: string;
     file_name: string;
+    file_url: string | null;
     file_type: string;
+    category: string | null;
     uploaded_at: string;
     ai_summary: string | null;
     document_type: string | null;
@@ -38,6 +41,13 @@ interface PatientSummary {
     diagnoses: unknown;
     extracted_vitals: unknown;
     ai_confidence: string | null;
+    radiology_modality: string | null;
+    radiology_body_part: string | null;
+    radiology_study_date: string | null;
+    radiology_impression: unknown;
+    radiology_recommendations: unknown;
+    radiology_provider: string | null;
+    radiology_upload_kind: string | null;
   }[];
   activeMedications: {
     medication_name: string;
@@ -168,6 +178,7 @@ const EmergencyAccess = () => {
     ...recordMedications,
     ...fhirMedications,
   ]));
+  const radiologyRecords = summary.healthRecords.filter((r) => r.category === "radiology_imaging");
 
   return (
     <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
@@ -307,6 +318,45 @@ const EmergencyAccess = () => {
           )}
 
           {/* Health Records */}
+          {radiologyRecords.length > 0 && (
+            <>
+              <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
+                <ScanLine className="h-4 w-4 text-primary" /> Radiology / Imaging
+              </h2>
+              <div className="space-y-2 mb-5">
+                {radiologyRecords.map(r => {
+                  const impression = toTextList(r.radiology_impression);
+                  const recommendations = toTextList(r.radiology_recommendations);
+                  return (
+                    <Card key={r.id}>
+                      <CardContent className="p-3.5 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-medium truncate">
+                            {[r.radiology_modality, r.radiology_body_part].filter(Boolean).join(" ") || r.document_type || r.file_name}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground shrink-0">
+                            {new Date(r.radiology_study_date || r.uploaded_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                          </span>
+                        </div>
+                        {r.radiology_provider && <p className="text-[11px] text-muted-foreground">{r.radiology_provider}</p>}
+                        {impression[0] && <p className="text-xs text-muted-foreground">Impression: {impression[0]}</p>}
+                        {recommendations[0] && <p className="text-xs text-muted-foreground">Follow-up: {recommendations[0]}</p>}
+                        {r.radiology_upload_kind === "film_only" && (
+                          <p className="text-[11px] text-muted-foreground">Film/photo stored only. Vyana has not interpreted the image.</p>
+                        )}
+                        {r.file_url && (
+                          <a href={r.file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                            View original report/photo <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
           <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
             <FileText className="h-4 w-4 text-primary" /> Health Records
           </h2>

@@ -539,6 +539,13 @@ export type Database = {
           important_findings: Json
           medications: Json
           patient_id: string
+          radiology_body_part: string | null
+          radiology_impression: Json
+          radiology_modality: string | null
+          radiology_provider: string | null
+          radiology_recommendations: Json
+          radiology_study_date: string | null
+          radiology_upload_kind: string
           updated_at: string
           uploaded_at: string
         }
@@ -559,6 +566,13 @@ export type Database = {
           important_findings?: Json
           medications?: Json
           patient_id: string
+          radiology_body_part?: string | null
+          radiology_impression?: Json
+          radiology_modality?: string | null
+          radiology_provider?: string | null
+          radiology_recommendations?: Json
+          radiology_study_date?: string | null
+          radiology_upload_kind?: string
           updated_at?: string
           uploaded_at?: string
         }
@@ -579,6 +593,13 @@ export type Database = {
           important_findings?: Json
           medications?: Json
           patient_id?: string
+          radiology_body_part?: string | null
+          radiology_impression?: Json
+          radiology_modality?: string | null
+          radiology_provider?: string | null
+          radiology_recommendations?: Json
+          radiology_study_date?: string | null
+          radiology_upload_kind?: string
           updated_at?: string
           uploaded_at?: string
         }

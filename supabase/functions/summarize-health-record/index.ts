@@ -52,11 +52,43 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
 
-    const { fileName, fileType, fileContent, category } = await req.json();
+    const { fileName, fileType, fileContent, category, radiologyModality, radiologyUploadKind } = await req.json();
 
     console.log('Summarizing health record:', fileName, fileType);
 
     const isRadiology = category === 'radiology_imaging' || /\b(x[-\s]?ray|ct|mri|ultrasound|sonography|radiology|imaging|scan)\b/i.test(fileName || '');
+
+    const isFilmOnlyRadiology = isRadiology && radiologyUploadKind === 'film_only';
+
+    if (isFilmOnlyRadiology) {
+      const filmOnlySummary = [
+        `Document Type: Radiology film/photo only`,
+        radiologyModality ? `Modality: ${radiologyModality}` : null,
+        `Safety Note: This upload appears to be a scan film/photo without a written radiology report. Vyana stored the image for doctors or family to view later, but did not interpret the medical image or attempt diagnosis.`,
+        `Confidence: low`,
+      ].filter(Boolean).join('\n\n');
+
+      return new Response(JSON.stringify({
+        summary: filmOnlySummary,
+        documentType: 'Radiology film/photo only',
+        importantFindings: [],
+        diagnoses: [],
+        medications: [],
+        allergies: [],
+        vitals: [],
+        confidence: 'low',
+        radiology: {
+          modality: radiologyModality || null,
+          bodyPart: null,
+          studyDate: null,
+          impression: [],
+          recommendations: [],
+          provider: null,
+        },
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const systemPrompt = `You are a STRICT healthcare document extraction assistant.
 
@@ -67,14 +99,14 @@ Follow these rules with zero exceptions:
 4. Do not add recommendations unless they are explicitly written in the document.
 5. If the document is non-diagnostic (for example pathology specimen notes without broad vitals), say that clearly.
 6. This is healthcare: hallucinations are unacceptable.
-7. For radiology/imaging files, never diagnose from raw X-ray, CT, MRI, or ultrasound pixels. Only extract written report text, visible labels, dates, modality/body-part, radiologist findings, impression, diagnosis, and recommendations when explicitly present.
+7. For radiology/imaging files, never diagnose from raw X-ray, CT, MRI, PET, or ultrasound pixels. Only extract written report text, visible labels, dates, modality/body-part, radiologist findings, impression, doctor/hospital name, and recommendations when explicitly present.
 
 Return the result by calling the tool.`;
 
     const userPrompt = `Extract a factual summary from this medical document.
 
 Document: ${fileName}
-Category: ${category || 'unknown'}${isRadiology ? '\nRadiology safety mode: classify the modality if visible, extract written report findings/impression only, and do not interpret scan imagery.' : ''}
+Category: ${category || 'unknown'}${isRadiology ? `\nRadiology safety mode: report pages come first, film photos may be attached second. Extract written report findings/impression only, and do not interpret scan imagery. User-selected modality: ${radiologyModality || 'unknown'}.` : ''}
 
 Need these fields:
 - documentType
@@ -87,6 +119,8 @@ Need these fields:
 - allergies: only explicitly listed allergies or adverse reactions
 - vitals: only numerical measurements explicitly written in the document
 - recommendations: only explicitly written follow-up or recommendations
+- studyDate: only explicit study/report date in YYYY-MM-DD if visible, otherwise null
+- provider: doctor, radiologist, clinic, hospital, or imaging centre name if visible
 - notes: any other explicit notes needed for context
 - confidence: high, medium, or low based on readability only
 
@@ -135,10 +169,12 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
               }
             },
             recommendations: { type: "array", items: { type: "string" } },
+            studyDate: { type: ["string", "null"] },
+            provider: { type: ["string", "null"] },
             notes: { type: "array", items: { type: "string" } },
             confidence: { type: "string", enum: ["high", "medium", "low"] }
           },
-          required: ["documentType", "findings", "radiologyImpression", "modality", "bodyPart", "diagnoses", "medications", "allergies", "vitals", "recommendations", "notes", "confidence"],
+          required: ["documentType", "findings", "radiologyImpression", "modality", "bodyPart", "diagnoses", "medications", "allergies", "vitals", "recommendations", "studyDate", "provider", "notes", "confidence"],
           additionalProperties: false
         }
       }
@@ -179,9 +215,12 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
     if (!toolArgs) throw new Error('No structured summary generated');
 
     const extracted = JSON.parse(toolArgs);
+    const normalizedStudyDate = typeof extracted.studyDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(extracted.studyDate) ? extracted.studyDate : null;
     const radiologyDetails = [
       extracted.modality ? `Modality: ${extracted.modality}` : null,
       extracted.bodyPart ? `Body Part: ${extracted.bodyPart}` : null,
+      normalizedStudyDate ? `Study Date: ${normalizedStudyDate}` : null,
+      extracted.provider ? `Doctor / Hospital: ${extracted.provider}` : null,
       extracted.radiologyImpression?.length ? `Radiologist Impression:
 ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` : null,
     ].filter(Boolean);
@@ -210,6 +249,14 @@ ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` 
       allergies: extracted.allergies || [],
       vitals: extracted.vitals || [],
       confidence: extracted.confidence || 'low',
+      radiology: {
+        modality: extracted.modality || radiologyModality || null,
+        bodyPart: extracted.bodyPart || null,
+        studyDate: normalizedStudyDate,
+        impression: extracted.radiologyImpression || [],
+        recommendations: extracted.recommendations || [],
+        provider: extracted.provider || null,
+      },
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
