@@ -18,6 +18,7 @@ import ClinicalRiskDashboard from "@/components/ClinicalRiskDashboard";
 import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
 import PageHero from "@/components/PageHero";
 import { TrendsSkeleton } from "@/components/ui/page-skeletons";
+import { useLanguage } from "@/lib/i18n";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
@@ -84,6 +85,7 @@ const HealthTrends = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const autoProcessedRecordRef = useRef<string | null>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
