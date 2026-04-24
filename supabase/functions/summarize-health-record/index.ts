@@ -179,8 +179,15 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
     if (!toolArgs) throw new Error('No structured summary generated');
 
     const extracted = JSON.parse(toolArgs);
+    const radiologyDetails = [
+      extracted.modality ? `Modality: ${extracted.modality}` : null,
+      extracted.bodyPart ? `Body Part: ${extracted.bodyPart}` : null,
+      extracted.radiologyImpression?.length ? `Radiologist Impression:
+${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` : null,
+    ].filter(Boolean);
     const sections = [
       `Document Type: ${extracted.documentType || 'Unknown'}`,
+      radiologyDetails.length ? radiologyDetails.join('\n') : null,
       extracted.findings?.length ? `Key Findings:\n${extracted.findings.map((item: string) => `- ${item}`).join('\n')}` : null,
       extracted.diagnoses?.length ? `Diagnoses:\n${extracted.diagnoses.map((item: string) => `- ${item}`).join('\n')}` : null,
       extracted.medications?.length ? `Medications:\n${extracted.medications.map((item: string) => `- ${item}`).join('\n')}` : null,
@@ -197,7 +204,7 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
     return new Response(JSON.stringify({
       summary,
       documentType: extracted.documentType || null,
-      importantFindings: extracted.findings || [],
+      importantFindings: [...(extracted.radiologyImpression || []), ...(extracted.findings || [])],
       diagnoses: extracted.diagnoses || [],
       medications: extracted.medications || [],
       allergies: extracted.allergies || [],
