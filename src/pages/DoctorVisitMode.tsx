@@ -114,13 +114,15 @@ const DoctorVisitMode = () => {
       }
       setPatientName(patient.name || "");
 
-      const [consRes, recRes, vitRes, medRes] = await Promise.all([
+      const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+      const [consRes, recRes, vitRes, medRes, sympRes] = await Promise.all([
         patient.national_health_id
           ? supabase.from("consultations").select("*").eq("patient_national_health_id", patient.national_health_id).order("created_at", { ascending: false }).limit(10)
           : Promise.resolve({ data: [] as any[] }),
         supabase.from("health_records").select("file_name, ai_summary").eq("patient_id", patient.id).order("uploaded_at", { ascending: false }).limit(10),
         supabase.from("vital_history").select("*").eq("patient_id", patient.id).order("recorded_at", { ascending: true }),
         supabase.from("medication_reminders").select("*").eq("patient_id", patient.id),
+        supabase.from("symptom_logs").select("*").eq("patient_id", patient.id).gte("logged_at", ninetyDaysAgo).order("logged_at", { ascending: false }).limit(100),
       ]);
 
       const { data, error } = await supabase.functions.invoke("clinical-briefing", {
@@ -130,6 +132,7 @@ const DoctorVisitMode = () => {
           healthRecordSummaries: recRes.data || [],
           vitalHistory: vitRes.data || [],
           medicationReminders: medRes.data || [],
+          symptomLogs: sympRes.data || [],
         },
       });
       if (error) throw error;
