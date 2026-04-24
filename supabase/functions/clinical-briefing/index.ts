@@ -292,6 +292,7 @@ ${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` 
         recent_changes: [],
         soap_note: { subjective: "N/A", objective: "N/A", assessment: "N/A", plan: "N/A" },
         medication_correlations: [],
+        recent_symptoms: [],
       };
     }
 
