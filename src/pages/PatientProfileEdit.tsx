@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Loader2, User, Phone, Shield, Save, ChevronRight, LogOut,
   FileText, Heart, Calendar, Bell, HelpCircle, BookOpen, Star,
-  Lock, MapPin, Share2,
+  Lock, MapPin, Share2, KeyRound,
 } from "lucide-react";
 
 interface PatientProfileData {
@@ -28,6 +28,9 @@ const PatientProfileEdit = () => {
   const [formData, setFormData] = useState({ name: "", age: "", phone: "", national_health_id: "" });
   const [stats, setStats] = useState({ totalConsultations: 0, totalDoctors: 0, lastVisit: null as string | null });
   const [editMode, setEditMode] = useState(false);
+  const [accountMode, setAccountMode] = useState(false);
+  const [isPasswordSaving, setIsPasswordSaving] = useState(false);
+  const [passwordData, setPasswordData] = useState({ password: "", confirmPassword: "" });
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -144,12 +147,39 @@ const PatientProfileEdit = () => {
     }
   };
 
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const password = passwordData.password.trim();
+    if (password.length < 8) {
+      toast({ title: "Use a stronger password", description: "Password must be at least 8 characters.", variant: "destructive" });
+      return;
+    }
+    if (password !== passwordData.confirmPassword.trim()) {
+      toast({ title: "Passwords do not match", description: "Please re-enter the same password.", variant: "destructive" });
+      return;
+    }
+
+    setIsPasswordSaving(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw error;
+      setPasswordData({ password: "", confirmPassword: "" });
+      setAccountMode(false);
+      toast({ title: "Password updated", description: "Use your new password the next time you sign in." });
+    } catch (error: any) {
+      toast({ title: "Could not update password", description: error.message || "Please try again.", variant: "destructive" });
+    } finally {
+      setIsPasswordSaving(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   const menuItems = [
     { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/app/medical-history" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: KeyRound, label: "Account Settings", desc: "Change password and sign-in details", path: null as string | null, onClick: () => setAccountMode(!accountMode) },
     { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
     { icon: Bell, label: "Notifications", desc: "Manage notification preferences", path: null as string | null, onClick: undefined as undefined | (() => void) },
     { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
