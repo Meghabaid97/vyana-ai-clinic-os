@@ -251,6 +251,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
             file_type: file.type,
             file_size: file.size,
             category: uploadCategory,
+            radiology_modality: isRadiologyUpload ? radiologyModality : null,
+            radiology_upload_kind: isRadiologyUpload ? radiologyUploadKind : "standard",
           })
           .select()
           .single();
@@ -322,6 +324,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           fileType: record.file_type,
           fileContent,
           category: record.category,
+          radiologyModality: record.radiology_modality,
+          radiologyUploadKind: record.radiology_upload_kind,
         },
       });
 
@@ -338,6 +342,12 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           diagnoses: data.diagnoses || [],
           extracted_vitals: data.vitals || [],
           ai_confidence: data.confidence,
+          radiology_modality: data.radiology?.modality || record.radiology_modality || null,
+          radiology_body_part: data.radiology?.bodyPart || null,
+          radiology_study_date: data.radiology?.studyDate || null,
+          radiology_impression: data.radiology?.impression || [],
+          radiology_recommendations: data.radiology?.recommendations || [],
+          radiology_provider: data.radiology?.provider || null,
         })
         .eq("id", record.id);
 
