@@ -264,6 +264,7 @@ const DoctorVisitMode = () => {
               { icon: Activity, t: "Overview & conditions", s: "A 2-line summary any doctor can scan" },
               { icon: AlertTriangle, t: "What changed since last visit", s: "Vitals and meds that moved" },
               { icon: Pill, t: "Current medications", s: "Active list, dosages, recent additions" },
+              { icon: NotebookPen, t: "Recent symptoms from your journal", s: "Frequency, severity, patterns the doctor should hear" },
               { icon: Share2, t: "One-tap share", s: "WhatsApp, copy, or download" },
             ].map(({ icon: I, t, s }) => (
               <div key={t} className="flex items-start gap-3 rounded-xl border border-border bg-card p-3">
