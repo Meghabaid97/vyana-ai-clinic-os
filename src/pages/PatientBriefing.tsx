@@ -38,17 +38,18 @@ const PatientBriefing = () => {
   const [shareSheetOpen, setShareSheetOpen] = useState(false);
   const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const createShareLink = async (recipientName: string): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      toast({ title: "Sign in required", description: "Please sign in to share your briefing.", variant: "destructive" });
+      toast({ title: t("briefing.toast.signinTitle"), description: t("briefing.toast.signinDesc"), variant: "destructive" });
       return null;
     }
     const { data: patient } = await supabase
       .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
     if (!patient) {
-      toast({ title: "Profile missing", description: "Complete your profile first.", variant: "destructive" });
+      toast({ title: t("briefing.toast.profileTitle"), description: t("briefing.toast.profileDesc"), variant: "destructive" });
       return null;
     }
     const { data, error } = await supabase.from("shared_record_links").insert({
@@ -56,7 +57,7 @@ const PatientBriefing = () => {
       recipient_name: recipientName || null,
     }).select().single() as { data: { token: string } | null; error: { message: string } | null };
     if (error || !data) {
-      toast({ title: "Could not create link", description: error?.message ?? "Unknown error", variant: "destructive" });
+      toast({ title: t("briefing.toast.linkFail"), description: error?.message ?? "Unknown error", variant: "destructive" });
       return null;
     }
     return `${window.location.origin}/emergency-access/${data.token}`;
