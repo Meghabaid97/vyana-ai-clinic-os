@@ -49,11 +49,11 @@ interface HealthRecord {
   uploaded_at: string;
   category: string;
   document_type?: string | null;
-  important_findings?: string[] | null;
-  medications?: string[] | null;
-  allergies?: string[] | null;
-  diagnoses?: string[] | null;
-  extracted_vitals?: Array<{ name: string; value: string; unit?: string; referenceRange?: string }> | null;
+  important_findings?: any;
+  medications?: any;
+  allergies?: any;
+  diagnoses?: any;
+  extracted_vitals?: any;
   ai_confidence?: string | null;
 }
 
@@ -133,7 +133,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         .order("uploaded_at", { ascending: false });
 
       if (error) throw error;
-      setRecords(data || []);
+      setRecords((data || []) as HealthRecord[]);
     } catch (error: any) {
       console.error("Error loading health records:", error);
     } finally {
@@ -142,11 +142,11 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const selectedFiles = Array.from(event.target.files || []);
+    if (selectedFiles.length === 0) return;
 
     const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
+    if (selectedFiles.some((file) => !allowedTypes.includes(file.type))) {
       toast({
         title: "Invalid file type",
         description: "Please upload PDF or image files only",
@@ -155,10 +155,11 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
+    const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > 20 * 1024 * 1024) {
       toast({
         title: "File too large",
-        description: "Maximum file size is 10MB",
+        description: "Upload up to 20MB at a time",
         variant: "destructive",
       });
       return;
@@ -167,6 +168,13 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     setIsUploading(true);
     setUploadState("loading");
     try {
+      const pdfFiles = selectedFiles.filter((file) => file.type === "application/pdf");
+      const imageFiles = selectedFiles.filter((file) => file.type.startsWith("image/"));
+      if (pdfFiles.length > 0 && imageFiles.length > 0) {
+        throw new Error("Upload either PDFs or images together, not both in one batch.");
+      }
+      const file = imageFiles.length > 0 ? await imageFilesToPdf(imageFiles) : pdfFiles[0];
+
       const filePath = `${userId}/${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from("health-records")
@@ -198,7 +206,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       setTimeout(() => setUploadState("idle"), 1800);
 
       await loadRecords();
-      await summarizeRecord(insertedRecord as HealthRecord);
+      await summarizeRecord(insertedRecord as unknown as HealthRecord);
 
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
