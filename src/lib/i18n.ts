@@ -100,6 +100,121 @@ const translations: Record<Language, Record<string, string>> = {
     // Footer
     "footer.powered": "Powered by",
     "footer.tagline": "Your health, simplified",
+
+    // App shell — primary tabs
+    "app.tab.home": "Home",
+    "app.tab.briefing": "Briefing",
+    "app.tab.trends": "Trends",
+    "app.tab.records": "Records",
+    "app.tab.claims": "Claims",
+    "app.tab.profile": "Profile",
+    "app.tab.emergency": "Emergency",
+    "app.tabShort.home": "Home",
+    "app.tabShort.briefing": "Brief",
+    "app.tabShort.trends": "Trends",
+    "app.tabShort.records": "Records",
+    "app.tabShort.claims": "Claim",
+    "app.tabShort.profile": "Profile",
+    "app.tabShort.emergency": "SOS",
+
+    // App shell — header
+    "app.askPlaceholder": "Ask Vyana anything about your health…",
+    "app.askCited": "Cited",
+    "app.account": "Account",
+    "app.back": "Back",
+    "app.tour": "Take the tour",
+    "app.signOut": "Sign out",
+    "app.help": "Help",
+
+    // App shell — sub-route titles
+    "app.sub.timeline": "Timeline",
+    "app.sub.vaccinations": "Vaccinations",
+    "app.sub.medications": "Medications",
+    "app.sub.prescriptionReader": "Prescription Reader",
+    "app.sub.share": "Share Records",
+    "app.sub.story": "Our Story",
+    "app.sub.support": "Help & Support",
+    "app.sub.medicalHistory": "Medical History",
+    "app.sub.emergencyContacts": "Emergency Contacts",
+    "app.sub.visit": "Doctor Visit Mode",
+    "app.sub.journal": "Health Journal",
+
+    // Footer (desktop)
+    "app.footer.tagline": "Never explain your medical history again.",
+    "app.footer.support": "Support",
+    "app.footer.privacy": "Privacy",
+    "app.footer.story": "Our story",
+
+    // AppHome — hero
+    "home.welcomeBack": "Welcome back, {name}",
+    "home.h1.l1": "Your health story.",
+    "home.h1.l2": "Always with you.",
+    "home.subtitle": "Never explain your medical history again. Doctor-ready in 30 seconds.",
+
+    // AppHome — story so far
+    "home.story.title.l1": "Your story so far.",
+    "home.story.title.l2": "Every detail matters.",
+    "home.story.subtitle": "What happens when the system forgets and families pay the price. Your records make sure that never happens.",
+    "home.story.beat1.title": "Five minutes. A lifetime of history.",
+    "home.story.beat1.text": "A family rushes to the ER. They get five minutes to explain decades of medical history. No records. No context. Just fear.",
+    "home.story.beat2.title": "75 pages. Zero continuity.",
+    "home.story.beat2.text": "Scattered reports in thick folders. Every new doctor orders fresh tests. The clock resets. The bill climbs. Nothing connects.",
+    "home.story.beat3.title": "Caught too late.",
+    "home.story.beat3.text": "Nobody tracks the slow changes. Conditions worsen quietly. By the time they are caught, prevention is off the table.",
+
+    // AppHome — record stats card
+    "home.uploadFirst.title": "Upload your first record",
+    "home.uploadFirst.sub": "Your story starts here.",
+    "home.records.eyebrow": "Your story so far",
+    "home.records.held": "record held",
+    "home.records.heldPlural": "records held",
+    "home.records.tagline": "Every detail you save is one less question your next doctor has to ask.",
+    "home.records.first": "First",
+    "home.records.latest": "Latest",
+    "home.records.activeDays": "Active days",
+
+    // AppHome — quick actions
+    "home.quickActions": "Quick actions",
+    "home.shareDoctor": "Share with doctor",
+    "home.emergencyAccess": "Emergency access",
+
+    // AppHome — ABHA prompt
+    "home.abha.title": "Connect your ABHA Health ID",
+    "home.abha.body": "Link your national health ID and every consultation across providers connects automatically.",
+
+    // AppHome — Why Vyana tile
+    "home.why.title": "Why Vyana?",
+    "home.why.body1": "In 2005, in a small hospital in Tirupur, a family lost someone they loved. Not because the doctors didn't care. Because no one had the records. No history. No context. Just five desperate minutes to explain a lifetime.",
+    "home.why.body2": "Vyana exists so that never happens again. Not to your family. Not to anyone's.",
+    "home.why.cta.title": "Read our full story",
+    "home.why.cta.sub": "The promise behind the product.",
+
+    // AppHome — bottom tagline
+    "home.bottom.tagline": "Never explain your medical history again.",
+
+    // Briefing hero card
+    "briefingHero.eyebrow": "30 seconds",
+    "briefingHero.title.l1": "I have a",
+    "briefingHero.title.l2": "doctor visit.",
+    "briefingHero.body": "One scrollable sheet your doctor can read in under a minute. Conditions, what changed, medications, ready to share.",
+    "briefingHero.cta.start": "Start visit mode",
+    "briefingHero.cta.fromRecords": "Built from your records",
+    "briefingHero.cta.fromSample": "Try it with sample data",
+    "briefingHero.cta.fullBrief": "Full clinical brief",
+    "briefingHero.cta.sampleData": "Try sample data",
+
+    // Journal quick log card
+    "journalQuick.eyebrow": "HEALTH JOURNAL",
+    "journalQuick.title": "How are you feeling today?",
+    "journalQuick.sub": "A quick log helps Vyana spot patterns earlier.",
+    "journalQuick.log": "Log a symptom",
+    "journalQuick.openJournal": "Journal",
+
+    // Vitals strip
+    "vitals.heading": "Your vitals are",
+    "vitals.headingHighlight": "looking great",
+    "vitals.seeAll": "See all trends",
+    "vitals.onPoint": "of {n} vitals on point.",
   },
   hi: {
     "nav.dashboard": "डैशबोर्ड",
