@@ -42,6 +42,7 @@ export async function summarizeHealthRecord(
   filePath: string,
   fileName: string,
   fileType: string,
+  category: string = "other",
 ): Promise<string | null> {
   const { data: urlData } = await supabase.storage
     .from("health-records")
@@ -61,7 +62,7 @@ export async function summarizeHealthRecord(
   }
 
   const { data, error } = await supabase.functions.invoke("summarize-health-record", {
-    body: { fileName, fileType, fileContent },
+    body: { fileName, fileType, fileContent, category },
   });
 
   if (error || !data?.summary) return null;
