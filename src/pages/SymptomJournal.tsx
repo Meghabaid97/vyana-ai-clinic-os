@@ -47,6 +47,7 @@ const SymptomJournal = () => {
       .from("symptom_logs")
       .select("*")
       .eq("patient_id", pid)
+      .gte("logged_at", symptomWindowStartIso())
       .order("logged_at", { ascending: false })
       .limit(100);
     setLogs((data as Log[]) || []);
