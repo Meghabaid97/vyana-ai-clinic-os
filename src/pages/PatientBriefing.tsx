@@ -103,7 +103,7 @@ const PatientBriefing = () => {
         patient.national_health_id
           ? supabase.from("consultations").select("*").eq("patient_national_health_id", patient.national_health_id).order("created_at", { ascending: false }).limit(10)
           : Promise.resolve({ data: [] }),
-        supabase.from("health_records").select("file_name, ai_summary").eq("patient_id", patient.id).order("uploaded_at", { ascending: false }).limit(10),
+        supabase.from("health_records").select("file_name, ai_summary, medications, uploaded_at").eq("patient_id", patient.id).order("uploaded_at", { ascending: false }).limit(20),
         supabase.from("vital_history").select("*").eq("patient_id", patient.id).order("recorded_at", { ascending: true }),
         supabase.from("medication_reminders").select("*").eq("patient_id", patient.id),
         supabase.from("symptom_logs").select("*").eq("patient_id", patient.id).gte("logged_at", ninetyDaysAgo).order("logged_at", { ascending: false }).limit(100),

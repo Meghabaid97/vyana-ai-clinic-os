@@ -78,9 +78,31 @@ serve(async (req) => {
       `${r.file_name}: ${r.ai_summary?.substring(0, 200) || "No summary"}`
     ).join("\n\n");
 
-    const medContext = (medicationReminders || []).map((m: any) =>
-      `${m.medication_name} ${m.dosage || ""} - ${m.frequency} (${m.is_active ? "Active" : "Stopped"})`
-    ).join("\n");
+    const reminderMeds = (medicationReminders || []).map((m: any) =>
+      `${m.medication_name} ${m.dosage || ""} - ${m.frequency} (${m.is_active ? "Active reminder" : "Stopped"}) [source: reminders]`
+    );
+
+    // Medications extracted from uploaded prescriptions / Rx Reader (health_records.medications jsonb)
+    const prescriptionMeds: string[] = [];
+    (healthRecordSummaries || []).forEach((r: any) => {
+      const meds = Array.isArray(r.medications) ? r.medications : [];
+      const date = r.uploaded_at ? new Date(r.uploaded_at).toLocaleDateString("en-IN") : "";
+      meds.forEach((m: any) => {
+        if (!m) return;
+        if (typeof m === "string") {
+          prescriptionMeds.push(`${m} [source: prescription ${r.file_name || ""} ${date}]`);
+        } else {
+          const name = m.name || m.medication_name || m.drug || "Unknown";
+          const dose = m.dosage || m.dose || "";
+          const freq = m.frequency || m.schedule || "";
+          const dur = m.duration ? ` × ${m.duration}` : "";
+          const cond = m.condition ? ` for ${m.condition}` : "";
+          prescriptionMeds.push(`${name} ${dose} ${freq}${dur}${cond} [source: prescription ${r.file_name || ""} ${date}]`.trim());
+        }
+      });
+    });
+
+    const medContext = [...reminderMeds, ...prescriptionMeds].join("\n");
 
     // Patient-reported symptom journal (last 90 days)
     const symptomContext = (symptomLogs || []).map((s: any) => {
