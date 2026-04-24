@@ -116,7 +116,7 @@ const DoctorVisitMode = () => {
       }
       setPatientName(patient.name || "");
 
-      const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+      const ninetyDaysAgo = symptomWindowStartIso();
       const [consRes, recRes, vitRes, medRes, sympRes] = await Promise.all([
         patient.national_health_id
           ? supabase.from("consultations").select("*").eq("patient_national_health_id", patient.national_health_id).order("created_at", { ascending: false }).limit(10)
@@ -126,6 +126,8 @@ const DoctorVisitMode = () => {
         supabase.from("medication_reminders").select("*").eq("patient_id", patient.id),
         supabase.from("symptom_logs").select("*").eq("patient_id", patient.id).gte("logged_at", ninetyDaysAgo).order("logged_at", { ascending: false }).limit(100),
       ]);
+
+      setSymptomFreshness(summarizeFreshness((sympRes.data as any) || []));
 
       const { data, error } = await supabase.functions.invoke("clinical-briefing", {
         body: {
