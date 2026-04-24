@@ -52,9 +52,11 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
 
-    const { fileName, fileType, fileContent } = await req.json();
+    const { fileName, fileType, fileContent, category } = await req.json();
 
     console.log('Summarizing health record:', fileName, fileType);
+
+    const isRadiology = category === 'radiology_imaging' || /\b(x[-\s]?ray|ct|mri|ultrasound|sonography|radiology|imaging|scan)\b/i.test(fileName || '');
 
     const systemPrompt = `You are a STRICT healthcare document extraction assistant.
 
@@ -65,16 +67,21 @@ Follow these rules with zero exceptions:
 4. Do not add recommendations unless they are explicitly written in the document.
 5. If the document is non-diagnostic (for example pathology specimen notes without broad vitals), say that clearly.
 6. This is healthcare: hallucinations are unacceptable.
+7. For radiology/imaging files, never diagnose from raw X-ray, CT, MRI, or ultrasound pixels. Only extract written report text, visible labels, dates, modality/body-part, radiologist findings, impression, diagnosis, and recommendations when explicitly present.
 
 Return the result by calling the tool.`;
 
     const userPrompt = `Extract a factual summary from this medical document.
 
 Document: ${fileName}
+Category: ${category || 'unknown'}${isRadiology ? '\nRadiology safety mode: classify the modality if visible, extract written report findings/impression only, and do not interpret scan imagery.' : ''}
 
 Need these fields:
 - documentType
 - findings: only explicitly stated findings
+- radiologyImpression: only the radiologist/doctor impression if explicitly written
+- modality: only if explicitly visible or clear from report text, such as X-ray, CT, MRI, ultrasound
+- bodyPart: only if explicitly visible or written
 - diagnoses: only explicitly written diagnoses
 - medications: only explicitly listed medications or dosages
 - allergies: only explicitly listed allergies or adverse reactions
@@ -107,6 +114,9 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
           properties: {
             documentType: { type: "string" },
             findings: { type: "array", items: { type: "string" } },
+            radiologyImpression: { type: "array", items: { type: "string" } },
+            modality: { type: "string" },
+            bodyPart: { type: "string" },
             diagnoses: { type: "array", items: { type: "string" } },
             medications: { type: "array", items: { type: "string" } },
             allergies: { type: "array", items: { type: "string" } },
@@ -128,7 +138,7 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
             notes: { type: "array", items: { type: "string" } },
             confidence: { type: "string", enum: ["high", "medium", "low"] }
           },
-          required: ["documentType", "findings", "diagnoses", "medications", "allergies", "vitals", "recommendations", "notes", "confidence"],
+          required: ["documentType", "findings", "radiologyImpression", "modality", "bodyPart", "diagnoses", "medications", "allergies", "vitals", "recommendations", "notes", "confidence"],
           additionalProperties: false
         }
       }
