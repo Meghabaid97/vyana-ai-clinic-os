@@ -298,7 +298,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
                     </span>
                     <span className={`ml-auto flex items-center gap-0.5 text-[10px] font-medium ${dir === "flat" ? "text-muted-foreground" : "text-foreground/70"}`}>
                       <DirIcon className="h-3 w-3" />
-                      {delta != null && dir !== "flat" ? Math.abs(delta).toFixed(def.decimals ?? 1) : "—"}
+                      {delta != null && dir !== "flat" ? Math.abs(delta).toFixed(def.decimals ?? 1) : "·"}
                     </span>
                   </div>
 
@@ -322,7 +322,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
                   className={`h-2 w-2 rounded-full ${STATUS_TONE[s].bar}`}
                 />
                 <span className="capitalize">{s}</span>
-                <span className="text-muted-foreground/70">— {STATUS_COPY[s]}</span>
+                <span className="text-muted-foreground/70">· {STATUS_COPY[s]}</span>
               </li>
             ))}
           </ul>
