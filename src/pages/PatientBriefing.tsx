@@ -413,6 +413,31 @@ const PatientBriefing = () => {
             </section>
           )}
 
+          {/* Recent symptoms (from health journal) */}
+          {briefing.recent_symptoms && briefing.recent_symptoms.length > 0 && (
+            <section className="px-5 pb-4">
+              <div className="rounded-xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <NotebookPen className="h-4 w-4 text-primary" />
+                  <h3 className="text-[14px] font-bold text-foreground">Recent Symptoms</h3>
+                  <Badge variant="outline" className="text-[9px] ml-auto">self-reported · 90d</Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground mb-3">From your health journal</p>
+                <div className="space-y-2">
+                  {briefing.recent_symptoms.map((s, i) => (
+                    <div key={i} className="rounded-lg bg-muted/50 px-3 py-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[13px] font-medium text-foreground capitalize">{s.symptom}</span>
+                        <span className="text-[11px] text-muted-foreground shrink-0">{s.frequency} · {s.avg_severity}</span>
+                      </div>
+                      {s.pattern && <p className="text-[11px] text-muted-foreground mt-1">{s.pattern}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Recent changes */}
           {briefing.recent_changes.length > 0 && (
             <section className="px-5 pb-4">
