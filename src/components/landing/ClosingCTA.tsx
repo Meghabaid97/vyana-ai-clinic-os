@@ -1,26 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Mail, Linkedin } from "lucide-react";
 import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
+import { useLanguage } from "@/lib/i18n";
 
 const ClosingCTA = () => {
   const navigate = useViewTransitionNavigate();
+  const { t } = useLanguage();
   return (
     <section id="contact" className="py-28 lg:py-36">
       <div className="max-w-[1100px] mx-auto px-6 lg:px-12">
         <div className="max-w-[720px]">
           <p className="text-[11px] tracking-[0.25em] uppercase text-primary font-medium mb-6">
-            VI &nbsp;·&nbsp; Get started
+            VI &nbsp;·&nbsp; {t("cta.eyebrow")}
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-7xl leading-[1.02] tracking-[-0.02em] text-foreground">
-            Every family deserves
+            {t("cta.title.l1")}
             <br />
-            <em className="italic text-primary font-normal">a doctor who knows their story.</em>
+            <em className="italic text-primary font-normal">{t("cta.title.l2")}</em>
           </h2>
 
           <p className="mt-8 text-[16px] leading-[1.75] text-muted-foreground max-w-[560px]">
-            Try Vyana now. Whether you're managing chronic conditions, caring for
-            elderly parents, or just tired of repeating your history in every
-            new clinic.
+            {t("cta.sub")}
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5">
@@ -29,7 +29,7 @@ const ClosingCTA = () => {
               className="vt-cta-pill group h-12 px-7 text-[15px] rounded-full"
               onClick={() => navigate("/request-access")}
             >
-              Get early access
+              {t("cta.button")}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
 
@@ -48,7 +48,7 @@ const ClosingCTA = () => {
                 className="flex items-center gap-2 hover:text-foreground transition-colors"
               >
                 <Linkedin className="h-4 w-4" />
-                LinkedIn
+                {t("cta.linkedin")}
               </a>
             </div>
           </div>
@@ -57,7 +57,7 @@ const ClosingCTA = () => {
         <footer className="mt-24 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[12px] text-muted-foreground">
           <span className="font-serif text-base text-foreground">Vyana</span>
           <p className="italic">
-            © 2025 Vyana. Every patient deserves a doctor who knows their story.
+            {t("cta.footer.copyright")}
           </p>
         </footer>
       </div>

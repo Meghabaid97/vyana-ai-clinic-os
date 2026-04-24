@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import SymptomLogDialog from "@/components/journal/SymptomLogDialog";
 import { symptomById } from "@/lib/symptomCatalog";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS } from "@/lib/symptomFreshness";
+import { useLanguage } from "@/lib/i18n";
 
 interface Log {
   id: string;
@@ -32,6 +33,7 @@ interface VisitPrep {
 
 const SymptomJournal = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [patientId, setPatientId] = useState<string | null>(null);
   const [logs, setLogs] = useState<Log[]>([]);
   const [openLog, setOpenLog] = useState(false);
@@ -74,11 +76,11 @@ const SymptomJournal = () => {
       });
       if (error) throw error;
       if (data?.error === "no_data") {
-        toast({ title: "Nothing to analyze yet", description: data.message });
+        toast({ title: t("journal.toast.nothing.title"), description: data.message });
         return;
       }
       if (data?.error) {
-        toast({ title: "Couldn't analyze", description: data.error, variant: "destructive" });
+        toast({ title: t("journal.toast.failAnalyze"), description: data.error, variant: "destructive" });
         return;
       }
       if (mode === "insights") {
@@ -88,14 +90,14 @@ const SymptomJournal = () => {
         setPrep(data);
       }
     } catch (e) {
-      toast({ title: "Failed", description: e instanceof Error ? e.message : "Try again", variant: "destructive" });
+      toast({ title: t("journal.toast.fail.title"), description: e instanceof Error ? e.message : t("journal.toast.fail.desc"), variant: "destructive" });
     } finally {
       setAnalyzing(false); setGeneratingPrep(false);
     }
   };
 
   const deleteLog = async (id: string) => {
-    if (!confirm("Delete this entry?")) return;
+    if (!confirm(t("journal.entry.confirmDelete"))) return;
     await supabase.from("symptom_logs").delete().eq("id", id);
     void reload();
   };
@@ -107,10 +109,10 @@ const SymptomJournal = () => {
       {/* Header CTA */}
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-xl font-bold text-foreground tracking-tight">Health Journal</h1>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">{t("journal.title")}</h1>
         </div>
         <Button onClick={() => setOpenLog(true)} size="sm">
-          <Plus className="h-4 w-4 mr-1" /> Log
+          <Plus className="h-4 w-4 mr-1" /> {t("journal.log")}
         </Button>
       </div>
 
@@ -118,17 +120,17 @@ const SymptomJournal = () => {
       <section className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-start justify-between gap-2 mb-3">
           <div>
-            <p className="text-[11px] font-semibold tracking-widest uppercase text-primary">Patterns</p>
-            <h2 className="text-base font-bold text-foreground">What Vyana noticed</h2>
+            <p className="text-[11px] font-semibold tracking-widest uppercase text-primary">{t("journal.patterns.eyebrow")}</p>
+            <h2 className="text-base font-bold text-foreground">{t("journal.patterns.title")}</h2>
           </div>
           <Button variant="outline" size="sm" onClick={() => analyze("insights")} disabled={analyzing || logs.length === 0}>
             {analyzing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
-            {patterns.length > 0 ? "Refresh" : "Analyze"}
+            {patterns.length > 0 ? t("journal.patterns.refresh") : t("journal.patterns.analyze")}
           </Button>
         </div>
         {patterns.length === 0 ? (
           <p className="text-[12.5px] text-muted-foreground">
-            {logs.length === 0 ? "Log a few symptoms first." : "Tap Analyze to see patterns from your logs."}
+            {logs.length === 0 ? t("journal.patterns.empty.noLogs") : t("journal.patterns.empty.ready")}
           </p>
         ) : (
           <div className="space-y-2">
@@ -149,24 +151,24 @@ const SymptomJournal = () => {
       <section className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
         <div className="flex items-start justify-between gap-2 mb-3">
           <div>
-            <p className="text-[11px] font-semibold tracking-widest uppercase text-primary">Doctor visit prep</p>
-            <h2 className="text-base font-bold text-foreground">Walk in ready</h2>
+            <p className="text-[11px] font-semibold tracking-widest uppercase text-primary">{t("journal.visit.eyebrow")}</p>
+            <h2 className="text-base font-bold text-foreground">{t("journal.visit.title")}</h2>
           </div>
           <Button size="sm" onClick={() => analyze("visit_prep")} disabled={generatingPrep || logs.length === 0}>
             {generatingPrep ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <FileText className="h-4 w-4 mr-1" />}
-            Generate
+            {t("journal.visit.generate")}
           </Button>
         </div>
         {!prep ? (
           <p className="text-[12.5px] text-muted-foreground">
-            Generate a one-page summary of your recent symptoms, meds, records, and questions to ask.
+            {t("journal.visit.empty")}
           </p>
         ) : (
           <div className="space-y-3">
             <p className="text-[13px] text-foreground leading-relaxed">{prep.summary}</p>
             {prep.recent_symptoms?.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground mb-1.5">Recent symptoms</p>
+                <p className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground mb-1.5">{t("journal.visit.recent")}</p>
                 <div className="space-y-1.5">
                   {prep.recent_symptoms.map((s, i) => (
                     <div key={i} className="flex items-center justify-between gap-2 text-[12.5px] rounded-lg bg-background p-2 border border-border">
@@ -179,7 +181,7 @@ const SymptomJournal = () => {
             )}
             {prep.related_medications?.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground mb-1.5">Medications</p>
+                <p className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground mb-1.5">{t("journal.visit.meds")}</p>
                 <ul className="text-[12.5px] text-foreground space-y-0.5 list-disc pl-5">
                   {prep.related_medications.map((m, i) => <li key={i}>{m}</li>)}
                 </ul>
@@ -187,7 +189,7 @@ const SymptomJournal = () => {
             )}
             {prep.questions_for_doctor?.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground mb-1.5">Ask your doctor</p>
+                <p className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground mb-1.5">{t("journal.visit.questions")}</p>
                 <ul className="text-[12.5px] text-foreground space-y-1 list-decimal pl-5">
                   {prep.questions_for_doctor.map((q, i) => <li key={i}>{q}</li>)}
                 </ul>
@@ -203,10 +205,10 @@ const SymptomJournal = () => {
           const fresh = summarizeFreshness(logs);
           return (
             <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-              <h2 className="text-base font-bold text-foreground">Your logs</h2>
+              <h2 className="text-base font-bold text-foreground">{t("journal.history.title")}</h2>
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] px-1.5 py-0.5 rounded-md border border-border bg-muted/40 text-muted-foreground">
-                  Last {SYMPTOM_WINDOW_DAYS}d
+                  {t("journal.history.window", { n: SYMPTOM_WINDOW_DAYS })}
                 </span>
                 {logs.length > 0 && (
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-md border ${fresh.isStale ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" : "border-border bg-muted/40 text-muted-foreground"}`}>
@@ -219,9 +221,9 @@ const SymptomJournal = () => {
         })()}
         {logs.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border p-6 text-center">
-            <p className="text-[13px] text-muted-foreground">No entries yet.</p>
+            <p className="text-[13px] text-muted-foreground">{t("journal.history.empty")}</p>
             <Button variant="outline" size="sm" className="mt-3" onClick={() => setOpenLog(true)}>
-              <Plus className="h-4 w-4 mr-1" /> Log your first symptom
+              <Plus className="h-4 w-4 mr-1" /> {t("journal.history.first")}
             </Button>
           </div>
         ) : (
@@ -248,17 +250,17 @@ const SymptomJournal = () => {
                   </button>
                   {isOpen && (
                     <div className="px-3 pb-3 space-y-1.5 text-[12px] text-muted-foreground border-t border-border pt-2.5">
-                      {l.duration && <p><span className="font-medium text-foreground">Duration:</span> {l.duration}</p>}
-                      {l.body_location && <p><span className="font-medium text-foreground">Location:</span> {l.body_location}</p>}
-                      {l.triggers?.length > 0 && <p><span className="font-medium text-foreground">Triggers:</span> {l.triggers.join(", ")}</p>}
-                      {l.associated_symptoms?.length > 0 && <p><span className="font-medium text-foreground">Other symptoms:</span> {l.associated_symptoms.join(", ")}</p>}
-                      {l.medications_taken?.length > 0 && <p><span className="font-medium text-foreground">Took:</span> {l.medications_taken.join(", ")}</p>}
+                      {l.duration && <p><span className="font-medium text-foreground">{t("journal.entry.duration")}</span> {l.duration}</p>}
+                      {l.body_location && <p><span className="font-medium text-foreground">{t("journal.entry.location")}</span> {l.body_location}</p>}
+                      {l.triggers?.length > 0 && <p><span className="font-medium text-foreground">{t("journal.entry.triggers")}</span> {l.triggers.join(", ")}</p>}
+                      {l.associated_symptoms?.length > 0 && <p><span className="font-medium text-foreground">{t("journal.entry.other")}</span> {l.associated_symptoms.join(", ")}</p>}
+                      {l.medications_taken?.length > 0 && <p><span className="font-medium text-foreground">{t("journal.entry.took")}</span> {l.medications_taken.join(", ")}</p>}
                       {l.notes && <p className="italic">"{l.notes}"</p>}
                       <button
                         onClick={() => deleteLog(l.id)}
                         className="inline-flex items-center gap-1 text-[11px] text-destructive mt-2 hover:underline"
                       >
-                        <Trash2 className="h-3 w-3" /> Delete
+                        <Trash2 className="h-3 w-3" /> {t("journal.entry.delete")}
                       </button>
                     </div>
                   )}
