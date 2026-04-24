@@ -227,6 +227,11 @@ const AppHome = () => {
           <LatestVitalsStrip patientId={profile?.id ?? null} />
         </div>
 
+        {/* Health Journal quick log */}
+        <div className="lg:col-span-6">
+          <JournalQuickLog patientId={profile?.id ?? null} />
+        </div>
+
         {/* Story so far — large primary tile (4 cols) */}
         <section className="px-4 sm:px-6 pb-5 lg:col-span-4 lg:px-0 lg:pb-0">
             <h2 className="mb-1 text-[17px] sm:text-xl md:text-2xl lg:text-2xl font-bold text-foreground leading-tight tracking-tight">
