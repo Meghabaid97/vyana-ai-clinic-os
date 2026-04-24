@@ -60,7 +60,7 @@ const JournalQuickLog = ({ patientId }: Props) => {
                 How are you feeling today?
               </h2>
               <p className="text-[12.5px] text-muted-foreground mt-1 leading-snug">
-                A quick log helps Vyana spot patterns later. Memory, not diagnosis.
+                A quick log helps Vyana spot patterns earlier.
               </p>
             </div>
           </div>
