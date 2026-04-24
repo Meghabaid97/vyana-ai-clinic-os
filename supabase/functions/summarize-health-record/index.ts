@@ -77,6 +77,7 @@ Need these fields:
 - findings: only explicitly stated findings
 - diagnoses: only explicitly written diagnoses
 - medications: only explicitly listed medications or dosages
+- allergies: only explicitly listed allergies or adverse reactions
 - vitals: only numerical measurements explicitly written in the document
 - recommendations: only explicitly written follow-up or recommendations
 - notes: any other explicit notes needed for context
@@ -108,6 +109,7 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
             findings: { type: "array", items: { type: "string" } },
             diagnoses: { type: "array", items: { type: "string" } },
             medications: { type: "array", items: { type: "string" } },
+            allergies: { type: "array", items: { type: "string" } },
             vitals: {
               type: "array",
               items: {
@@ -126,7 +128,7 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
             notes: { type: "array", items: { type: "string" } },
             confidence: { type: "string", enum: ["high", "medium", "low"] }
           },
-          required: ["documentType", "findings", "diagnoses", "medications", "vitals", "recommendations", "notes", "confidence"],
+          required: ["documentType", "findings", "diagnoses", "medications", "allergies", "vitals", "recommendations", "notes", "confidence"],
           additionalProperties: false
         }
       }
@@ -139,7 +141,7 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-flash-preview",
         messages,
         tools,
         tool_choice: { type: "function", function: { name: "extract_medical_document" } }
@@ -172,6 +174,7 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
       extracted.findings?.length ? `Key Findings:\n${extracted.findings.map((item: string) => `- ${item}`).join('\n')}` : null,
       extracted.diagnoses?.length ? `Diagnoses:\n${extracted.diagnoses.map((item: string) => `- ${item}`).join('\n')}` : null,
       extracted.medications?.length ? `Medications:\n${extracted.medications.map((item: string) => `- ${item}`).join('\n')}` : null,
+      extracted.allergies?.length ? `Allergies:\n${extracted.allergies.map((item: string) => `- ${item}`).join('\n')}` : null,
       extracted.vitals?.length ? `Vitals / Lab Values:\n${extracted.vitals.map((item: { name: string; value: string; unit: string; referenceRange: string }) => `- ${item.name}: ${item.value}${item.unit ? ` ${item.unit}` : ''}${item.referenceRange ? ` (Ref: ${item.referenceRange})` : ''}`).join('\n')}` : null,
       extracted.recommendations?.length ? `Recommendations in Document:\n${extracted.recommendations.map((item: string) => `- ${item}`).join('\n')}` : null,
       extracted.notes?.length ? `Notes:\n${extracted.notes.map((item: string) => `- ${item}`).join('\n')}` : null,
@@ -181,7 +184,16 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
 
     const summary = sections.join('\n\n');
 
-    return new Response(JSON.stringify({ summary }), {
+    return new Response(JSON.stringify({
+      summary,
+      documentType: extracted.documentType || null,
+      importantFindings: extracted.findings || [],
+      diagnoses: extracted.diagnoses || [],
+      medications: extracted.medications || [],
+      allergies: extracted.allergies || [],
+      vitals: extracted.vitals || [],
+      confidence: extracted.confidence || 'low',
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: unknown) {

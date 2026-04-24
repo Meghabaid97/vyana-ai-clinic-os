@@ -523,40 +523,61 @@ export type Database = {
       }
       health_records: {
         Row: {
+          ai_confidence: string | null
           ai_summary: string | null
+          allergies: Json
           category: string
           consent_shared_with: string[] | null
+          diagnoses: Json
+          document_type: string | null
+          extracted_vitals: Json
           file_name: string
           file_path: string
           file_size: number
           file_type: string
           id: string
+          important_findings: Json
+          medications: Json
           patient_id: string
           updated_at: string
           uploaded_at: string
         }
         Insert: {
+          ai_confidence?: string | null
           ai_summary?: string | null
+          allergies?: Json
           category?: string
           consent_shared_with?: string[] | null
+          diagnoses?: Json
+          document_type?: string | null
+          extracted_vitals?: Json
           file_name: string
           file_path: string
           file_size: number
           file_type: string
           id?: string
+          important_findings?: Json
+          medications?: Json
           patient_id: string
           updated_at?: string
           uploaded_at?: string
         }
         Update: {
+          ai_confidence?: string | null
           ai_summary?: string | null
+          allergies?: Json
           category?: string
           consent_shared_with?: string[] | null
+          diagnoses?: Json
+          document_type?: string | null
+          extracted_vitals?: Json
           file_name?: string
           file_path?: string
           file_size?: number
           file_type?: string
           id?: string
+          important_findings?: Json
+          medications?: Json
           patient_id?: string
           updated_at?: string
           uploaded_at?: string

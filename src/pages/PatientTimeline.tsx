@@ -40,7 +40,7 @@ const PatientTimeline = () => {
     // Health records
     const { data: records } = await supabase
       .from("health_records")
-      .select("id, file_name, uploaded_at, ai_summary")
+      .select("id, file_name, uploaded_at, ai_summary, document_type, important_findings, medications, allergies, diagnoses, extracted_vitals")
       .eq("patient_id", patient.id)
       .order("uploaded_at", { ascending: false });
 
@@ -50,12 +50,20 @@ const PatientTimeline = () => {
         const lines = r.ai_summary.split("\n").filter((l: string) => l.startsWith("- ")).slice(0, 5);
         details.push(...lines);
       }
+      const structured = [
+        ...(Array.isArray(r.important_findings) ? r.important_findings.map((x: string) => `• ${x}`) : []),
+        ...(Array.isArray(r.diagnoses) ? r.diagnoses.map((x: string) => `🏥 ${x}`) : []),
+        ...(Array.isArray(r.medications) ? r.medications.map((x: string) => `💊 ${x}`) : []),
+        ...(Array.isArray(r.allergies) ? r.allergies.map((x: string) => `⚠️ Allergy: ${x}`) : []),
+        ...(Array.isArray(r.extracted_vitals) ? r.extracted_vitals.map((v: any) => `📈 ${v.name}: ${v.value}${v.unit ? ` ${v.unit}` : ""}`) : []),
+      ].slice(0, 8);
+      if (structured.length > 0) details.splice(0, details.length, ...structured);
       allEvents.push({
         id: `record-${r.id}`,
         date: r.uploaded_at,
         type: "record",
         title: r.file_name,
-        subtitle: r.ai_summary ? "AI summary available" : "Pending analysis",
+        subtitle: r.document_type || (r.ai_summary ? "AI summary available" : "Pending analysis"),
         details: details.length > 0 ? details : undefined,
         icon: FileText,
         color: "bg-primary/10 text-primary",

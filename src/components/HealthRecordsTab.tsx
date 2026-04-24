@@ -36,6 +36,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { RecordsTabSkeleton } from "@/components/ui/page-skeletons";
 import { RECORD_CATEGORIES, type RecordCategory } from "@/lib/recordCategories";
+import { jsPDF } from "jspdf";
 
 interface HealthRecord {
   id: string;
@@ -47,6 +48,13 @@ interface HealthRecord {
   consent_shared_with: string[] | null;
   uploaded_at: string;
   category: string;
+  document_type?: string | null;
+  important_findings?: any;
+  medications?: any;
+  allergies?: any;
+  diagnoses?: any;
+  extracted_vitals?: any;
+  ai_confidence?: string | null;
 }
 
 interface DoctorForConsent {
@@ -76,6 +84,41 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  const imageFilesToPdf = async (files: File[]) => {
+    const pdf = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    for (let i = 0; i < files.length; i++) {
+      if (i > 0) pdf.addPage();
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(files[i]);
+      });
+      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+      const margin = 28;
+      const maxWidth = pageWidth - margin * 2;
+      const maxHeight = pageHeight - margin * 2;
+      const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
+      const width = image.width * scale;
+      const height = image.height * scale;
+      pdf.addImage(dataUrl, files[i].type === "image/png" ? "PNG" : "JPEG", (pageWidth - width) / 2, (pageHeight - height) / 2, width, height);
+    }
+
+    const blob = pdf.output("blob");
+    const name = files.length === 1
+      ? `${files[0].name.replace(/\.[^.]+$/, "")}.pdf`
+      : `medical-images-${Date.now()}.pdf`;
+    return new File([blob], name, { type: "application/pdf" });
+  };
+
   // Load records on mount - FIXED: was useState, should be useEffect
   useEffect(() => {
     loadRecords();
@@ -90,7 +133,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         .order("uploaded_at", { ascending: false });
 
       if (error) throw error;
-      setRecords(data || []);
+      setRecords((data || []) as HealthRecord[]);
     } catch (error: any) {
       console.error("Error loading health records:", error);
     } finally {
@@ -99,11 +142,11 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const selectedFiles = Array.from(event.target.files || []);
+    if (selectedFiles.length === 0) return;
 
     const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
+    if (selectedFiles.some((file) => !allowedTypes.includes(file.type))) {
       toast({
         title: "Invalid file type",
         description: "Please upload PDF or image files only",
@@ -112,10 +155,11 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
+    const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > 20 * 1024 * 1024) {
       toast({
         title: "File too large",
-        description: "Maximum file size is 10MB",
+        description: "Upload up to 20MB at a time",
         variant: "destructive",
       });
       return;
@@ -124,6 +168,13 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     setIsUploading(true);
     setUploadState("loading");
     try {
+      const pdfFiles = selectedFiles.filter((file) => file.type === "application/pdf");
+      const imageFiles = selectedFiles.filter((file) => file.type.startsWith("image/"));
+      if (pdfFiles.length > 0 && imageFiles.length > 0) {
+        throw new Error("Upload either PDFs or images together, not both in one batch.");
+      }
+      const file = imageFiles.length > 0 ? await imageFilesToPdf(imageFiles) : pdfFiles[0];
+
       const filePath = `${userId}/${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from("health-records")
@@ -155,7 +206,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       setTimeout(() => setUploadState("idle"), 1800);
 
       await loadRecords();
-      await summarizeRecord(insertedRecord as HealthRecord);
+      await summarizeRecord(insertedRecord as unknown as HealthRecord);
 
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -210,7 +261,16 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
       const { error: updateError } = await supabase
         .from("health_records")
-        .update({ ai_summary: data.summary })
+        .update({
+          ai_summary: data.summary,
+          document_type: data.documentType,
+          important_findings: data.importantFindings || [],
+          medications: data.medications || [],
+          allergies: data.allergies || [],
+          diagnoses: data.diagnoses || [],
+          extracted_vitals: data.vitals || [],
+          ai_confidence: data.confidence,
+        })
         .eq("id", record.id);
 
       if (updateError) throw updateError;
@@ -339,6 +399,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
               ref={fileInputRef}
               type="file"
               accept=".pdf,.jpg,.jpeg,.png,.webp"
+              multiple
               onChange={handleFileUpload}
               className="hidden"
             />
@@ -440,6 +501,11 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                               <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0 h-5">
                                 <Sparkles className="h-2.5 w-2.5 mr-1" />
                                 Summary
+                              </Badge>
+                            )}
+                            {record.document_type && (
+                              <Badge variant="outline" className="rounded-full text-[10px] px-2 py-0 h-5">
+                                {record.document_type}
                               </Badge>
                             )}
                             {record.consent_shared_with && record.consent_shared_with.length > 0 && (
@@ -602,8 +668,12 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           </DialogHeader>
 
           {viewingSummary?.ai_summary && (
-            <div className="p-4 rounded-lg bg-muted/40 border border-border">
-              <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-1.5">
+                {viewingSummary.document_type && <Badge variant="outline">{viewingSummary.document_type}</Badge>}
+                {viewingSummary.ai_confidence && <Badge variant="secondary">{viewingSummary.ai_confidence} confidence</Badge>}
+              </div>
+              <div className="p-4 rounded-lg bg-muted/40 border border-border whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                 {viewingSummary.ai_summary}
               </div>
             </div>
