@@ -52,7 +52,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { patientHealthId, consultations, healthRecordSummaries, vitalHistory, medicationReminders } = await req.json();
+    const { patientHealthId, consultations, healthRecordSummaries, vitalHistory, medicationReminders, symptomLogs } = await req.json();
 
     // Build patient context
     const consultationContext = (consultations || []).map((c: any, i: number) => {
@@ -82,6 +82,34 @@ serve(async (req) => {
       `${m.medication_name} ${m.dosage || ""} - ${m.frequency} (${m.is_active ? "Active" : "Stopped"})`
     ).join("\n");
 
+    // Patient-reported symptom journal (last 90 days)
+    const symptomContext = (symptomLogs || []).map((s: any) => {
+      const name = s.custom_symptom_name || s.symptom_type;
+      const date = new Date(s.logged_at).toLocaleDateString("en-IN");
+      const parts = [
+        `${date} — ${name} (severity ${s.severity}/10)`,
+        s.duration ? `duration ${s.duration}` : null,
+        s.body_location ? `at ${s.body_location}` : null,
+        s.triggers?.length ? `triggers: ${s.triggers.join(", ")}` : null,
+        s.associated_symptoms?.length ? `with ${s.associated_symptoms.join(", ")}` : null,
+        s.medications_taken?.length ? `took ${s.medications_taken.join(", ")}` : null,
+        s.notes ? `note: ${s.notes}` : null,
+      ].filter(Boolean);
+      return `  • ${parts.join(" · ")}`;
+    }).join("\n");
+
+    // Aggregate counts for quick frequency framing
+    const symptomCounts: Record<string, { count: number; sevSum: number }> = {};
+    (symptomLogs || []).forEach((s: any) => {
+      const key = s.custom_symptom_name || s.symptom_type;
+      symptomCounts[key] ||= { count: 0, sevSum: 0 };
+      symptomCounts[key].count += 1;
+      symptomCounts[key].sevSum += Number(s.severity) || 0;
+    });
+    const symptomSummary = Object.entries(symptomCounts)
+      .map(([k, v]) => `${k}: ${v.count}× (avg ${(v.sevSum / v.count).toFixed(1)}/10)`)
+      .join("; ");
+
     const systemPrompt = `You are a clinical decision support system. Generate a concise patient summary for doctor review.
 Rules:
 - Only state facts from the provided data
@@ -90,7 +118,8 @@ Rules:
 - Use phrases like "values suggest", "pattern consistent with", "may warrant discussion"
 - Flag concerning trends or values for the doctor to evaluate
 - Be precise with numbers and dates
-- ALWAYS produce a complete SOAP note, even when only uploaded reports / vitals / medications are available (no consultation transcripts). Synthesize Subjective from history and active conditions, Objective from latest vitals/labs, Assessment from observed patterns, and Plan as discussion points for the doctor. Never leave any SOAP field empty or "N/A".`;
+- Patient-reported symptoms are subjective; weave them into Subjective and recent_changes, not Objective
+- ALWAYS produce a complete SOAP note, even when only uploaded reports / vitals / medications are available (no consultation transcripts). Synthesize Subjective from history, active conditions and patient-reported symptoms; Objective from latest vitals/labs; Assessment from observed patterns; Plan as discussion points for the doctor. Never leave any SOAP field empty or "N/A".`;
 
     const userPrompt = `Generate a clinical briefing for this patient.
 
@@ -104,7 +133,10 @@ HEALTH RECORDS:
 ${recordSummaryContext || "No health records"}
 
 CURRENT MEDICATIONS:
-${medContext || "None recorded"}`;
+${medContext || "None recorded"}
+
+PATIENT-REPORTED SYMPTOMS (last 90 days, from health journal):
+${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` : "No symptoms logged"}`;
 
     const tools = [{
       type: "function",
@@ -189,8 +221,22 @@ ${medContext || "None recorded"}`;
               },
               description: "Correlations between medication changes and lab value changes",
             },
+            recent_symptoms: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  symptom: { type: "string", description: "Symptom name" },
+                  frequency: { type: "string", description: "e.g. '6× in 30 days'" },
+                  avg_severity: { type: "string", description: "e.g. '7/10'" },
+                  pattern: { type: "string", description: "Triggers or timing patterns observed, if any" },
+                },
+                required: ["symptom", "frequency", "avg_severity"],
+              },
+              description: "Patient-reported symptoms from health journal, summarized for the doctor. Empty array if none.",
+            },
           },
-          required: ["patient_overview", "key_trends", "current_medications", "red_flags", "recent_changes", "soap_note", "medication_correlations"],
+          required: ["patient_overview", "key_trends", "current_medications", "red_flags", "recent_changes", "soap_note", "medication_correlations", "recent_symptoms"],
         },
       },
     }];
@@ -246,6 +292,7 @@ ${medContext || "None recorded"}`;
         recent_changes: [],
         soap_note: { subjective: "N/A", objective: "N/A", assessment: "N/A", plan: "N/A" },
         medication_correlations: [],
+        recent_symptoms: [],
       };
     }
 
