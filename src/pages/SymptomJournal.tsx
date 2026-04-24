@@ -199,7 +199,24 @@ const SymptomJournal = () => {
 
       {/* History */}
       <section>
-        <h2 className="text-base font-bold text-foreground mb-2">Your logs</h2>
+        {(() => {
+          const fresh = summarizeFreshness(logs);
+          return (
+            <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+              <h2 className="text-base font-bold text-foreground">Your logs</h2>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md border border-border bg-muted/40 text-muted-foreground">
+                  Last {SYMPTOM_WINDOW_DAYS}d
+                </span>
+                {logs.length > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-md border ${fresh.isStale ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" : "border-border bg-muted/40 text-muted-foreground"}`}>
+                    {fresh.label}{fresh.latestAt ? ` · ${formatFreshDate(fresh.latestAt)}` : ""}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })()}
         {logs.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border p-6 text-center">
             <p className="text-[13px] text-muted-foreground">No entries yet.</p>
