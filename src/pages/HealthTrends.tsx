@@ -412,7 +412,7 @@ const HealthTrends = () => {
 
   const vitalCategories = [
     {
-      title: "Cardiovascular",
+      title: t("trends.cat.cv"),
       vitals: [
         { icon: Heart, key: "bp_systolic", label: "BP (Systolic)", value: fmt(v.bp_systolic), unit: "mmHg", range: "90-120", status: getStatus(v.bp_systolic, 90, 120) },
         { icon: Heart, key: "bp_diastolic", label: "BP (Diastolic)", value: fmt(v.bp_diastolic), unit: "mmHg", range: "60-80", status: getStatus(v.bp_diastolic, 60, 80) },
@@ -424,7 +424,7 @@ const HealthTrends = () => {
       ],
     },
     {
-      title: "Metabolic",
+      title: t("trends.cat.metabolic"),
       vitals: [
         { icon: Zap, key: "fasting_blood_sugar", label: "Fasting Blood Sugar", value: fmt(v.fasting_blood_sugar), unit: "mg/dL", range: "70-100", status: getStatus(v.fasting_blood_sugar, 70, 100) },
         { icon: Zap, key: "hba1c", label: "HbA1c", value: fmt(v.hba1c, 1), unit: "%", range: "4.0-5.6", status: getStatus(v.hba1c, 4.0, 5.6) },
@@ -434,7 +434,7 @@ const HealthTrends = () => {
       ],
     },
     {
-      title: "Blood & Immunity",
+      title: t("trends.cat.blood"),
       vitals: [
         { icon: Droplets, key: "hemoglobin", label: "Hemoglobin", value: fmt(v.hemoglobin, 1), unit: "g/dL", range: "12-17.5", status: getStatus(v.hemoglobin, 12, 17.5) },
         { icon: Droplets, key: "wbc", label: "WBC Count", value: fmt(v.wbc), unit: "/μL", range: "4000-11000", status: getStatus(v.wbc, 4000, 11000) },
@@ -444,7 +444,7 @@ const HealthTrends = () => {
       ],
     },
     {
-      title: "Kidney & Liver",
+      title: t("trends.cat.kidneyLiver"),
       vitals: [
         { icon: Bone, key: "creatinine", label: "Creatinine", value: fmt(v.creatinine, 1), unit: "mg/dL", range: "0.7-1.3", status: getStatus(v.creatinine, 0.7, 1.3) },
         { icon: Bone, key: "bun", label: "BUN", value: fmt(v.bun), unit: "mg/dL", range: "7-20", status: getStatus(v.bun, 7, 20) },
@@ -456,7 +456,7 @@ const HealthTrends = () => {
       ],
     },
     {
-      title: "Thyroid & Hormones",
+      title: t("trends.cat.thyroid"),
       vitals: [
         { icon: Brain, key: "tsh", label: "TSH", value: fmt(v.tsh, 2), unit: "mIU/L", range: "0.4-4.0", status: getStatus(v.tsh, 0.4, 4.0) },
         { icon: Brain, key: "t3", label: "T3", value: fmt(v.t3), unit: "ng/dL", range: "80-200", status: getStatus(v.t3, 80, 200) },
@@ -464,7 +464,7 @@ const HealthTrends = () => {
       ],
     },
     {
-      title: "Vitamins & Minerals",
+      title: t("trends.cat.vitamins"),
       vitals: [
         { icon: Thermometer, key: "vitamin_d", label: "Vitamin D", value: fmt(v.vitamin_d, 1), unit: "ng/mL", range: "30-100", status: getStatus(v.vitamin_d, 30, 100) },
         { icon: Thermometer, key: "vitamin_b12", label: "Vitamin B12", value: fmt(v.vitamin_b12), unit: "pg/mL", range: "200-900", status: getStatus(v.vitamin_b12, 200, 900) },
