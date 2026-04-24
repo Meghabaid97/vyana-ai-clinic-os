@@ -51,6 +51,10 @@ const AppShell = () => {
   const navigate = useNavigate();
   const vtNavigate = useViewTransitionNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
+  const tabs = buildTabs(t);
+  const desktopTabs = buildDesktopTabs(t);
+  const subRouteTitles = buildSubRouteTitles(t);
   const [patientName, setPatientName] = useState("Patient");
   const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
   const [askOpen, setAskOpen] = useState(false);
