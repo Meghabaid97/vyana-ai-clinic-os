@@ -1,9 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Plus, ArrowRight } from "lucide-react";
+import { Heart, Plus, ArrowRight, Flame, Settings2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import SymptomLogDialog from "./SymptomLogDialog";
+import JournalCadenceSheet from "./JournalCadenceSheet";
 import { symptomById } from "@/lib/symptomCatalog";
+import {
+  CADENCE_LABEL,
+  isStreakStale,
+  JournalPreference,
+  loadOrCreatePreference,
+  recordLogForStreak,
+} from "@/lib/journalPreferences";
 
 interface Props {
   patientId: string | null;
@@ -20,31 +28,48 @@ interface RecentLog {
 const JournalQuickLog = ({ patientId }: Props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [cadenceOpen, setCadenceOpen] = useState(false);
   const [recent, setRecent] = useState<RecentLog[]>([]);
   const [todayCount, setTodayCount] = useState(0);
+  const [pref, setPref] = useState<JournalPreference | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!patientId) return;
-    const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
-    const { data } = await supabase
-      .from("symptom_logs")
-      .select("id, symptom_type, custom_symptom_name, severity, logged_at")
-      .eq("patient_id", patientId)
-      .order("logged_at", { ascending: false })
-      .limit(3);
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const [{ data }, { count }, p] = await Promise.all([
+      supabase
+        .from("symptom_logs")
+        .select("id, symptom_type, custom_symptom_name, severity, logged_at")
+        .eq("patient_id", patientId)
+        .order("logged_at", { ascending: false })
+        .limit(3),
+      supabase
+        .from("symptom_logs")
+        .select("id", { count: "exact", head: true })
+        .eq("patient_id", patientId)
+        .gte("logged_at", startOfDay.toISOString()),
+      loadOrCreatePreference(patientId),
+    ]);
     setRecent(data || []);
-    const { count } = await supabase
-      .from("symptom_logs")
-      .select("id", { count: "exact", head: true })
-      .eq("patient_id", patientId)
-      .gte("logged_at", startOfDay.toISOString());
     setTodayCount(count || 0);
-  };
+    setPref(p);
+  }, [patientId]);
 
-  useEffect(() => { void load(); }, [patientId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const handleLogged = async () => {
+    if (patientId) await recordLogForStreak(patientId);
+    await load();
+  };
 
   const labelFor = (l: RecentLog) =>
     l.custom_symptom_name || symptomById(l.symptom_type).label;
+
+  const stale = isStreakStale(pref);
+  const streak = pref?.current_streak ?? 0;
 
   return (
     <section className="px-4 sm:px-5 lg:px-0 pb-3 lg:pb-0">
@@ -55,7 +80,17 @@ const JournalQuickLog = ({ patientId }: Props) => {
               <Heart className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-semibold tracking-widest uppercase text-primary">Health journal</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[11px] font-semibold tracking-widest uppercase text-primary">Health journal</p>
+                <button
+                  onClick={() => setCadenceOpen(true)}
+                  className="inline-flex items-center gap-1 text-[10.5px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Reminder cadence"
+                >
+                  <Settings2 className="h-3 w-3" />
+                  {pref ? CADENCE_LABEL[pref.cadence] : "Cadence"}
+                </button>
+              </div>
               <h2 className="text-[17px] sm:text-lg font-bold text-foreground leading-tight mt-0.5">
                 How are you feeling today?
               </h2>
@@ -64,6 +99,26 @@ const JournalQuickLog = ({ patientId }: Props) => {
               </p>
             </div>
           </div>
+
+          {/* Streak / nudge row */}
+          {streak > 0 && (
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1">
+              <Flame className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[11.5px] font-semibold text-primary">
+                {streak}-{pref?.cadence === "weekly" ? "week" : "day"} streak
+              </span>
+              {stale && (
+                <span className="text-[10.5px] text-muted-foreground ml-1">
+                  · don't lose it
+                </span>
+              )}
+            </div>
+          )}
+          {streak === 0 && stale && (
+            <p className="mt-3 text-[11.5px] text-muted-foreground">
+              Start a streak — even one log builds your story.
+            </p>
+          )}
 
           <div className="mt-3.5 flex items-center gap-2">
             <button
@@ -103,7 +158,13 @@ const JournalQuickLog = ({ patientId }: Props) => {
         </div>
       </div>
 
-      <SymptomLogDialog open={open} onClose={() => setOpen(false)} patientId={patientId} onLogged={load} />
+      <SymptomLogDialog open={open} onClose={() => setOpen(false)} patientId={patientId} onLogged={handleLogged} />
+      <JournalCadenceSheet
+        open={cadenceOpen}
+        onClose={() => setCadenceOpen(false)}
+        patientId={patientId}
+        onSaved={(p) => setPref(p)}
+      />
     </section>
   );
 };
