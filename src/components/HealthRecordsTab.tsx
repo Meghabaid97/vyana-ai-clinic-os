@@ -36,6 +36,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { RecordsTabSkeleton } from "@/components/ui/page-skeletons";
 import { RECORD_CATEGORIES, type RecordCategory } from "@/lib/recordCategories";
+import { jsPDF } from "jspdf";
 
 interface HealthRecord {
   id: string;
@@ -47,6 +48,13 @@ interface HealthRecord {
   consent_shared_with: string[] | null;
   uploaded_at: string;
   category: string;
+  document_type?: string | null;
+  important_findings?: string[] | null;
+  medications?: string[] | null;
+  allergies?: string[] | null;
+  diagnoses?: string[] | null;
+  extracted_vitals?: Array<{ name: string; value: string; unit?: string; referenceRange?: string }> | null;
+  ai_confidence?: string | null;
 }
 
 interface DoctorForConsent {
@@ -75,6 +83,41 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [uploadCategory, setUploadCategory] = useState<RecordCategory>("discharge_summary");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const imageFilesToPdf = async (files: File[]) => {
+    const pdf = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    for (let i = 0; i < files.length; i++) {
+      if (i > 0) pdf.addPage();
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(files[i]);
+      });
+      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+      const margin = 28;
+      const maxWidth = pageWidth - margin * 2;
+      const maxHeight = pageHeight - margin * 2;
+      const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
+      const width = image.width * scale;
+      const height = image.height * scale;
+      pdf.addImage(dataUrl, files[i].type === "image/png" ? "PNG" : "JPEG", (pageWidth - width) / 2, (pageHeight - height) / 2, width, height);
+    }
+
+    const blob = pdf.output("blob");
+    const name = files.length === 1
+      ? `${files[0].name.replace(/\.[^.]+$/, "")}.pdf`
+      : `medical-images-${Date.now()}.pdf`;
+    return new File([blob], name, { type: "application/pdf" });
+  };
 
   // Load records on mount - FIXED: was useState, should be useEffect
   useEffect(() => {
