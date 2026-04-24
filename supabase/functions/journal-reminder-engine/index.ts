@@ -93,15 +93,20 @@ Deno.serve(async (req: Request) => {
     if (pErr) throw pErr;
 
     const now = new Date();
-    const currentHour = now.getUTCHours(); // cron is UTC; preferred_hour stored UTC for now
+    // preferred_hour is interpreted as IST (UTC+5:30) since Vyana is India-only.
+    // IST hour = (UTC hour + 5) when minutes >= 30, else (UTC hour + 5).
+    // Simpler: add 330 minutes to UTC and read the hour.
+    const istNow = new Date(now.getTime() + 330 * 60 * 1000);
+    const currentHourIST = istNow.getUTCHours();
     let nudged = 0;
     let skipped = 0;
+    let emailed = 0;
 
     for (const patient of patients ?? []) {
       // Load or create preferences
       const { data: existing } = await supabase
         .from("journal_preferences")
-        .select("id, patient_id, cadence, auto_cadence, last_nudged_at, last_logged_date, preferred_hour")
+        .select("id, patient_id, cadence, auto_cadence, last_nudged_at, last_logged_date, preferred_hour, current_streak")
         .eq("patient_id", patient.id)
         .maybeSingle();
 
@@ -118,9 +123,10 @@ Deno.serve(async (req: Request) => {
         pref = existing as Pref;
       }
 
-      // Hour gate: only nudge in a 2-hour window around preferred_hour
-      const hourDiff = Math.abs(currentHour - pref.preferred_hour);
-      if (hourDiff > 1 && hourDiff < 23) { skipped++; continue; }
+      // Hour gate (IST): only nudge in a ±1h window around preferred_hour (IST).
+      const hourDiff = Math.abs(currentHourIST - pref.preferred_hour);
+      const wrappedDiff = Math.min(hourDiff, 24 - hourDiff);
+      if (wrappedDiff > 1) { skipped++; continue; }
 
       // Resolve effective cadence
       let cadence: Cadence = pref.cadence;
