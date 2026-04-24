@@ -280,6 +280,42 @@ export type Database = {
         }
         Relationships: []
       }
+      doctor_visit_prep: {
+        Row: {
+          created_at: string
+          date_range_end: string | null
+          date_range_start: string | null
+          id: string
+          patient_id: string
+          questions_for_doctor: Json
+          related_medications: Json
+          related_symptoms: Json
+          summary: string
+        }
+        Insert: {
+          created_at?: string
+          date_range_end?: string | null
+          date_range_start?: string | null
+          id?: string
+          patient_id: string
+          questions_for_doctor?: Json
+          related_medications?: Json
+          related_symptoms?: Json
+          summary: string
+        }
+        Update: {
+          created_at?: string
+          date_range_end?: string | null
+          date_range_start?: string | null
+          id?: string
+          patient_id?: string
+          questions_for_doctor?: Json
+          related_medications?: Json
+          related_symptoms?: Json
+          summary?: string
+        }
+        Relationships: []
+      }
       early_access_signups: {
         Row: {
           created_at: string
@@ -861,6 +897,60 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      symptom_logs: {
+        Row: {
+          associated_symptoms: Json
+          body_location: string | null
+          created_at: string
+          custom_symptom_name: string | null
+          duration: string | null
+          id: string
+          logged_at: string
+          medications_taken: Json
+          notes: string | null
+          patient_id: string
+          photo_path: string | null
+          severity: number
+          symptom_type: string
+          triggers: Json
+          updated_at: string
+        }
+        Insert: {
+          associated_symptoms?: Json
+          body_location?: string | null
+          created_at?: string
+          custom_symptom_name?: string | null
+          duration?: string | null
+          id?: string
+          logged_at?: string
+          medications_taken?: Json
+          notes?: string | null
+          patient_id: string
+          photo_path?: string | null
+          severity: number
+          symptom_type: string
+          triggers?: Json
+          updated_at?: string
+        }
+        Update: {
+          associated_symptoms?: Json
+          body_location?: string | null
+          created_at?: string
+          custom_symptom_name?: string | null
+          duration?: string | null
+          id?: string
+          logged_at?: string
+          medications_taken?: Json
+          notes?: string | null
+          patient_id?: string
+          photo_path?: string | null
+          severity?: number
+          symptom_type?: string
+          triggers?: Json
+          updated_at?: string
         }
         Relationships: []
       }
