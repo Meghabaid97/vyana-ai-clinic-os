@@ -645,9 +645,15 @@
   .vital-status-dot {
     animation: vital-status-pulse 2.4s ease-in-out infinite;
   }
+  .constellation-line-pulse {
+    fill: hsl(var(--primary));
+    filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.85));
+    opacity: 0.9;
+  }
   @media (prefers-reduced-motion: reduce) {
     .vital-sparkline-path { stroke-dashoffset: 0; animation: none; }
     .vital-status-dot { animation: none; }
+    .constellation-line-pulse { display: none; }
   }
 
   /* Tab content cross-fade + slight rise */
