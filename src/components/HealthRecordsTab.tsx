@@ -668,8 +668,12 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           </DialogHeader>
 
           {viewingSummary?.ai_summary && (
-            <div className="p-4 rounded-lg bg-muted/40 border border-border">
-              <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-1.5">
+                {viewingSummary.document_type && <Badge variant="outline">{viewingSummary.document_type}</Badge>}
+                {viewingSummary.ai_confidence && <Badge variant="secondary">{viewingSummary.ai_confidence} confidence</Badge>}
+              </div>
+              <div className="p-4 rounded-lg bg-muted/40 border border-border whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                 {viewingSummary.ai_summary}
               </div>
             </div>
