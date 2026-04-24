@@ -13,6 +13,7 @@ import {
   loadOrCreatePreference,
   recordLogForStreak,
 } from "@/lib/journalPreferences";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   patientId: string | null;
@@ -28,6 +29,7 @@ interface RecentLog {
 
 const JournalQuickLog = ({ patientId }: Props) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [cadenceOpen, setCadenceOpen] = useState(false);
   const [recent, setRecent] = useState<RecentLog[]>([]);
@@ -84,7 +86,7 @@ const JournalQuickLog = ({ patientId }: Props) => {
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] font-semibold tracking-widest uppercase text-primary">Health journal</p>
+                <p className="text-[11px] font-semibold tracking-widest uppercase text-primary">{t("journalQuick.eyebrow")}</p>
                 <button
                   onClick={() => setCadenceOpen(true)}
                   className="inline-flex items-center gap-1 text-[10.5px] font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -95,10 +97,10 @@ const JournalQuickLog = ({ patientId }: Props) => {
                 </button>
               </div>
               <h2 className="text-[17px] sm:text-lg font-bold text-foreground leading-tight mt-0.5">
-                How are you feeling today?
+                {t("journalQuick.title")}
               </h2>
               <p className="text-[12.5px] text-muted-foreground mt-1 leading-snug">
-                A quick log helps Vyana spot patterns earlier.
+                {t("journalQuick.sub")}
               </p>
             </div>
           </div>
@@ -134,13 +136,13 @@ const JournalQuickLog = ({ patientId }: Props) => {
               className="flex-1 inline-flex items-center justify-center gap-2 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
             >
               <Plus className="h-4 w-4" />
-              Log a symptom
+              {t("journalQuick.log")}
             </button>
             <button
               onClick={() => navigate("/app/journal")}
               className="inline-flex items-center gap-1 h-10 px-3.5 rounded-full border border-border bg-background text-[12.5px] font-medium text-foreground hover:border-primary/40 transition-colors"
             >
-              Journal
+              {t("journalQuick.openJournal")}
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </div>

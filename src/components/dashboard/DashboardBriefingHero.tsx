@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Stethoscope, Sparkles, Play, ArrowRight, Clock } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   hasRecords: boolean;
@@ -8,6 +9,7 @@ interface Props {
 
 const DashboardBriefingHero = ({ hasRecords }: Props) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [staged, setStaged] = useState(false);
 
   useEffect(() => {
@@ -31,7 +33,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
         <div className="relative">
           <div className="flex items-center gap-2 mb-3" style={stage(0)}>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase text-primary">
-              <Clock className="h-3 w-3" /> 30 seconds
+              <Clock className="h-3 w-3" /> {t("briefingHero.eyebrow")}
             </span>
           </div>
 
@@ -39,13 +41,13 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
             className="text-[24px] sm:text-[26px] font-extrabold leading-[1.1] tracking-[-0.02em] text-foreground"
             style={stage(120)}
           >
-            I have a <span className="text-primary">doctor visit.</span>
+            {t("briefingHero.title.l1")} <span className="text-primary">{t("briefingHero.title.l2")}</span>
           </h2>
           <p
             className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed max-w-[36ch]"
             style={stage(220)}
           >
-            One scrollable sheet your doctor can read in under a minute. Conditions, what changed, medications, ready to share.
+            {t("briefingHero.body")}
           </p>
 
           {/* Primary CTA */}
@@ -59,10 +61,10 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[15.5px] font-semibold text-primary-foreground leading-tight">
-                Start visit mode
+                {t("briefingHero.cta.start")}
               </p>
               <p className="text-[12px] text-primary-foreground/85 mt-0.5 leading-snug">
-                {hasRecords ? "Built from your records" : "Try it with sample data"}
+                {hasRecords ? t("briefingHero.cta.fromRecords") : t("briefingHero.cta.fromSample")}
               </p>
             </div>
             <ArrowRight className="h-4 w-4 text-primary-foreground shrink-0 transition-transform group-hover:translate-x-0.5" />
@@ -76,7 +78,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
               className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-left hover:border-primary/30 transition-colors min-w-0"
             >
               <Sparkles className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-[12px] font-medium text-foreground truncate">Full clinical brief</span>
+              <span className="text-[12px] font-medium text-foreground truncate">{t("briefingHero.cta.fullBrief")}</span>
             </button>
             <button
               onClick={() => navigate("/app/briefing?demo=1")}
@@ -84,7 +86,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
               className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-left hover:border-primary/30 transition-colors min-w-0"
             >
               <Play className="h-4 w-4 text-primary fill-current shrink-0" />
-              <span className="text-[12px] font-medium text-foreground truncate">Try sample data</span>
+              <span className="text-[12px] font-medium text-foreground truncate">{t("briefingHero.cta.sampleData")}</span>
             </button>
           </div>
         </div>
