@@ -219,6 +219,7 @@ const PatientBriefing = () => {
                   "Conditions & diagnoses",
                   "Medications history",
                   "Key vitals & trends",
+                  "Recent symptoms from your journal",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2 text-[12px] text-muted-foreground">
                     <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
