@@ -141,6 +141,7 @@ Rules:
 - Flag concerning trends or values for the doctor to evaluate
 - Be precise with numbers and dates
 - Patient-reported symptoms are subjective; weave them into Subjective and recent_changes, not Objective
+- For current_medications: merge entries from medication reminders AND medications extracted from uploaded prescriptions. Deduplicate by drug name (case-insensitive). Mark status as "active" if there is an active reminder OR a prescription dated within the last 90 days; "recently_started" if first appearance is within 30 days; "stopped" only if explicitly stopped. Always include dosage/frequency in note when available.
 - ALWAYS produce a complete SOAP note, even when only uploaded reports / vitals / medications are available (no consultation transcripts). Synthesize Subjective from history, active conditions and patient-reported symptoms; Objective from latest vitals/labs; Assessment from observed patterns; Plan as discussion points for the doctor. Never leave any SOAP field empty or "N/A".`;
 
     const userPrompt = `Generate a clinical briefing for this patient.
