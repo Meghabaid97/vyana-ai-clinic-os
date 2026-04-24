@@ -41,6 +41,7 @@ const DomainChecklist = lazy(() => import("./pages/DomainChecklist"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const LayoutQA = lazy(() => import("./pages/LayoutQA"));
+const SymptomJournal = lazy(() => import("./pages/SymptomJournal"));
 
 const queryClient = new QueryClient();
 
@@ -98,6 +99,7 @@ const App = () => (
               <Route path="support" element={<Support />} />
               <Route path="domain-checklist" element={<DomainChecklist />} />
               <Route path="medical-history" element={<PatientMedicalHistory />} />
+              <Route path="journal" element={<SymptomJournal />} />
               <Route path="emergency-contacts" element={<EmergencyContacts />} />
               <Route path="share-receive" element={<ShareReceive />} />
             </Route>

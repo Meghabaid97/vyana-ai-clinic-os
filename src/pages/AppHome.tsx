@@ -5,6 +5,7 @@ import { ArrowRight, Upload, Link2, Shield, UserCog, X, UserCircle2 } from "luci
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
 import TrustReassuranceStrip from "@/components/dashboard/TrustReassuranceStrip";
+import JournalQuickLog from "@/components/journal/JournalQuickLog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
