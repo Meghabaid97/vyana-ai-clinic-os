@@ -68,12 +68,20 @@ interface HealthRecordsTabProps {
   doctors: DoctorForConsent[];
 }
 
+interface BatchScanItem {
+  name: string;
+  size: number;
+  type: string;
+  status: "queued" | "uploading" | "analyzing" | "done" | "error";
+}
+
 const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps) => {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadState, setUploadState] = useState<ButtonState>("idle");
   const [isSummarizing, setIsSummarizing] = useState<string | null>(null);
+  const [batchScanItems, setBatchScanItems] = useState<BatchScanItem[]>([]);
   const [showConsentDialog, setShowConsentDialog] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<HealthRecord | null>(null);
   const [selectedDoctors, setSelectedDoctors] = useState<Set<string>>(new Set());
@@ -167,35 +175,51 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
     setIsUploading(true);
     setUploadState("loading");
+    setBatchScanItems(selectedFiles.map((file) => ({
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      status: "queued",
+    })));
     try {
       const pdfFiles = selectedFiles.filter((file) => file.type === "application/pdf");
       const imageFiles = selectedFiles.filter((file) => file.type.startsWith("image/"));
-      if (pdfFiles.length > 0 && imageFiles.length > 0) {
-        throw new Error("Upload either PDFs or images together, not both in one batch.");
+      const uploadFiles: File[] = [
+        ...pdfFiles,
+        ...(imageFiles.length > 0 ? [await imageFilesToPdf(imageFiles)] : []),
+      ];
+
+      const uploadedRecords: HealthRecord[] = [];
+      for (const [index, file] of uploadFiles.entries()) {
+        setBatchScanItems((items) => items.map((item, itemIndex) => {
+          if (pdfFiles.length > 0 && item.name === file.name) return { ...item, status: "uploading" };
+          if (file.type === "application/pdf" && imageFiles.length > 0 && itemIndex >= pdfFiles.length) return { ...item, status: "uploading" };
+          return item;
+        }));
+
+        const filePath = `${userId}/${Date.now()}_${index}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("health-records")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: insertedRecord, error: dbError } = await supabase
+          .from("health_records")
+          .insert({
+            patient_id: patientId,
+            file_name: file.name,
+            file_path: filePath,
+            file_type: file.type,
+            file_size: file.size,
+            category: uploadCategory,
+          })
+          .select()
+          .single();
+
+        if (dbError) throw dbError;
+        uploadedRecords.push(insertedRecord as unknown as HealthRecord);
       }
-      const file = imageFiles.length > 0 ? await imageFilesToPdf(imageFiles) : pdfFiles[0];
-
-      const filePath = `${userId}/${Date.now()}_${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("health-records")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: insertedRecord, error: dbError } = await supabase
-        .from("health_records")
-        .insert({
-          patient_id: patientId,
-          file_name: file.name,
-          file_path: filePath,
-          file_type: file.type,
-          file_size: file.size,
-          category: uploadCategory,
-        })
-        .select()
-        .single();
-
-      if (dbError) throw dbError;
 
       toast({
         title: "File uploaded",
@@ -206,13 +230,18 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       setTimeout(() => setUploadState("idle"), 1800);
 
       await loadRecords();
-      await summarizeRecord(insertedRecord as unknown as HealthRecord);
+      for (const record of uploadedRecords) {
+        setBatchScanItems((items) => items.map((item) => ({ ...item, status: item.status === "uploading" ? "analyzing" : item.status })));
+        await summarizeRecord(record);
+      }
+      setBatchScanItems((items) => items.map((item) => ({ ...item, status: "done" })));
 
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } catch (error: any) {
       console.error("Error uploading file:", error);
+      setBatchScanItems((items) => items.map((item) => item.status === "done" ? item : { ...item, status: "error" }));
       toast({
         title: "Upload failed",
         description: error.message || "Failed to upload file",
@@ -430,6 +459,27 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
             </SelectContent>
           </Select>
         </div>
+        {batchScanItems.length > 1 && (
+          <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs font-semibold text-foreground">Batch scan</span>
+              <Badge variant="secondary" className="rounded-full text-[10px]">
+                {batchScanItems.length} files
+              </Badge>
+            </div>
+            <div className="space-y-1.5">
+              {batchScanItems.slice(0, 5).map((item, index) => (
+                <div key={`${item.name}-${index}`} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="truncate text-muted-foreground">{item.name}</span>
+                  <span className="shrink-0 capitalize text-primary">{item.status}</span>
+                </div>
+              ))}
+              {batchScanItems.length > 5 && (
+                <p className="text-[11px] text-muted-foreground">+{batchScanItems.length - 5} more files</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Privacy Notice */}
