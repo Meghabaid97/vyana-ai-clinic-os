@@ -508,6 +508,46 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
             </SelectContent>
           </Select>
         </div>
+        {isRadiologyUpload && (
+          <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant={radiologyUploadKind === "report_with_optional_films" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setRadiologyUploadKind("report_with_optional_films")}
+                className="rounded-lg justify-start text-xs h-9"
+              >
+                <ScanLine className="h-3.5 w-3.5 mr-1.5" /> Report first
+              </Button>
+              <Button
+                type="button"
+                variant={radiologyUploadKind === "film_only" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setRadiologyUploadKind("film_only")}
+                className="rounded-lg justify-start text-xs h-9"
+              >
+                <ImagePlus className="h-3.5 w-3.5 mr-1.5" /> Film only
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-muted-foreground shrink-0">Type:</span>
+              <Select value={radiologyModality} onValueChange={setRadiologyModality}>
+                <SelectTrigger className="h-8 rounded-lg text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {RADIOLOGY_MODALITIES.map((modality) => (
+                    <SelectItem key={modality} value={modality} className="text-xs">{modality}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              Upload written report pages first, then optional film photos. Film-only uploads are stored for viewing and are not interpreted.
+            </p>
+          </div>
+        )}
         {batchScanItems.length > 1 && (
           <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
             <div className="flex items-center justify-between gap-3">
