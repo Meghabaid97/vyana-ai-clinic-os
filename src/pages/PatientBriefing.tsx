@@ -425,14 +425,14 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <NotebookPen className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Recent Symptoms</h3>
-                  <Badge variant="outline" className="text-[9px] ml-auto">self-reported · {SYMPTOM_WINDOW_DAYS}d</Badge>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.recentSymptoms")}</h3>
+                  <Badge variant="outline" className="text-[9px] ml-auto">{t("briefing.symptoms.selfReported")} · {SYMPTOM_WINDOW_DAYS}d</Badge>
                 </div>
                 <div className="mb-3 flex items-center gap-2 flex-wrap">
-                  <p className="text-[11px] text-muted-foreground">From your health journal</p>
+                  <p className="text-[11px] text-muted-foreground">{t("briefing.symptoms.fromJournal")}</p>
                   {symptomFreshness && !isDemo && (
                     <span className={`text-[10.5px] px-1.5 py-0.5 rounded-md border ${symptomFreshness.isStale ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" : "border-border bg-muted/40 text-muted-foreground"}`}>
-                      {symptomFreshness.label}{symptomFreshness.latestAt ? ` · last: ${formatFreshDate(symptomFreshness.latestAt)}` : ""}
+                      {symptomFreshness.label}{symptomFreshness.latestAt ? ` · ${t("briefing.symptoms.last")}: ${formatFreshDate(symptomFreshness.latestAt)}` : ""}
                     </span>
                   )}
                 </div>
@@ -457,7 +457,7 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Recent Changes</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.recentChanges")}</h3>
                 </div>
                 <ul className="space-y-1">
                   {briefing.recent_changes.map((c, i) => (
@@ -476,14 +476,14 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Brain className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">SOAP Note</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.soap")}</h3>
                 </div>
                 <div className="space-y-3">
                   {[
-                    { label: "S, Subjective", value: briefing.soap_note.subjective },
-                    { label: "O, Objective", value: briefing.soap_note.objective },
-                    { label: "A, Assessment", value: briefing.soap_note.assessment },
-                    { label: "P, Plan", value: briefing.soap_note.plan },
+                    { label: t("briefing.soap.s"), value: briefing.soap_note.subjective },
+                    { label: t("briefing.soap.o"), value: briefing.soap_note.objective },
+                    { label: t("briefing.soap.a"), value: briefing.soap_note.assessment },
+                    { label: t("briefing.soap.p"), value: briefing.soap_note.plan },
                   ]
                     .filter((s) => s.value && s.value.trim() && s.value.trim().toUpperCase() !== "N/A")
                     .map((s, i) => (
@@ -503,7 +503,7 @@ const PatientBriefing = () => {
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Pill className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Medication-Lab Correlations</h3>
+                  <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.correlations")}</h3>
                 </div>
                 <div className="space-y-2">
                   {briefing.medication_correlations.map((c, i) => (
