@@ -13,6 +13,7 @@ import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { BriefingResultSkeleton } from "@/components/ui/page-skeletons";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
+import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
@@ -34,6 +35,7 @@ const PatientBriefing = () => {
   const [isDemo, setIsDemo] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [shareSheetOpen, setShareSheetOpen] = useState(false);
+  const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
   const { toast } = useToast();
 
   const createShareLink = async (recipientName: string): Promise<string | null> => {
@@ -98,7 +100,7 @@ const PatientBriefing = () => {
       }
 
       // Fetch all patient data in parallel — incl. last 90 days of symptom journal
-      const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+      const ninetyDaysAgo = symptomWindowStartIso();
       const [consultationsRes, recordsRes, vitalsRes, medsRes, symptomsRes] = await Promise.all([
         patient.national_health_id
           ? supabase.from("consultations").select("*").eq("patient_national_health_id", patient.national_health_id).order("created_at", { ascending: false }).limit(10)
@@ -108,6 +110,8 @@ const PatientBriefing = () => {
         supabase.from("medication_reminders").select("*").eq("patient_id", patient.id),
         supabase.from("symptom_logs").select("*").eq("patient_id", patient.id).gte("logged_at", ninetyDaysAgo).order("logged_at", { ascending: false }).limit(100),
       ]);
+
+      setSymptomFreshness(summarizeFreshness((symptomsRes.data as any) || []));
 
       const { data, error } = await supabase.functions.invoke("clinical-briefing", {
         body: {
@@ -417,12 +421,19 @@ const PatientBriefing = () => {
           {briefing.recent_symptoms && briefing.recent_symptoms.length > 0 && (
             <section className="px-5 pb-4">
               <div className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <NotebookPen className="h-4 w-4 text-primary" />
                   <h3 className="text-[14px] font-bold text-foreground">Recent Symptoms</h3>
-                  <Badge variant="outline" className="text-[9px] ml-auto">self-reported · 90d</Badge>
+                  <Badge variant="outline" className="text-[9px] ml-auto">self-reported · {SYMPTOM_WINDOW_DAYS}d</Badge>
                 </div>
-                <p className="text-[11px] text-muted-foreground mb-3">From your health journal</p>
+                <div className="mb-3 flex items-center gap-2 flex-wrap">
+                  <p className="text-[11px] text-muted-foreground">From your health journal</p>
+                  {symptomFreshness && !isDemo && (
+                    <span className={`text-[10.5px] px-1.5 py-0.5 rounded-md border ${symptomFreshness.isStale ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" : "border-border bg-muted/40 text-muted-foreground"}`}>
+                      {symptomFreshness.label}{symptomFreshness.latestAt ? ` · last: ${formatFreshDate(symptomFreshness.latestAt)}` : ""}
+                    </span>
+                  )}
+                </div>
                 <div className="space-y-2">
                   {briefing.recent_symptoms.map((s, i) => (
                     <div key={i} className="rounded-lg bg-muted/50 px-3 py-2">
