@@ -97,14 +97,16 @@ const PatientBriefing = () => {
         return;
       }
 
-      // Fetch all patient data in parallel
-      const [consultationsRes, recordsRes, vitalsRes, medsRes] = await Promise.all([
+      // Fetch all patient data in parallel — incl. last 90 days of symptom journal
+      const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+      const [consultationsRes, recordsRes, vitalsRes, medsRes, symptomsRes] = await Promise.all([
         patient.national_health_id
           ? supabase.from("consultations").select("*").eq("patient_national_health_id", patient.national_health_id).order("created_at", { ascending: false }).limit(10)
           : Promise.resolve({ data: [] }),
         supabase.from("health_records").select("file_name, ai_summary").eq("patient_id", patient.id).order("uploaded_at", { ascending: false }).limit(10),
         supabase.from("vital_history").select("*").eq("patient_id", patient.id).order("recorded_at", { ascending: true }),
         supabase.from("medication_reminders").select("*").eq("patient_id", patient.id),
+        supabase.from("symptom_logs").select("*").eq("patient_id", patient.id).gte("logged_at", ninetyDaysAgo).order("logged_at", { ascending: false }).limit(100),
       ]);
 
       const { data, error } = await supabase.functions.invoke("clinical-briefing", {
@@ -114,6 +116,7 @@ const PatientBriefing = () => {
           healthRecordSummaries: recordsRes.data || [],
           vitalHistory: vitalsRes.data || [],
           medicationReminders: medsRes.data || [],
+          symptomLogs: symptomsRes.data || [],
         },
       });
 
