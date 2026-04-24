@@ -14,6 +14,7 @@ import { BriefingResultSkeleton } from "@/components/ui/page-skeletons";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
+import { useLanguage } from "@/lib/i18n";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
