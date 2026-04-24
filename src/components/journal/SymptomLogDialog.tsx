@@ -35,12 +35,22 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Voice capture
+  const [recording, setRecording] = useState(false);
+  const [parsing, setParsing] = useState(false);
+  const [transcript, setTranscript] = useState<string>("");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
   useEffect(() => {
     if (!open) {
       setStep("pick");
       setSymptomId(""); setCustomName(""); setSeverity(5); setDuration("");
       setBodyLocation(""); setTriggers([]); setAssociated([]); setMedsTaken("");
       setNotes(""); setPhotoFile(null);
+      setTranscript(""); setRecording(false); setParsing(false);
+      try { mediaRecorderRef.current?.stream.getTracks().forEach(t => t.stop()); } catch {}
+      mediaRecorderRef.current = null;
     }
   }, [open]);
 
