@@ -303,27 +303,27 @@ const PatientBriefing = () => {
                 onClick={shareViaWhatsApp}
                 variant="outline"
                 className="flex-1"
-                loadingLabel="Preparing…"
-                successLabel="Opened WhatsApp"
-                errorLabel="Try again"
+                loadingLabel={t("briefing.share.preparing")}
+                successLabel={t("briefing.share.opened")}
+                errorLabel={t("briefing.share.try")}
                 idleIcon={<Share2 className="h-4 w-4" />}
               >
-                Share via WhatsApp
+                {t("briefing.share.whatsapp")}
               </StatefulButton>
               <Button
                 onClick={() => setShareSheetOpen(true)}
                 variant="outline"
                 className="gap-1.5"
-                aria-label="Show QR for doctor to scan"
+                aria-label={t("briefing.share.qrTitle")}
                 disabled={isDemo}
-                title={isDemo ? "QR sharing isn't available for sample data" : "Show QR"}
+                title={isDemo ? t("briefing.share.qrDisabled") : t("briefing.share.qrEnabled")}
               >
                 <QrCode className="h-4 w-4" />
               </Button>
-              <Button onClick={copyToClipboard} variant="outline" className="gap-2" aria-label="Copy briefing">
+              <Button onClick={copyToClipboard} variant="outline" className="gap-2" aria-label={t("briefing.share.copy")}>
                 {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
               </Button>
-              <Button onClick={generateBriefing} variant="outline" size="icon" disabled={isLoading} aria-label="Regenerate briefing">
+              <Button onClick={generateBriefing} variant="outline" size="icon" disabled={isLoading} aria-label={t("briefing.share.regenerate")}>
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               </Button>
             </div>
@@ -334,7 +334,7 @@ const PatientBriefing = () => {
             <div className="rounded-xl border border-border bg-card p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Heart className="h-4 w-4 text-primary" />
-                <h3 className="text-[14px] font-bold text-foreground">Overview</h3>
+                <h3 className="text-[14px] font-bold text-foreground">{t("briefing.section.overview")}</h3>
               </div>
               <p className="text-[13px] text-foreground leading-relaxed">{briefing.patient_overview.summary}</p>
               {briefing.patient_overview.key_conditions.length > 0 && (
