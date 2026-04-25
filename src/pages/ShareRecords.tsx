@@ -123,10 +123,10 @@ const ShareRecords = () => {
         <section className="px-5 pb-8">
           <div className="rounded-xl border border-border bg-card p-8 text-center">
             <QrCode className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <h2 className="text-lg font-semibold text-foreground mb-1">No shared links yet</h2>
-            <p className="text-sm text-muted-foreground mb-4">Create a link to share your health records securely.</p>
+            <h2 className="text-lg font-semibold text-foreground mb-1">{t("share.empty.title")}</h2>
+            <p className="text-sm text-muted-foreground mb-4">{t("share.empty.desc")}</p>
             <Button onClick={() => setShowCreate(true)} variant="outline">
-              <Plus className="h-4 w-4 mr-1" /> Create share link
+              <Plus className="h-4 w-4 mr-1" /> {t("share.empty.cta")}
             </Button>
           </div>
         </section>
