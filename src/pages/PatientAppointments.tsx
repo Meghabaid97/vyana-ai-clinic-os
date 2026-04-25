@@ -455,19 +455,19 @@ const PatientAppointments = () => {
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
               <CalendarPlus className="h-6 w-6 text-primary" />
             </div>
-            <h3 className="text-base font-semibold text-foreground">No appointments yet</h3>
+            <h3 className="text-base font-semibold text-foreground">{t("appt.empty")}</h3>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Book your first visit and track approvals, upcoming times, and doctor notes here.
+              {t("appt.emptyDesc")}
             </p>
             <div className="mt-4 grid gap-2">
               <Button onClick={() => setShowBookingDialog(true)} className="w-full rounded-xl" disabled={!sortedDoctors.length}>
                 <CalendarPlus className="mr-2 h-4 w-4" />
-                Book appointment
+                {t("appt.book")}
               </Button>
               {!hasLocation && (
                 <Button variant="outline" onClick={() => setShowLocationDialog(true)} className="w-full rounded-xl">
                   <MapPin className="mr-2 h-4 w-4" />
-                  Add location first
+                  {t("appt.addLocationFirst")}
                 </Button>
               )}
             </div>
