@@ -144,24 +144,24 @@ const AppHome = () => {
             <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center mb-2">
               <UserCircle2 className="h-6 w-6 text-primary" />
             </div>
-            <DialogTitle>Finish your profile</DialogTitle>
+            <DialogTitle>{t("home.required.title")}</DialogTitle>
             <DialogDescription>
-              We just need your name and phone to keep your records connected to you. You can add ABHA ID and other details anytime.
+              {t("home.required.desc")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
             <div>
-              <Label htmlFor="req-name">Full name</Label>
+              <Label htmlFor="req-name">{t("home.required.fullName")}</Label>
               <Input id="req-name" value={reqName} onChange={(e) => setReqName(e.target.value)} placeholder="e.g. Megha Baid" maxLength={100} />
             </div>
             <div>
-              <Label htmlFor="req-phone">Phone number</Label>
+              <Label htmlFor="req-phone">{t("home.required.phone")}</Label>
               <Input id="req-phone" value={reqPhone} onChange={(e) => setReqPhone(e.target.value)} placeholder="+91 98765 43210" inputMode="tel" maxLength={20} />
             </div>
           </div>
           <DialogFooter>
             <Button onClick={saveRequired} disabled={savingRequired} className="w-full">
-              {savingRequired ? "Saving..." : "Save and continue"}
+              {savingRequired ? t("home.required.saving") : t("home.required.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -176,17 +176,17 @@ const AppHome = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13.5px] font-semibold text-foreground leading-tight">
-                Finish setting up your profile
+                {t("home.banner.title")}
               </p>
               <p className="text-[11.5px] text-muted-foreground mt-0.5 leading-snug">
-                Add your date of birth and ABHA ID so we can personalize your care.
+                {t("home.banner.body")}
               </p>
             </div>
             <button
               onClick={() => navigate("/app/profile")}
               className="text-[12px] font-medium text-primary hover:underline whitespace-nowrap px-2"
             >
-              Complete →
+              {t("home.banner.complete")}
             </button>
             <button
               onClick={dismissBanner}
