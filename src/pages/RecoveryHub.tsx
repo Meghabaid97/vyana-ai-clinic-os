@@ -26,6 +26,7 @@ import {
   createMedicationReminders,
 } from "@/lib/healthRecordsPipeline";
 import { mapDocCategoryToRecord } from "@/lib/recordCategories";
+import { useLanguage } from "@/lib/i18n";
 
 // ─── Types ───
 
@@ -92,15 +93,15 @@ type DocCategory =
   | "insurance_card"
   | "other";
 
-const DOC_CATEGORIES: { id: DocCategory; label: string; required: boolean; icon: typeof FileText }[] = [
-  { id: "discharge_summary", label: "Discharge Summary", required: true, icon: FileText },
-  { id: "hospital_bill", label: "Final Hospital Bill", required: true, icon: IndianRupee },
-  { id: "investigation_reports", label: "Investigation Reports", required: true, icon: ClipboardList },
-  { id: "prescriptions", label: "Prescriptions", required: true, icon: Pill },
-  { id: "insurance_claim_form", label: "Insurance Claim Form", required: true, icon: File },
-  { id: "admission_note", label: "Admission Note", required: false, icon: FileText },
-  { id: "id_proof", label: "ID Proof (Aadhaar / PAN)", required: false, icon: Shield },
-  { id: "insurance_card", label: "Insurance Card", required: false, icon: Heart },
+const DOC_CATEGORIES: { id: DocCategory; labelKey: string; required: boolean; icon: typeof FileText }[] = [
+  { id: "discharge_summary", labelKey: "rec.cat.discharge", required: true, icon: FileText },
+  { id: "hospital_bill", labelKey: "rec.cat.bill", required: true, icon: IndianRupee },
+  { id: "investigation_reports", labelKey: "rec.cat.investigations", required: true, icon: ClipboardList },
+  { id: "prescriptions", labelKey: "rec.cat.prescriptions", required: true, icon: Pill },
+  { id: "insurance_claim_form", labelKey: "rec.cat.claimForm", required: true, icon: File },
+  { id: "admission_note", labelKey: "rec.cat.admission", required: false, icon: FileText },
+  { id: "id_proof", labelKey: "rec.cat.idProof", required: false, icon: Shield },
+  { id: "insurance_card", labelKey: "rec.cat.insuranceCard", required: false, icon: Heart },
 ];
 
 interface InsuranceDetails {
