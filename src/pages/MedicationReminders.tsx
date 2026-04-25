@@ -34,6 +34,7 @@ const MedicationReminders = () => {
   const [newMed, setNewMed] = useState({ name: "", dosage: "", frequency: "daily", time: "08:00", notes: "" });
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => { loadReminders(); }, []);
 
