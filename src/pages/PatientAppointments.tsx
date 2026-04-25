@@ -235,8 +235,8 @@ const PatientAppointments = () => {
         .eq("id", profile.id);
 
       toast({
-        title: "Location Saved",
-        description: "Your location preferences have been updated",
+        title: t("appt.toast.locationSaved"),
+        description: t("appt.toast.locationSavedDesc"),
       });
       setShowLocationDialog(false);
     } catch (error) {
