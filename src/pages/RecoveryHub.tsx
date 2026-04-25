@@ -509,9 +509,9 @@ const ClaimAssistant = () => {
               <Heart className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight">Claim Assistant</h1>
+              <h1 className="text-lg font-bold text-foreground leading-tight">{t("rec.title")}</h1>
               <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                Skip hospital paperwork chaos. Upload once, we prepare everything for your insurance claim.
+                {t("rec.subtitle")}
               </p>
             </div>
           </div>
@@ -522,7 +522,7 @@ const ClaimAssistant = () => {
 
         {/* Document categories */}
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-foreground">Required Documents</h2>
+          <h2 className="text-sm font-semibold text-foreground">{t("rec.required")}</h2>
           {DOC_CATEGORIES.filter(c => c.required).map(cat => {
             const catDocs = getDocsForCategory(cat.id);
             const hasDoc = catDocs.length > 0;
@@ -540,9 +540,9 @@ const ClaimAssistant = () => {
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-medium text-foreground">{cat.label}</p>
+                      <p className="text-sm font-medium text-foreground">{t(cat.labelKey)}</p>
                       {catDocs.length > 0 && (
-                        <p className="text-[11px] text-muted-foreground">{catDocs.length} file{catDocs.length > 1 ? "s" : ""}</p>
+                        <p className="text-[11px] text-muted-foreground">{t(catDocs.length === 1 ? "rec.files" : "rec.filesPlural", { count: catDocs.length })}</p>
                       )}
                     </div>
                   </div>
@@ -553,7 +553,7 @@ const ClaimAssistant = () => {
                       className="rounded-lg h-8 text-xs text-muted-foreground"
                       onClick={() => openRecordsPicker(cat.id)}
                     >
-                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> Records
+                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> {t("rec.btn.records")}
                     </Button>
                     <Button
                       variant="outline"
@@ -561,7 +561,7 @@ const ClaimAssistant = () => {
                       className="rounded-lg h-8 text-xs"
                       onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
                     >
-                      <Camera className="h-3.5 w-3.5 mr-1" /> {hasDoc ? "Add more" : "Upload"}
+                      <Camera className="h-3.5 w-3.5 mr-1" /> {hasDoc ? t("rec.btn.addMore") : t("rec.btn.upload")}
                     </Button>
                   </div>
                 </div>
@@ -588,7 +588,7 @@ const ClaimAssistant = () => {
             );
           })}
 
-          <h2 className="text-sm font-semibold text-foreground pt-2">Optional (but useful)</h2>
+          <h2 className="text-sm font-semibold text-foreground pt-2">{t("rec.optional")}</h2>
           {DOC_CATEGORIES.filter(c => !c.required).map(cat => {
             const catDocs = getDocsForCategory(cat.id);
             const hasDoc = catDocs.length > 0;
@@ -605,7 +605,7 @@ const ClaimAssistant = () => {
                         <Circle className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
                     )}
-                    <p className="text-sm font-medium text-foreground">{cat.label}</p>
+                    <p className="text-sm font-medium text-foreground">{t(cat.labelKey)}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Button
@@ -614,7 +614,7 @@ const ClaimAssistant = () => {
                       className="rounded-lg h-8 text-xs text-muted-foreground"
                       onClick={() => openRecordsPicker(cat.id)}
                     >
-                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> Records
+                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> {t("rec.btn.records")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -622,7 +622,7 @@ const ClaimAssistant = () => {
                       className="rounded-lg h-8 text-xs"
                       onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
                     >
-                      <Upload className="h-3.5 w-3.5 mr-1" /> Upload
+                      <Upload className="h-3.5 w-3.5 mr-1" /> {t("rec.btn.upload")}
                     </Button>
                   </div>
                 </div>
@@ -652,7 +652,7 @@ const ClaimAssistant = () => {
             variant="outline"
           >
             {extracting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
-            {extracting ? "Extracting data from discharge summary…" : "Extract data from discharge summary"}
+            {extracting ? t("rec.btn.extracting") : t("rec.btn.extract")}
           </Button>
         )}
 
@@ -661,9 +661,9 @@ const ClaimAssistant = () => {
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
               <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-foreground">Data extracted successfully</p>
+                <p className="text-sm font-medium text-foreground">{t("rec.extracted.title")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {extracted.insuranceClaim.primaryDiagnosis || "Diagnosis"} · {extracted.insuranceClaim.hospitalName || "Hospital"} · {extracted.confidence} confidence
+                  {t("rec.extracted.line", { diagnosis: extracted.insuranceClaim.primaryDiagnosis || t("rec.diagnosis"), hospital: extracted.insuranceClaim.hospitalName || t("rec.hospital"), confidence: extracted.confidence })}
                 </p>
               </div>
             </div>
@@ -671,9 +671,9 @@ const ClaimAssistant = () => {
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
                 <Pill className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">{remindersCreated} medication reminder{remindersCreated > 1 ? "s" : ""} created</p>
+                  <p className="text-sm font-medium text-foreground">{t(remindersCreated === 1 ? "rec.reminders.created" : "rec.reminders.createdPlural", { count: remindersCreated })}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Your discharge medications have been added to <button onClick={() => navigate("/app/medications")} className="text-primary underline">Medication Reminders</button>
+                    {t("rec.reminders.desc")} <button onClick={() => navigate("/app/medications")} className="text-primary underline">{t("rec.reminders.link")}</button>
                   </p>
                 </div>
               </div>
@@ -681,7 +681,7 @@ const ClaimAssistant = () => {
             <div className="rounded-xl border border-border bg-muted/50 p-3 flex items-start gap-2">
               <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <p className="text-xs text-muted-foreground">
-                All uploaded documents have been saved to your <button onClick={() => navigate("/app/records")} className="text-primary underline">Health Records</button> and will appear in your health trends analysis.
+                {t("rec.records.savedNote")} <button onClick={() => navigate("/app/records")} className="text-primary underline">{t("rec.records.link")}</button> {t("rec.records.savedTail")}
               </p>
             </div>
           </div>
@@ -690,7 +690,7 @@ const ClaimAssistant = () => {
         <Button
           onClick={() => {
             if (hasDischarge && !extracted) {
-              toast({ title: "Extract first", description: "Please extract data from your discharge summary before proceeding", variant: "destructive" });
+              toast({ title: t("rec.toast.extractFirstTitle"), description: t("rec.toast.extractFirstDesc"), variant: "destructive" });
               return;
             }
             setStep("insurance");
@@ -698,7 +698,7 @@ const ClaimAssistant = () => {
           disabled={docs.length === 0}
           className="w-full rounded-xl"
         >
-          Continue to insurance details <ArrowRight className="h-4 w-4 ml-2" />
+          {t("rec.btn.continueIns")} <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
 
         <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={handleFileSelect} />
@@ -709,10 +709,10 @@ const ClaimAssistant = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <FolderOpen className="h-5 w-5 text-primary" />
-                Pick from Health Records
+                {t("rec.picker.title")}
               </DialogTitle>
               <DialogDescription>
-                Attach as: {DOC_CATEGORIES.find(c => c.id === pickerCategory)?.label}
+                {t("rec.picker.attachAs", { label: t(DOC_CATEGORIES.find(c => c.id === pickerCategory)?.labelKey || "") })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2 py-2">
@@ -723,7 +723,7 @@ const ClaimAssistant = () => {
               ) : healthRecords.length === 0 ? (
                 <div className="text-center py-8">
                   <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">No health records found. Upload records in the Health Records tab first.</p>
+                  <p className="text-sm text-muted-foreground">{t("rec.picker.empty")}</p>
                 </div>
               ) : (() => {
                 const targetCategory = mapDocCategoryToRecord(pickerCategory);
@@ -732,7 +732,7 @@ const ClaimAssistant = () => {
                   return (
                     <div className="text-center py-8">
                       <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">No matching records in this category. Upload one in Records first.</p>
+                      <p className="text-sm text-muted-foreground">{t("rec.picker.emptyMatch")}</p>
                     </div>
                   );
                 }
