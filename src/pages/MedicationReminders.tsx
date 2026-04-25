@@ -176,10 +176,10 @@ const MedicationReminders = () => {
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
           <div className="flex items-center gap-2 mb-2">
             <Bell className="h-4 w-4 text-primary" />
-            <span className="text-[13px] font-semibold text-foreground">Smart tip</span>
+            <span className="text-[13px] font-semibold text-foreground">{t("med.tip.title")}</span>
           </div>
           <p className="text-[12px] text-muted-foreground leading-relaxed">
-            Medications extracted from your doctor consultations and health records will appear here automatically in future updates.
+            {t("med.tip.desc")}
           </p>
         </div>
       </section>
