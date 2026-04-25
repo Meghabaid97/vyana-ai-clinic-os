@@ -267,10 +267,10 @@ const ClaimAssistant = () => {
       }
       setDocs(prev => [...prev, newDoc]);
       setShowRecordsPicker(false);
-      toast({ title: "Record attached", description: `${record.file_name} added as ${DOC_CATEGORIES.find(c => c.id === pickerCategory)?.label}` });
+      toast({ title: t("rec.toast.attachedTitle"), description: `${record.file_name} → ${t(DOC_CATEGORIES.find(c => c.id === pickerCategory)?.labelKey || "")}` });
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Couldn't attach that record", description: err.message, variant: "destructive" });
+      toast({ title: t("rec.toast.attachFailTitle"), description: err.message, variant: "destructive" });
     } finally {
       setDownloadingRecord(null);
     }
@@ -284,7 +284,7 @@ const ClaimAssistant = () => {
   const extractDischargeData = async () => {
     const dischargeDocs = getDocsForCategory("discharge_summary");
     if (!dischargeDocs.length) {
-      toast({ title: "No discharge summary", description: "Upload a discharge summary first", variant: "destructive" });
+      toast({ title: t("rec.toast.noDischargeTitle"), description: t("rec.toast.noDischargeDesc"), variant: "destructive" });
       return;
     }
 
@@ -306,7 +306,7 @@ const ClaimAssistant = () => {
       if (data?.error) throw new Error(data.error);
 
       setExtracted(data);
-      toast({ title: "Got it", description: "Your discharge summary is ready to use" });
+      toast({ title: t("rec.toast.gotItTitle"), description: t("rec.toast.gotItDesc") });
 
       // Auto-create medication reminders from extracted medications
       if (patientId && data?.medicalSummary?.medicationsAtDischarge?.length) {
@@ -318,8 +318,8 @@ const ClaimAssistant = () => {
           if (count > 0) {
             setRemindersCreated(count);
             toast({
-              title: `${count} medication reminder${count > 1 ? "s" : ""} created`,
-              description: "Your medications have been added to reminders automatically",
+              title: t(count === 1 ? "rec.reminders.created" : "rec.reminders.createdPlural", { count }),
+              description: t("rec.reminders.desc"),
             });
           }
         } catch (err) {
@@ -328,7 +328,7 @@ const ClaimAssistant = () => {
       }
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Couldn't read this document", description: err.message || "Try a clearer scan or photo", variant: "destructive" });
+      toast({ title: t("rec.toast.cantReadTitle"), description: err.message || t("rec.toast.cantReadDesc"), variant: "destructive" });
     } finally {
       setExtracting(false);
     }
@@ -343,20 +343,20 @@ const ClaimAssistant = () => {
     const requiredCats = DOC_CATEGORIES.filter(c => c.required);
     for (const cat of requiredCats) {
       if (!docs.some(d => d.category === cat.id)) {
-        missing.push(cat.label);
+        missing.push(t(cat.labelKey));
       }
     }
 
     // Insurance details
-    if (!insurance.insuranceCompany) missing.push("Insurance company name");
-    if (!insurance.policyNumber) missing.push("Policy number");
-    if (!insurance.claimType) missing.push("Claim type (cashless/reimbursement)");
+    if (!insurance.insuranceCompany) missing.push(t("rec.miss.company"));
+    if (!insurance.policyNumber) missing.push(t("rec.miss.policyNum"));
+    if (!insurance.claimType) missing.push(t("rec.miss.claimType"));
 
     // Bank details for reimbursement
     if (insurance.claimType === "reimbursement") {
-      if (!insurance.bankName) missing.push("Bank name");
-      if (!insurance.bankAccountNumber) missing.push("Bank account number");
-      if (!insurance.bankIfsc) missing.push("Bank IFSC code");
+      if (!insurance.bankName) missing.push(t("rec.miss.bankName"));
+      if (!insurance.bankAccountNumber) missing.push(t("rec.miss.bankAccount"));
+      if (!insurance.bankIfsc) missing.push(t("rec.miss.bankIfsc"));
     }
 
     return missing;
@@ -444,7 +444,7 @@ const ClaimAssistant = () => {
       }
     } catch (err: any) {
       console.error(err);
-      setChatMessages(prev => [...prev, { role: "assistant", content: `Sorry, I ran into an error: ${err.message}. Please try again.` }]);
+      setChatMessages(prev => [...prev, { role: "assistant", content: t("rec.chat.error", { msg: err.message }) }]);
     } finally {
       setChatLoading(false);
     }
@@ -460,10 +460,10 @@ const ClaimAssistant = () => {
         insurance,
         uploadedCategories: docs.map(d => d.category),
       });
-      toast({ title: "Your claim is ready", description: "PDF saved to your downloads" });
+      toast({ title: t("rec.toast.pdfReadyTitle"), description: t("rec.toast.pdfReadyDesc") });
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Couldn't build your claim PDF", description: err.message, variant: "destructive" });
+      toast({ title: t("rec.toast.pdfFailTitle"), description: err.message, variant: "destructive" });
     } finally {
       setGeneratingPdf(false);
     }
