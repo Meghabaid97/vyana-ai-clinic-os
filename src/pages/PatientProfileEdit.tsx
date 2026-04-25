@@ -180,18 +180,18 @@ const PatientProfileEdit = () => {
   }
 
   const menuItems = [
-    { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/app/medical-history" as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: KeyRound, label: "Account Settings", desc: "Change password and sign-in details", path: null as string | null, onClick: () => setAccountMode(!accountMode) },
-    { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: Bell, label: "Notifications", desc: "Manage notification preferences", path: null as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: FileText, label: t("prof.menu.history"), desc: t("prof.menu.historyDesc"), path: "/app/medical-history" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: KeyRound, label: t("prof.menu.account"), desc: t("prof.menu.accountDesc"), path: null as string | null, onClick: () => setAccountMode(!accountMode) },
+    { icon: Shield, label: t("prof.menu.emergency"), desc: t("prof.menu.emergencyDesc"), path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Bell, label: t("prof.menu.notifications"), desc: t("prof.menu.notificationsDesc"), path: null as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Lock, label: t("prof.menu.privacy"), desc: t("prof.menu.privacyDesc"), path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
   ];
 
   const aboutItems = [
-    { icon: Share2, label: "Refer a friend", desc: "Invite family and friends to Vyana", path: null as string | null, onClick: handleReferFriend },
-    { icon: BookOpen, label: "Our Story", desc: "Why we built Vyana", path: "/app/story" as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: HelpCircle, label: "Help & Support", desc: "Raise a ticket or report an issue", path: "/app/support" as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: Star, label: "Rate App", desc: "Rate Vyana or share with friends", path: null as string | null, onClick: handleRateApp },
+    { icon: Share2, label: t("prof.about.refer"), desc: t("prof.about.referDesc"), path: null as string | null, onClick: handleReferFriend },
+    { icon: BookOpen, label: t("prof.about.story"), desc: t("prof.about.storyDesc"), path: "/app/story" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: HelpCircle, label: t("prof.about.help"), desc: t("prof.about.helpDesc"), path: "/app/support" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Star, label: t("prof.about.rate"), desc: t("prof.about.rateDesc"), path: null as string | null, onClick: handleRateApp },
   ];
 
   return (
