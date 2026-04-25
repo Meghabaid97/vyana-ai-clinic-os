@@ -323,7 +323,7 @@ const EmergencyAccess = () => {
           {radiologyRecords.length > 0 && (
             <>
               <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-                <ScanLine className="h-4 w-4 text-primary" /> Radiology / Imaging
+                <ScanLine className="h-4 w-4 text-primary" /> {t("ea.radiology")}
               </h2>
               <div className="space-y-2 mb-5">
                 {radiologyRecords.map(r => {
@@ -341,14 +341,14 @@ const EmergencyAccess = () => {
                           </span>
                         </div>
                         {r.radiology_provider && <p className="text-[11px] text-muted-foreground">{r.radiology_provider}</p>}
-                        {impression[0] && <p className="text-xs text-muted-foreground">Impression: {impression[0]}</p>}
-                        {recommendations[0] && <p className="text-xs text-muted-foreground">Follow-up: {recommendations[0]}</p>}
+                        {impression[0] && <p className="text-xs text-muted-foreground">{t("ea.impression", { text: impression[0] })}</p>}
+                        {recommendations[0] && <p className="text-xs text-muted-foreground">{t("ea.followUp", { text: recommendations[0] })}</p>}
                         {r.radiology_upload_kind === "film_only" && (
-                          <p className="text-[11px] text-muted-foreground">Film/photo stored only. Vyana has not interpreted the image.</p>
+                          <p className="text-[11px] text-muted-foreground">{t("ea.filmOnly")}</p>
                         )}
                         {r.file_url && (
                           <a href={r.file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                            View original report/photo <ExternalLink className="h-3 w-3" />
+                            {t("ea.viewOriginal")} <ExternalLink className="h-3 w-3" />
                           </a>
                         )}
                       </CardContent>
@@ -360,12 +360,12 @@ const EmergencyAccess = () => {
           )}
 
           <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-            <FileText className="h-4 w-4 text-primary" /> Health Records
+            <FileText className="h-4 w-4 text-primary" /> {t("ea.healthRecords")}
           </h2>
           {summary.healthRecords.length === 0 ? (
             <Card className="mb-5">
               <CardContent className="p-5 text-center text-sm text-muted-foreground">
-                No uploaded health records.
+                {t("ea.noHealthRecords")}
               </CardContent>
             </Card>
           ) : (
