@@ -1102,7 +1102,7 @@ const ClaimAssistant = () => {
           <button onClick={() => setStep("review")} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Claims Assistant</h1>
+          <h1 className="text-lg font-bold text-foreground">{t("rec.chat.heading")}</h1>
         </div>
         <StepIndicator steps={steps} currentIndex={stepIndex} />
       </div>
@@ -1154,7 +1154,7 @@ const ClaimAssistant = () => {
             value={chatInput}
             onChange={e => setChatInput(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
-            placeholder="Ask about your claim process…"
+            placeholder={t("rec.chat.placeholder")}
             className="min-h-[44px] max-h-[120px] rounded-xl resize-none text-sm"
             rows={1}
           />
@@ -1168,7 +1168,7 @@ const ClaimAssistant = () => {
           </Button>
         </div>
         <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-          AI assistant · Not legal or medical advice · Verify all details with your insurer
+          {t("rec.chat.footer")}
         </p>
       </div>
     </div>
