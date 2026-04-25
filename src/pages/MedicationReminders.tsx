@@ -13,6 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/i18n";
 
 interface Reminder {
   id: string;
@@ -33,6 +34,7 @@ const MedicationReminders = () => {
   const [newMed, setNewMed] = useState({ name: "", dosage: "", frequency: "daily", time: "08:00", notes: "" });
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => { loadReminders(); }, []);
 
@@ -66,9 +68,9 @@ const MedicationReminders = () => {
       notes: newMed.notes.trim() || null,
     });
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("med.toast.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Reminder added", description: `${newMed.name} reminder set` });
+      toast({ title: t("med.toast.added"), description: t("med.toast.addedDesc", { name: newMed.name }) });
       setShowAdd(false);
       setNewMed({ name: "", dosage: "", frequency: "daily", time: "08:00", notes: "" });
       await loadReminders();
@@ -84,7 +86,7 @@ const MedicationReminders = () => {
   const deleteReminder = async (id: string) => {
     await supabase.from("medication_reminders").delete().eq("id", id);
     setReminders((prev) => prev.filter((r) => r.id !== id));
-    toast({ title: "Reminder removed" });
+    toast({ title: t("med.toast.removed") });
   };
 
   if (loading) {
@@ -101,10 +103,10 @@ const MedicationReminders = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">
-              Medications
+              {t("med.title")}
             </h1>
             <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-              Track your medications and set reminders.
+              {t("med.subtitle")}
             </p>
           </div>
           <Button
@@ -112,7 +114,7 @@ const MedicationReminders = () => {
             onClick={() => setShowAdd(true)}
             className="bg-primary text-primary-foreground"
           >
-            <Plus className="h-4 w-4 mr-1" /> Add
+            <Plus className="h-4 w-4 mr-1" /> {t("med.add")}
           </Button>
         </div>
       </section>
@@ -121,10 +123,10 @@ const MedicationReminders = () => {
         <section className="px-5 pb-8">
           <div className="rounded-xl border border-border bg-card p-8 text-center">
             <Pill className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <h2 className="text-lg font-semibold text-foreground mb-1">No medications tracked</h2>
-            <p className="text-sm text-muted-foreground mb-4">Add your medications to set up reminders.</p>
+            <h2 className="text-lg font-semibold text-foreground mb-1">{t("med.empty.title")}</h2>
+            <p className="text-sm text-muted-foreground mb-4">{t("med.empty.desc")}</p>
             <Button onClick={() => setShowAdd(true)} variant="outline">
-              <Plus className="h-4 w-4 mr-1" /> Add medication
+              <Plus className="h-4 w-4 mr-1" /> {t("med.empty.cta")}
             </Button>
           </div>
         </section>
@@ -146,7 +148,7 @@ const MedicationReminders = () => {
                       <Clock className="h-2.5 w-2.5 mr-1" />
                       {r.time_slots.join(", ")}
                     </Badge>
-                    <Badge variant="outline" className="text-[10px]">{r.frequency}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{t(`med.freq.${({daily:"daily",twice_daily:"twice",thrice_daily:"thrice",weekly:"weekly",as_needed:"asNeeded"} as Record<string,string>)[r.frequency] || "daily"}`)}</Badge>
                   </div>
                   {r.notes && (
                     <p className="text-[11px] text-muted-foreground mt-1.5">{r.notes}</p>
@@ -174,10 +176,10 @@ const MedicationReminders = () => {
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
           <div className="flex items-center gap-2 mb-2">
             <Bell className="h-4 w-4 text-primary" />
-            <span className="text-[13px] font-semibold text-foreground">Smart tip</span>
+            <span className="text-[13px] font-semibold text-foreground">{t("med.tip.title")}</span>
           </div>
           <p className="text-[12px] text-muted-foreground leading-relaxed">
-            Medications extracted from your doctor consultations and health records will appear here automatically in future updates.
+            {t("med.tip.desc")}
           </p>
         </div>
       </section>
@@ -188,42 +190,42 @@ const MedicationReminders = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Pill className="h-5 w-5 text-primary" />
-              Add Medication Reminder
+              {t("med.dialog.title")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <label className="text-sm font-medium text-foreground">Medication Name *</label>
+              <label className="text-sm font-medium text-foreground">{t("med.field.name")}</label>
               <Input
-                placeholder="e.g. Metformin"
+                placeholder={t("med.field.namePh")}
                 value={newMed.name}
                 onChange={(e) => setNewMed((p) => ({ ...p, name: e.target.value }))}
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Dosage</label>
+              <label className="text-sm font-medium text-foreground">{t("med.field.dosage")}</label>
               <Input
-                placeholder="e.g. 500mg"
+                placeholder={t("med.field.dosagePh")}
                 value={newMed.dosage}
                 onChange={(e) => setNewMed((p) => ({ ...p, dosage: e.target.value }))}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium text-foreground">Frequency</label>
+                <label className="text-sm font-medium text-foreground">{t("med.field.frequency")}</label>
                 <Select value={newMed.frequency} onValueChange={(v) => setNewMed((p) => ({ ...p, frequency: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="daily">Daily</SelectItem>
-                    <SelectItem value="twice_daily">Twice daily</SelectItem>
-                    <SelectItem value="thrice_daily">Thrice daily</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="as_needed">As needed</SelectItem>
+                    <SelectItem value="daily">{t("med.freq.daily")}</SelectItem>
+                    <SelectItem value="twice_daily">{t("med.freq.twice")}</SelectItem>
+                    <SelectItem value="thrice_daily">{t("med.freq.thrice")}</SelectItem>
+                    <SelectItem value="weekly">{t("med.freq.weekly")}</SelectItem>
+                    <SelectItem value="as_needed">{t("med.freq.asNeeded")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Time</label>
+                <label className="text-sm font-medium text-foreground">{t("med.field.time")}</label>
                 <Input
                   type="time"
                   value={newMed.time}
@@ -232,19 +234,19 @@ const MedicationReminders = () => {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Notes</label>
+              <label className="text-sm font-medium text-foreground">{t("med.field.notes")}</label>
               <Input
-                placeholder="e.g. Take after meals"
+                placeholder={t("med.field.notesPh")}
                 value={newMed.notes}
                 onChange={(e) => setNewMed((p) => ({ ...p, notes: e.target.value }))}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowAdd(false)}>{t("med.btn.cancel")}</Button>
             <Button onClick={addReminder} disabled={saving || !newMed.name.trim()}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
-              Add Reminder
+              {t("med.btn.add")}
             </Button>
           </DialogFooter>
         </DialogContent>
