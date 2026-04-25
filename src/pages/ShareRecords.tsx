@@ -84,10 +84,10 @@ const ShareRecords = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">
-              Share Records
+              {t("share.title")}
             </h1>
             <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-              Create secure, time-limited links to share your records with any doctor.
+              {t("share.subtitle")}
             </p>
           </div>
           <Button
@@ -95,7 +95,7 @@ const ShareRecords = () => {
             onClick={() => setShowCreate(true)}
             className="bg-primary text-primary-foreground"
           >
-            <Plus className="h-4 w-4 mr-1" /> New Link
+            <Plus className="h-4 w-4 mr-1" /> {t("share.newLink")}
           </Button>
         </div>
       </section>
