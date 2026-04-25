@@ -191,6 +191,15 @@ const translations: Record<Language, Record<string, string>> = {
 
     // AppHome — bottom tagline
     "home.bottom.tagline": "Never explain your medical history again.",
+    "home.required.title": "Finish your profile",
+    "home.required.desc": "We just need your name and phone to keep your records connected to you. You can add ABHA ID and other details anytime.",
+    "home.required.fullName": "Full name",
+    "home.required.phone": "Phone number",
+    "home.required.saving": "Saving...",
+    "home.required.save": "Save and continue",
+    "home.banner.title": "Finish setting up your profile",
+    "home.banner.body": "Add your date of birth and ABHA ID so we can personalize your care.",
+    "home.banner.complete": "Complete →",
 
     // Briefing hero card
     "briefingHero.eyebrow": "30 seconds",
@@ -924,6 +933,15 @@ const translations: Record<Language, Record<string, string>> = {
     "home.why.cta.sub": "उत्पाद के पीछे का वादा।",
 
     "home.bottom.tagline": "अपना मेडिकल इतिहास फिर कभी समझाने की ज़रूरत नहीं।",
+    "home.required.title": "अपनी प्रोफ़ाइल पूरी करें",
+    "home.required.desc": "आपके रिकॉर्ड को आपसे जोड़े रखने के लिए हमें बस आपका नाम और फ़ोन चाहिए। ABHA ID और अन्य विवरण आप कभी भी जोड़ सकते हैं।",
+    "home.required.fullName": "पूरा नाम",
+    "home.required.phone": "फ़ोन नंबर",
+    "home.required.saving": "सहेजा जा रहा है...",
+    "home.required.save": "सहेजें और जारी रखें",
+    "home.banner.title": "अपनी प्रोफ़ाइल सेटअप पूरी करें",
+    "home.banner.body": "अपनी देखभाल को निजीकृत करने के लिए अपनी जन्मतिथि और ABHA ID जोड़ें।",
+    "home.banner.complete": "पूरा करें →",
 
     "briefingHero.eyebrow": "30 सेकंड",
     "briefingHero.title.l1": "मेरे पास",
@@ -1650,6 +1668,15 @@ const translations: Record<Language, Record<string, string>> = {
     "home.why.cta.sub": "தயாரிப்புக்கு பின்னால் உள்ள வாக்குறுதி.",
 
     "home.bottom.tagline": "உங்கள் மருத்துவ வரலாற்றை மீண்டும் விளக்க வேண்டாம்.",
+    "home.required.title": "உங்கள் சுயவிவரத்தை முடிக்கவும்",
+    "home.required.desc": "உங்கள் பதிவுகளை உங்களுடன் இணைத்து வைக்க உங்கள் பெயர் மற்றும் ஃபோன் மட்டுமே தேவை. ABHA ID மற்றும் பிற விவரங்களை எப்போது வேண்டுமானாலும் சேர்க்கலாம்.",
+    "home.required.fullName": "முழு பெயர்",
+    "home.required.phone": "ஃபோன் எண்",
+    "home.required.saving": "சேமிக்கிறது...",
+    "home.required.save": "சேமித்து தொடரவும்",
+    "home.banner.title": "உங்கள் சுயவிவரத்தை அமைத்து முடிக்கவும்",
+    "home.banner.body": "உங்கள் பராமரிப்பை தனிப்பயனாக்க உங்கள் பிறந்த தேதி மற்றும் ABHA ID சேர்க்கவும்.",
+    "home.banner.complete": "முடிக்க →",
 
     "briefingHero.eyebrow": "30 விநாடிகள்",
     "briefingHero.title.l1": "எனக்கு",
@@ -2376,6 +2403,15 @@ const translations: Record<Language, Record<string, string>> = {
     "home.why.cta.sub": "ఉత్పత్తి వెనుక ఉన్న వాగ్దానం.",
 
     "home.bottom.tagline": "మీ వైద్య చరిత్రను మళ్లీ వివరించాల్సిన అవసరం లేదు.",
+    "home.required.title": "మీ ప్రొఫైల్‌ను పూర్తి చేయండి",
+    "home.required.desc": "మీ రికార్డులను మీతో అనుసంధానించడానికి మాకు మీ పేరు మరియు ఫోన్ మాత్రమే అవసరం. మీరు ఎప్పుడైనా ABHA ID మరియు ఇతర వివరాలను జోడించవచ్చు.",
+    "home.required.fullName": "పూర్తి పేరు",
+    "home.required.phone": "ఫోన్ నంబర్",
+    "home.required.saving": "సేవ్ చేస్తోంది...",
+    "home.required.save": "సేవ్ చేసి కొనసాగించండి",
+    "home.banner.title": "మీ ప్రొఫైల్ సెటప్ పూర్తి చేయండి",
+    "home.banner.body": "మీ సంరక్షణను వ్యక్తిగతీకరించడానికి మీ పుట్టిన తేదీ మరియు ABHA IDని జోడించండి.",
+    "home.banner.complete": "పూర్తి →",
 
     "briefingHero.eyebrow": "30 సెకన్లు",
     "briefingHero.title.l1": "నాకు",
@@ -3102,6 +3138,15 @@ const translations: Record<Language, Record<string, string>> = {
     "home.why.cta.sub": "পণ্যের পিছনের প্রতিশ্রুতি।",
 
     "home.bottom.tagline": "আপনার চিকিৎসা ইতিহাস আবার ব্যাখ্যা করার দরকার নেই।",
+    "home.required.title": "আপনার প্রোফাইল সম্পূর্ণ করুন",
+    "home.required.desc": "আপনার রেকর্ডগুলি আপনার সাথে সংযুক্ত রাখতে আমাদের শুধু আপনার নাম এবং ফোন প্রয়োজন। আপনি যেকোনো সময় ABHA আইডি এবং অন্যান্য বিবরণ যোগ করতে পারেন।",
+    "home.required.fullName": "পুরো নাম",
+    "home.required.phone": "ফোন নম্বর",
+    "home.required.saving": "সংরক্ষণ হচ্ছে...",
+    "home.required.save": "সংরক্ষণ করে চালিয়ে যান",
+    "home.banner.title": "আপনার প্রোফাইল সেট আপ সম্পূর্ণ করুন",
+    "home.banner.body": "আপনার যত্ন ব্যক্তিগতকৃত করতে আপনার জন্ম তারিখ এবং ABHA আইডি যোগ করুন।",
+    "home.banner.complete": "সম্পূর্ণ →",
 
     "briefingHero.eyebrow": "৩০ সেকেন্ড",
     "briefingHero.title.l1": "আমার একটি",
