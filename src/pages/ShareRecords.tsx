@@ -55,7 +55,7 @@ const ShareRecords = () => {
     }).select().single() as { data: ShareLink | null; error: any };
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("share.error"), description: error.message, variant: "destructive" });
       return null;
     }
     if (!data) return null;
