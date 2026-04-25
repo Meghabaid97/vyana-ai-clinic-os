@@ -416,12 +416,12 @@ const PatientProfileEdit = () => {
       {/* App version footer, like Nykaa */}
       <section className="pb-10 text-center">
         <p className="text-lg font-semibold text-foreground">V<span className="text-primary">yana</span></p>
-        <p className="text-[11px] text-muted-foreground mt-1">ver 1.0.0</p>
+        <p className="text-[11px] text-muted-foreground mt-1">{t("prof.ver")} 1.0.0</p>
         <div className="flex items-center justify-center gap-6 mt-4">
           {[
-            { icon: Lock, label: "Privacy", path: "/legal#privacy" as string | null, onClick: undefined as undefined | (() => void) },
-            { icon: FileText, label: "Terms", path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
-            { icon: Star, label: "Rate App", path: null as string | null, onClick: handleRateApp },
+            { icon: Lock, label: t("prof.footer.privacy"), path: "/legal#privacy" as string | null, onClick: undefined as undefined | (() => void) },
+            { icon: FileText, label: t("prof.footer.terms"), path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
+            { icon: Star, label: t("prof.footer.rate"), path: null as string | null, onClick: handleRateApp },
           ].map((item, i) => (
             <div key={i} className="flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => { if (item.onClick) item.onClick(); else if (item.path) navigate(item.path); }}>
               <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
