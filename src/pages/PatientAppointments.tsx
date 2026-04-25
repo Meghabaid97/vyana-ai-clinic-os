@@ -560,18 +560,18 @@ const PatientAppointments = () => {
       <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Book Appointment</DialogTitle>
+            <DialogTitle>{t("appt.bookDialogTitle")}</DialogTitle>
             <DialogDescription>
-              Request an appointment with a healthcare provider
+              {t("appt.bookDialogDesc")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
-              <Label>Select Doctor</Label>
+              <Label>{t("appt.selectDoctor")}</Label>
               <Select value={selectedDoctorId} onValueChange={setSelectedDoctorId}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Choose a doctor" />
+                  <SelectValue placeholder={t("appt.chooseDoctor")} />
                 </SelectTrigger>
                 <SelectContent>
                   {sortedDoctors.map((doctor) => (
