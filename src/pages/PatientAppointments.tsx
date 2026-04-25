@@ -492,7 +492,7 @@ const PatientAppointments = () => {
                       )}
                       {appointment.reason && <p className="text-[12px] text-muted-foreground truncate">{appointment.reason}</p>}
                       {appointment.doctor_notes && appointment.status !== "pending" && (
-                        <p className="mt-1 rounded-lg bg-muted/50 p-2 text-[12px]">Note: {appointment.doctor_notes}</p>
+                        <p className="mt-1 rounded-lg bg-muted/50 p-2 text-[12px]">{t("appt.note")}: {appointment.doctor_notes}</p>
                       )}
                     </div>
                     <div className="shrink-0">{getStatusBadge(appointment.status)}</div>
