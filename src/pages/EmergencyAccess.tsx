@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n";
 import {
   AlertTriangle, FileText, Heart, Loader2, Shield, Stethoscope,
   Pill, Activity, Calendar, ArrowLeft, Home, ClipboardList, Siren,
@@ -99,6 +100,7 @@ const parseFhirMedications = (fhirData: string): string[] => {
 const EmergencyAccess = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [summary, setSummary] = useState<PatientSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -138,7 +140,7 @@ const EmergencyAccess = () => {
       <div className="min-h-screen bg-background flex items-center justify-center safe-area-top safe-area-bottom">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">Verifying access…</p>
+          <p className="text-sm text-muted-foreground">{t("ea.verifying")}</p>
         </div>
       </div>
     );
@@ -149,15 +151,15 @@ const EmergencyAccess = () => {
       <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
         <header className="px-4 h-12 flex items-center border-b border-border">
           <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="gap-1.5">
-            <Home className="h-4 w-4" /> Home
+            <Home className="h-4 w-4" /> {t("ea.home")}
           </Button>
         </header>
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-sm">
             <AlertTriangle className="h-10 w-10 text-destructive mx-auto mb-3" />
-            <h1 className="text-xl font-bold mb-1.5">Access Denied</h1>
+            <h1 className="text-xl font-bold mb-1.5">{t("ea.accessDenied")}</h1>
             <p className="text-sm text-muted-foreground">
-              {error || "This link is invalid or has expired."}
+              {error || t("ea.linkInvalid")}
             </p>
           </div>
         </div>
@@ -194,7 +196,7 @@ const EmergencyAccess = () => {
         </Button>
         <div className="flex items-center gap-2 min-w-0">
           <Shield className="h-4 w-4 shrink-0" />
-          <span className="text-sm font-medium truncate">Emergency Records, Vyana</span>
+          <span className="text-sm font-medium truncate">{t("ea.title")}</span>
         </div>
       </header>
 
@@ -202,16 +204,16 @@ const EmergencyAccess = () => {
         <div className="px-4 py-5 animate-fade-in">
           {/* Patient Info */}
           <div className="mb-5">
-            <h1 className="text-xl font-bold text-foreground">{summary.name}'s Records</h1>
+            <h1 className="text-xl font-bold text-foreground">{t("ea.recordsOf", { name: summary.name })}</h1>
             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-              {summary.age && <span>Age: {summary.age}y</span>}
+              {summary.age && <span>{t("ea.age", { age: summary.age })}</span>}
               {summary.phone && <span>{summary.phone}</span>}
               {summary.city && <span>{summary.city}</span>}
-              <span>{summary.consultationCount} consultation{summary.consultationCount !== 1 ? "s" : ""}</span>
-              <span>{summary.recordCount} record{summary.recordCount !== 1 ? "s" : ""}</span>
+              <span>{t(summary.consultationCount === 1 ? "ea.consultations" : "ea.consultationsPlural", { count: summary.consultationCount })}</span>
+              <span>{t(summary.recordCount === 1 ? "ea.records" : "ea.recordsPlural", { count: summary.recordCount })}</span>
             </div>
             <p className="text-[11px] text-muted-foreground mt-2">
-              Opened by {summary.emergencyContactName} ({summary.emergencyContactRelationship}) • Updated {new Date(summary.generatedAt).toLocaleString("en-IN")}
+              {t("ea.openedBy", { name: summary.emergencyContactName, rel: summary.emergencyContactRelationship, when: new Date(summary.generatedAt).toLocaleString("en-IN") })}
             </p>
           </div>
 
@@ -220,27 +222,27 @@ const EmergencyAccess = () => {
               <Card className="border-destructive/30">
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
-                    <Siren className="h-4 w-4 text-destructive" /> Allergies
+                    <Siren className="h-4 w-4 text-destructive" /> {t("ea.allergies")}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {recordAllergies.map((a, i) => (
                       <span key={i} className="text-[11px] bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">{a}</span>
                     ))}
-                    {recordAllergies.length === 0 && <p className="text-xs text-muted-foreground">No allergies extracted from records</p>}
+                    {recordAllergies.length === 0 && <p className="text-xs text-muted-foreground">{t("ea.noAllergies")}</p>}
                   </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
-                    <Stethoscope className="h-4 w-4 text-primary" /> Diagnoses
+                    <Stethoscope className="h-4 w-4 text-primary" /> {t("ea.diagnoses")}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {diagnoses.map((d, i) => (
                       <span key={i} className="text-[11px] bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">{d}</span>
                     ))}
                     {diagnoses.length === 0 && (
-                      <p className="text-xs text-muted-foreground">No diagnoses on record</p>
+                      <p className="text-xs text-muted-foreground">{t("ea.noDiagnoses")}</p>
                     )}
                   </div>
                 </CardContent>
@@ -248,14 +250,14 @@ const EmergencyAccess = () => {
               <Card>
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
-                    <Pill className="h-4 w-4 text-primary" /> Medications
+                    <Pill className="h-4 w-4 text-primary" /> {t("ea.medications")}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {medications.map((m, i) => (
                       <span key={i} className="text-[11px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">{m}</span>
                     ))}
                     {medications.length === 0 && (
-                      <p className="text-xs text-muted-foreground">No medications on record</p>
+                      <p className="text-xs text-muted-foreground">{t("ea.noMedications")}</p>
                     )}
                   </div>
                 </CardContent>
@@ -263,14 +265,14 @@ const EmergencyAccess = () => {
               <Card>
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
-                    <ClipboardList className="h-4 w-4 text-primary" /> Important Findings & Vitals
+                    <ClipboardList className="h-4 w-4 text-primary" /> {t("ea.findings")}
                   </h3>
                   <div className="space-y-1.5">
                     {[...recordFindings, ...recordVitals].map((finding, i) => (
                       <p key={i} className="text-xs text-muted-foreground">• {finding}</p>
                     ))}
                     {recordFindings.length === 0 && recordVitals.length === 0 && (
-                      <p className="text-xs text-muted-foreground">No critical findings extracted yet</p>
+                      <p className="text-xs text-muted-foreground">{t("ea.noFindings")}</p>
                     )}
                   </div>
                 </CardContent>
@@ -279,12 +281,12 @@ const EmergencyAccess = () => {
 
           {/* Consultations */}
           <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-            <Activity className="h-4 w-4 text-primary" /> Consultations
+            <Activity className="h-4 w-4 text-primary" /> {t("ea.consultationsHeading")}
           </h2>
           {summary.consultations.length === 0 ? (
             <Card className="mb-5">
               <CardContent className="p-5 text-center text-sm text-muted-foreground">
-                No consultations on record.
+                {t("ea.noConsultations")}
               </CardContent>
             </Card>
           ) : (
@@ -321,7 +323,7 @@ const EmergencyAccess = () => {
           {radiologyRecords.length > 0 && (
             <>
               <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-                <ScanLine className="h-4 w-4 text-primary" /> Radiology / Imaging
+                <ScanLine className="h-4 w-4 text-primary" /> {t("ea.radiology")}
               </h2>
               <div className="space-y-2 mb-5">
                 {radiologyRecords.map(r => {
@@ -339,14 +341,14 @@ const EmergencyAccess = () => {
                           </span>
                         </div>
                         {r.radiology_provider && <p className="text-[11px] text-muted-foreground">{r.radiology_provider}</p>}
-                        {impression[0] && <p className="text-xs text-muted-foreground">Impression: {impression[0]}</p>}
-                        {recommendations[0] && <p className="text-xs text-muted-foreground">Follow-up: {recommendations[0]}</p>}
+                        {impression[0] && <p className="text-xs text-muted-foreground">{t("ea.impression", { text: impression[0] })}</p>}
+                        {recommendations[0] && <p className="text-xs text-muted-foreground">{t("ea.followUp", { text: recommendations[0] })}</p>}
                         {r.radiology_upload_kind === "film_only" && (
-                          <p className="text-[11px] text-muted-foreground">Film/photo stored only. Vyana has not interpreted the image.</p>
+                          <p className="text-[11px] text-muted-foreground">{t("ea.filmOnly")}</p>
                         )}
                         {r.file_url && (
                           <a href={r.file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                            View original report/photo <ExternalLink className="h-3 w-3" />
+                            {t("ea.viewOriginal")} <ExternalLink className="h-3 w-3" />
                           </a>
                         )}
                       </CardContent>
@@ -358,12 +360,12 @@ const EmergencyAccess = () => {
           )}
 
           <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-            <FileText className="h-4 w-4 text-primary" /> Health Records
+            <FileText className="h-4 w-4 text-primary" /> {t("ea.healthRecords")}
           </h2>
           {summary.healthRecords.length === 0 ? (
             <Card className="mb-5">
               <CardContent className="p-5 text-center text-sm text-muted-foreground">
-                No uploaded health records.
+                {t("ea.noHealthRecords")}
               </CardContent>
             </Card>
           ) : (
@@ -391,7 +393,7 @@ const EmergencyAccess = () => {
           {/* Footer */}
           <div className="mt-8 text-center border-t border-border pt-4 pb-2">
             <p className="text-xs text-muted-foreground">
-              <span className="font-semibold text-primary">Vyana</span> • Every patient deserves a doctor who knows their story.
+              <span className="font-semibold text-primary">Vyana</span> • {t("ea.footer")}
             </p>
           </div>
         </div>
