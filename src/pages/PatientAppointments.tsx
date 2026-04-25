@@ -270,8 +270,8 @@ const PatientAppointments = () => {
       if (error) throw error;
 
       toast({
-        title: "Appointment Requested",
-        description: "Your appointment request has been sent to the doctor",
+        title: t("appt.toast.requested"),
+        description: t("appt.toast.requestedDesc"),
       });
 
       setShowBookingDialog(false);
