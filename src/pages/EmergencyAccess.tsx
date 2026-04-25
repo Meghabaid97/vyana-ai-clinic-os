@@ -222,27 +222,27 @@ const EmergencyAccess = () => {
               <Card className="border-destructive/30">
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
-                    <Siren className="h-4 w-4 text-destructive" /> Allergies
+                    <Siren className="h-4 w-4 text-destructive" /> {t("ea.allergies")}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {recordAllergies.map((a, i) => (
                       <span key={i} className="text-[11px] bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">{a}</span>
                     ))}
-                    {recordAllergies.length === 0 && <p className="text-xs text-muted-foreground">No allergies extracted from records</p>}
+                    {recordAllergies.length === 0 && <p className="text-xs text-muted-foreground">{t("ea.noAllergies")}</p>}
                   </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
-                    <Stethoscope className="h-4 w-4 text-primary" /> Diagnoses
+                    <Stethoscope className="h-4 w-4 text-primary" /> {t("ea.diagnoses")}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {diagnoses.map((d, i) => (
                       <span key={i} className="text-[11px] bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">{d}</span>
                     ))}
                     {diagnoses.length === 0 && (
-                      <p className="text-xs text-muted-foreground">No diagnoses on record</p>
+                      <p className="text-xs text-muted-foreground">{t("ea.noDiagnoses")}</p>
                     )}
                   </div>
                 </CardContent>
@@ -250,14 +250,14 @@ const EmergencyAccess = () => {
               <Card>
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
-                    <Pill className="h-4 w-4 text-primary" /> Medications
+                    <Pill className="h-4 w-4 text-primary" /> {t("ea.medications")}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {medications.map((m, i) => (
                       <span key={i} className="text-[11px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">{m}</span>
                     ))}
                     {medications.length === 0 && (
-                      <p className="text-xs text-muted-foreground">No medications on record</p>
+                      <p className="text-xs text-muted-foreground">{t("ea.noMedications")}</p>
                     )}
                   </div>
                 </CardContent>
@@ -265,14 +265,14 @@ const EmergencyAccess = () => {
               <Card>
                 <CardContent className="p-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5">
-                    <ClipboardList className="h-4 w-4 text-primary" /> Important Findings & Vitals
+                    <ClipboardList className="h-4 w-4 text-primary" /> {t("ea.findings")}
                   </h3>
                   <div className="space-y-1.5">
                     {[...recordFindings, ...recordVitals].map((finding, i) => (
                       <p key={i} className="text-xs text-muted-foreground">• {finding}</p>
                     ))}
                     {recordFindings.length === 0 && recordVitals.length === 0 && (
-                      <p className="text-xs text-muted-foreground">No critical findings extracted yet</p>
+                      <p className="text-xs text-muted-foreground">{t("ea.noFindings")}</p>
                     )}
                   </div>
                 </CardContent>
