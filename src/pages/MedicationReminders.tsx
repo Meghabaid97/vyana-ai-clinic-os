@@ -123,10 +123,10 @@ const MedicationReminders = () => {
         <section className="px-5 pb-8">
           <div className="rounded-xl border border-border bg-card p-8 text-center">
             <Pill className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <h2 className="text-lg font-semibold text-foreground mb-1">No medications tracked</h2>
-            <p className="text-sm text-muted-foreground mb-4">Add your medications to set up reminders.</p>
+            <h2 className="text-lg font-semibold text-foreground mb-1">{t("med.empty.title")}</h2>
+            <p className="text-sm text-muted-foreground mb-4">{t("med.empty.desc")}</p>
             <Button onClick={() => setShowAdd(true)} variant="outline">
-              <Plus className="h-4 w-4 mr-1" /> Add medication
+              <Plus className="h-4 w-4 mr-1" /> {t("med.empty.cta")}
             </Button>
           </div>
         </section>
