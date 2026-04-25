@@ -291,12 +291,12 @@ const PatientProfileEdit = () => {
                 const { error } = await supabase.from("patients").update({ next_visit_date: null }).eq("id", profile.id);
                 if (!error) {
                   setProfile({ ...profile, next_visit_date: null });
-                  toast({ title: "Visit cleared" });
+                  toast({ title: t("prof.next.cleared") });
                 }
               }}
               className="mt-2 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Clear date
+              {t("prof.next.clear")}
             </button>
           )}
         </div>
