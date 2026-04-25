@@ -100,6 +100,7 @@ const parseFhirMedications = (fhirData: string): string[] => {
 const EmergencyAccess = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [summary, setSummary] = useState<PatientSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
