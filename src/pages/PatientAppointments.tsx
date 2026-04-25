@@ -247,8 +247,8 @@ const PatientAppointments = () => {
   const bookAppointment = async () => {
     if (!profile?.id || !selectedDoctorId || !appointmentDate || !appointmentTime) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
+        title: t("appt.toast.missing"),
+        description: t("appt.toast.missingDesc"),
         variant: "destructive",
       });
       return;
