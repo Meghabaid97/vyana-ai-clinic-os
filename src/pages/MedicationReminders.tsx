@@ -148,7 +148,7 @@ const MedicationReminders = () => {
                       <Clock className="h-2.5 w-2.5 mr-1" />
                       {r.time_slots.join(", ")}
                     </Badge>
-                    <Badge variant="outline" className="text-[10px]">{r.frequency}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{t(`med.freq.${({daily:"daily",twice_daily:"twice",thrice_daily:"thrice",weekly:"weekly",as_needed:"asNeeded"} as Record<string,string>)[r.frequency] || "daily"}`)}</Badge>
                   </div>
                   {r.notes && (
                     <p className="text-[11px] text-muted-foreground mt-1.5">{r.notes}</p>
