@@ -86,7 +86,7 @@ const MedicationReminders = () => {
   const deleteReminder = async (id: string) => {
     await supabase.from("medication_reminders").delete().eq("id", id);
     setReminders((prev) => prev.filter((r) => r.id !== id));
-    toast({ title: "Reminder removed" });
+    toast({ title: t("med.toast.removed") });
   };
 
   if (loading) {
