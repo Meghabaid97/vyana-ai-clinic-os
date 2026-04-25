@@ -359,9 +359,9 @@ const PatientProfileEdit = () => {
                   <p className="text-xs text-muted-foreground">{item.desc}</p>
                 </div>
               </div>
-              <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${item.label === "Account Settings" && accountMode ? "rotate-90" : ""}`} />
+              <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${i === 1 && accountMode ? "rotate-90" : ""}`} />
             </button>
-            {item.label === "Account Settings" && accountMode && (
+            {i === 1 && accountMode && (
               <form onSubmit={handlePasswordChange} className="py-4 space-y-3 border-b border-border animate-fade-in">
                 <div className="space-y-1.5">
                   <Label htmlFor="new-password" className="text-xs text-muted-foreground">New password</Label>
