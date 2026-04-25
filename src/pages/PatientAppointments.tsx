@@ -628,12 +628,12 @@ const PatientAppointments = () => {
             </div>
 
             <div>
-              <Label htmlFor="reason">Reason for Visit (optional)</Label>
+              <Label htmlFor="reason">{t("appt.reason")}</Label>
               <Textarea
                 id="reason"
                 value={appointmentReason}
                 onChange={(e) => setAppointmentReason(e.target.value)}
-                placeholder="Describe your symptoms or reason for the visit..."
+                placeholder={t("appt.reasonPh")}
                 className="mt-1"
               />
             </div>
@@ -641,14 +641,14 @@ const PatientAppointments = () => {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowBookingDialog(false)}>
-              Cancel
+              {t("appt.cancel")}
             </Button>
             <Button 
               onClick={bookAppointment} 
               disabled={isBooking || !appointmentDate || !appointmentTime || !selectedDoctorId}
             >
               {isBooking && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Request Appointment
+              {t("appt.request")}
             </Button>
           </DialogFooter>
         </DialogContent>
