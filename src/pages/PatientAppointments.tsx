@@ -506,12 +506,12 @@ const PatientAppointments = () => {
 
       {appointments.length === 0 && (
         <section className="rounded-2xl border border-border bg-card p-4">
-          <h3 className="text-sm font-semibold text-foreground">How booking works</h3>
+          <h3 className="text-sm font-semibold text-foreground">{t("appt.howTitle")}</h3>
           <div className="mt-3 space-y-3">
             {[
-              { icon: MapPin, title: "Set your location", copy: "We show doctors nearest to your city or pincode." },
-              { icon: CalendarPlus, title: "Request a slot", copy: "Pick a doctor, date, and time that works for you." },
-              { icon: CheckCircle, title: "Track updates", copy: "See approvals, upcoming visits, and notes in one place." },
+              { icon: MapPin, title: t("appt.how1.title"), copy: t("appt.how1.copy") },
+              { icon: CalendarPlus, title: t("appt.how2.title"), copy: t("appt.how2.copy") },
+              { icon: CheckCircle, title: t("appt.how3.title"), copy: t("appt.how3.copy") },
             ].map((step) => (
               <div key={step.title} className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
