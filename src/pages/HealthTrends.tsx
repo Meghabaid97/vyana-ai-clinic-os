@@ -300,7 +300,7 @@ const HealthTrends = () => {
     } catch (err) {
       console.error("Automatic analysis error:", err);
       setAnalysisResult({
-        summary: "We couldn't safely extract structured values from the latest report yet. Please try again in a moment.",
+        summary: t("trends.fallback.summary"),
         vitals: {},
         risks: [],
         recommendations: [],
@@ -318,7 +318,7 @@ const HealthTrends = () => {
 
   const runTrendAnalysis = async () => {
     if (vitalHistory.length < 2) {
-      toast({ title: "Need more data", description: "Upload at least 2 reports for trend analysis" });
+      toast({ title: t("trends.toast.needMoreTitle"), description: t("trends.toast.needMoreDesc") });
       return;
     }
     setIsAnalyzingTrends(true);
@@ -340,7 +340,7 @@ const HealthTrends = () => {
       setTrendAnalysis(data);
     } catch (err: any) {
       console.error("Trend analysis error:", err);
-      toast({ title: "Couldn't read your trends", description: "Give it another try in a moment", variant: "destructive" });
+      toast({ title: t("trends.toast.trendErrTitle"), description: t("trends.toast.trendErrDesc"), variant: "destructive" });
     } finally {
       setIsAnalyzingTrends(false);
     }
