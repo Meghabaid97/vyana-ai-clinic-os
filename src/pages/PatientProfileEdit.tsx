@@ -119,7 +119,7 @@ const PatientProfileEdit = () => {
     } catch { /* user dismissed share — fall through to copy */ }
     try {
       await navigator.clipboard.writeText(WEB_APP_URL);
-      toast({ title: "Link copied", description: "Share Vyana with friends and family." });
+      toast({ title: t("prof.share.linkCopied"), description: t("prof.share.linkCopiedDesc") });
     } catch {
       window.open(WEB_APP_URL, "_blank", "noopener,noreferrer");
     }
