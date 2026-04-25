@@ -211,8 +211,8 @@ const PatientAppointments = () => {
     } catch (error: any) {
       console.error("Error loading data:", error);
       toast({
-        title: "Error",
-        description: "Failed to load appointments",
+        title: t("appt.toast.error"),
+        description: t("appt.toast.loadFailed"),
         variant: "destructive",
       });
     } finally {
