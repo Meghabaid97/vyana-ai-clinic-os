@@ -25,6 +25,7 @@ const ShareRecords = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => { loadLinks(); }, []);
 
