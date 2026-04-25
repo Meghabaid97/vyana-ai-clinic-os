@@ -364,16 +364,16 @@ const PatientProfileEdit = () => {
             {i === 1 && accountMode && (
               <form onSubmit={handlePasswordChange} className="py-4 space-y-3 border-b border-border animate-fade-in">
                 <div className="space-y-1.5">
-                  <Label htmlFor="new-password" className="text-xs text-muted-foreground">New password</Label>
+                  <Label htmlFor="new-password" className="text-xs text-muted-foreground">{t("prof.pwd.new")}</Label>
                   <Input id="new-password" type="password" value={passwordData.password} onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })} minLength={8} autoComplete="new-password" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">Confirm password</Label>
+                  <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">{t("prof.pwd.confirm")}</Label>
                   <Input id="confirm-password" type="password" value={passwordData.confirmPassword} onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })} minLength={8} autoComplete="new-password" />
                 </div>
                 <Button type="submit" disabled={isPasswordSaving} className="w-full">
                   {isPasswordSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
-                  Update password
+                  {t("prof.pwd.update")}
                 </Button>
               </form>
             )}
