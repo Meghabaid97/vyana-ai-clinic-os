@@ -103,12 +103,12 @@ const ShareRecords = () => {
       {/* How it works */}
       <section className="px-5 pb-5">
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-          <h2 className="text-[14px] font-bold text-foreground mb-2">How it works</h2>
+          <h2 className="text-[14px] font-bold text-foreground mb-2">{t("share.how")}</h2>
           <div className="space-y-2">
             {[
-              { icon: Link2, text: "Create a secure link, valid for 24 hours" },
-              { icon: Share2, text: "Share it with your doctor via WhatsApp, email, or in person" },
-              { icon: CheckCircle, text: "Doctor opens the link and sees your records, no app needed" },
+              { icon: Link2, text: t("share.step1") },
+              { icon: Share2, text: t("share.step2") },
+              { icon: CheckCircle, text: t("share.step3") },
             ].map((step, i) => (
               <div key={i} className="flex items-center gap-2">
                 <step.icon className="h-4 w-4 text-primary shrink-0" />
