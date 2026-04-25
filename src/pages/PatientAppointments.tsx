@@ -600,7 +600,7 @@ const PatientAppointments = () => {
             </div>
 
             <div>
-              <Label htmlFor="date">Preferred Date</Label>
+              <Label htmlFor="date">{t("appt.preferredDate")}</Label>
               <Input
                 id="date"
                 type="date"
@@ -612,10 +612,10 @@ const PatientAppointments = () => {
             </div>
 
             <div>
-              <Label htmlFor="time">Preferred Time</Label>
+              <Label htmlFor="time">{t("appt.preferredTime")}</Label>
               <Select value={appointmentTime} onValueChange={setAppointmentTime}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select a time slot" />
+                  <SelectValue placeholder={t("appt.selectTimeSlot")} />
                 </SelectTrigger>
                 <SelectContent>
                   {TIME_SLOTS.map((slot) => (
