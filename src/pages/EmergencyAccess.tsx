@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n";
 import {
   AlertTriangle, FileText, Heart, Loader2, Shield, Stethoscope,
   Pill, Activity, Calendar, ArrowLeft, Home, ClipboardList, Siren,
