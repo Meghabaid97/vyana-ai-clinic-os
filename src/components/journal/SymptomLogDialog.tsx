@@ -10,6 +10,7 @@ import { Camera, X, Loader2, Mic, Square, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SYMPTOM_CATALOG, symptomById } from "@/lib/symptomCatalog";
+import { useLanguage } from "@/lib/i18n";
 
 const VALID_IDS = new Set(SYMPTOM_CATALOG.map((s) => s.id));
 
@@ -22,6 +23,7 @@ interface Props {
 
 const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [step, setStep] = useState<"pick" | "details">("pick");
   const [symptomId, setSymptomId] = useState<string>("");
   const [customName, setCustomName] = useState("");
@@ -91,7 +93,7 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
         }
       }, 30000);
     } catch {
-      toast({ title: "Mic blocked", description: "Allow microphone access to use voice.", variant: "destructive" });
+      toast({ title: t("journal.dlg.voice.micBlocked"), description: t("journal.dlg.voice.micBlockedDesc"), variant: "destructive" });
     }
   };
 
@@ -143,11 +145,11 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
       };
       const friendly = langLabel[lang] || (lang ? lang.toUpperCase() : "");
       toast({
-        title: friendly ? `Filled from your voice (${friendly})` : "Filled from your voice",
-        description: "Review and edit before saving.",
+        title: friendly ? t("journal.dlg.voice.filledLang", { lang: friendly }) : t("journal.dlg.voice.filled"),
+        description: t("journal.dlg.voice.review"),
       });
     } catch (e) {
-      toast({ title: "Couldn't parse voice", description: e instanceof Error ? e.message : "Try typing instead", variant: "destructive" });
+      toast({ title: t("journal.dlg.voice.parseFail"), description: e instanceof Error ? e.message : t("journal.dlg.voice.tryType"), variant: "destructive" });
     } finally {
       setParsing(false);
     }
@@ -156,7 +158,7 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
   const save = async () => {
     if (!patientId) return;
     if (symptomId === "other" && customName.trim().length < 2) {
-      toast({ title: "Add a symptom name", variant: "destructive" }); return;
+      toast({ title: t("journal.dlg.toast.needName"), variant: "destructive" }); return;
     }
     setSaving(true);
     try {
@@ -183,11 +185,11 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
         photo_path,
       });
       if (error) throw error;
-      toast({ title: "Logged ✓", description: "Vyana will look for patterns over time." });
+      toast({ title: t("journal.dlg.toast.logged"), description: t("journal.dlg.toast.loggedDesc") });
       onLogged?.();
       onClose();
     } catch (e) {
-      toast({ title: "Could not save", description: e instanceof Error ? e.message : "Try again", variant: "destructive" });
+      toast({ title: t("journal.dlg.toast.saveFail"), description: e instanceof Error ? e.message : t("journal.dlg.toast.tryAgain"), variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -197,11 +199,9 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{step === "pick" ? "How are you feeling?" : `Log ${def?.label.toLowerCase()}`}</DialogTitle>
+          <DialogTitle>{step === "pick" ? t("journal.dlg.title.pick") : t("journal.dlg.title.details", { label: def?.label.toLowerCase() ?? "" })}</DialogTitle>
           <DialogDescription>
-            {step === "pick"
-              ? "Pick a symptom to log. Vyana stores this safely. Never a diagnosis."
-              : "Add as much or as little as you want."}
+            {step === "pick" ? t("journal.dlg.desc.pick") : t("journal.dlg.desc.details")}
           </DialogDescription>
         </DialogHeader>
 
@@ -212,37 +212,37 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-[12.5px] font-semibold text-foreground flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-primary" /> Just speak it
+                    <Sparkles className="h-3.5 w-3.5 text-primary" /> {t("journal.dlg.voice.title")}
                   </p>
                   <p className="text-[11.5px] text-muted-foreground mt-0.5 leading-snug">
-                    e.g. "Bad headache since morning, took Crocin, feels worse after screen."
+                    {t("journal.dlg.voice.example")}
                   </p>
                 </div>
                 {!recording && !parsing && (
                   <Button size="sm" onClick={startRecording} className="shrink-0">
-                    <Mic className="h-4 w-4 mr-1" /> Record
+                    <Mic className="h-4 w-4 mr-1" /> {t("journal.dlg.voice.record")}
                   </Button>
                 )}
                 {recording && (
                   <Button size="sm" variant="destructive" onClick={stopRecording} className="shrink-0">
-                    <Square className="h-3.5 w-3.5 mr-1 fill-current" /> Stop
+                    <Square className="h-3.5 w-3.5 mr-1 fill-current" /> {t("journal.dlg.voice.stop")}
                   </Button>
                 )}
                 {parsing && (
                   <Button size="sm" disabled className="shrink-0">
-                    <Loader2 className="h-4 w-4 mr-1 animate-spin" /> Reading
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" /> {t("journal.dlg.voice.reading")}
                   </Button>
                 )}
               </div>
               {recording && (
                 <p className="text-[10.5px] text-primary mt-2 flex items-center gap-1.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
-                  Listening… tap Stop when done (auto-stops at 30s)
+                  {t("journal.dlg.voice.listening")}
                 </p>
               )}
             </div>
 
-            <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground text-center my-2">or pick one</p>
+            <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground text-center my-2">{t("journal.dlg.voice.or")}</p>
 
             <div className="grid grid-cols-3 gap-2 py-1">
               {SYMPTOM_CATALOG.map((s) => (
@@ -263,36 +263,36 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
           <div className="space-y-4 py-2">
             {symptomId === "other" && (
               <div>
-                <Label htmlFor="custom">Symptom name</Label>
-                <Input id="custom" value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder="e.g. Joint stiffness" maxLength={80} />
+                <Label htmlFor="custom">{t("journal.dlg.field.symptomName")}</Label>
+                <Input id="custom" value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder={t("journal.dlg.field.symptomNamePh")} maxLength={80} />
               </div>
             )}
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label>Severity</Label>
+                <Label>{t("journal.dlg.field.severity")}</Label>
                 <span className="text-sm font-bold text-primary">{severity}/10</span>
               </div>
               <Slider min={1} max={10} step={1} value={[severity]} onValueChange={(v) => setSeverity(v[0])} />
               <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
-                <span>Mild</span><span>Severe</span>
+                <span>{t("journal.dlg.field.mild")}</span><span>{t("journal.dlg.field.severe")}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="dur">Duration</Label>
-                <Input id="dur" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g. 2 hours" maxLength={50} />
+                <Label htmlFor="dur">{t("journal.dlg.field.duration")}</Label>
+                <Input id="dur" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder={t("journal.dlg.field.durationPh")} maxLength={50} />
               </div>
               <div>
-                <Label htmlFor="loc">Body location</Label>
-                <Input id="loc" value={bodyLocation} onChange={(e) => setBodyLocation(e.target.value)} placeholder="e.g. Forehead" maxLength={50} />
+                <Label htmlFor="loc">{t("journal.dlg.field.location")}</Label>
+                <Input id="loc" value={bodyLocation} onChange={(e) => setBodyLocation(e.target.value)} placeholder={t("journal.dlg.field.locationPh")} maxLength={50} />
               </div>
             </div>
 
             {def.commonTriggers.length > 0 && (
               <div>
-                <Label className="mb-1.5 block">Triggers</Label>
+                <Label className="mb-1.5 block">{t("journal.dlg.field.triggers")}</Label>
                 <div className="flex flex-wrap gap-1.5">
                   {def.commonTriggers.map((t) => (
                     <Badge
@@ -308,7 +308,7 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
 
             {def.commonAssociated.length > 0 && (
               <div>
-                <Label className="mb-1.5 block">Other symptoms</Label>
+                <Label className="mb-1.5 block">{t("journal.dlg.field.other")}</Label>
                 <div className="flex flex-wrap gap-1.5">
                   {def.commonAssociated.map((t) => (
                     <Badge
@@ -323,17 +323,17 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
             )}
 
             <div>
-              <Label htmlFor="meds">Medications taken (comma separated)</Label>
-              <Input id="meds" value={medsTaken} onChange={(e) => setMedsTaken(e.target.value)} placeholder="e.g. Crocin 500mg" maxLength={200} />
+              <Label htmlFor="meds">{t("journal.dlg.field.meds")}</Label>
+              <Input id="meds" value={medsTaken} onChange={(e) => setMedsTaken(e.target.value)} placeholder={t("journal.dlg.field.medsPh")} maxLength={200} />
             </div>
 
             <div>
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Anything else worth remembering" rows={2} maxLength={500} />
+              <Label htmlFor="notes">{t("journal.dlg.field.notes")}</Label>
+              <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t("journal.dlg.field.notesPh")} rows={2} maxLength={500} />
             </div>
 
             <div>
-              <Label className="mb-1.5 block">Photo (optional)</Label>
+              <Label className="mb-1.5 block">{t("journal.dlg.field.photo")}</Label>
               {photoFile ? (
                 <div className="flex items-center justify-between p-2 rounded-lg border border-border">
                   <span className="text-xs text-foreground truncate">{photoFile.name}</span>
@@ -344,13 +344,13 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
               ) : (
                 <label className="flex items-center gap-2 p-3 rounded-lg border border-dashed border-border cursor-pointer hover:border-primary/40">
                   <Camera className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Add photo (rash, swelling, etc.)</span>
+                  <span className="text-xs text-muted-foreground">{t("journal.dlg.field.photoAdd")}</span>
                   <input
                     type="file" accept="image/*" capture="environment" className="hidden"
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f && f.size <= 8 * 1024 * 1024) setPhotoFile(f);
-                      else if (f) toast({ title: "Photo too large", description: "Max 8MB", variant: "destructive" });
+                      else if (f) toast({ title: t("journal.dlg.field.photoLarge"), description: t("journal.dlg.field.photoMax"), variant: "destructive" });
                     }}
                   />
                 </label>
@@ -362,9 +362,9 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
         <DialogFooter>
           {step === "details" && (
             <>
-              <Button variant="ghost" onClick={() => setStep("pick")} disabled={saving}>Back</Button>
+              <Button variant="ghost" onClick={() => setStep("pick")} disabled={saving}>{t("journal.dlg.btn.back")}</Button>
               <Button onClick={save} disabled={saving} className="flex-1">
-                {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving</> : "Save log"}
+                {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t("journal.dlg.btn.saving")}</> : t("journal.dlg.btn.save")}
               </Button>
             </>
           )}
