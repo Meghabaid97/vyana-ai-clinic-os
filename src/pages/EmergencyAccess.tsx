@@ -196,7 +196,7 @@ const EmergencyAccess = () => {
         </Button>
         <div className="flex items-center gap-2 min-w-0">
           <Shield className="h-4 w-4 shrink-0" />
-          <span className="text-sm font-medium truncate">Emergency Records, Vyana</span>
+          <span className="text-sm font-medium truncate">{t("ea.title")}</span>
         </div>
       </header>
 
@@ -204,16 +204,16 @@ const EmergencyAccess = () => {
         <div className="px-4 py-5 animate-fade-in">
           {/* Patient Info */}
           <div className="mb-5">
-            <h1 className="text-xl font-bold text-foreground">{summary.name}'s Records</h1>
+            <h1 className="text-xl font-bold text-foreground">{t("ea.recordsOf", { name: summary.name })}</h1>
             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-              {summary.age && <span>Age: {summary.age}y</span>}
+              {summary.age && <span>{t("ea.age", { age: summary.age })}</span>}
               {summary.phone && <span>{summary.phone}</span>}
               {summary.city && <span>{summary.city}</span>}
-              <span>{summary.consultationCount} consultation{summary.consultationCount !== 1 ? "s" : ""}</span>
-              <span>{summary.recordCount} record{summary.recordCount !== 1 ? "s" : ""}</span>
+              <span>{t(summary.consultationCount === 1 ? "ea.consultations" : "ea.consultationsPlural", { count: summary.consultationCount })}</span>
+              <span>{t(summary.recordCount === 1 ? "ea.records" : "ea.recordsPlural", { count: summary.recordCount })}</span>
             </div>
             <p className="text-[11px] text-muted-foreground mt-2">
-              Opened by {summary.emergencyContactName} ({summary.emergencyContactRelationship}) • Updated {new Date(summary.generatedAt).toLocaleString("en-IN")}
+              {t("ea.openedBy", { name: summary.emergencyContactName, rel: summary.emergencyContactRelationship, when: new Date(summary.generatedAt).toLocaleString("en-IN") })}
             </p>
           </div>
 
