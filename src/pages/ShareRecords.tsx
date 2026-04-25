@@ -6,6 +6,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/i18n";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 
 interface ShareLink {
@@ -24,6 +25,7 @@ const ShareRecords = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => { loadLinks(); }, []);
 
@@ -53,7 +55,7 @@ const ShareRecords = () => {
     }).select().single() as { data: ShareLink | null; error: any };
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("share.error"), description: error.message, variant: "destructive" });
       return null;
     }
     if (!data) return null;
@@ -63,7 +65,7 @@ const ShareRecords = () => {
   const copyLink = async (token: string) => {
     const url = `${window.location.origin}/emergency-access/${token}`;
     await navigator.clipboard.writeText(url);
-    toast({ title: "Link copied!", description: "Share this with your doctor." });
+    toast({ title: t("share.copied"), description: t("share.copiedDesc") });
   };
 
   const isExpired = (expiresAt: string) => new Date(expiresAt) < new Date();
@@ -82,10 +84,10 @@ const ShareRecords = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">
-              Share Records
+              {t("share.title")}
             </h1>
             <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-              Create secure, time-limited links to share your records with any doctor.
+              {t("share.subtitle")}
             </p>
           </div>
           <Button
@@ -93,7 +95,7 @@ const ShareRecords = () => {
             onClick={() => setShowCreate(true)}
             className="bg-primary text-primary-foreground"
           >
-            <Plus className="h-4 w-4 mr-1" /> New Link
+            <Plus className="h-4 w-4 mr-1" /> {t("share.newLink")}
           </Button>
         </div>
       </section>
@@ -101,12 +103,12 @@ const ShareRecords = () => {
       {/* How it works */}
       <section className="px-5 pb-5">
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-          <h2 className="text-[14px] font-bold text-foreground mb-2">How it works</h2>
+          <h2 className="text-[14px] font-bold text-foreground mb-2">{t("share.how")}</h2>
           <div className="space-y-2">
             {[
-              { icon: Link2, text: "Create a secure link, valid for 24 hours" },
-              { icon: Share2, text: "Share it with your doctor via WhatsApp, email, or in person" },
-              { icon: CheckCircle, text: "Doctor opens the link and sees your records, no app needed" },
+              { icon: Link2, text: t("share.step1") },
+              { icon: Share2, text: t("share.step2") },
+              { icon: CheckCircle, text: t("share.step3") },
             ].map((step, i) => (
               <div key={i} className="flex items-center gap-2">
                 <step.icon className="h-4 w-4 text-primary shrink-0" />
@@ -121,10 +123,10 @@ const ShareRecords = () => {
         <section className="px-5 pb-8">
           <div className="rounded-xl border border-border bg-card p-8 text-center">
             <QrCode className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <h2 className="text-lg font-semibold text-foreground mb-1">No shared links yet</h2>
-            <p className="text-sm text-muted-foreground mb-4">Create a link to share your health records securely.</p>
+            <h2 className="text-lg font-semibold text-foreground mb-1">{t("share.empty.title")}</h2>
+            <p className="text-sm text-muted-foreground mb-4">{t("share.empty.desc")}</p>
             <Button onClick={() => setShowCreate(true)} variant="outline">
-              <Plus className="h-4 w-4 mr-1" /> Create share link
+              <Plus className="h-4 w-4 mr-1" /> {t("share.empty.cta")}
             </Button>
           </div>
         </section>
@@ -141,18 +143,18 @@ const ShareRecords = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-[13px] font-semibold text-foreground">
-                        {link.recipient_name || "Share Link"}
+                        {link.recipient_name || t("share.linkLabel")}
                       </p>
                       {expired ? (
-                        <Badge variant="outline" className="text-[9px] bg-destructive/10 text-destructive border-destructive/20">Expired</Badge>
+                        <Badge variant="outline" className="text-[9px] bg-destructive/10 text-destructive border-destructive/20">{t("share.expired")}</Badge>
                       ) : (
-                        <Badge variant="outline" className="text-[9px] bg-green-500/10 text-green-700 border-green-500/20">Active</Badge>
+                        <Badge variant="outline" className="text-[9px] bg-green-500/10 text-green-700 border-green-500/20">{t("share.active")}</Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <Clock className="h-3 w-3 text-muted-foreground" />
                       <span className="text-[11px] text-muted-foreground">
-                        Expires {new Date(link.expires_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                        {t("share.expiresOn", { when: new Date(link.expires_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) })}
                       </span>
                     </div>
                   </div>
@@ -163,7 +165,7 @@ const ShareRecords = () => {
                       onClick={() => copyLink(link.token)}
                       className="shrink-0"
                     >
-                      <Copy className="h-3.5 w-3.5 mr-1" /> Copy
+                      <Copy className="h-3.5 w-3.5 mr-1" /> {t("share.copy")}
                     </Button>
                   )}
                 </div>
