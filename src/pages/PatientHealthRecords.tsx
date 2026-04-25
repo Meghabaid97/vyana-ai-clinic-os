@@ -107,24 +107,20 @@ const PatientHealthRecords = () => {
                 <Upload className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-foreground">Complete your profile first</h2>
+                <h2 className="text-lg font-semibold text-foreground">{t("hr.completeFirst")}</h2>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  Add your essential health details once, then come back here to upload prescriptions, reports, and scans.
+                  {t("hr.completeDesc")}
                 </p>
               </div>
               <Button onClick={() => navigate("/app/profile")} className="w-full justify-between rounded-xl">
-                Complete profile
+                {t("hr.completeCta")}
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </section>
 
           <section className="space-y-2">
-            {[
-              "Keep prescriptions and lab reports in one place",
-              "Generate quick AI summaries for easier review",
-              "Share selected records only when you choose",
-            ].map((item) => (
+            {[t("hr.benefit1"), t("hr.benefit2"), t("hr.benefit3")].map((item) => (
               <div key={item} className="flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3">
                 <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
                   <Shield className="h-3.5 w-3.5 text-primary" />
