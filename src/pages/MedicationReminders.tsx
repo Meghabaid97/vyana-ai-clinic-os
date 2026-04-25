@@ -190,42 +190,42 @@ const MedicationReminders = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Pill className="h-5 w-5 text-primary" />
-              Add Medication Reminder
+              {t("med.dialog.title")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <label className="text-sm font-medium text-foreground">Medication Name *</label>
+              <label className="text-sm font-medium text-foreground">{t("med.field.name")}</label>
               <Input
-                placeholder="e.g. Metformin"
+                placeholder={t("med.field.namePh")}
                 value={newMed.name}
                 onChange={(e) => setNewMed((p) => ({ ...p, name: e.target.value }))}
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Dosage</label>
+              <label className="text-sm font-medium text-foreground">{t("med.field.dosage")}</label>
               <Input
-                placeholder="e.g. 500mg"
+                placeholder={t("med.field.dosagePh")}
                 value={newMed.dosage}
                 onChange={(e) => setNewMed((p) => ({ ...p, dosage: e.target.value }))}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium text-foreground">Frequency</label>
+                <label className="text-sm font-medium text-foreground">{t("med.field.frequency")}</label>
                 <Select value={newMed.frequency} onValueChange={(v) => setNewMed((p) => ({ ...p, frequency: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="daily">Daily</SelectItem>
-                    <SelectItem value="twice_daily">Twice daily</SelectItem>
-                    <SelectItem value="thrice_daily">Thrice daily</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="as_needed">As needed</SelectItem>
+                    <SelectItem value="daily">{t("med.freq.daily")}</SelectItem>
+                    <SelectItem value="twice_daily">{t("med.freq.twice")}</SelectItem>
+                    <SelectItem value="thrice_daily">{t("med.freq.thrice")}</SelectItem>
+                    <SelectItem value="weekly">{t("med.freq.weekly")}</SelectItem>
+                    <SelectItem value="as_needed">{t("med.freq.asNeeded")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Time</label>
+                <label className="text-sm font-medium text-foreground">{t("med.field.time")}</label>
                 <Input
                   type="time"
                   value={newMed.time}
@@ -234,19 +234,19 @@ const MedicationReminders = () => {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Notes</label>
+              <label className="text-sm font-medium text-foreground">{t("med.field.notes")}</label>
               <Input
-                placeholder="e.g. Take after meals"
+                placeholder={t("med.field.notesPh")}
                 value={newMed.notes}
                 onChange={(e) => setNewMed((p) => ({ ...p, notes: e.target.value }))}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowAdd(false)}>{t("med.btn.cancel")}</Button>
             <Button onClick={addReminder} disabled={saving || !newMed.name.trim()}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
-              Add Reminder
+              {t("med.btn.add")}
             </Button>
           </DialogFooter>
         </DialogContent>
