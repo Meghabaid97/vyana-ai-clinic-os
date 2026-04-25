@@ -79,11 +79,11 @@ const PatientProfileEdit = () => {
         phone: formData.phone || null, national_health_id: formData.national_health_id || null,
       }).eq("id", profile.id);
       if (error) throw error;
-      toast({ title: "Profile Updated", description: "Your profile has been saved." });
+      toast({ title: t("prof.toast.updated"), description: t("prof.toast.updatedDesc") });
       setEditMode(false);
       loadProfile();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to save", variant: "destructive" });
+      toast({ title: t("prof.toast.error"), description: error.message || t("prof.toast.errorDesc"), variant: "destructive" });
     } finally { setIsSaving(false); }
   };
 
