@@ -317,7 +317,7 @@ const PatientAppointments = () => {
     return (
       <Badge variant={config.variant} className="gap-1">
         {config.icon}
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {t(`appt.status.${status}`)}
       </Badge>
     );
   };
