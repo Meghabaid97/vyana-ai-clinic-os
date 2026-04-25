@@ -309,8 +309,8 @@ const PatientProfileEdit = () => {
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 text-muted-foreground" />
             <div className="text-left">
-              <p className="text-[15px] font-medium text-foreground">Edit Profile</p>
-              <p className="text-xs text-muted-foreground">Update your personal details</p>
+              <p className="text-[15px] font-medium text-foreground">{t("prof.edit.title")}</p>
+              <p className="text-xs text-muted-foreground">{t("prof.edit.desc")}</p>
             </div>
           </div>
           <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${editMode ? "rotate-90" : ""}`} />
