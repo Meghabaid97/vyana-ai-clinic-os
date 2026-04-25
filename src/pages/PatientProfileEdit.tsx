@@ -383,7 +383,7 @@ const PatientProfileEdit = () => {
 
       {/* About Vyana, like Nykaa's footer section */}
       <section className="px-5 pt-6">
-        <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">About Vyana</p>
+        <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">{t("prof.about")}</p>
         {aboutItems.map((item, i) => (
           <button
             key={i}
