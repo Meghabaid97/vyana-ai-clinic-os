@@ -446,7 +446,7 @@ const PatientAppointments = () => {
 
       <section className="space-y-2.5">
         <h2 className="text-[15px] font-bold text-foreground">
-          Your Appointments
+          {t("appt.your")}
           {appointments.length > 0 && <span className="ml-1.5 text-[12px] font-normal text-muted-foreground">({appointments.length})</span>}
         </h2>
 
