@@ -245,8 +245,8 @@ const PatientProfileEdit = () => {
           >
             <Shield className="h-5 w-5 text-primary" />
             <div className="text-left">
-              <p className="text-sm font-semibold text-foreground">Connect ABHA Health ID</p>
-              <p className="text-xs text-muted-foreground">Link your records across providers</p>
+              <p className="text-sm font-semibold text-foreground">{t("prof.abha.connect")}</p>
+              <p className="text-xs text-muted-foreground">{t("prof.abha.connectDesc")}</p>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground ml-auto" />
           </button>
