@@ -106,6 +106,7 @@ const PatientAppointments = () => {
   
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadData();
