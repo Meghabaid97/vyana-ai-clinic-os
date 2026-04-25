@@ -68,9 +68,9 @@ const MedicationReminders = () => {
       notes: newMed.notes.trim() || null,
     });
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("med.toast.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Reminder added", description: `${newMed.name} reminder set` });
+      toast({ title: t("med.toast.added"), description: t("med.toast.addedDesc", { name: newMed.name }) });
       setShowAdd(false);
       setNewMed({ name: "", dosage: "", frequency: "daily", time: "08:00", notes: "" });
       await loadReminders();
