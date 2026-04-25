@@ -393,7 +393,7 @@ const EmergencyAccess = () => {
           {/* Footer */}
           <div className="mt-8 text-center border-t border-border pt-4 pb-2">
             <p className="text-xs text-muted-foreground">
-              <span className="font-semibold text-primary">Vyana</span> • Every patient deserves a doctor who knows their story.
+              <span className="font-semibold text-primary">Vyana</span> • {t("ea.footer")}
             </p>
           </div>
         </div>
