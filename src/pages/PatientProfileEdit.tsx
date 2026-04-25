@@ -319,26 +319,26 @@ const PatientProfileEdit = () => {
         {editMode && (
           <form onSubmit={handleSubmit} className="py-4 space-y-4 animate-fade-in">
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-xs text-muted-foreground">Full Name</Label>
+              <Label htmlFor="name" className="text-xs text-muted-foreground">{t("prof.field.name")}</Label>
               <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="age" className="text-xs text-muted-foreground">Age</Label>
+                <Label htmlFor="age" className="text-xs text-muted-foreground">{t("prof.field.age")}</Label>
                 <Input id="age" type="number" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="phone" className="text-xs text-muted-foreground">Phone</Label>
+                <Label htmlFor="phone" className="text-xs text-muted-foreground">{t("prof.field.phone")}</Label>
                 <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+91 98765 43210" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="health_id" className="text-xs text-muted-foreground">ABHA Health ID</Label>
-              <Input id="health_id" value={formData.national_health_id} onChange={(e) => setFormData({ ...formData, national_health_id: e.target.value.replace(/\D/g, '').slice(0, 14) })} placeholder="14-digit ABHA ID" className="font-mono" />
+              <Label htmlFor="health_id" className="text-xs text-muted-foreground">{t("prof.field.abha")}</Label>
+              <Input id="health_id" value={formData.national_health_id} onChange={(e) => setFormData({ ...formData, national_health_id: e.target.value.replace(/\D/g, '').slice(0, 14) })} placeholder={t("prof.field.abhaPh")} className="font-mono" />
             </div>
             <Button type="submit" disabled={isSaving} className="w-full">
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-              Save Changes
+              {t("prof.btn.save")}
             </Button>
           </form>
         )}
