@@ -65,7 +65,7 @@ const ShareRecords = () => {
   const copyLink = async (token: string) => {
     const url = `${window.location.origin}/emergency-access/${token}`;
     await navigator.clipboard.writeText(url);
-    toast({ title: "Link copied!", description: "Share this with your doctor." });
+    toast({ title: t("share.copied"), description: t("share.copiedDesc") });
   };
 
   const isExpired = (expiresAt: string) => new Date(expiresAt) < new Date();
