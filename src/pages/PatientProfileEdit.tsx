@@ -229,12 +229,12 @@ const PatientProfileEdit = () => {
           <div className="rounded-xl bg-card border border-primary/20 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-primary uppercase tracking-wide">ABHA Health ID</p>
+                <p className="text-xs font-medium text-primary uppercase tracking-wide">{t("prof.abha.title")}</p>
                 <p className="text-lg font-bold text-foreground font-mono mt-0.5">{formData.national_health_id}</p>
               </div>
               <Shield className="h-8 w-8 text-primary/30" />
             </div>
-            <p className="text-[11px] text-muted-foreground mt-2">Linked across all healthcare providers</p>
+            <p className="text-[11px] text-muted-foreground mt-2">{t("prof.abha.linked")}</p>
           </div>
         </section>
       ) : (
