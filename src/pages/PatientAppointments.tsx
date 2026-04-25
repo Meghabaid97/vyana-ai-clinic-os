@@ -283,8 +283,8 @@ const PatientAppointments = () => {
     } catch (error: any) {
       console.error("Error booking appointment:", error);
       toast({
-        title: "Error",
-        description: "Failed to book appointment",
+        title: t("appt.toast.error"),
+        description: t("appt.toast.bookFailed"),
         variant: "destructive",
       });
     } finally {
