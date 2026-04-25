@@ -487,10 +487,10 @@ const ClaimAssistant = () => {
 
   const stepIndex = ["upload", "insurance", "review", "chat"].indexOf(step);
   const steps = [
-    { id: "upload", label: "Documents" },
-    { id: "insurance", label: "Insurance" },
-    { id: "review", label: "Review" },
-    { id: "chat", label: "Assistant" },
+    { id: "upload", label: t("rec.step.documents") },
+    { id: "insurance", label: t("rec.step.insurance") },
+    { id: "review", label: t("rec.step.review") },
+    { id: "chat", label: t("rec.step.assistant") },
   ];
 
   const missingItems = getMissingItems();
