@@ -103,10 +103,10 @@ const MedicationReminders = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">
-              Medications
+              {t("med.title")}
             </h1>
             <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
-              Track your medications and set reminders.
+              {t("med.subtitle")}
             </p>
           </div>
           <Button
@@ -114,7 +114,7 @@ const MedicationReminders = () => {
             onClick={() => setShowAdd(true)}
             className="bg-primary text-primary-foreground"
           >
-            <Plus className="h-4 w-4 mr-1" /> Add
+            <Plus className="h-4 w-4 mr-1" /> {t("med.add")}
           </Button>
         </div>
       </section>
