@@ -151,15 +151,15 @@ const EmergencyAccess = () => {
       <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
         <header className="px-4 h-12 flex items-center border-b border-border">
           <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="gap-1.5">
-            <Home className="h-4 w-4" /> Home
+            <Home className="h-4 w-4" /> {t("ea.home")}
           </Button>
         </header>
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-sm">
             <AlertTriangle className="h-10 w-10 text-destructive mx-auto mb-3" />
-            <h1 className="text-xl font-bold mb-1.5">Access Denied</h1>
+            <h1 className="text-xl font-bold mb-1.5">{t("ea.accessDenied")}</h1>
             <p className="text-sm text-muted-foreground">
-              {error || "This link is invalid or has expired."}
+              {error || t("ea.linkInvalid")}
             </p>
           </div>
         </div>
