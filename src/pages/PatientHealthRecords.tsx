@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, FolderOpen, Upload, ChevronRight, Shield } from "lucide-react";
 
 import PageHero from "@/components/PageHero";
+import { useLanguage } from "@/lib/i18n";
 
 const HealthRecordsTab = lazy(() => import("@/components/HealthRecordsTab"));
 
