@@ -783,43 +783,43 @@ const ClaimAssistant = () => {
           <button onClick={() => setStep("upload")} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Insurance Details</h1>
+          <h1 className="text-lg font-bold text-foreground">{t("rec.ins.heading")}</h1>
         </div>
 
         <StepIndicator steps={steps} currentIndex={stepIndex} />
 
         <div className="space-y-4">
           <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-            <h2 className="text-sm font-semibold text-foreground">Policy Information</h2>
+            <h2 className="text-sm font-semibold text-foreground">{t("rec.ins.policyInfo")}</h2>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Insurance Company *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.company")} *</label>
               <Input
                 value={insurance.insuranceCompany}
                 onChange={e => setInsurance(p => ({ ...p, insuranceCompany: e.target.value }))}
-                placeholder="e.g. Star Health, HDFC Ergo, ICICI Lombard"
+                placeholder={t("rec.ins.companyPh")}
                 className="rounded-lg"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Policy Number *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.policyNum")} *</label>
               <Input
                 value={insurance.policyNumber}
                 onChange={e => setInsurance(p => ({ ...p, policyNumber: e.target.value }))}
-                placeholder="Enter policy number"
+                placeholder={t("rec.ins.policyNumPh")}
                 className="rounded-lg"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">TPA Name (if applicable)</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.tpa")}</label>
               <Input
                 value={insurance.tpaName}
                 onChange={e => setInsurance(p => ({ ...p, tpaName: e.target.value }))}
-                placeholder="e.g. Medi Assist, Vidal Health"
+                placeholder={t("rec.ins.tpaPh")}
                 className="rounded-lg"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Claim Type *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.claimType")} *</label>
               <div className="grid grid-cols-2 gap-2">
                 {(["cashless", "reimbursement"] as const).map(type => (
                   <button
@@ -831,9 +831,9 @@ const ClaimAssistant = () => {
                         : "border-border bg-card text-muted-foreground"
                     }`}
                   >
-                    <p className="text-sm font-medium capitalize">{type}</p>
+                    <p className="text-sm font-medium">{type === "cashless" ? t("rec.ins.cashless") : t("rec.ins.reimbursement")}</p>
                     <p className="text-[10px] mt-0.5">
-                      {type === "cashless" ? "Hospital settles directly" : "You pay, then claim"}
+                      {type === "cashless" ? t("rec.ins.cashlessDesc") : t("rec.ins.reimbursementDesc")}
                     </p>
                   </button>
                 ))}
@@ -842,30 +842,30 @@ const ClaimAssistant = () => {
           </div>
 
           <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-            <h2 className="text-sm font-semibold text-foreground">Policy Holder</h2>
+            <h2 className="text-sm font-semibold text-foreground">{t("rec.ins.holder")}</h2>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Policy Holder Name</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.holderName")}</label>
               <Input
                 value={insurance.policyHolderName}
                 onChange={e => setInsurance(p => ({ ...p, policyHolderName: e.target.value }))}
-                placeholder="Name as on policy"
+                placeholder={t("rec.ins.holderNamePh")}
                 className="rounded-lg"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Relation to Patient</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.relation")}</label>
               <div className="flex flex-wrap gap-1.5">
                 {["self", "spouse", "child", "parent", "other"].map(rel => (
                   <button
                     key={rel}
                     onClick={() => setInsurance(p => ({ ...p, policyHolderRelation: rel }))}
-                    className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors capitalize ${
+                    className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
                       insurance.policyHolderRelation === rel
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border text-muted-foreground"
                     }`}
                   >
-                    {rel}
+                    {t(`rec.rel.${rel}`)}
                   </button>
                 ))}
               </div>
@@ -875,33 +875,33 @@ const ClaimAssistant = () => {
           {insurance.claimType === "reimbursement" && (
             <div className="rounded-xl border border-border bg-card p-4 space-y-3">
               <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                Bank Details
-                <span className="text-[10px] font-normal text-muted-foreground">(for reimbursement)</span>
+                {t("rec.bank.heading")}
+                <span className="text-[10px] font-normal text-muted-foreground">{t("rec.bank.note")}</span>
               </h2>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Bank Name</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("rec.bank.name")}</label>
                 <Input
                   value={insurance.bankName}
                   onChange={e => setInsurance(p => ({ ...p, bankName: e.target.value }))}
-                  placeholder="e.g. State Bank of India"
+                  placeholder={t("rec.bank.namePh")}
                   className="rounded-lg"
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Account Number</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("rec.bank.account")}</label>
                 <Input
                   value={insurance.bankAccountNumber}
                   onChange={e => setInsurance(p => ({ ...p, bankAccountNumber: e.target.value }))}
-                  placeholder="Enter account number"
+                  placeholder={t("rec.bank.accountPh")}
                   className="rounded-lg"
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">IFSC Code</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("rec.bank.ifsc")}</label>
                 <Input
                   value={insurance.bankIfsc}
                   onChange={e => setInsurance(p => ({ ...p, bankIfsc: e.target.value.toUpperCase() }))}
-                  placeholder="e.g. SBIN0001234"
+                  placeholder={t("rec.bank.ifscPh")}
                   className="rounded-lg"
                   maxLength={11}
                 />
@@ -911,7 +911,7 @@ const ClaimAssistant = () => {
         </div>
 
         <Button onClick={() => setStep("review")} className="w-full rounded-xl">
-          Review claim details <ArrowRight className="h-4 w-4 ml-2" />
+          {t("rec.btn.review")} <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </div>
     );
