@@ -409,7 +409,7 @@ const PatientProfileEdit = () => {
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-destructive/20 text-destructive"
         >
           <LogOut className="h-4 w-4" />
-          <span className="text-sm font-medium">Sign Out</span>
+          <span className="text-sm font-medium">{t("prof.signOut")}</span>
         </button>
       </section>
 
