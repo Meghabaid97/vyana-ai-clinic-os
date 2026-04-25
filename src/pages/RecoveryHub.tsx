@@ -26,6 +26,7 @@ import {
   createMedicationReminders,
 } from "@/lib/healthRecordsPipeline";
 import { mapDocCategoryToRecord } from "@/lib/recordCategories";
+import { useLanguage } from "@/lib/i18n";
 
 // ─── Types ───
 
@@ -92,15 +93,15 @@ type DocCategory =
   | "insurance_card"
   | "other";
 
-const DOC_CATEGORIES: { id: DocCategory; label: string; required: boolean; icon: typeof FileText }[] = [
-  { id: "discharge_summary", label: "Discharge Summary", required: true, icon: FileText },
-  { id: "hospital_bill", label: "Final Hospital Bill", required: true, icon: IndianRupee },
-  { id: "investigation_reports", label: "Investigation Reports", required: true, icon: ClipboardList },
-  { id: "prescriptions", label: "Prescriptions", required: true, icon: Pill },
-  { id: "insurance_claim_form", label: "Insurance Claim Form", required: true, icon: File },
-  { id: "admission_note", label: "Admission Note", required: false, icon: FileText },
-  { id: "id_proof", label: "ID Proof (Aadhaar / PAN)", required: false, icon: Shield },
-  { id: "insurance_card", label: "Insurance Card", required: false, icon: Heart },
+const DOC_CATEGORIES: { id: DocCategory; labelKey: string; required: boolean; icon: typeof FileText }[] = [
+  { id: "discharge_summary", labelKey: "rec.cat.discharge", required: true, icon: FileText },
+  { id: "hospital_bill", labelKey: "rec.cat.bill", required: true, icon: IndianRupee },
+  { id: "investigation_reports", labelKey: "rec.cat.investigations", required: true, icon: ClipboardList },
+  { id: "prescriptions", labelKey: "rec.cat.prescriptions", required: true, icon: Pill },
+  { id: "insurance_claim_form", labelKey: "rec.cat.claimForm", required: true, icon: File },
+  { id: "admission_note", labelKey: "rec.cat.admission", required: false, icon: FileText },
+  { id: "id_proof", labelKey: "rec.cat.idProof", required: false, icon: Shield },
+  { id: "insurance_card", labelKey: "rec.cat.insuranceCard", required: false, icon: Heart },
 ];
 
 interface InsuranceDetails {
@@ -124,6 +125,7 @@ type Step = "upload" | "insurance" | "review" | "chat";
 const ClaimAssistant = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -265,10 +267,10 @@ const ClaimAssistant = () => {
       }
       setDocs(prev => [...prev, newDoc]);
       setShowRecordsPicker(false);
-      toast({ title: "Record attached", description: `${record.file_name} added as ${DOC_CATEGORIES.find(c => c.id === pickerCategory)?.label}` });
+      toast({ title: t("rec.toast.attachedTitle"), description: `${record.file_name} → ${t(DOC_CATEGORIES.find(c => c.id === pickerCategory)?.labelKey || "")}` });
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Couldn't attach that record", description: err.message, variant: "destructive" });
+      toast({ title: t("rec.toast.attachFailTitle"), description: err.message, variant: "destructive" });
     } finally {
       setDownloadingRecord(null);
     }
@@ -282,7 +284,7 @@ const ClaimAssistant = () => {
   const extractDischargeData = async () => {
     const dischargeDocs = getDocsForCategory("discharge_summary");
     if (!dischargeDocs.length) {
-      toast({ title: "No discharge summary", description: "Upload a discharge summary first", variant: "destructive" });
+      toast({ title: t("rec.toast.noDischargeTitle"), description: t("rec.toast.noDischargeDesc"), variant: "destructive" });
       return;
     }
 
@@ -304,7 +306,7 @@ const ClaimAssistant = () => {
       if (data?.error) throw new Error(data.error);
 
       setExtracted(data);
-      toast({ title: "Got it", description: "Your discharge summary is ready to use" });
+      toast({ title: t("rec.toast.gotItTitle"), description: t("rec.toast.gotItDesc") });
 
       // Auto-create medication reminders from extracted medications
       if (patientId && data?.medicalSummary?.medicationsAtDischarge?.length) {
@@ -316,8 +318,8 @@ const ClaimAssistant = () => {
           if (count > 0) {
             setRemindersCreated(count);
             toast({
-              title: `${count} medication reminder${count > 1 ? "s" : ""} created`,
-              description: "Your medications have been added to reminders automatically",
+              title: t(count === 1 ? "rec.reminders.created" : "rec.reminders.createdPlural", { count }),
+              description: t("rec.reminders.desc"),
             });
           }
         } catch (err) {
@@ -326,7 +328,7 @@ const ClaimAssistant = () => {
       }
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Couldn't read this document", description: err.message || "Try a clearer scan or photo", variant: "destructive" });
+      toast({ title: t("rec.toast.cantReadTitle"), description: err.message || t("rec.toast.cantReadDesc"), variant: "destructive" });
     } finally {
       setExtracting(false);
     }
@@ -341,20 +343,20 @@ const ClaimAssistant = () => {
     const requiredCats = DOC_CATEGORIES.filter(c => c.required);
     for (const cat of requiredCats) {
       if (!docs.some(d => d.category === cat.id)) {
-        missing.push(cat.label);
+        missing.push(t(cat.labelKey));
       }
     }
 
     // Insurance details
-    if (!insurance.insuranceCompany) missing.push("Insurance company name");
-    if (!insurance.policyNumber) missing.push("Policy number");
-    if (!insurance.claimType) missing.push("Claim type (cashless/reimbursement)");
+    if (!insurance.insuranceCompany) missing.push(t("rec.miss.company"));
+    if (!insurance.policyNumber) missing.push(t("rec.miss.policyNum"));
+    if (!insurance.claimType) missing.push(t("rec.miss.claimType"));
 
     // Bank details for reimbursement
     if (insurance.claimType === "reimbursement") {
-      if (!insurance.bankName) missing.push("Bank name");
-      if (!insurance.bankAccountNumber) missing.push("Bank account number");
-      if (!insurance.bankIfsc) missing.push("Bank IFSC code");
+      if (!insurance.bankName) missing.push(t("rec.miss.bankName"));
+      if (!insurance.bankAccountNumber) missing.push(t("rec.miss.bankAccount"));
+      if (!insurance.bankIfsc) missing.push(t("rec.miss.bankIfsc"));
     }
 
     return missing;
@@ -442,7 +444,7 @@ const ClaimAssistant = () => {
       }
     } catch (err: any) {
       console.error(err);
-      setChatMessages(prev => [...prev, { role: "assistant", content: `Sorry, I ran into an error: ${err.message}. Please try again.` }]);
+      setChatMessages(prev => [...prev, { role: "assistant", content: t("rec.chat.error", { msg: err.message }) }]);
     } finally {
       setChatLoading(false);
     }
@@ -458,10 +460,10 @@ const ClaimAssistant = () => {
         insurance,
         uploadedCategories: docs.map(d => d.category),
       });
-      toast({ title: "Your claim is ready", description: "PDF saved to your downloads" });
+      toast({ title: t("rec.toast.pdfReadyTitle"), description: t("rec.toast.pdfReadyDesc") });
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Couldn't build your claim PDF", description: err.message, variant: "destructive" });
+      toast({ title: t("rec.toast.pdfFailTitle"), description: err.message, variant: "destructive" });
     } finally {
       setGeneratingPdf(false);
     }
@@ -485,10 +487,10 @@ const ClaimAssistant = () => {
 
   const stepIndex = ["upload", "insurance", "review", "chat"].indexOf(step);
   const steps = [
-    { id: "upload", label: "Documents" },
-    { id: "insurance", label: "Insurance" },
-    { id: "review", label: "Review" },
-    { id: "chat", label: "Assistant" },
+    { id: "upload", label: t("rec.step.documents") },
+    { id: "insurance", label: t("rec.step.insurance") },
+    { id: "review", label: t("rec.step.review") },
+    { id: "chat", label: t("rec.step.assistant") },
   ];
 
   const missingItems = getMissingItems();
@@ -507,9 +509,9 @@ const ClaimAssistant = () => {
               <Heart className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight">Claim Assistant</h1>
+              <h1 className="text-lg font-bold text-foreground leading-tight">{t("rec.title")}</h1>
               <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                Skip hospital paperwork chaos. Upload once, we prepare everything for your insurance claim.
+                {t("rec.subtitle")}
               </p>
             </div>
           </div>
@@ -520,7 +522,7 @@ const ClaimAssistant = () => {
 
         {/* Document categories */}
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-foreground">Required Documents</h2>
+          <h2 className="text-sm font-semibold text-foreground">{t("rec.required")}</h2>
           {DOC_CATEGORIES.filter(c => c.required).map(cat => {
             const catDocs = getDocsForCategory(cat.id);
             const hasDoc = catDocs.length > 0;
@@ -538,9 +540,9 @@ const ClaimAssistant = () => {
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-medium text-foreground">{cat.label}</p>
+                      <p className="text-sm font-medium text-foreground">{t(cat.labelKey)}</p>
                       {catDocs.length > 0 && (
-                        <p className="text-[11px] text-muted-foreground">{catDocs.length} file{catDocs.length > 1 ? "s" : ""}</p>
+                        <p className="text-[11px] text-muted-foreground">{t(catDocs.length === 1 ? "rec.files" : "rec.filesPlural", { count: catDocs.length })}</p>
                       )}
                     </div>
                   </div>
@@ -551,7 +553,7 @@ const ClaimAssistant = () => {
                       className="rounded-lg h-8 text-xs text-muted-foreground"
                       onClick={() => openRecordsPicker(cat.id)}
                     >
-                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> Records
+                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> {t("rec.btn.records")}
                     </Button>
                     <Button
                       variant="outline"
@@ -559,7 +561,7 @@ const ClaimAssistant = () => {
                       className="rounded-lg h-8 text-xs"
                       onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
                     >
-                      <Camera className="h-3.5 w-3.5 mr-1" /> {hasDoc ? "Add more" : "Upload"}
+                      <Camera className="h-3.5 w-3.5 mr-1" /> {hasDoc ? t("rec.btn.addMore") : t("rec.btn.upload")}
                     </Button>
                   </div>
                 </div>
@@ -586,7 +588,7 @@ const ClaimAssistant = () => {
             );
           })}
 
-          <h2 className="text-sm font-semibold text-foreground pt-2">Optional (but useful)</h2>
+          <h2 className="text-sm font-semibold text-foreground pt-2">{t("rec.optional")}</h2>
           {DOC_CATEGORIES.filter(c => !c.required).map(cat => {
             const catDocs = getDocsForCategory(cat.id);
             const hasDoc = catDocs.length > 0;
@@ -603,7 +605,7 @@ const ClaimAssistant = () => {
                         <Circle className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
                     )}
-                    <p className="text-sm font-medium text-foreground">{cat.label}</p>
+                    <p className="text-sm font-medium text-foreground">{t(cat.labelKey)}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Button
@@ -612,7 +614,7 @@ const ClaimAssistant = () => {
                       className="rounded-lg h-8 text-xs text-muted-foreground"
                       onClick={() => openRecordsPicker(cat.id)}
                     >
-                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> Records
+                      <FolderOpen className="h-3.5 w-3.5 mr-1" /> {t("rec.btn.records")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -620,7 +622,7 @@ const ClaimAssistant = () => {
                       className="rounded-lg h-8 text-xs"
                       onClick={() => { setActiveCategory(cat.id); fileInputRef.current?.click(); }}
                     >
-                      <Upload className="h-3.5 w-3.5 mr-1" /> Upload
+                      <Upload className="h-3.5 w-3.5 mr-1" /> {t("rec.btn.upload")}
                     </Button>
                   </div>
                 </div>
@@ -650,7 +652,7 @@ const ClaimAssistant = () => {
             variant="outline"
           >
             {extracting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
-            {extracting ? "Extracting data from discharge summary…" : "Extract data from discharge summary"}
+            {extracting ? t("rec.btn.extracting") : t("rec.btn.extract")}
           </Button>
         )}
 
@@ -659,9 +661,9 @@ const ClaimAssistant = () => {
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
               <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-foreground">Data extracted successfully</p>
+                <p className="text-sm font-medium text-foreground">{t("rec.extracted.title")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {extracted.insuranceClaim.primaryDiagnosis || "Diagnosis"} · {extracted.insuranceClaim.hospitalName || "Hospital"} · {extracted.confidence} confidence
+                  {t("rec.extracted.line", { diagnosis: extracted.insuranceClaim.primaryDiagnosis || t("rec.diagnosis"), hospital: extracted.insuranceClaim.hospitalName || t("rec.hospital"), confidence: extracted.confidence })}
                 </p>
               </div>
             </div>
@@ -669,9 +671,9 @@ const ClaimAssistant = () => {
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-start gap-2">
                 <Pill className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">{remindersCreated} medication reminder{remindersCreated > 1 ? "s" : ""} created</p>
+                  <p className="text-sm font-medium text-foreground">{t(remindersCreated === 1 ? "rec.reminders.created" : "rec.reminders.createdPlural", { count: remindersCreated })}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Your discharge medications have been added to <button onClick={() => navigate("/app/medications")} className="text-primary underline">Medication Reminders</button>
+                    {t("rec.reminders.desc")} <button onClick={() => navigate("/app/medications")} className="text-primary underline">{t("rec.reminders.link")}</button>
                   </p>
                 </div>
               </div>
@@ -679,7 +681,7 @@ const ClaimAssistant = () => {
             <div className="rounded-xl border border-border bg-muted/50 p-3 flex items-start gap-2">
               <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <p className="text-xs text-muted-foreground">
-                All uploaded documents have been saved to your <button onClick={() => navigate("/app/records")} className="text-primary underline">Health Records</button> and will appear in your health trends analysis.
+                {t("rec.records.savedNote")} <button onClick={() => navigate("/app/records")} className="text-primary underline">{t("rec.records.link")}</button> {t("rec.records.savedTail")}
               </p>
             </div>
           </div>
@@ -688,7 +690,7 @@ const ClaimAssistant = () => {
         <Button
           onClick={() => {
             if (hasDischarge && !extracted) {
-              toast({ title: "Extract first", description: "Please extract data from your discharge summary before proceeding", variant: "destructive" });
+              toast({ title: t("rec.toast.extractFirstTitle"), description: t("rec.toast.extractFirstDesc"), variant: "destructive" });
               return;
             }
             setStep("insurance");
@@ -696,7 +698,7 @@ const ClaimAssistant = () => {
           disabled={docs.length === 0}
           className="w-full rounded-xl"
         >
-          Continue to insurance details <ArrowRight className="h-4 w-4 ml-2" />
+          {t("rec.btn.continueIns")} <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
 
         <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={handleFileSelect} />
@@ -707,10 +709,10 @@ const ClaimAssistant = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <FolderOpen className="h-5 w-5 text-primary" />
-                Pick from Health Records
+                {t("rec.picker.title")}
               </DialogTitle>
               <DialogDescription>
-                Attach as: {DOC_CATEGORIES.find(c => c.id === pickerCategory)?.label}
+                {t("rec.picker.attachAs", { label: t(DOC_CATEGORIES.find(c => c.id === pickerCategory)?.labelKey || "") })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2 py-2">
@@ -721,7 +723,7 @@ const ClaimAssistant = () => {
               ) : healthRecords.length === 0 ? (
                 <div className="text-center py-8">
                   <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">No health records found. Upload records in the Health Records tab first.</p>
+                  <p className="text-sm text-muted-foreground">{t("rec.picker.empty")}</p>
                 </div>
               ) : (() => {
                 const targetCategory = mapDocCategoryToRecord(pickerCategory);
@@ -730,7 +732,7 @@ const ClaimAssistant = () => {
                   return (
                     <div className="text-center py-8">
                       <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">No matching records in this category. Upload one in Records first.</p>
+                      <p className="text-sm text-muted-foreground">{t("rec.picker.emptyMatch")}</p>
                     </div>
                   );
                 }
@@ -781,43 +783,43 @@ const ClaimAssistant = () => {
           <button onClick={() => setStep("upload")} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Insurance Details</h1>
+          <h1 className="text-lg font-bold text-foreground">{t("rec.ins.heading")}</h1>
         </div>
 
         <StepIndicator steps={steps} currentIndex={stepIndex} />
 
         <div className="space-y-4">
           <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-            <h2 className="text-sm font-semibold text-foreground">Policy Information</h2>
+            <h2 className="text-sm font-semibold text-foreground">{t("rec.ins.policyInfo")}</h2>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Insurance Company *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.company")} *</label>
               <Input
                 value={insurance.insuranceCompany}
                 onChange={e => setInsurance(p => ({ ...p, insuranceCompany: e.target.value }))}
-                placeholder="e.g. Star Health, HDFC Ergo, ICICI Lombard"
+                placeholder={t("rec.ins.companyPh")}
                 className="rounded-lg"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Policy Number *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.policyNum")} *</label>
               <Input
                 value={insurance.policyNumber}
                 onChange={e => setInsurance(p => ({ ...p, policyNumber: e.target.value }))}
-                placeholder="Enter policy number"
+                placeholder={t("rec.ins.policyNumPh")}
                 className="rounded-lg"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">TPA Name (if applicable)</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.tpa")}</label>
               <Input
                 value={insurance.tpaName}
                 onChange={e => setInsurance(p => ({ ...p, tpaName: e.target.value }))}
-                placeholder="e.g. Medi Assist, Vidal Health"
+                placeholder={t("rec.ins.tpaPh")}
                 className="rounded-lg"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Claim Type *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.claimType")} *</label>
               <div className="grid grid-cols-2 gap-2">
                 {(["cashless", "reimbursement"] as const).map(type => (
                   <button
@@ -829,9 +831,9 @@ const ClaimAssistant = () => {
                         : "border-border bg-card text-muted-foreground"
                     }`}
                   >
-                    <p className="text-sm font-medium capitalize">{type}</p>
+                    <p className="text-sm font-medium">{type === "cashless" ? t("rec.ins.cashless") : t("rec.ins.reimbursement")}</p>
                     <p className="text-[10px] mt-0.5">
-                      {type === "cashless" ? "Hospital settles directly" : "You pay, then claim"}
+                      {type === "cashless" ? t("rec.ins.cashlessDesc") : t("rec.ins.reimbursementDesc")}
                     </p>
                   </button>
                 ))}
@@ -840,30 +842,30 @@ const ClaimAssistant = () => {
           </div>
 
           <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-            <h2 className="text-sm font-semibold text-foreground">Policy Holder</h2>
+            <h2 className="text-sm font-semibold text-foreground">{t("rec.ins.holder")}</h2>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Policy Holder Name</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.holderName")}</label>
               <Input
                 value={insurance.policyHolderName}
                 onChange={e => setInsurance(p => ({ ...p, policyHolderName: e.target.value }))}
-                placeholder="Name as on policy"
+                placeholder={t("rec.ins.holderNamePh")}
                 className="rounded-lg"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Relation to Patient</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("rec.ins.relation")}</label>
               <div className="flex flex-wrap gap-1.5">
                 {["self", "spouse", "child", "parent", "other"].map(rel => (
                   <button
                     key={rel}
                     onClick={() => setInsurance(p => ({ ...p, policyHolderRelation: rel }))}
-                    className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors capitalize ${
+                    className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
                       insurance.policyHolderRelation === rel
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border text-muted-foreground"
                     }`}
                   >
-                    {rel}
+                    {t(`rec.rel.${rel}`)}
                   </button>
                 ))}
               </div>
@@ -873,33 +875,33 @@ const ClaimAssistant = () => {
           {insurance.claimType === "reimbursement" && (
             <div className="rounded-xl border border-border bg-card p-4 space-y-3">
               <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                Bank Details
-                <span className="text-[10px] font-normal text-muted-foreground">(for reimbursement)</span>
+                {t("rec.bank.heading")}
+                <span className="text-[10px] font-normal text-muted-foreground">{t("rec.bank.note")}</span>
               </h2>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Bank Name</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("rec.bank.name")}</label>
                 <Input
                   value={insurance.bankName}
                   onChange={e => setInsurance(p => ({ ...p, bankName: e.target.value }))}
-                  placeholder="e.g. State Bank of India"
+                  placeholder={t("rec.bank.namePh")}
                   className="rounded-lg"
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Account Number</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("rec.bank.account")}</label>
                 <Input
                   value={insurance.bankAccountNumber}
                   onChange={e => setInsurance(p => ({ ...p, bankAccountNumber: e.target.value }))}
-                  placeholder="Enter account number"
+                  placeholder={t("rec.bank.accountPh")}
                   className="rounded-lg"
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">IFSC Code</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("rec.bank.ifsc")}</label>
                 <Input
                   value={insurance.bankIfsc}
                   onChange={e => setInsurance(p => ({ ...p, bankIfsc: e.target.value.toUpperCase() }))}
-                  placeholder="e.g. SBIN0001234"
+                  placeholder={t("rec.bank.ifscPh")}
                   className="rounded-lg"
                   maxLength={11}
                 />
@@ -909,7 +911,7 @@ const ClaimAssistant = () => {
         </div>
 
         <Button onClick={() => setStep("review")} className="w-full rounded-xl">
-          Review claim details <ArrowRight className="h-4 w-4 ml-2" />
+          {t("rec.btn.review")} <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </div>
     );
@@ -929,7 +931,7 @@ const ClaimAssistant = () => {
           <button onClick={() => setStep("insurance")} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Review & Generate</h1>
+          <h1 className="text-lg font-bold text-foreground">{t("rec.review.heading")}</h1>
         </div>
 
         <StepIndicator steps={steps} currentIndex={stepIndex} />
@@ -939,7 +941,7 @@ const ClaimAssistant = () => {
           <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="h-4 w-4 text-destructive" />
-              <span className="text-sm font-semibold text-destructive">We still need:</span>
+              <span className="text-sm font-semibold text-destructive">{t("rec.review.missing")}</span>
             </div>
             <ul className="space-y-1">
               {missingItems.map((item, i) => (
@@ -955,7 +957,7 @@ const ClaimAssistant = () => {
         {/* Document checklist */}
         <div className="rounded-xl border border-border bg-card p-3">
           <h2 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-            <ClipboardList className="h-4 w-4 text-primary" /> Document Checklist
+            <ClipboardList className="h-4 w-4 text-primary" /> {t("rec.review.checklist")}
           </h2>
           <div className="space-y-1.5">
             {DOC_CATEGORIES.map(cat => {
@@ -968,8 +970,8 @@ const ClaimAssistant = () => {
                     <Circle className={`h-3.5 w-3.5 shrink-0 ${cat.required ? "text-destructive" : "text-muted-foreground"}`} />
                   )}
                   <span className={has ? "text-foreground" : "text-muted-foreground"}>
-                    {cat.label}
-                    {cat.required && !has && <span className="text-destructive text-[10px] ml-1">required</span>}
+                    {t(cat.labelKey)}
+                    {cat.required && !has && <span className="text-destructive text-[10px] ml-1">{t("rec.requiredTag")}</span>}
                   </span>
                 </div>
               );
@@ -981,17 +983,17 @@ const ClaimAssistant = () => {
         {ic && (
           <div className="rounded-xl border border-border bg-card p-3 space-y-2">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-primary" /> Extracted Claim Data
+              <Building2 className="h-4 w-4 text-primary" /> {t("rec.review.extracted")}
             </h2>
             {([
-              ["Patient", ic.patientName],
-              ["Hospital", ic.hospitalName],
-              ["Admission", ic.admissionDate],
-              ["Discharge", ic.dischargeDate],
-              ["Days", ic.daysOfStay],
-              ["Diagnosis", ic.primaryDiagnosis],
-              ["Doctor", ic.treatingDoctorName],
-              ["Total Bill", ic.totalBillAmount ? `₹${ic.totalBillAmount}` : null],
+              [t("rec.f.patient"), ic.patientName],
+              [t("rec.f.hospital"), ic.hospitalName],
+              [t("rec.f.admission"), ic.admissionDate],
+              [t("rec.f.discharge"), ic.dischargeDate],
+              [t("rec.f.days"), ic.daysOfStay],
+              [t("rec.f.diagnosis"), ic.primaryDiagnosis],
+              [t("rec.f.doctor"), ic.treatingDoctorName],
+              [t("rec.f.totalBill"), ic.totalBillAmount ? `₹${ic.totalBillAmount}` : null],
             ] as [string, string | null | undefined][]).filter(([, v]) => v).map(([label, value]) => (
               <div key={label} className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{label}</span>
@@ -1004,15 +1006,15 @@ const ClaimAssistant = () => {
         {/* Insurance details summary */}
         <div className="rounded-xl border border-border bg-card p-3 space-y-2">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Shield className="h-4 w-4 text-primary" /> Insurance Details
+            <Shield className="h-4 w-4 text-primary" /> {t("rec.ins.heading")}
           </h2>
           {([
-            ["Company", insurance.insuranceCompany],
-            ["Policy #", insurance.policyNumber],
-            ["Claim Type", insurance.claimType ? insurance.claimType.charAt(0).toUpperCase() + insurance.claimType.slice(1) : ""],
-            ["TPA", insurance.tpaName],
-            ["Holder", insurance.policyHolderName],
-            ["Relation", insurance.policyHolderRelation],
+            [t("rec.f.company"), insurance.insuranceCompany],
+            [t("rec.f.policyHash"), insurance.policyNumber],
+            [t("rec.f.claimType"), insurance.claimType === "cashless" ? t("rec.ins.cashless") : insurance.claimType === "reimbursement" ? t("rec.ins.reimbursement") : ""],
+            [t("rec.f.tpa"), insurance.tpaName],
+            [t("rec.f.holder"), insurance.policyHolderName],
+            [t("rec.f.relation"), insurance.policyHolderRelation ? t(`rec.rel.${insurance.policyHolderRelation}`) : ""],
           ] as [string, string][]).filter(([, v]) => v).map(([label, value]) => (
             <div key={label} className="flex justify-between text-sm">
               <span className="text-muted-foreground">{label}</span>
@@ -1025,12 +1027,12 @@ const ClaimAssistant = () => {
         {ms && (
           <div className="rounded-xl border border-border bg-card p-3 space-y-2">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <FileText className="h-4 w-4 text-primary" /> Medical Summary for Future Visits
+              <FileText className="h-4 w-4 text-primary" /> {t("rec.review.medSummary")}
             </h2>
-            <p className="text-sm text-foreground"><strong>Diagnosis:</strong> {ms.primaryDiagnosis}</p>
+            <p className="text-sm text-foreground"><strong>{t("rec.f.diagnosis")}:</strong> {ms.primaryDiagnosis}</p>
             {ms.medicationsAtDischarge?.length ? (
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Medications at discharge:</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("rec.review.medsAtDischarge")}</p>
                 {ms.medicationsAtDischarge.map((med, i) => (
                   <p key={i} className="text-sm text-foreground">• {med.name} {med.dosage || ""} {med.frequency || ""}</p>
                 ))}
@@ -1038,7 +1040,7 @@ const ClaimAssistant = () => {
             ) : null}
             {ms.followUpInstructions?.length ? (
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Follow-up:</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("rec.review.followUp")}</p>
                 {renderList(ms.followUpInstructions)}
               </div>
             ) : null}
@@ -1053,7 +1055,7 @@ const ClaimAssistant = () => {
             className="w-full rounded-xl"
           >
             {generatingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-            {generatingPdf ? "Generating claim form…" : "Download Claim Form (PDF)"}
+            {generatingPdf ? t("rec.btn.genPdfLoading") : t("rec.btn.genPdf")}
           </Button>
 
           <Button
@@ -1073,7 +1075,7 @@ const ClaimAssistant = () => {
             }}
             className="w-full rounded-xl"
           >
-            <MessageSquare className="h-4 w-4 mr-2" /> Need help? Chat with Claims Assistant
+            <MessageSquare className="h-4 w-4 mr-2" /> {t("rec.btn.chatHelp")}
           </Button>
         </div>
 
@@ -1081,7 +1083,7 @@ const ClaimAssistant = () => {
           <div className="flex items-start gap-2">
             <AlertTriangle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              This claim form is auto-generated. Verify all details before submission. This is not legal or medical advice.
+              {t("rec.disclaimer")}
             </p>
           </div>
         </div>
@@ -1100,7 +1102,7 @@ const ClaimAssistant = () => {
           <button onClick={() => setStep("review")} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Claims Assistant</h1>
+          <h1 className="text-lg font-bold text-foreground">{t("rec.chat.heading")}</h1>
         </div>
         <StepIndicator steps={steps} currentIndex={stepIndex} />
       </div>
@@ -1152,7 +1154,7 @@ const ClaimAssistant = () => {
             value={chatInput}
             onChange={e => setChatInput(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
-            placeholder="Ask about your claim process…"
+            placeholder={t("rec.chat.placeholder")}
             className="min-h-[44px] max-h-[120px] rounded-xl resize-none text-sm"
             rows={1}
           />
@@ -1166,7 +1168,7 @@ const ClaimAssistant = () => {
           </Button>
         </div>
         <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-          AI assistant · Not legal or medical advice · Verify all details with your insurer
+          {t("rec.chat.footer")}
         </p>
       </div>
     </div>
