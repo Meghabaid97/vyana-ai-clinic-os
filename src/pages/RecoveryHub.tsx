@@ -931,7 +931,7 @@ const ClaimAssistant = () => {
           <button onClick={() => setStep("insurance")} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Review & Generate</h1>
+          <h1 className="text-lg font-bold text-foreground">{t("rec.review.heading")}</h1>
         </div>
 
         <StepIndicator steps={steps} currentIndex={stepIndex} />
@@ -941,7 +941,7 @@ const ClaimAssistant = () => {
           <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="h-4 w-4 text-destructive" />
-              <span className="text-sm font-semibold text-destructive">We still need:</span>
+              <span className="text-sm font-semibold text-destructive">{t("rec.review.missing")}</span>
             </div>
             <ul className="space-y-1">
               {missingItems.map((item, i) => (
@@ -957,7 +957,7 @@ const ClaimAssistant = () => {
         {/* Document checklist */}
         <div className="rounded-xl border border-border bg-card p-3">
           <h2 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-            <ClipboardList className="h-4 w-4 text-primary" /> Document Checklist
+            <ClipboardList className="h-4 w-4 text-primary" /> {t("rec.review.checklist")}
           </h2>
           <div className="space-y-1.5">
             {DOC_CATEGORIES.map(cat => {
@@ -970,8 +970,8 @@ const ClaimAssistant = () => {
                     <Circle className={`h-3.5 w-3.5 shrink-0 ${cat.required ? "text-destructive" : "text-muted-foreground"}`} />
                   )}
                   <span className={has ? "text-foreground" : "text-muted-foreground"}>
-                    {cat.label}
-                    {cat.required && !has && <span className="text-destructive text-[10px] ml-1">required</span>}
+                    {t(cat.labelKey)}
+                    {cat.required && !has && <span className="text-destructive text-[10px] ml-1">{t("rec.requiredTag")}</span>}
                   </span>
                 </div>
               );
@@ -983,17 +983,17 @@ const ClaimAssistant = () => {
         {ic && (
           <div className="rounded-xl border border-border bg-card p-3 space-y-2">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-primary" /> Extracted Claim Data
+              <Building2 className="h-4 w-4 text-primary" /> {t("rec.review.extracted")}
             </h2>
             {([
-              ["Patient", ic.patientName],
-              ["Hospital", ic.hospitalName],
-              ["Admission", ic.admissionDate],
-              ["Discharge", ic.dischargeDate],
-              ["Days", ic.daysOfStay],
-              ["Diagnosis", ic.primaryDiagnosis],
-              ["Doctor", ic.treatingDoctorName],
-              ["Total Bill", ic.totalBillAmount ? `₹${ic.totalBillAmount}` : null],
+              [t("rec.f.patient"), ic.patientName],
+              [t("rec.f.hospital"), ic.hospitalName],
+              [t("rec.f.admission"), ic.admissionDate],
+              [t("rec.f.discharge"), ic.dischargeDate],
+              [t("rec.f.days"), ic.daysOfStay],
+              [t("rec.f.diagnosis"), ic.primaryDiagnosis],
+              [t("rec.f.doctor"), ic.treatingDoctorName],
+              [t("rec.f.totalBill"), ic.totalBillAmount ? `₹${ic.totalBillAmount}` : null],
             ] as [string, string | null | undefined][]).filter(([, v]) => v).map(([label, value]) => (
               <div key={label} className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{label}</span>
@@ -1006,15 +1006,15 @@ const ClaimAssistant = () => {
         {/* Insurance details summary */}
         <div className="rounded-xl border border-border bg-card p-3 space-y-2">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Shield className="h-4 w-4 text-primary" /> Insurance Details
+            <Shield className="h-4 w-4 text-primary" /> {t("rec.ins.heading")}
           </h2>
           {([
-            ["Company", insurance.insuranceCompany],
-            ["Policy #", insurance.policyNumber],
-            ["Claim Type", insurance.claimType ? insurance.claimType.charAt(0).toUpperCase() + insurance.claimType.slice(1) : ""],
-            ["TPA", insurance.tpaName],
-            ["Holder", insurance.policyHolderName],
-            ["Relation", insurance.policyHolderRelation],
+            [t("rec.f.company"), insurance.insuranceCompany],
+            [t("rec.f.policyHash"), insurance.policyNumber],
+            [t("rec.f.claimType"), insurance.claimType === "cashless" ? t("rec.ins.cashless") : insurance.claimType === "reimbursement" ? t("rec.ins.reimbursement") : ""],
+            [t("rec.f.tpa"), insurance.tpaName],
+            [t("rec.f.holder"), insurance.policyHolderName],
+            [t("rec.f.relation"), insurance.policyHolderRelation ? t(`rec.rel.${insurance.policyHolderRelation}`) : ""],
           ] as [string, string][]).filter(([, v]) => v).map(([label, value]) => (
             <div key={label} className="flex justify-between text-sm">
               <span className="text-muted-foreground">{label}</span>
@@ -1027,12 +1027,12 @@ const ClaimAssistant = () => {
         {ms && (
           <div className="rounded-xl border border-border bg-card p-3 space-y-2">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <FileText className="h-4 w-4 text-primary" /> Medical Summary for Future Visits
+              <FileText className="h-4 w-4 text-primary" /> {t("rec.review.medSummary")}
             </h2>
-            <p className="text-sm text-foreground"><strong>Diagnosis:</strong> {ms.primaryDiagnosis}</p>
+            <p className="text-sm text-foreground"><strong>{t("rec.f.diagnosis")}:</strong> {ms.primaryDiagnosis}</p>
             {ms.medicationsAtDischarge?.length ? (
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Medications at discharge:</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("rec.review.medsAtDischarge")}</p>
                 {ms.medicationsAtDischarge.map((med, i) => (
                   <p key={i} className="text-sm text-foreground">• {med.name} {med.dosage || ""} {med.frequency || ""}</p>
                 ))}
@@ -1040,7 +1040,7 @@ const ClaimAssistant = () => {
             ) : null}
             {ms.followUpInstructions?.length ? (
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Follow-up:</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("rec.review.followUp")}</p>
                 {renderList(ms.followUpInstructions)}
               </div>
             ) : null}
@@ -1055,7 +1055,7 @@ const ClaimAssistant = () => {
             className="w-full rounded-xl"
           >
             {generatingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-            {generatingPdf ? "Generating claim form…" : "Download Claim Form (PDF)"}
+            {generatingPdf ? t("rec.btn.genPdfLoading") : t("rec.btn.genPdf")}
           </Button>
 
           <Button
@@ -1075,7 +1075,7 @@ const ClaimAssistant = () => {
             }}
             className="w-full rounded-xl"
           >
-            <MessageSquare className="h-4 w-4 mr-2" /> Need help? Chat with Claims Assistant
+            <MessageSquare className="h-4 w-4 mr-2" /> {t("rec.btn.chatHelp")}
           </Button>
         </div>
 
@@ -1083,7 +1083,7 @@ const ClaimAssistant = () => {
           <div className="flex items-start gap-2">
             <AlertTriangle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              This claim form is auto-generated. Verify all details before submission. This is not legal or medical advice.
+              {t("rec.disclaimer")}
             </p>
           </div>
         </div>
