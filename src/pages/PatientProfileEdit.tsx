@@ -33,6 +33,7 @@ const PatientProfileEdit = () => {
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
   const [passwordData, setPasswordData] = useState({ password: "", confirmPassword: "" });
   const { toast } = useToast();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => { loadProfile(); }, []);
