@@ -531,9 +531,9 @@ const PatientAppointments = () => {
       <Dialog open={showLocationDialog} onOpenChange={setShowLocationDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Set Your Location</DialogTitle>
+            <DialogTitle>{t("appt.locDialogTitle")}</DialogTitle>
             <DialogDescription>
-              We'll show you doctors near your location
+              {t("appt.locDialogDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -547,10 +547,10 @@ const PatientAppointments = () => {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowLocationDialog(false)}>
-              Cancel
+              {t("appt.cancel")}
             </Button>
             <Button onClick={saveUserLocation}>
-              Save Location
+              {t("appt.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
