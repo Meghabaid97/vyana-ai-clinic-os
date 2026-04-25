@@ -281,12 +281,12 @@ const EmergencyAccess = () => {
 
           {/* Consultations */}
           <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-            <Activity className="h-4 w-4 text-primary" /> Consultations
+            <Activity className="h-4 w-4 text-primary" /> {t("ea.consultationsHeading")}
           </h2>
           {summary.consultations.length === 0 ? (
             <Card className="mb-5">
               <CardContent className="p-5 text-center text-sm text-muted-foreground">
-                No consultations on record.
+                {t("ea.noConsultations")}
               </CardContent>
             </Card>
           ) : (
