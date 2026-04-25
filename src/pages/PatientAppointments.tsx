@@ -343,9 +343,9 @@ const PatientAppointments = () => {
               <Calendar className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-lg font-bold text-foreground leading-tight">Appointments</h1>
+              <h1 className="text-lg font-bold text-foreground leading-tight">{t("appt.title")}</h1>
               <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                Book, track, and manage your visits without leaving the app.
+                {t("appt.subtitle")}
               </p>
             </div>
           </div>
@@ -353,7 +353,7 @@ const PatientAppointments = () => {
             size="icon"
             onClick={() => setShowBookingDialog(true)}
             className="h-10 w-10 shrink-0 rounded-xl"
-            aria-label="Book appointment"
+            aria-label={t("appt.bookAria")}
           >
             <CalendarPlus className="h-4 w-4" />
           </Button>
