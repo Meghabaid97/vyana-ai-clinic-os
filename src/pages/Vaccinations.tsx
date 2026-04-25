@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Shield, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Syringe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/lib/i18n";
 
 interface VaccineInfo {
   name: string;
@@ -36,6 +37,7 @@ const ageBasedScreenings = [
 ];
 
 const Vaccinations = () => {
+  const { t } = useLanguage();
   const [patientAge, setPatientAge] = useState<number | null>(null);
   const [expandedVaccine, setExpandedVaccine] = useState<string | null>(null);
 
@@ -74,12 +76,12 @@ const Vaccinations = () => {
     <div className="animate-fade-in">
       <section className="px-5 pt-8 pb-4">
         <h1 className="text-[28px] font-extrabold leading-[1.08] tracking-[-0.03em] text-foreground">
-          Vaccinations & Screenings
+          {t("vac.title")}
         </h1>
         <p className="text-[14px] text-muted-foreground leading-relaxed mt-2">
           {patientAge
-            ? `Personalized recommendations for your age (${patientAge} years).`
-            : "Important vaccines and health screenings everyone should know about."}
+            ? t("vac.subtitle.personal", { age: patientAge })
+            : t("vac.subtitle.generic")}
         </p>
       </section>
 
@@ -90,11 +92,11 @@ const Vaccinations = () => {
             <div className="flex items-center gap-2 mb-3">
               <AlertTriangle className="h-5 w-5 text-primary" />
               <h2 className="text-[15px] font-bold text-foreground">
-                Health screenings for age {patientAge}
+                {t("vac.screenings.title", { age: patientAge })}
               </h2>
             </div>
             <p className="text-[12px] text-muted-foreground mb-3">
-              These tests are recommended for your age group. Talk to your doctor about scheduling them.
+              {t("vac.screenings.intro")}
             </p>
             <div className="space-y-2">
               {relevantScreenings.tests.map((test, i) => (
@@ -113,7 +115,7 @@ const Vaccinations = () => {
         <div className="flex items-center gap-2 mb-3">
           <Syringe className="h-5 w-5 text-primary" />
           <h2 className="text-[15px] font-bold text-foreground">
-            {patientAge ? "Vaccines for you" : "Important Vaccines"}
+            {patientAge ? t("vac.list.titlePersonal") : t("vac.list.titleGeneric")}
           </h2>
           <Badge variant="outline" className="text-[10px]">{relevantVaccines.length}</Badge>
         </div>
@@ -139,7 +141,7 @@ const Vaccinations = () => {
                     <p className="text-[11px] text-muted-foreground">{vaccine.frequency} · {vaccine.ageRange}</p>
                   </div>
                   <Badge variant="outline" className={`text-[9px] shrink-0 ${importanceColor(vaccine.importance)}`}>
-                    {vaccine.importance}
+                    {t(`vac.imp.${vaccine.importance}`)}
                   </Badge>
                 </div>
 
@@ -157,7 +159,7 @@ const Vaccinations = () => {
       <section className="px-5 pb-10">
         <div className="rounded-xl border border-border bg-muted/30 p-4 text-center">
           <p className="text-[11px] text-muted-foreground">
-            This information is for educational purposes only. Consult your healthcare provider for personalized advice.
+            {t("vac.disclaimer")}
           </p>
         </div>
       </section>
