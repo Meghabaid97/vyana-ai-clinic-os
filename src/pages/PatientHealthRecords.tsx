@@ -67,7 +67,7 @@ const PatientHealthRecords = () => {
       }
     } catch (error: any) {
       console.error("Error loading data:", error);
-      toast({ title: "Couldn't load your records", description: "Check your connection and try again", variant: "destructive" });
+      toast({ title: t("hr.toast.loadFail"), description: t("hr.toast.loadFailDesc"), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
