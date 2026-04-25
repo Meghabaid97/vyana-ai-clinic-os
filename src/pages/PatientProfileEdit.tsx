@@ -153,11 +153,11 @@ const PatientProfileEdit = () => {
     e.preventDefault();
     const password = passwordData.password.trim();
     if (password.length < 8) {
-      toast({ title: "Use a stronger password", description: "Password must be at least 8 characters.", variant: "destructive" });
+      toast({ title: t("prof.pwd.weak"), description: t("prof.pwd.weakDesc"), variant: "destructive" });
       return;
     }
     if (password !== passwordData.confirmPassword.trim()) {
-      toast({ title: "Passwords do not match", description: "Please re-enter the same password.", variant: "destructive" });
+      toast({ title: t("prof.pwd.mismatch"), description: t("prof.pwd.mismatchDesc"), variant: "destructive" });
       return;
     }
 
