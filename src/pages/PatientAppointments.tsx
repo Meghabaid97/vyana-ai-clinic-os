@@ -401,16 +401,16 @@ const PatientAppointments = () => {
               <Stethoscope className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-base font-semibold text-foreground">
-              {hasLocation ? "No doctors found nearby yet" : "Set your location to see nearby doctors"}
+              {hasLocation ? t("appt.noDoctorsNearby") : t("appt.setLocationPrompt")}
             </h3>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               {hasLocation
-                ? "Try another area or check back later when more doctors are available."
-                : "Add your city or pincode first so we can show the most relevant doctors for you."}
+                ? t("appt.noDoctorsDesc")
+                : t("appt.locationDesc")}
             </p>
             <Button onClick={() => setShowLocationDialog(true)} variant="outline" className="mt-4 w-full rounded-xl">
               <MapPin className="mr-2 h-4 w-4" />
-              {hasLocation ? "Change location" : "Set location"}
+              {hasLocation ? t("appt.changeLocation") : t("appt.setLocation")}
             </Button>
           </div>
         ) : (
