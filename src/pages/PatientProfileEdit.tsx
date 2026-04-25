@@ -259,11 +259,11 @@ const PatientProfileEdit = () => {
           <div className="flex items-center gap-3 mb-3">
             <Calendar className="h-5 w-5 text-primary shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-[15px] font-medium text-foreground">Next doctor visit</p>
+              <p className="text-[15px] font-medium text-foreground">{t("prof.next.title")}</p>
               <p className="text-xs text-muted-foreground">
                 {profile?.next_visit_date
-                  ? "We'll prep your summary the day before"
-                  : "Add a date and we'll prep your summary the day before"}
+                  ? t("prof.next.descSet")
+                  : t("prof.next.descEmpty")}
               </p>
             </div>
           </div>
