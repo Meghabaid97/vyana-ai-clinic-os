@@ -211,9 +211,9 @@ const PatientProfileEdit = () => {
         {/* Stats strip */}
         <div className="flex gap-3 mt-5">
           {[
-            { value: stats.totalConsultations, label: "Visits" },
-            { value: stats.totalDoctors, label: "Doctors" },
-            { value: stats.lastVisit ? new Date(stats.lastVisit).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "-", label: "Last Visit" },
+            { value: stats.totalConsultations, label: t("prof.stats.visits") },
+            { value: stats.totalDoctors, label: t("prof.stats.doctors") },
+            { value: stats.lastVisit ? new Date(stats.lastVisit).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "-", label: t("prof.stats.lastVisit") },
           ].map((s, i) => (
             <div key={i} className="flex-1 rounded-xl bg-card border border-border p-3 text-center">
               <p className="text-lg font-bold text-foreground">{s.value}</p>
