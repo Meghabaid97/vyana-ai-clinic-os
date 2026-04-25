@@ -383,7 +383,7 @@ const PatientAppointments = () => {
 
       <section className="space-y-2.5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-[15px] font-bold text-foreground">Available Doctors</h2>
+          <h2 className="text-[15px] font-bold text-foreground">{t("appt.availableDoctors")}</h2>
           <Button
             variant={hasLocation ? "outline" : "secondary"}
             size="sm"
@@ -391,7 +391,7 @@ const PatientAppointments = () => {
             className="h-8 rounded-full px-3 text-xs"
           >
             <MapPin className="mr-1 h-3.5 w-3.5" />
-            <span className="max-w-[7.5rem] truncate">{userLocation.city || userLocation.pincode || "Set location"}</span>
+            <span className="max-w-[7.5rem] truncate">{userLocation.city || userLocation.pincode || t("appt.setLocation")}</span>
           </Button>
         </div>
 
