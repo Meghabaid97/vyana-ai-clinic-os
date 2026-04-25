@@ -125,6 +125,7 @@ type Step = "upload" | "insurance" | "review" | "chat";
 const ClaimAssistant = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
