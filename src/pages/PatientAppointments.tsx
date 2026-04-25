@@ -366,7 +366,7 @@ const PatientAppointments = () => {
             </div>
             <div>
               <p className="text-lg font-bold text-foreground leading-none">{pendingCount}</p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">Pending</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">{t("appt.pending")}</p>
             </div>
           </div>
           <div className="rounded-xl border border-border bg-background p-3 flex items-center gap-2.5">
@@ -375,7 +375,7 @@ const PatientAppointments = () => {
             </div>
             <div>
               <p className="text-lg font-bold text-foreground leading-none">{upcomingCount}</p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">Upcoming</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">{t("appt.upcoming")}</p>
             </div>
           </div>
         </div>
