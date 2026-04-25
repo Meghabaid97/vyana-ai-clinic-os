@@ -143,9 +143,9 @@ const PatientProfileEdit = () => {
 
     try {
       await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-      toast({ title: "Invite copied", description: "Share it with friends and family." });
+      toast({ title: t("prof.share.inviteCopied"), description: t("prof.share.inviteCopiedDesc") });
     } catch {
-      toast({ title: "Referral link", description: WEB_APP_URL });
+      toast({ title: t("prof.share.referLink"), description: WEB_APP_URL });
     }
   };
 
