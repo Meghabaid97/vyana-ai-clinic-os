@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/lib/i18n";
 import {
   Loader2, User, Phone, Shield, Save, ChevronRight, LogOut,
   FileText, Heart, Calendar, Bell, HelpCircle, BookOpen, Star,
@@ -32,6 +33,7 @@ const PatientProfileEdit = () => {
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
   const [passwordData, setPasswordData] = useState({ password: "", confirmPassword: "" });
   const { toast } = useToast();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => { loadProfile(); }, []);
@@ -77,11 +79,11 @@ const PatientProfileEdit = () => {
         phone: formData.phone || null, national_health_id: formData.national_health_id || null,
       }).eq("id", profile.id);
       if (error) throw error;
-      toast({ title: "Profile Updated", description: "Your profile has been saved." });
+      toast({ title: t("prof.toast.updated"), description: t("prof.toast.updatedDesc") });
       setEditMode(false);
       loadProfile();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to save", variant: "destructive" });
+      toast({ title: t("prof.toast.error"), description: error.message || t("prof.toast.errorDesc"), variant: "destructive" });
     } finally { setIsSaving(false); }
   };
 
@@ -117,7 +119,7 @@ const PatientProfileEdit = () => {
     } catch { /* user dismissed share — fall through to copy */ }
     try {
       await navigator.clipboard.writeText(WEB_APP_URL);
-      toast({ title: "Link copied", description: "Share Vyana with friends and family." });
+      toast({ title: t("prof.share.linkCopied"), description: t("prof.share.linkCopiedDesc") });
     } catch {
       window.open(WEB_APP_URL, "_blank", "noopener,noreferrer");
     }
@@ -141,9 +143,9 @@ const PatientProfileEdit = () => {
 
     try {
       await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-      toast({ title: "Invite copied", description: "Share it with friends and family." });
+      toast({ title: t("prof.share.inviteCopied"), description: t("prof.share.inviteCopiedDesc") });
     } catch {
-      toast({ title: "Referral link", description: WEB_APP_URL });
+      toast({ title: t("prof.share.referLink"), description: WEB_APP_URL });
     }
   };
 
@@ -151,11 +153,11 @@ const PatientProfileEdit = () => {
     e.preventDefault();
     const password = passwordData.password.trim();
     if (password.length < 8) {
-      toast({ title: "Use a stronger password", description: "Password must be at least 8 characters.", variant: "destructive" });
+      toast({ title: t("prof.pwd.weak"), description: t("prof.pwd.weakDesc"), variant: "destructive" });
       return;
     }
     if (password !== passwordData.confirmPassword.trim()) {
-      toast({ title: "Passwords do not match", description: "Please re-enter the same password.", variant: "destructive" });
+      toast({ title: t("prof.pwd.mismatch"), description: t("prof.pwd.mismatchDesc"), variant: "destructive" });
       return;
     }
 
@@ -165,9 +167,9 @@ const PatientProfileEdit = () => {
       if (error) throw error;
       setPasswordData({ password: "", confirmPassword: "" });
       setAccountMode(false);
-      toast({ title: "Password updated", description: "Use your new password the next time you sign in." });
+      toast({ title: t("prof.pwd.updated"), description: t("prof.pwd.updatedDesc") });
     } catch (error: any) {
-      toast({ title: "Could not update password", description: error.message || "Please try again.", variant: "destructive" });
+      toast({ title: t("prof.pwd.fail"), description: error.message || t("prof.pwd.failDesc"), variant: "destructive" });
     } finally {
       setIsPasswordSaving(false);
     }
@@ -178,18 +180,18 @@ const PatientProfileEdit = () => {
   }
 
   const menuItems = [
-    { icon: FileText, label: "Medical History", desc: "View your complete health timeline", path: "/app/medical-history" as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: KeyRound, label: "Account Settings", desc: "Change password and sign-in details", path: null as string | null, onClick: () => setAccountMode(!accountMode) },
-    { icon: Shield, label: "Emergency Contacts", desc: "Manage your emergency contacts", path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: Bell, label: "Notifications", desc: "Manage notification preferences", path: null as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: Lock, label: "Privacy & Security", desc: "Control your data sharing", path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: FileText, label: t("prof.menu.history"), desc: t("prof.menu.historyDesc"), path: "/app/medical-history" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: KeyRound, label: t("prof.menu.account"), desc: t("prof.menu.accountDesc"), path: null as string | null, onClick: () => setAccountMode(!accountMode) },
+    { icon: Shield, label: t("prof.menu.emergency"), desc: t("prof.menu.emergencyDesc"), path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Bell, label: t("prof.menu.notifications"), desc: t("prof.menu.notificationsDesc"), path: null as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Lock, label: t("prof.menu.privacy"), desc: t("prof.menu.privacyDesc"), path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
   ];
 
   const aboutItems = [
-    { icon: Share2, label: "Refer a friend", desc: "Invite family and friends to Vyana", path: null as string | null, onClick: handleReferFriend },
-    { icon: BookOpen, label: "Our Story", desc: "Why we built Vyana", path: "/app/story" as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: HelpCircle, label: "Help & Support", desc: "Raise a ticket or report an issue", path: "/app/support" as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: Star, label: "Rate App", desc: "Rate Vyana or share with friends", path: null as string | null, onClick: handleRateApp },
+    { icon: Share2, label: t("prof.about.refer"), desc: t("prof.about.referDesc"), path: null as string | null, onClick: handleReferFriend },
+    { icon: BookOpen, label: t("prof.about.story"), desc: t("prof.about.storyDesc"), path: "/app/story" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: HelpCircle, label: t("prof.about.help"), desc: t("prof.about.helpDesc"), path: "/app/support" as string | null, onClick: undefined as undefined | (() => void) },
+    { icon: Star, label: t("prof.about.rate"), desc: t("prof.about.rateDesc"), path: null as string | null, onClick: handleRateApp },
   ];
 
   return (
@@ -201,7 +203,7 @@ const PatientProfileEdit = () => {
             <User className="h-7 w-7 text-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-foreground">{profile?.name || "Patient"}</h1>
+            <h1 className="text-2xl font-bold text-foreground">{profile?.name || t("prof.patient")}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">{email}</p>
           </div>
         </div>
@@ -209,9 +211,9 @@ const PatientProfileEdit = () => {
         {/* Stats strip */}
         <div className="flex gap-3 mt-5">
           {[
-            { value: stats.totalConsultations, label: "Visits" },
-            { value: stats.totalDoctors, label: "Doctors" },
-            { value: stats.lastVisit ? new Date(stats.lastVisit).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "-", label: "Last Visit" },
+            { value: stats.totalConsultations, label: t("prof.stats.visits") },
+            { value: stats.totalDoctors, label: t("prof.stats.doctors") },
+            { value: stats.lastVisit ? new Date(stats.lastVisit).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "-", label: t("prof.stats.lastVisit") },
           ].map((s, i) => (
             <div key={i} className="flex-1 rounded-xl bg-card border border-border p-3 text-center">
               <p className="text-lg font-bold text-foreground">{s.value}</p>
@@ -227,12 +229,12 @@ const PatientProfileEdit = () => {
           <div className="rounded-xl bg-card border border-primary/20 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-primary uppercase tracking-wide">ABHA Health ID</p>
+                <p className="text-xs font-medium text-primary uppercase tracking-wide">{t("prof.abha.title")}</p>
                 <p className="text-lg font-bold text-foreground font-mono mt-0.5">{formData.national_health_id}</p>
               </div>
               <Shield className="h-8 w-8 text-primary/30" />
             </div>
-            <p className="text-[11px] text-muted-foreground mt-2">Linked across all healthcare providers</p>
+            <p className="text-[11px] text-muted-foreground mt-2">{t("prof.abha.linked")}</p>
           </div>
         </section>
       ) : (
@@ -243,8 +245,8 @@ const PatientProfileEdit = () => {
           >
             <Shield className="h-5 w-5 text-primary" />
             <div className="text-left">
-              <p className="text-sm font-semibold text-foreground">Connect ABHA Health ID</p>
-              <p className="text-xs text-muted-foreground">Link your records across providers</p>
+              <p className="text-sm font-semibold text-foreground">{t("prof.abha.connect")}</p>
+              <p className="text-xs text-muted-foreground">{t("prof.abha.connectDesc")}</p>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground ml-auto" />
           </button>
@@ -257,17 +259,17 @@ const PatientProfileEdit = () => {
           <div className="flex items-center gap-3 mb-3">
             <Calendar className="h-5 w-5 text-primary shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-[15px] font-medium text-foreground">Next doctor visit</p>
+              <p className="text-[15px] font-medium text-foreground">{t("prof.next.title")}</p>
               <p className="text-xs text-muted-foreground">
                 {profile?.next_visit_date
-                  ? "We'll prep your summary the day before"
-                  : "Add a date and we'll prep your summary the day before"}
+                  ? t("prof.next.descSet")
+                  : t("prof.next.descEmpty")}
               </p>
             </div>
           </div>
           <Input
             type="date"
-            aria-label="Next doctor visit date"
+            aria-label={t("prof.next.aria")}
             value={profile?.next_visit_date || ""}
             min={new Date().toISOString().slice(0, 10)}
             onChange={async (e) => {
@@ -276,7 +278,7 @@ const PatientProfileEdit = () => {
               const { error } = await supabase.from("patients").update({ next_visit_date: v }).eq("id", profile.id);
               if (!error) {
                 setProfile({ ...profile, next_visit_date: v });
-                toast({ title: v ? "Visit saved" : "Visit cleared", description: v ? "We'll remind you the day before." : "" });
+                toast({ title: v ? t("prof.next.saved") : t("prof.next.cleared"), description: v ? t("prof.next.savedDesc") : "" });
               }
             }}
             className="h-11 text-[15px] w-full block max-w-full appearance-none"
@@ -289,12 +291,12 @@ const PatientProfileEdit = () => {
                 const { error } = await supabase.from("patients").update({ next_visit_date: null }).eq("id", profile.id);
                 if (!error) {
                   setProfile({ ...profile, next_visit_date: null });
-                  toast({ title: "Visit cleared" });
+                  toast({ title: t("prof.next.cleared") });
                 }
               }}
               className="mt-2 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Clear date
+              {t("prof.next.clear")}
             </button>
           )}
         </div>
@@ -307,8 +309,8 @@ const PatientProfileEdit = () => {
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 text-muted-foreground" />
             <div className="text-left">
-              <p className="text-[15px] font-medium text-foreground">Edit Profile</p>
-              <p className="text-xs text-muted-foreground">Update your personal details</p>
+              <p className="text-[15px] font-medium text-foreground">{t("prof.edit.title")}</p>
+              <p className="text-xs text-muted-foreground">{t("prof.edit.desc")}</p>
             </div>
           </div>
           <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${editMode ? "rotate-90" : ""}`} />
@@ -317,26 +319,26 @@ const PatientProfileEdit = () => {
         {editMode && (
           <form onSubmit={handleSubmit} className="py-4 space-y-4 animate-fade-in">
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-xs text-muted-foreground">Full Name</Label>
+              <Label htmlFor="name" className="text-xs text-muted-foreground">{t("prof.field.name")}</Label>
               <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="age" className="text-xs text-muted-foreground">Age</Label>
+                <Label htmlFor="age" className="text-xs text-muted-foreground">{t("prof.field.age")}</Label>
                 <Input id="age" type="number" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="phone" className="text-xs text-muted-foreground">Phone</Label>
+                <Label htmlFor="phone" className="text-xs text-muted-foreground">{t("prof.field.phone")}</Label>
                 <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+91 98765 43210" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="health_id" className="text-xs text-muted-foreground">ABHA Health ID</Label>
-              <Input id="health_id" value={formData.national_health_id} onChange={(e) => setFormData({ ...formData, national_health_id: e.target.value.replace(/\D/g, '').slice(0, 14) })} placeholder="14-digit ABHA ID" className="font-mono" />
+              <Label htmlFor="health_id" className="text-xs text-muted-foreground">{t("prof.field.abha")}</Label>
+              <Input id="health_id" value={formData.national_health_id} onChange={(e) => setFormData({ ...formData, national_health_id: e.target.value.replace(/\D/g, '').slice(0, 14) })} placeholder={t("prof.field.abhaPh")} className="font-mono" />
             </div>
             <Button type="submit" disabled={isSaving} className="w-full">
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-              Save Changes
+              {t("prof.btn.save")}
             </Button>
           </form>
         )}
@@ -357,21 +359,21 @@ const PatientProfileEdit = () => {
                   <p className="text-xs text-muted-foreground">{item.desc}</p>
                 </div>
               </div>
-              <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${item.label === "Account Settings" && accountMode ? "rotate-90" : ""}`} />
+              <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${i === 1 && accountMode ? "rotate-90" : ""}`} />
             </button>
-            {item.label === "Account Settings" && accountMode && (
+            {i === 1 && accountMode && (
               <form onSubmit={handlePasswordChange} className="py-4 space-y-3 border-b border-border animate-fade-in">
                 <div className="space-y-1.5">
-                  <Label htmlFor="new-password" className="text-xs text-muted-foreground">New password</Label>
+                  <Label htmlFor="new-password" className="text-xs text-muted-foreground">{t("prof.pwd.new")}</Label>
                   <Input id="new-password" type="password" value={passwordData.password} onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })} minLength={8} autoComplete="new-password" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">Confirm password</Label>
+                  <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">{t("prof.pwd.confirm")}</Label>
                   <Input id="confirm-password" type="password" value={passwordData.confirmPassword} onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })} minLength={8} autoComplete="new-password" />
                 </div>
                 <Button type="submit" disabled={isPasswordSaving} className="w-full">
                   {isPasswordSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
-                  Update password
+                  {t("prof.pwd.update")}
                 </Button>
               </form>
             )}
@@ -381,7 +383,7 @@ const PatientProfileEdit = () => {
 
       {/* About Vyana, like Nykaa's footer section */}
       <section className="px-5 pt-6">
-        <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">About Vyana</p>
+        <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">{t("prof.about")}</p>
         {aboutItems.map((item, i) => (
           <button
             key={i}
@@ -407,19 +409,19 @@ const PatientProfileEdit = () => {
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-destructive/20 text-destructive"
         >
           <LogOut className="h-4 w-4" />
-          <span className="text-sm font-medium">Sign Out</span>
+          <span className="text-sm font-medium">{t("prof.signOut")}</span>
         </button>
       </section>
 
       {/* App version footer, like Nykaa */}
       <section className="pb-10 text-center">
         <p className="text-lg font-semibold text-foreground">V<span className="text-primary">yana</span></p>
-        <p className="text-[11px] text-muted-foreground mt-1">ver 1.0.0</p>
+        <p className="text-[11px] text-muted-foreground mt-1">{t("prof.ver")} 1.0.0</p>
         <div className="flex items-center justify-center gap-6 mt-4">
           {[
-            { icon: Lock, label: "Privacy", path: "/legal#privacy" as string | null, onClick: undefined as undefined | (() => void) },
-            { icon: FileText, label: "Terms", path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
-            { icon: Star, label: "Rate App", path: null as string | null, onClick: handleRateApp },
+            { icon: Lock, label: t("prof.footer.privacy"), path: "/legal#privacy" as string | null, onClick: undefined as undefined | (() => void) },
+            { icon: FileText, label: t("prof.footer.terms"), path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
+            { icon: Star, label: t("prof.footer.rate"), path: null as string | null, onClick: handleRateApp },
           ].map((item, i) => (
             <div key={i} className="flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => { if (item.onClick) item.onClick(); else if (item.path) navigate(item.path); }}>
               <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
