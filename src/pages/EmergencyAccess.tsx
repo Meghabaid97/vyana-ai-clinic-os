@@ -140,7 +140,7 @@ const EmergencyAccess = () => {
       <div className="min-h-screen bg-background flex items-center justify-center safe-area-top safe-area-bottom">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">Verifying access…</p>
+          <p className="text-sm text-muted-foreground">{t("ea.verifying")}</p>
         </div>
       </div>
     );
