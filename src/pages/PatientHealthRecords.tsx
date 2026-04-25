@@ -85,10 +85,8 @@ const PatientHealthRecords = () => {
     <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
       <PageHero
         icon={FolderOpen}
-        title="Health Records"
-        subtitle={profile
-          ? "Upload, summarize, and share your medical documents securely."
-          : "Finish your health profile to unlock uploads, summaries, and doctor sharing."}
+        title={t("hr.title")}
+        subtitle={profile ? t("hr.subtitleReady") : t("hr.subtitleEmpty")}
       />
 
       {profile && userId ? (
