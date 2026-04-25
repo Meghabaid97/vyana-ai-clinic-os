@@ -269,7 +269,7 @@ const PatientProfileEdit = () => {
           </div>
           <Input
             type="date"
-            aria-label="Next doctor visit date"
+            aria-label={t("prof.next.aria")}
             value={profile?.next_visit_date || ""}
             min={new Date().toISOString().slice(0, 10)}
             onChange={async (e) => {
@@ -278,7 +278,7 @@ const PatientProfileEdit = () => {
               const { error } = await supabase.from("patients").update({ next_visit_date: v }).eq("id", profile.id);
               if (!error) {
                 setProfile({ ...profile, next_visit_date: v });
-                toast({ title: v ? "Visit saved" : "Visit cleared", description: v ? "We'll remind you the day before." : "" });
+                toast({ title: v ? t("prof.next.saved") : t("prof.next.cleared"), description: v ? t("prof.next.savedDesc") : "" });
               }
             }}
             className="h-11 text-[15px] w-full block max-w-full appearance-none"
