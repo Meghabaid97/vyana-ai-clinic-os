@@ -167,9 +167,9 @@ const PatientProfileEdit = () => {
       if (error) throw error;
       setPasswordData({ password: "", confirmPassword: "" });
       setAccountMode(false);
-      toast({ title: "Password updated", description: "Use your new password the next time you sign in." });
+      toast({ title: t("prof.pwd.updated"), description: t("prof.pwd.updatedDesc") });
     } catch (error: any) {
-      toast({ title: "Could not update password", description: error.message || "Please try again.", variant: "destructive" });
+      toast({ title: t("prof.pwd.fail"), description: error.message || t("prof.pwd.failDesc"), variant: "destructive" });
     } finally {
       setIsPasswordSaving(false);
     }
