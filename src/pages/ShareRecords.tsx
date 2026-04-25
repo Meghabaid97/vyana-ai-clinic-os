@@ -143,18 +143,18 @@ const ShareRecords = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-[13px] font-semibold text-foreground">
-                        {link.recipient_name || "Share Link"}
+                        {link.recipient_name || t("share.linkLabel")}
                       </p>
                       {expired ? (
-                        <Badge variant="outline" className="text-[9px] bg-destructive/10 text-destructive border-destructive/20">Expired</Badge>
+                        <Badge variant="outline" className="text-[9px] bg-destructive/10 text-destructive border-destructive/20">{t("share.expired")}</Badge>
                       ) : (
-                        <Badge variant="outline" className="text-[9px] bg-green-500/10 text-green-700 border-green-500/20">Active</Badge>
+                        <Badge variant="outline" className="text-[9px] bg-green-500/10 text-green-700 border-green-500/20">{t("share.active")}</Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <Clock className="h-3 w-3 text-muted-foreground" />
                       <span className="text-[11px] text-muted-foreground">
-                        Expires {new Date(link.expires_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                        {t("share.expiresOn", { when: new Date(link.expires_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) })}
                       </span>
                     </div>
                   </div>
@@ -165,7 +165,7 @@ const ShareRecords = () => {
                       onClick={() => copyLink(link.token)}
                       className="shrink-0"
                     >
-                      <Copy className="h-3.5 w-3.5 mr-1" /> Copy
+                      <Copy className="h-3.5 w-3.5 mr-1" /> {t("share.copy")}
                     </Button>
                   )}
                 </div>
