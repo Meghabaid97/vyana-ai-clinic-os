@@ -200,13 +200,14 @@ const Auth = () => {
     if (roleError) throw roleError;
 
     const roles = (existingRoles ?? []).map((r) => r.role);
-    // Prefer admin, then patient, then doctor for routing/setup logic
+    // Prefer admin, then patient, then doctor for routing/setup logic.
+    // Vyana is consumer-only — default any new account to "patient".
     const primaryRole = roles.includes("admin")
       ? "admin"
       : roles.includes("patient")
         ? "patient"
         : roles[0] ?? null;
-    const resolvedRole = (primaryRole ?? fallbackRole) as UserRole | "admin" | null;
+    const resolvedRole = (primaryRole ?? fallbackRole ?? "patient") as UserRole | "admin" | null;
 
     if (roles.length === 0 && resolvedRole && resolvedRole !== "admin") {
       const { error: insertRoleError } = await supabase
