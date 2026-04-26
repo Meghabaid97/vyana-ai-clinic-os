@@ -41,3 +41,5 @@ project_id = "gnfaxcdapizhfqloiajn"
     verify_jwt = true
   [functions.journal-reminder-engine]
     verify_jwt = false
+  [functions.validate-invite-token]
+    verify_jwt = false
