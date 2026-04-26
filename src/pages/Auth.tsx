@@ -582,7 +582,32 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
+      // Gated-beta gate (sign-up only): server-validate the invite token
+      // RIGHT NOW. Don't trust client-side `tokenValid` state alone — it
+      // could be stale (token consumed in another tab, expired since page
+      // load, etc.). The same edge function is also called again after
+      // OAuth callback inside ensureAccountSetup as a final defense.
       if (isSignUp) {
+        const storedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
+        if (!storedToken) {
+          toast({
+            title: "Invite required",
+            description: "Vyana is in gated beta. Paste your invite link below to sign up with Google.",
+            variant: "destructive",
+          });
+          return;
+        }
+        const check = await serverValidateInviteToken(storedToken);
+        if (!check.valid) {
+          sessionStorage.removeItem(VALIDATED_INVITE_KEY);
+          setTokenValid(false);
+          toast({
+            title: "Invite link invalid or expired",
+            description: "Please request a new invite to continue.",
+            variant: "destructive",
+          });
+          return;
+        }
         setStoredSignupDraft(buildSignupDraft());
       }
 
@@ -595,37 +620,19 @@ const Auth = () => {
           options: {
             redirectTo: NATIVE_OAUTH_REDIRECT,
             skipBrowserRedirect: true,
-            queryParams: {
-              prompt: "select_account",
-            },
+            queryParams: { prompt: "select_account" },
           },
         });
 
         if (error) throw error;
-        if (!data?.url) {
-          throw new Error("Could not start Google sign-in");
-        }
+        if (!data?.url) throw new Error("Could not start Google sign-in");
 
-        await Browser.open({
-          url: data.url,
-          presentationStyle: "popover",
-        });
+        await Browser.open({ url: data.url, presentationStyle: "popover" });
         return;
       }
 
-      // Gated beta: Google sign-up is disabled for new users.
-      // Only allow Google sign-in flow when an invite token is present (signup) or for existing users (login).
-      if (isSignUp && !tokenValid) {
-        toast({
-          title: "Invite required",
-          description: "Vyana is in gated beta. Google sign-up needs a valid invite link.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Direct Supabase OAuth flow — works on any host (Vercel, custom domain, lovable.app)
-      // because the redirect round-trip stays on supabase.co, not the Lovable edge proxy.
+      // Web: direct Supabase OAuth flow — works on any host (Vercel, custom
+      // domain, lovable.app) because the round-trip stays on supabase.co.
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
