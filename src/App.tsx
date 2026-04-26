@@ -18,6 +18,7 @@ const AppHome = lazy(() => import("./pages/AppHome"));
 const Splash = lazy(() => import("./pages/Splash"));
 const WhyVyana = lazy(() => import("./pages/WhyVyana"));
 const RequestAccess = lazy(() => import("./pages/RequestAccess"));
+const AccessPending = lazy(() => import("./pages/AccessPending"));
 const AdminWaitlist = lazy(() => import("./pages/AdminWaitlist"));
 const ShareReceive = lazy(() => import("./pages/ShareReceive"));
 const HealthTrends = lazy(() => import("./pages/HealthTrends"));
