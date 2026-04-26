@@ -18,6 +18,7 @@ const AppHome = lazy(() => import("./pages/AppHome"));
 const Splash = lazy(() => import("./pages/Splash"));
 const WhyVyana = lazy(() => import("./pages/WhyVyana"));
 const RequestAccess = lazy(() => import("./pages/RequestAccess"));
+const AccessPending = lazy(() => import("./pages/AccessPending"));
 const AdminWaitlist = lazy(() => import("./pages/AdminWaitlist"));
 const ShareReceive = lazy(() => import("./pages/ShareReceive"));
 const HealthTrends = lazy(() => import("./pages/HealthTrends"));
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/splash" element={<Splash />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/request-access" element={<RequestAccess />} />
+            <Route path="/access-pending" element={<AccessPending />} />
             <Route path="/admin/waitlist" element={<AdminWaitlist />} />
             <Route path="/why-vyana" element={<WhyVyana />} />
             <Route path="/legal" element={<Legal />} />
