@@ -696,7 +696,69 @@ const Auth = () => {
             </div>
           )}
 
+          {/* Gated-beta banner — shown until the user has a server-validated invite. */}
+          {!tokenValid && (
+            <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-start gap-2">
+                <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="text-xs leading-relaxed">
+                  <p className="font-semibold text-foreground">Vyana is in gated beta</p>
+                  <p className="text-muted-foreground mt-0.5">
+                    Sign-in works for existing accounts. New sign-ups (including
+                    Google) require a one-time invite link.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="invite-paste" className="text-xs text-muted-foreground">
+                  Have an invite link? Paste it here
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="invite-paste"
+                    type="text"
+                    inputMode="url"
+                    autoComplete="off"
+                    placeholder="https://www.vyana.care/auth?token=…"
+                    value={pastedInvite}
+                    onChange={(e) => setPastedInvite(e.target.value)}
+                    className="bg-background/70 text-xs h-9"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleValidatePastedInvite}
+                    disabled={validatingPasted || !pastedInvite.trim()}
+                    className="shrink-0"
+                  >
+                    {validatingPasted ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      "Verify"
+                    )}
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Don't have one?{" "}
+                  <Link to="/request-access" className="text-primary hover:underline">
+                    Request access →
+                  </Link>
+                </p>
+              </div>
+            </div>
+          )}
+
+          {tokenValid && (
+            <div className="mb-5 rounded-xl border border-green-500/30 bg-green-500/5 p-3 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+              <p className="text-xs text-foreground">
+                Invite confirmed — you can sign up with email or Google.
+              </p>
+            </div>
+          )}
+
           {/* Vyana is consumer-only, no role selection. */}
+
 
           {/* Auth Mode Toggle (login only) */}
           {!isSignUp && (
