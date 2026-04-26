@@ -122,8 +122,8 @@ const AppHome = () => {
   const firstName = profile?.name?.split(" ")[0] || "there";
   const totalRecords = recordCount + consultationCount;
   const hasRecords = totalRecords > 0;
-  // Soft nudge for the optional-but-recommended fields (DOB + ABHA).
-  const profileIncomplete = !!profile && (!profile.date_of_birth || !profile.national_health_id);
+  // Soft nudge for missing profile fields (name, phone, DOB, ABHA).
+  const profileIncomplete = !!profile && (!profile.name || !profile.phone || !profile.date_of_birth || !profile.national_health_id);
   const showProfileBanner = profileIncomplete && !bannerDismissed && !requiredOpen;
 
   const dismissBanner = () => {
@@ -134,12 +134,8 @@ const AppHome = () => {
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
       {/* Mandatory profile capture — name + phone before using the app */}
-      <Dialog open={requiredOpen} onOpenChange={(open) => { if (!open && !profile?.phone) return; setRequiredOpen(open); }}>
-        <DialogContent
-          className="sm:max-w-md"
-          onInteractOutside={(e) => e.preventDefault()}
-          onEscapeKeyDown={(e) => e.preventDefault()}
-        >
+      <Dialog open={requiredOpen} onOpenChange={setRequiredOpen}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center mb-2">
               <UserCircle2 className="h-6 w-6 text-primary" />
