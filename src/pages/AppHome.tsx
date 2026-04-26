@@ -122,8 +122,8 @@ const AppHome = () => {
   const firstName = profile?.name?.split(" ")[0] || "there";
   const totalRecords = recordCount + consultationCount;
   const hasRecords = totalRecords > 0;
-  // Soft nudge for the optional-but-recommended fields (DOB + ABHA).
-  const profileIncomplete = !!profile && (!profile.date_of_birth || !profile.national_health_id);
+  // Soft nudge for missing profile fields (name, phone, DOB, ABHA).
+  const profileIncomplete = !!profile && (!profile.name || !profile.phone || !profile.date_of_birth || !profile.national_health_id);
   const showProfileBanner = profileIncomplete && !bannerDismissed && !requiredOpen;
 
   const dismissBanner = () => {
