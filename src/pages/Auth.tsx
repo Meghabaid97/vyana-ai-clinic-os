@@ -34,9 +34,29 @@ type PendingSignupDraft = {
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 60; // seconds
 const SIGNUP_DRAFT_KEY = "vyana-signup-draft";
+const VALIDATED_INVITE_KEY = "vyana-validated-invite-token";
 const CUSTOMER_APP_ORIGIN = "https://www.vyana.care";
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/app`;
 const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
+
+type ServerInviteValidation =
+  | { valid: true; email?: string | null; name?: string | null }
+  | { valid: false; reason?: string; error?: string };
+
+const serverValidateInviteToken = async (
+  token: string,
+): Promise<ServerInviteValidation> => {
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      "validate-invite-token",
+      { body: { token } },
+    );
+    if (error) return { valid: false, error: error.message };
+    return (data ?? { valid: false }) as ServerInviteValidation;
+  } catch (e: any) {
+    return { valid: false, error: e?.message ?? "Network error" };
+  }
+};
 
 const getStoredSignupDraft = (): PendingSignupDraft | null => {
   try {
