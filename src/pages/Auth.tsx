@@ -504,15 +504,43 @@ const Auth = () => {
         return;
       }
 
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: WEB_OAUTH_REDIRECT,
+      // Gated beta: Google sign-up is disabled for new users.
+      // Only allow Google sign-in flow when an invite token is present (signup) or for existing users (login).
+      if (isSignUp && !tokenValid) {
+        toast({
+          title: "Invite required",
+          description: "Vyana is in gated beta. Google sign-up needs a valid invite link.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Direct Supabase OAuth flow — works on any host (Vercel, custom domain, lovable.app)
+      // because the redirect round-trip stays on supabase.co, not the Lovable edge proxy.
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: WEB_OAUTH_REDIRECT,
+          queryParams: { prompt: "select_account" },
+        },
       });
-      if (result.error) throw result.error;
-      if (result.redirected) return;
+      if (error) throw error;
+      if (data?.url) {
+        window.location.assign(data.url);
+        return;
+      }
 
       navigate("/app", { replace: true });
     } catch (error: any) {
-      toast({ title: "Authentication Error", description: error.message, variant: "destructive" });
+      const message = error?.message || "Could not start Google sign-in.";
+      const isProxy404 = /404|not[_ ]?found|oauth\/initiate/i.test(message);
+      toast({
+        title: isProxy404 ? "Google sign-in unavailable" : "Authentication Error",
+        description: isProxy404
+          ? "Vyana is in gated beta. Please use email or your invite link to sign in."
+          : message,
+        variant: "destructive",
+      });
     }
   };
 
