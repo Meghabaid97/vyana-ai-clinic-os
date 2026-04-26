@@ -34,9 +34,29 @@ type PendingSignupDraft = {
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 60; // seconds
 const SIGNUP_DRAFT_KEY = "vyana-signup-draft";
+const VALIDATED_INVITE_KEY = "vyana-validated-invite-token";
 const CUSTOMER_APP_ORIGIN = "https://www.vyana.care";
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/app`;
 const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
+
+type ServerInviteValidation =
+  | { valid: true; email?: string | null; name?: string | null }
+  | { valid: false; reason?: string; error?: string };
+
+const serverValidateInviteToken = async (
+  token: string,
+): Promise<ServerInviteValidation> => {
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      "validate-invite-token",
+      { body: { token } },
+    );
+    if (error) return { valid: false, error: error.message };
+    return (data ?? { valid: false }) as ServerInviteValidation;
+  } catch (e: any) {
+    return { valid: false, error: e?.message ?? "Network error" };
+  }
+};
 
 const getStoredSignupDraft = (): PendingSignupDraft | null => {
   try {
@@ -104,11 +124,14 @@ const Auth = () => {
   const inviteToken = searchParams.get("token");
   const [tokenChecked, setTokenChecked] = useState(false);
   const [tokenValid, setTokenValid] = useState(false);
+  const [pastedInvite, setPastedInvite] = useState("");
+  const [validatingPasted, setValidatingPasted] = useState(false);
   const { toast } = useToast();
   useLanguage();
 
-  // Validate invite token on mount. If present + valid → unlock signup.
-  // If absent → only login is allowed (signup tab is hidden).
+  // Validate invite token (from ?token=) on mount via the server-side
+  // edge function. On success, persist the token to sessionStorage so the
+  // post-OAuth callback can re-verify and consume it.
   useEffect(() => {
     let active = true;
     const validate = async () => {
@@ -116,21 +139,16 @@ const Auth = () => {
         setTokenChecked(true);
         return;
       }
-      const { data } = await (supabase as any)
-        .rpc("get_access_request_by_token", { _token: inviteToken })
-        .maybeSingle();
+      const result = await serverValidateInviteToken(inviteToken);
       if (!active) return;
-      if (
-        data &&
-        data.status === "approved" &&
-        !data.token_used_at &&
-        (!data.token_expires_at || new Date(data.token_expires_at) > new Date())
-      ) {
+      if (result.valid) {
         setTokenValid(true);
         setIsSignUp(true);
-        if (data.email) setEmail(data.email);
-        if (data.name) setName(data.name);
+        sessionStorage.setItem(VALIDATED_INVITE_KEY, inviteToken);
+        if (result.email) setEmail(result.email);
+        if (result.name) setName(result.name);
       } else {
+        sessionStorage.removeItem(VALIDATED_INVITE_KEY);
         toast({
           title: "Invite link invalid or expired",
           description: "Please request a new one.",
@@ -142,6 +160,44 @@ const Auth = () => {
     void validate();
     return () => { active = false; };
   }, [inviteToken, toast]);
+
+  // Validate a manually-pasted invite link/token. Accepts either the bare
+  // UUID or the full /auth?token=... URL.
+  const handleValidatePastedInvite = useCallback(async () => {
+    const raw = pastedInvite.trim();
+    if (!raw) return;
+    let token = raw;
+    try {
+      // If the user pasted a full URL, extract the token query param.
+      if (/^https?:\/\//i.test(raw)) {
+        const u = new URL(raw);
+        token = u.searchParams.get("token") ?? raw;
+      }
+    } catch {
+      // ignore — fall through with raw value
+    }
+    setValidatingPasted(true);
+    const result = await serverValidateInviteToken(token);
+    setValidatingPasted(false);
+    if (result.valid) {
+      setTokenValid(true);
+      setIsSignUp(true);
+      sessionStorage.setItem(VALIDATED_INVITE_KEY, token);
+      if (result.email) setEmail(result.email);
+      if (result.name) setName(result.name);
+      toast({
+        title: "Invite confirmed",
+        description: "You can now create your Vyana account.",
+      });
+    } else {
+      sessionStorage.removeItem(VALIDATED_INVITE_KEY);
+      toast({
+        title: "Invite link invalid or expired",
+        description: "Double-check the link or request a new one.",
+        variant: "destructive",
+      });
+    }
+  }, [pastedInvite, toast]);
 
   const buildSignupDraft = useCallback(
     (): PendingSignupDraft => {
@@ -209,6 +265,55 @@ const Auth = () => {
         : roles[0] ?? null;
     const resolvedRole = (primaryRole ?? fallbackRole ?? "patient") as UserRole | "admin" | null;
 
+    // ── Gated-beta gate ──────────────────────────────────────────────────
+    // Block sign-ins for accounts that aren't already in the database
+    // UNLESS the user presented a server-validated invite token.
+    // "Already in the database" = has at least one user_roles row OR an
+    // existing patients row.
+    const hasExistingRole = roles.length > 0;
+    let hasExistingPatient = false;
+    if (!hasExistingRole) {
+      const { data: existingPatientRow } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      hasExistingPatient = !!existingPatientRow;
+    }
+    const isExistingAccount = hasExistingRole || hasExistingPatient;
+
+    if (!isExistingAccount) {
+      // New account — require a server-validated invite token in this session.
+      const validatedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
+      const inviteOk = validatedToken
+        ? await serverValidateInviteToken(validatedToken)
+        : { valid: false as const };
+
+      if (!inviteOk.valid) {
+        // Sign them out so we don't leave a half-provisioned account.
+        await supabase.auth.signOut();
+        sessionStorage.removeItem(VALIDATED_INVITE_KEY);
+        const err = new Error(
+          "Vyana is in gated beta. Sign-up requires a valid invite link.",
+        );
+        (err as any).__gatedBeta = true;
+        throw err;
+      }
+
+      // Token confirmed valid — consume it now (single-use) so it can't be
+      // reused for another account.
+      try {
+        await (supabase as any).rpc("consume_invite_token", {
+          _token: validatedToken,
+        });
+      } catch {
+        // Non-fatal: account creation continues even if consume fails;
+        // expiration still protects.
+      }
+      sessionStorage.removeItem(VALIDATED_INVITE_KEY);
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
     if (roles.length === 0 && resolvedRole && resolvedRole !== "admin") {
       const { error: insertRoleError } = await supabase
         .from("user_roles")
@@ -260,13 +365,17 @@ const Auth = () => {
       await ensureAccountSetup(userId, metadata);
       await redirectBasedOnRole(userId);
     } catch (error: any) {
+      const isGated = error?.__gatedBeta === true;
       toast({
-        title: "Login failed",
+        title: isGated ? "Invite required" : "Login failed",
         description: error?.message ?? "We couldn't finish signing you in.",
         variant: "destructive",
       });
+      if (isGated) {
+        navigate("/request-access", { replace: true });
+      }
     }
-  }, [ensureAccountSetup, redirectBasedOnRole, toast]);
+  }, [ensureAccountSetup, redirectBasedOnRole, toast, navigate]);
 
   // Load attempts from sessionStorage
   useEffect(() => {
@@ -473,7 +582,32 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
+      // Gated-beta gate (sign-up only): server-validate the invite token
+      // RIGHT NOW. Don't trust client-side `tokenValid` state alone — it
+      // could be stale (token consumed in another tab, expired since page
+      // load, etc.). The same edge function is also called again after
+      // OAuth callback inside ensureAccountSetup as a final defense.
       if (isSignUp) {
+        const storedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
+        if (!storedToken) {
+          toast({
+            title: "Invite required",
+            description: "Vyana is in gated beta. Paste your invite link below to sign up with Google.",
+            variant: "destructive",
+          });
+          return;
+        }
+        const check = await serverValidateInviteToken(storedToken);
+        if (!check.valid) {
+          sessionStorage.removeItem(VALIDATED_INVITE_KEY);
+          setTokenValid(false);
+          toast({
+            title: "Invite link invalid or expired",
+            description: "Please request a new invite to continue.",
+            variant: "destructive",
+          });
+          return;
+        }
         setStoredSignupDraft(buildSignupDraft());
       }
 
@@ -486,37 +620,19 @@ const Auth = () => {
           options: {
             redirectTo: NATIVE_OAUTH_REDIRECT,
             skipBrowserRedirect: true,
-            queryParams: {
-              prompt: "select_account",
-            },
+            queryParams: { prompt: "select_account" },
           },
         });
 
         if (error) throw error;
-        if (!data?.url) {
-          throw new Error("Could not start Google sign-in");
-        }
+        if (!data?.url) throw new Error("Could not start Google sign-in");
 
-        await Browser.open({
-          url: data.url,
-          presentationStyle: "popover",
-        });
+        await Browser.open({ url: data.url, presentationStyle: "popover" });
         return;
       }
 
-      // Gated beta: Google sign-up is disabled for new users.
-      // Only allow Google sign-in flow when an invite token is present (signup) or for existing users (login).
-      if (isSignUp && !tokenValid) {
-        toast({
-          title: "Invite required",
-          description: "Vyana is in gated beta. Google sign-up needs a valid invite link.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Direct Supabase OAuth flow — works on any host (Vercel, custom domain, lovable.app)
-      // because the redirect round-trip stays on supabase.co, not the Lovable edge proxy.
+      // Web: direct Supabase OAuth flow — works on any host (Vercel, custom
+      // domain, lovable.app) because the round-trip stays on supabase.co.
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -580,7 +696,69 @@ const Auth = () => {
             </div>
           )}
 
+          {/* Gated-beta banner — shown until the user has a server-validated invite. */}
+          {!tokenValid && (
+            <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-start gap-2">
+                <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="text-xs leading-relaxed">
+                  <p className="font-semibold text-foreground">Vyana is in gated beta</p>
+                  <p className="text-muted-foreground mt-0.5">
+                    Sign-in works for existing accounts. New sign-ups (including
+                    Google) require a one-time invite link.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="invite-paste" className="text-xs text-muted-foreground">
+                  Have an invite link? Paste it here
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="invite-paste"
+                    type="text"
+                    inputMode="url"
+                    autoComplete="off"
+                    placeholder="https://www.vyana.care/auth?token=…"
+                    value={pastedInvite}
+                    onChange={(e) => setPastedInvite(e.target.value)}
+                    className="bg-background/70 text-xs h-9"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleValidatePastedInvite}
+                    disabled={validatingPasted || !pastedInvite.trim()}
+                    className="shrink-0"
+                  >
+                    {validatingPasted ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      "Verify"
+                    )}
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Don't have one?{" "}
+                  <Link to="/request-access" className="text-primary hover:underline">
+                    Request access →
+                  </Link>
+                </p>
+              </div>
+            </div>
+          )}
+
+          {tokenValid && (
+            <div className="mb-5 rounded-xl border border-green-500/30 bg-green-500/5 p-3 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+              <p className="text-xs text-foreground">
+                Invite confirmed — you can sign up with email or Google.
+              </p>
+            </div>
+          )}
+
           {/* Vyana is consumer-only, no role selection. */}
+
 
           {/* Auth Mode Toggle (login only) */}
           {!isSignUp && (
@@ -746,6 +924,13 @@ const Auth = () => {
             <Chrome className="w-5 h-5 mr-2" />
             Google
           </Button>
+          <p className="mt-2 text-[11px] text-muted-foreground text-center leading-relaxed">
+            {tokenValid
+              ? "You'll be redirected to Google to finish creating your account."
+              : isSignUp
+                ? "Google sign-up needs a verified invite link (paste it above)."
+                : "Sign in only — Google sign-up is gated to invited members."}
+          </p>
 
           {/* Toggle: only show if user has valid invite (signup) or is currently signing up */}
           {(tokenValid || !isSignUp) && (
