@@ -124,11 +124,14 @@ const Auth = () => {
   const inviteToken = searchParams.get("token");
   const [tokenChecked, setTokenChecked] = useState(false);
   const [tokenValid, setTokenValid] = useState(false);
+  const [pastedInvite, setPastedInvite] = useState("");
+  const [validatingPasted, setValidatingPasted] = useState(false);
   const { toast } = useToast();
   useLanguage();
 
-  // Validate invite token on mount. If present + valid → unlock signup.
-  // If absent → only login is allowed (signup tab is hidden).
+  // Validate invite token (from ?token=) on mount via the server-side
+  // edge function. On success, persist the token to sessionStorage so the
+  // post-OAuth callback can re-verify and consume it.
   useEffect(() => {
     let active = true;
     const validate = async () => {
@@ -136,21 +139,16 @@ const Auth = () => {
         setTokenChecked(true);
         return;
       }
-      const { data } = await (supabase as any)
-        .rpc("get_access_request_by_token", { _token: inviteToken })
-        .maybeSingle();
+      const result = await serverValidateInviteToken(inviteToken);
       if (!active) return;
-      if (
-        data &&
-        data.status === "approved" &&
-        !data.token_used_at &&
-        (!data.token_expires_at || new Date(data.token_expires_at) > new Date())
-      ) {
+      if (result.valid) {
         setTokenValid(true);
         setIsSignUp(true);
-        if (data.email) setEmail(data.email);
-        if (data.name) setName(data.name);
+        sessionStorage.setItem(VALIDATED_INVITE_KEY, inviteToken);
+        if (result.email) setEmail(result.email);
+        if (result.name) setName(result.name);
       } else {
+        sessionStorage.removeItem(VALIDATED_INVITE_KEY);
         toast({
           title: "Invite link invalid or expired",
           description: "Please request a new one.",
@@ -162,6 +160,44 @@ const Auth = () => {
     void validate();
     return () => { active = false; };
   }, [inviteToken, toast]);
+
+  // Validate a manually-pasted invite link/token. Accepts either the bare
+  // UUID or the full /auth?token=... URL.
+  const handleValidatePastedInvite = useCallback(async () => {
+    const raw = pastedInvite.trim();
+    if (!raw) return;
+    let token = raw;
+    try {
+      // If the user pasted a full URL, extract the token query param.
+      if (/^https?:\/\//i.test(raw)) {
+        const u = new URL(raw);
+        token = u.searchParams.get("token") ?? raw;
+      }
+    } catch {
+      // ignore — fall through with raw value
+    }
+    setValidatingPasted(true);
+    const result = await serverValidateInviteToken(token);
+    setValidatingPasted(false);
+    if (result.valid) {
+      setTokenValid(true);
+      setIsSignUp(true);
+      sessionStorage.setItem(VALIDATED_INVITE_KEY, token);
+      if (result.email) setEmail(result.email);
+      if (result.name) setName(result.name);
+      toast({
+        title: "Invite confirmed",
+        description: "You can now create your Vyana account.",
+      });
+    } else {
+      sessionStorage.removeItem(VALIDATED_INVITE_KEY);
+      toast({
+        title: "Invite link invalid or expired",
+        description: "Double-check the link or request a new one.",
+        variant: "destructive",
+      });
+    }
+  }, [pastedInvite, toast]);
 
   const buildSignupDraft = useCallback(
     (): PendingSignupDraft => {
