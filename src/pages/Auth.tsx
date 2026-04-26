@@ -415,6 +415,30 @@ const Auth = () => {
   useEffect(() => {
     let isMounted = true;
 
+    // Detect OAuth callback errors (e.g., gated-beta trigger blocked signup at the DB level).
+    // Supabase puts these on the URL hash: #error=server_error&error_description=...
+    const hash = window.location.hash || "";
+    if (hash.includes("error")) {
+      const params = new URLSearchParams(hash.startsWith("#") ? hash.slice(1) : hash);
+      const errDesc = params.get("error_description") || params.get("error") || "";
+      const decoded = decodeURIComponent(errDesc).toLowerCase();
+      if (decoded.includes("gated_beta") || decoded.includes("not on the approved")) {
+        // Clear the hash so it doesn't replay on refresh, then send to friendly screen.
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        navigate("/access-pending", { replace: true });
+        return;
+      }
+      if (decoded) {
+        // Generic OAuth failure — surface a toast but stay on the auth page.
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        toast({
+          title: "Sign-in failed",
+          description: decoded.length > 200 ? decoded.slice(0, 200) + "…" : decoded,
+          variant: "destructive",
+        });
+      }
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!isMounted || !session) return;
       void handleAuthenticatedUser(session.user.id, session.user.user_metadata);
@@ -431,7 +455,8 @@ const Auth = () => {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [handleAuthenticatedUser]);
+  }, [handleAuthenticatedUser, navigate, toast]);
+
 
   const recordAttempt = () => {
     const newAttempts = attempts + 1;
