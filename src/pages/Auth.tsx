@@ -924,6 +924,13 @@ const Auth = () => {
             <Chrome className="w-5 h-5 mr-2" />
             Google
           </Button>
+          <p className="mt-2 text-[11px] text-muted-foreground text-center leading-relaxed">
+            {tokenValid
+              ? "You'll be redirected to Google to finish creating your account."
+              : isSignUp
+                ? "Google sign-up needs a verified invite link (paste it above)."
+                : "Sign in only — Google sign-up is gated to invited members."}
+          </p>
 
           {/* Toggle: only show if user has valid invite (signup) or is currently signing up */}
           {(tokenValid || !isSignUp) && (
