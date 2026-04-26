@@ -229,6 +229,55 @@ const Auth = () => {
         : roles[0] ?? null;
     const resolvedRole = (primaryRole ?? fallbackRole ?? "patient") as UserRole | "admin" | null;
 
+    // ── Gated-beta gate ──────────────────────────────────────────────────
+    // Block sign-ins for accounts that aren't already in the database
+    // UNLESS the user presented a server-validated invite token.
+    // "Already in the database" = has at least one user_roles row OR an
+    // existing patients row.
+    const hasExistingRole = roles.length > 0;
+    let hasExistingPatient = false;
+    if (!hasExistingRole) {
+      const { data: existingPatientRow } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      hasExistingPatient = !!existingPatientRow;
+    }
+    const isExistingAccount = hasExistingRole || hasExistingPatient;
+
+    if (!isExistingAccount) {
+      // New account — require a server-validated invite token in this session.
+      const validatedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
+      const inviteOk = validatedToken
+        ? await serverValidateInviteToken(validatedToken)
+        : { valid: false as const };
+
+      if (!inviteOk.valid) {
+        // Sign them out so we don't leave a half-provisioned account.
+        await supabase.auth.signOut();
+        sessionStorage.removeItem(VALIDATED_INVITE_KEY);
+        const err = new Error(
+          "Vyana is in gated beta. Sign-up requires a valid invite link.",
+        );
+        (err as any).__gatedBeta = true;
+        throw err;
+      }
+
+      // Token confirmed valid — consume it now (single-use) so it can't be
+      // reused for another account.
+      try {
+        await (supabase as any).rpc("consume_invite_token", {
+          _token: validatedToken,
+        });
+      } catch {
+        // Non-fatal: account creation continues even if consume fails;
+        // expiration still protects.
+      }
+      sessionStorage.removeItem(VALIDATED_INVITE_KEY);
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
     if (roles.length === 0 && resolvedRole && resolvedRole !== "admin") {
       const { error: insertRoleError } = await supabase
         .from("user_roles")
@@ -280,13 +329,17 @@ const Auth = () => {
       await ensureAccountSetup(userId, metadata);
       await redirectBasedOnRole(userId);
     } catch (error: any) {
+      const isGated = error?.__gatedBeta === true;
       toast({
-        title: "Login failed",
+        title: isGated ? "Invite required" : "Login failed",
         description: error?.message ?? "We couldn't finish signing you in.",
         variant: "destructive",
       });
+      if (isGated) {
+        navigate("/request-access", { replace: true });
+      }
     }
-  }, [ensureAccountSetup, redirectBasedOnRole, toast]);
+  }, [ensureAccountSetup, redirectBasedOnRole, toast, navigate]);
 
   // Load attempts from sessionStorage
   useEffect(() => {
