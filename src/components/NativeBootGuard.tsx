@@ -21,6 +21,7 @@ const PUBLIC_NATIVE_PATHS = new Set<string>([
   "/splash",
   "/auth",
   "/request-access",
+  "/access-pending",
   "/legal",
   "/unsubscribe",
 ]);
