@@ -134,12 +134,8 @@ const AppHome = () => {
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
       {/* Mandatory profile capture — name + phone before using the app */}
-      <Dialog open={requiredOpen} onOpenChange={(open) => { if (!open && !profile?.phone) return; setRequiredOpen(open); }}>
-        <DialogContent
-          className="sm:max-w-md"
-          onInteractOutside={(e) => e.preventDefault()}
-          onEscapeKeyDown={(e) => e.preventDefault()}
-        >
+      <Dialog open={requiredOpen} onOpenChange={setRequiredOpen}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center mb-2">
               <UserCircle2 className="h-6 w-6 text-primary" />
