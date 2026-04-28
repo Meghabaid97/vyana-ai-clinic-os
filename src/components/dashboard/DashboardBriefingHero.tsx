@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Stethoscope, Sparkles, Play, ArrowRight, Clock } from "lucide-react";
+import { Stethoscope, Share2, Play, ArrowRight, Clock } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 
 interface Props {
@@ -73,12 +73,12 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
           {/* Secondary path */}
           <div className="mt-2.5 grid grid-cols-2 gap-2">
             <button
-              onClick={() => navigate("/app/briefing")}
+              onClick={() => navigate("/app/share")}
               style={stage(460)}
               className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-left hover:border-primary/30 transition-colors min-w-0"
             >
-              <Sparkles className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-[12px] font-medium text-foreground truncate">{t("briefingHero.cta.fullBrief")}</span>
+              <Share2 className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-[12px] font-medium text-foreground truncate">Share with doctor</span>
             </button>
             <button
               onClick={() => navigate("/app/briefing?demo=1")}
