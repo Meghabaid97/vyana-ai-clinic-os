@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowRight, X, Sparkles } from "lucide-react";
 
@@ -285,7 +286,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     };
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] animate-fade-in overscroll-none">
       <div className="absolute inset-0 bg-foreground/72" onClick={handleSkip} aria-hidden="true" />
 
@@ -396,7 +397,8 @@ const SpotlightTour = ({ open, onClose }: Props) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
