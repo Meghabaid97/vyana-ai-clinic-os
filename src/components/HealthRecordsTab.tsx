@@ -1077,6 +1077,60 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Personal notes dialog */}
+      <Dialog open={!!notesRecord} onOpenChange={(o) => !o && !isSavingNotes && setNotesRecord(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <StickyNote className="h-4 w-4 text-primary" />
+              Your notes
+            </DialogTitle>
+            <DialogDescription>
+              Add personal context to help you remember this record (e.g. "X-ray after fall on Apr 20, left wrist still sore"). Vyana will use it to enrich the summary.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2 space-y-1.5">
+            <Textarea
+              autoFocus
+              value={notesValue}
+              onChange={(e) => setNotesValue(e.target.value.slice(0, 2000))}
+              placeholder="What should you remember about this report?"
+              rows={5}
+              className="resize-none text-[13px]"
+            />
+            <p className="text-[10.5px] text-muted-foreground text-right">
+              {notesValue.trim().length}/2000
+            </p>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setNotesRecord(null)}
+              disabled={isSavingNotes}
+              className="sm:mr-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => saveNotes(false)}
+              disabled={isSavingNotes}
+            >
+              {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Save only
+            </Button>
+            <Button
+              onClick={() => saveNotes(true)}
+              disabled={isSavingNotes || !notesValue.trim()}
+              title={!notesValue.trim() ? "Add notes first" : "Save and rerun the AI summary with your notes"}
+            >
+              {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+              Save & re-summarize
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
