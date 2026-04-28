@@ -169,17 +169,65 @@ const PatientBriefing = () => {
     return text;
   };
 
-  const shareViaWhatsApp = () => {
-    if (shareState !== "idle") return;
-    setShareState("loading");
-    const text = briefingToText();
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    // Brief "preparing" beat so the AI summary feels assembled, not instant.
-    setTimeout(() => {
-      window.open(url, "_blank");
-      setShareState("success");
-      setTimeout(() => setShareState("idle"), 2000);
-    }, 500);
+  const buildShareMessage = (url: string) =>
+    `${briefingToText()}\n\nView my full secure record (valid 24 hours):\n${url}`;
+
+  const shareViaWhatsApp = async () => {
+    if (sharing) return;
+    setSharing("whatsapp");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      const msg = encodeURIComponent(buildShareMessage(url));
+      window.open(`https://wa.me/?text=${msg}`, "_blank", "noopener,noreferrer");
+    } finally {
+      setSharing(null);
+    }
+  };
+
+  const shareViaEmail = async () => {
+    if (sharing) return;
+    setSharing("email");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      const subject = encodeURIComponent("My health briefing from Vyana");
+      const body = encodeURIComponent(buildShareMessage(url));
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    } finally {
+      setSharing(null);
+    }
+  };
+
+  const shareViaQr = async () => {
+    if (sharing) return;
+    setSharing("qr");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      const dataUrl = await QRCode.toDataURL(url, {
+        width: 480, margin: 1, errorCorrectionLevel: "M",
+        color: { dark: "#0f172a", light: "#ffffff" },
+      });
+      setQrDialog({ url, dataUrl });
+    } catch {
+      toast({ title: t("briefing.toast.linkFail"), variant: "destructive" });
+    } finally {
+      setSharing(null);
+    }
+  };
+
+  const copyShareLink = async () => {
+    if (sharing) return;
+    setSharing("copylink");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      await navigator.clipboard.writeText(url);
+      toast({ title: t("briefing.copied") });
+    } finally {
+      setSharing(null);
+    }
   };
 
   const copyToClipboard = async () => {
