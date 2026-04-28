@@ -74,6 +74,7 @@ interface HealthRecord {
   radiology_recommendations?: string[] | null;
   radiology_provider?: string | null;
   radiology_upload_kind?: string | null;
+  user_notes?: string | null;
 }
 
 interface DoctorForConsent {
