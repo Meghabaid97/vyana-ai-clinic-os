@@ -118,7 +118,7 @@ serve(async (req) => {
     const { data: healthRecords } = await adminClient
       .from("health_records")
       .select("id, file_name, file_path, file_type, uploaded_at, category, ai_summary, document_type, important_findings, medications, allergies, diagnoses, extracted_vitals, ai_confidence, radiology_modality, radiology_body_part, radiology_study_date, radiology_impression, radiology_recommendations, radiology_provider, radiology_upload_kind")
-      .eq("patient_id", contact.patient_id)
+      .eq("patient_id", patientId)
       .order("uploaded_at", { ascending: false })
       .limit(50);
 
