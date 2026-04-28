@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
 import NotificationBell from "@/components/NotificationBell";
+import PullToRefresh from "@/components/PullToRefresh";
 import { useLanguage } from "@/lib/i18n";
 
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
