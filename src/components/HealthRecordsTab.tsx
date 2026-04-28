@@ -110,6 +110,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [radiologyUploadKind, setRadiologyUploadKind] = useState<RadiologyUploadKind>("report_with_optional_films");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const isRadiologyUpload = uploadCategory === "radiology_imaging";
 
