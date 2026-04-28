@@ -856,11 +856,13 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowConsentDialog(false)}>
-              Cancel
+              {doctors.length === 0 ? "Close" : "Cancel"}
             </Button>
-            <Button onClick={saveConsent}>
-              Save Preferences
-            </Button>
+            {doctors.length > 0 && (
+              <Button onClick={saveConsent}>
+                Save Preferences
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
