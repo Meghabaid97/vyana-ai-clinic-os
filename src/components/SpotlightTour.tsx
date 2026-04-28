@@ -183,6 +183,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
         attempts += 1;
         if (attempts >= maxAttempts) {
           setTargetMissing(true);
+          setRect(null);
           return;
         }
         pollTimer = window.setTimeout(tryFind, 100);
@@ -288,7 +289,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
 
     const bottomEdge = rect.top - 12;
     return {
-      top: Math.max(safeTop, bottomEdge - 280),
+        top: Math.min(Math.max(safeTop, bottomEdge - 280), window.innerHeight - safeBottom - 220),
       left,
       width: cardWidth,
       maxHeight: bottomEdge - safeTop,
@@ -321,7 +322,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       {rect && (
         <div
           aria-hidden="true"
-          className="absolute pointer-events-none rounded-[12px] tour-glow"
+          className="absolute z-[101] pointer-events-none rounded-[12px] tour-glow"
           style={{
             top: rect.top,
             left: rect.left,
@@ -332,7 +333,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       )}
 
       <div
-        className="absolute rounded-2xl bg-background border border-border shadow-2xl p-4 sm:p-5 overflow-y-auto"
+        className="absolute z-[102] rounded-2xl bg-background border border-border shadow-2xl p-4 sm:p-5 overflow-y-auto"
         style={getCardStyle()}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
