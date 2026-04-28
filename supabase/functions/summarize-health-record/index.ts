@@ -107,7 +107,7 @@ Return the result by calling the tool.`;
     const userPrompt = `Extract a factual summary from this medical document.
 
 Document: ${fileName}
-Category: ${category || 'unknown'}${isRadiology ? `\nRadiology safety mode: report pages come first, film photos may be attached second. Extract written report findings/impression only, and do not interpret scan imagery. User-selected modality: ${radiologyModality || 'unknown'}.` : ''}
+Category: ${category || 'unknown'}${isRadiology ? `\nRadiology safety mode: report pages come first, film photos may be attached second. Extract written report findings/impression only, and do not interpret scan imagery. User-selected modality: ${radiologyModality || 'unknown'}.` : ''}${trimmedNotes ? `\n\nPatient's personal notes about this document (use these for context, e.g. when/why it was taken, related symptoms, but never invent clinical findings from them):\n"""${trimmedNotes}"""\nIf the notes contain explicit dates, symptoms, or context that aren't in the document, include them in the "notes" field of the output. Do not treat patient notes as diagnostic findings.` : ''}
 
 Need these fields:
 - documentType
