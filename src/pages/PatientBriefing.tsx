@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, Pill, FileText,
-  Share2, Copy, CheckCircle2, Heart, Brain, Stethoscope,
+  Copy, CheckCircle2, Heart, Brain, Stethoscope, MessageCircle, Mail,
   ArrowUp, ArrowDown, Minus, Activity, Play, QrCode, NotebookPen,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BriefingResultSkeleton } from "@/components/ui/page-skeletons";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
-import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
 import { useLanguage } from "@/lib/i18n";
 import { buildEmergencyAccessUrl } from "@/lib/share-url";
@@ -33,15 +33,15 @@ const PatientBriefing = () => {
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [shareState, setShareState] = useState<ButtonState>("idle");
   const [isDemo, setIsDemo] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [shareSheetOpen, setShareSheetOpen] = useState(false);
+  const [qrDialog, setQrDialog] = useState<{ url: string; dataUrl: string } | null>(null);
+  const [sharing, setSharing] = useState<null | "whatsapp" | "email" | "qr" | "copylink">(null);
   const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const createShareLink = async (recipientName: string): Promise<string | null> => {
+  const createShareLink = async (): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       toast({ title: t("briefing.toast.signinTitle"), description: t("briefing.toast.signinDesc"), variant: "destructive" });
@@ -55,7 +55,7 @@ const PatientBriefing = () => {
     }
     const { data, error } = await supabase.from("shared_record_links").insert({
       patient_id: patient.id,
-      recipient_name: recipientName || null,
+      recipient_name: null,
     }).select().single() as { data: { token: string } | null; error: { message: string } | null };
     if (error || !data) {
       toast({ title: t("briefing.toast.linkFail"), description: error?.message ?? "Unknown error", variant: "destructive" });
@@ -169,17 +169,65 @@ const PatientBriefing = () => {
     return text;
   };
 
-  const shareViaWhatsApp = () => {
-    if (shareState !== "idle") return;
-    setShareState("loading");
-    const text = briefingToText();
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    // Brief "preparing" beat so the AI summary feels assembled, not instant.
-    setTimeout(() => {
-      window.open(url, "_blank");
-      setShareState("success");
-      setTimeout(() => setShareState("idle"), 2000);
-    }, 500);
+  const buildShareMessage = (url: string) =>
+    `${briefingToText()}\n\nView my full secure record (valid 24 hours):\n${url}`;
+
+  const shareViaWhatsApp = async () => {
+    if (sharing) return;
+    setSharing("whatsapp");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      const msg = encodeURIComponent(buildShareMessage(url));
+      window.open(`https://wa.me/?text=${msg}`, "_blank", "noopener,noreferrer");
+    } finally {
+      setSharing(null);
+    }
+  };
+
+  const shareViaEmail = async () => {
+    if (sharing) return;
+    setSharing("email");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      const subject = encodeURIComponent("My health briefing from Vyana");
+      const body = encodeURIComponent(buildShareMessage(url));
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    } finally {
+      setSharing(null);
+    }
+  };
+
+  const shareViaQr = async () => {
+    if (sharing) return;
+    setSharing("qr");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      const dataUrl = await QRCode.toDataURL(url, {
+        width: 480, margin: 1, errorCorrectionLevel: "M",
+        color: { dark: "#0f172a", light: "#ffffff" },
+      });
+      setQrDialog({ url, dataUrl });
+    } catch {
+      toast({ title: t("briefing.toast.linkFail"), variant: "destructive" });
+    } finally {
+      setSharing(null);
+    }
+  };
+
+  const copyShareLink = async () => {
+    if (sharing) return;
+    setSharing("copylink");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      await navigator.clipboard.writeText(url);
+      toast({ title: t("briefing.copied") });
+    } finally {
+      setSharing(null);
+    }
   };
 
   const copyToClipboard = async () => {
@@ -296,36 +344,67 @@ const PatientBriefing = () => {
       {/* Briefing display */}
       {briefing && (
         <>
-          {/* Share actions */}
+          {/* Share actions — one tap each, creates secure 24h link in background */}
           <section className="px-5 pb-4">
-            <div className="flex gap-2">
-              <StatefulButton
-                state={shareState}
+            <p className="text-[11px] font-medium text-muted-foreground mb-2">
+              Share securely with your doctor
+            </p>
+            <div className="grid grid-cols-5 gap-2">
+              <Button
                 onClick={shareViaWhatsApp}
                 variant="outline"
-                className="flex-1"
-                loadingLabel={t("briefing.share.preparing")}
-                successLabel={t("briefing.share.opened")}
-                errorLabel={t("briefing.share.try")}
-                idleIcon={<Share2 className="h-4 w-4" />}
+                disabled={isDemo || !!sharing}
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label="Share via WhatsApp"
               >
-                {t("briefing.share.whatsapp")}
-              </StatefulButton>
+                {sharing === "whatsapp" ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
+                WhatsApp
+              </Button>
               <Button
-                onClick={() => setShareSheetOpen(true)}
+                onClick={shareViaEmail}
                 variant="outline"
-                className="gap-1.5"
-                aria-label={t("briefing.share.qrTitle")}
-                disabled={isDemo}
+                disabled={isDemo || !!sharing}
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label="Share via email"
+              >
+                {sharing === "email" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                Email
+              </Button>
+              <Button
+                onClick={shareViaQr}
+                variant="outline"
+                disabled={isDemo || !!sharing}
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label="Show QR code"
                 title={isDemo ? t("briefing.share.qrDisabled") : t("briefing.share.qrEnabled")}
               >
-                <QrCode className="h-4 w-4" />
+                {sharing === "qr" ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode className="h-4 w-4" />}
+                QR
               </Button>
-              <Button onClick={copyToClipboard} variant="outline" className="gap-2" aria-label={t("briefing.share.copy")}>
-                {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+              <Button
+                onClick={copyShareLink}
+                variant="outline"
+                disabled={isDemo || !!sharing}
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label="Copy secure link"
+              >
+                {sharing === "copylink" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+                Link
               </Button>
-              <Button onClick={generateBriefing} variant="outline" size="icon" disabled={isLoading} aria-label={t("briefing.share.regenerate")}>
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              <Button
+                onClick={copyToClipboard}
+                variant="outline"
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label={t("briefing.share.copy")}
+              >
+                {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <FileText className="h-4 w-4" />}
+                Text
+              </Button>
+            </div>
+            <div className="mt-2 flex justify-end">
+              <Button onClick={generateBriefing} variant="ghost" size="sm" disabled={isLoading} aria-label={t("briefing.share.regenerate")} className="h-7 text-[11px] text-muted-foreground gap-1">
+                {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {t("briefing.share.regenerate")}
               </Button>
             </div>
           </section>
@@ -532,11 +611,37 @@ const PatientBriefing = () => {
         </>
       )}
 
-      <ShareCeremonySheet
-        open={shareSheetOpen}
-        onOpenChange={setShareSheetOpen}
-        onCreate={createShareLink}
-      />
+      {/* QR dialog — shown after a secure link is created */}
+      <Dialog open={!!qrDialog} onOpenChange={(o) => !o && setQrDialog(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Scan to open</DialogTitle>
+            <DialogDescription>
+              Have the doctor scan this code with their phone camera. Link expires in 24 hours.
+            </DialogDescription>
+          </DialogHeader>
+          {qrDialog && (
+            <div className="flex flex-col items-center gap-3">
+              <div className="rounded-xl border border-border bg-white p-3">
+                <img src={qrDialog.dataUrl} alt="QR code" className="h-56 w-56" />
+              </div>
+              <p className="text-[12px] text-muted-foreground text-center break-all px-4">
+                {qrDialog.url}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(qrDialog.url);
+                  toast({ title: t("briefing.copied") });
+                }}
+              >
+                <Copy className="h-3.5 w-3.5 mr-1" /> Copy link
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
