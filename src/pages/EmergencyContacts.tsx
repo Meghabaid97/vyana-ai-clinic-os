@@ -277,6 +277,19 @@ const EmergencyContacts = () => {
           </CardContent>
         </Card>
 
+        {/* Warning */}
+        <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-200">{t("ec.important")}</p>
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                {t("ec.warning")}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Add Contact Button */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -461,19 +474,6 @@ const EmergencyContacts = () => {
             </Card>
           </div>
         )}
-
-        {/* Warning */}
-        <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-amber-800 dark:text-amber-200">{t("ec.important")}</p>
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                {t("ec.warning")}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
