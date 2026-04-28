@@ -180,7 +180,10 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       }
 
       try {
-        el.scrollIntoView({ block: "center", inline: "nearest", behavior: "auto" });
+        const isFixedNavTarget = el.closest("header, nav") !== null;
+        if (!isFixedNavTarget) {
+          el.scrollIntoView({ block: "center", inline: "nearest", behavior: "auto" });
+        }
       } catch {
       }
 
