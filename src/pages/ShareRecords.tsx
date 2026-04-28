@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode, MessageCircle, Mail,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
@@ -25,6 +27,7 @@ const ShareRecords = () => {
   const [loading, setLoading] = useState(true);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [qrLink, setQrLink] = useState<{ url: string; dataUrl: string; recipient: string } | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -80,6 +83,16 @@ const ShareRecords = () => {
     const subject = encodeURIComponent("My health records from Vyana");
     const body = encodeURIComponent(shareMessage(token));
     window.location.href = `mailto:${recipient ?? ""}?subject=${subject}&body=${body}`;
+  };
+
+  const showQr = async (token: string, recipient: string | null) => {
+    const url = buildEmergencyAccessUrl(token);
+    try {
+      const dataUrl = await QRCode.toDataURL(url, { width: 320, margin: 1, errorCorrectionLevel: "M" });
+      setQrLink({ url, dataUrl, recipient: recipient || t("share.linkLabel") });
+    } catch {
+      toast({ title: "Could not generate QR", variant: "destructive" });
+    }
   };
 
   const isExpired = (expiresAt: string) => new Date(expiresAt) < new Date();
@@ -193,6 +206,15 @@ const ShareRecords = () => {
                         <Mail className="h-3.5 w-3.5" />
                       </Button>
                       <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => showQr(link.token, link.recipient_name)}
+                        aria-label="Show QR code"
+                        className="h-8 w-8"
+                      >
+                        <QrCode className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
                         size="sm"
                         variant="outline"
                         onClick={() => copyLink(link.token)}
@@ -216,6 +238,38 @@ const ShareRecords = () => {
         onCreate={createLink}
         onComplete={loadLinks}
       />
+
+      {/* QR code dialog */}
+      <Dialog open={!!qrLink} onOpenChange={(o) => !o && setQrLink(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Scan to open</DialogTitle>
+            <DialogDescription>
+              Have the doctor scan this code with their phone camera. The link expires in 24 hours.
+            </DialogDescription>
+          </DialogHeader>
+          {qrLink && (
+            <div className="flex flex-col items-center gap-3">
+              <div className="rounded-xl border border-border bg-white p-3">
+                <img src={qrLink.dataUrl} alt="QR code" className="h-56 w-56" />
+              </div>
+              <p className="text-[12px] text-muted-foreground text-center break-all px-4">
+                {qrLink.url}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(qrLink.url);
+                  toast({ title: t("share.copied"), description: t("share.copiedDesc") });
+                }}
+              >
+                <Copy className="h-3.5 w-3.5 mr-1" /> {t("share.copy")}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
