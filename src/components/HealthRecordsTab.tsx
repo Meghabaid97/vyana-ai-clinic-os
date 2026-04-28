@@ -21,6 +21,8 @@ import {
   Link2,
   MessageCircle,
   ArrowRight,
+  ExternalLink,
+  Pencil,
 } from "lucide-react";
 import {
   Dialog,
