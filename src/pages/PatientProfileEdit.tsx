@@ -16,17 +16,25 @@ interface PatientProfileData {
   id: string;
   name: string;
   age: number | null;
+  date_of_birth: string | null;
   phone: string | null;
   national_health_id: string | null;
   next_visit_date: string | null;
 }
+
+const calculateAgeFromDob = (dob: string | null | undefined): number | null => {
+  if (!dob) return null;
+  const d = new Date(dob);
+  if (Number.isNaN(d.getTime())) return null;
+  return Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+};
 
 const PatientProfileEdit = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [profile, setProfile] = useState<PatientProfileData | null>(null);
   const [email, setEmail] = useState("");
-  const [formData, setFormData] = useState({ name: "", age: "", phone: "", national_health_id: "" });
+  const [formData, setFormData] = useState({ name: "", date_of_birth: "", phone: "", national_health_id: "" });
   const [stats, setStats] = useState({ totalConsultations: 0, totalDoctors: 0, lastVisit: null as string | null });
   const [editMode, setEditMode] = useState(false);
   const [accountMode, setAccountMode] = useState(false);
@@ -49,7 +57,8 @@ const PatientProfileEdit = () => {
       if (patientData) {
         setProfile(patientData);
         setFormData({
-          name: patientData.name || "", age: patientData.age?.toString() || "",
+          name: patientData.name || "",
+          date_of_birth: patientData.date_of_birth || "",
           phone: patientData.phone || "", national_health_id: patientData.national_health_id || "",
         });
         if (patientData.national_health_id) {
@@ -75,7 +84,9 @@ const PatientProfileEdit = () => {
     setIsSaving(true);
     try {
       const { error } = await supabase.from("patients").update({
-        name: formData.name, age: formData.age ? parseInt(formData.age) : null,
+        name: formData.name,
+        date_of_birth: formData.date_of_birth || null,
+        age: calculateAgeFromDob(formData.date_of_birth),
         phone: formData.phone || null, national_health_id: formData.national_health_id || null,
       }).eq("id", profile.id);
       if (error) throw error;
@@ -324,8 +335,11 @@ const PatientProfileEdit = () => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="age" className="text-xs text-muted-foreground">{t("prof.field.age")}</Label>
-                <Input id="age" type="number" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} />
+                <Label htmlFor="dob" className="text-xs text-muted-foreground">Date of birth</Label>
+                <Input id="dob" type="date" max={new Date().toISOString().split("T")[0]} value={formData.date_of_birth} onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })} />
+                {formData.date_of_birth && calculateAgeFromDob(formData.date_of_birth) !== null && (
+                  <p className="text-[10px] text-muted-foreground">Age: {calculateAgeFromDob(formData.date_of_birth)} years</p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="phone" className="text-xs text-muted-foreground">{t("prof.field.phone")}</Label>
