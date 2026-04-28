@@ -230,37 +230,17 @@ const AppHome = () => {
           <LatestVitalsStrip patientId={profile?.id ?? null} />
         </div>
 
-        {/* Quick actions — Share + Emergency, sit beside vitals on desktop */}
-        <section className="px-4 sm:px-5 pb-5 lg:col-span-2 lg:px-0 lg:pb-0 lg:self-start">
-          <h3 className="hidden lg:block text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("home.quickActions")}</h3>
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
-            <button
-              onClick={() => navigate("/app/share")}
-              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
-            >
-              <Link2 className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">{t("home.shareDoctor")}</span>
-            </button>
-            <button
-              data-tour="emergency-quick-action"
-              onClick={() => navigate("/app/emergency-contacts")}
-              className="group flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-left hover:border-primary/30 transition-colors min-w-0"
-            >
-              <Shield className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-[12.5px] lg:text-sm font-medium text-foreground truncate">{t("home.emergencyAccess")}</span>
-            </button>
-          </div>
-
-          {/* ABHA prompt — desktop only, fills the right column under quick actions */}
-          {!profile?.national_health_id && (
-            <div className="mt-4 hidden lg:block rounded-xl p-4 border border-primary/20 bg-primary/5">
+        {/* ABHA prompt — desktop only, fills the right column beside vitals */}
+        {!profile?.national_health_id && (
+          <section className="px-4 sm:px-5 pb-5 lg:col-span-2 lg:px-0 lg:pb-0 lg:self-start">
+            <div className="hidden lg:block rounded-xl p-4 border border-primary/20 bg-primary/5">
               <h3 className="font-bold text-sm text-foreground">{t("home.abha.title")}</h3>
               <p className="text-muted-foreground text-[13px] leading-relaxed mt-1">
                 {t("home.abha.body")}
               </p>
             </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* Story so far — full width below vitals row */}
         <section className="px-4 sm:px-6 pb-5 lg:col-span-6 lg:px-0 lg:pb-0">
