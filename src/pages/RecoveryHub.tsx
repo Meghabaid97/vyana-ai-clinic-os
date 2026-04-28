@@ -530,17 +530,16 @@ const ClaimAssistant = () => {
               <div key={cat.id} className={`rounded-xl border bg-card p-3 transition-colors ${hasDoc ? "border-primary/30" : "border-border"}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    {hasDoc ? (
-                      <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Check className="h-3.5 w-3.5 text-primary" />
-                      </div>
-                    ) : (
-                      <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center">
-                        <Circle className="h-3.5 w-3.5 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{t(cat.labelKey)}</p>
+                     <div className="relative h-7 w-7 rounded-lg bg-muted/60 flex items-center justify-center shrink-0">
+                       <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                       {hasDoc && (
+                         <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-primary flex items-center justify-center ring-2 ring-card">
+                           <Check className="h-2 w-2 text-primary-foreground" strokeWidth={3} />
+                         </span>
+                       )}
+                     </div>
+                     <div>
+                       <p className="text-sm font-medium text-foreground">{t(cat.labelKey)}</p>
                       {catDocs.length > 0 && (
                         <p className="text-[11px] text-muted-foreground">{t(catDocs.length === 1 ? "rec.files" : "rec.filesPlural", { count: catDocs.length })}</p>
                       )}
@@ -596,16 +595,15 @@ const ClaimAssistant = () => {
               <div key={cat.id} className={`rounded-xl border bg-card p-3 transition-colors ${hasDoc ? "border-primary/30" : "border-border"}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    {hasDoc ? (
-                      <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Check className="h-3.5 w-3.5 text-primary" />
-                      </div>
-                    ) : (
-                      <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center">
-                        <Circle className="h-3.5 w-3.5 text-muted-foreground" />
-                      </div>
-                    )}
-                    <p className="text-sm font-medium text-foreground">{t(cat.labelKey)}</p>
+                     <div className="relative h-7 w-7 rounded-lg bg-muted/60 flex items-center justify-center shrink-0">
+                       <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                       {hasDoc && (
+                         <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-primary flex items-center justify-center ring-2 ring-card">
+                           <Check className="h-2 w-2 text-primary-foreground" strokeWidth={3} />
+                         </span>
+                       )}
+                     </div>
+                     <p className="text-sm font-medium text-foreground">{t(cat.labelKey)}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Button
