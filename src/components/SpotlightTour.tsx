@@ -16,7 +16,49 @@ const STEPS: TourStep[] = [
     path: "/app",
     eyebrow: "Welcome to Vyana",
     title: "Welcome, this is your health home.",
-    body: "Vyana keeps your records, vitals and medications in one place so you never have to explain your medical history again. Tap Briefing before any doctor visit. You can replay this from the help icon in the top bar.",
+    body: "Vyana keeps your records, vitals and medications in one place so you never have to explain your medical history again. We'll show you around the key tabs in 30 seconds.",
+  },
+  {
+    target: '[data-tour="nav-home"]',
+    path: "/app",
+    eyebrow: "Home",
+    title: "Your daily health snapshot.",
+    body: "Start here every day. See your story, reminders and quick actions at a glance.",
+  },
+  {
+    target: '[data-tour="nav-briefing"]',
+    path: "/app",
+    eyebrow: "Briefing",
+    title: "Open this before any doctor visit.",
+    body: "Vyana generates a one-page clinical briefing of your history, vitals and meds, ready to share on WhatsApp.",
+  },
+  {
+    target: '[data-tour="nav-trends"]',
+    path: "/app",
+    eyebrow: "Trends",
+    title: "Track vitals and lab results over time.",
+    body: "BP, sugar, cholesterol, thyroid and 30+ markers, plotted automatically from your uploaded reports.",
+  },
+  {
+    target: '[data-tour="nav-records"]',
+    path: "/app",
+    eyebrow: "Records",
+    title: "All your reports in one place.",
+    body: "Upload prescriptions, lab reports or X-rays. Vyana extracts and summarises them so you never explain your history again.",
+  },
+  {
+    target: '[data-tour="nav-claims"]',
+    path: "/app",
+    eyebrow: "Recovery & Claims",
+    title: "Recover faster, file claims easier.",
+    body: "Get post-discharge guidance and a step-by-step assistant to file insurance claims from your discharge papers.",
+  },
+  {
+    target: '[data-tour="nav-profile"]',
+    path: "/app",
+    eyebrow: "Profile",
+    title: "Your identity and settings.",
+    body: "Manage your ABHA Health ID, emergency contacts, language and family access. You can replay this tour any time from the help icon.",
   },
 ];
 
@@ -261,19 +303,20 @@ const SpotlightTour = ({ open, onClose }: Props) => {
           </mask>
         </defs>
         <rect width="100%" height="100%" fill="hsl(var(--foreground) / 0.72)" mask="url(#spotlight-mask)" />
-        {rect && (
-          <rect
-            x={rect.left}
-            y={rect.top}
-            width={rect.width}
-            height={rect.height}
-            rx={12}
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth={2}
-          />
-        )}
       </svg>
+
+      {rect && (
+        <div
+          aria-hidden="true"
+          className="absolute pointer-events-none rounded-[12px] tour-glow"
+          style={{
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+          }}
+        />
+      )}
 
       <div
         className="absolute rounded-2xl bg-background border border-border shadow-2xl p-4 sm:p-5 overflow-y-auto"
