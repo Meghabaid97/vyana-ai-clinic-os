@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode, MessageCircle, Mail,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
@@ -25,6 +27,7 @@ const ShareRecords = () => {
   const [loading, setLoading] = useState(true);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [qrLink, setQrLink] = useState<{ url: string; dataUrl: string; recipient: string } | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -193,6 +196,14 @@ const ShareRecords = () => {
                         <Mail className="h-3.5 w-3.5" />
                       </Button>
                       <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => showQr(link.token, link.recipient_name)}
+                        aria-label="Show QR code"
+                        className="h-8 w-8"
+                      >
+                        <QrCode className="h-3.5 w-3.5" />
+                      </Button>
                         size="sm"
                         variant="outline"
                         onClick={() => copyLink(link.token)}
