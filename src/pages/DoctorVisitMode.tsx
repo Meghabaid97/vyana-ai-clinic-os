@@ -530,40 +530,11 @@ const DoctorVisitMode = () => {
             </section>
           )}
 
-          {/* 5. Share */}
+          {/* Regenerate */}
           <section className="pt-2 pb-6">
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">5</span>
-                <h3 className="text-[13px] font-bold text-foreground">Share with your doctor</h3>
-              </div>
-              <div className="grid grid-cols-5 gap-2">
-                <Button onClick={shareViaWhatsAppLink} size="sm" variant="outline" disabled={isDemo || !!sharing} className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Share via WhatsApp">
-                  {sharing === "whatsapp" ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
-                  WhatsApp
-                </Button>
-                <Button onClick={shareViaEmail} size="sm" variant="outline" disabled={isDemo || !!sharing} className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Share via email">
-                  {sharing === "email" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                  Email
-                </Button>
-                <Button onClick={shareViaQr} size="sm" variant="outline" disabled={isDemo || !!sharing} className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Show QR" title={isDemo ? "QR sharing isn't available for sample data" : "Show QR for doctor to scan"}>
-                  {sharing === "qr" ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode className="h-4 w-4" />}
-                  QR
-                </Button>
-                <Button onClick={copyShareLink} size="sm" variant="outline" disabled={isDemo || !!sharing} className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Copy secure link">
-                  {sharing === "copylink" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
-                  Link
-                </Button>
-                <Button onClick={downloadTxt} size="sm" variant="outline" className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Save as file">
-                  <FileDown className="h-4 w-4" />
-                  Save
-                </Button>
-              </div>
-              <p className="mt-3 text-[10.5px] text-muted-foreground leading-snug">
-                AI generated summary for clinical discussion. Always defer to your doctor for medical decisions.
-              </p>
-            </div>
-
+            <p className="text-[10.5px] text-muted-foreground leading-snug text-center px-4">
+              AI generated summary for clinical discussion. Always defer to your doctor for medical decisions.
+            </p>
             <Button
               onClick={generate}
               disabled={loading}
@@ -577,6 +548,56 @@ const DoctorVisitMode = () => {
           </section>
         </>
       )}
+
+      {/* Share options popup */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Share with your doctor</DialogTitle>
+            <DialogDescription className="text-[12px]">
+              Choose how you'd like to share your visit brief. Links expire in 24 hours.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-2 pt-2">
+            <Button
+              variant="outline"
+              disabled={!!sharing}
+              onClick={async () => { setShareDialogOpen(false); await shareViaWhatsAppLink(); }}
+              className="h-20 flex-col gap-1.5 text-[11px] font-medium"
+            >
+              {sharing === "whatsapp" ? <Loader2 className="h-5 w-5 animate-spin" /> : <MessageCircle className="h-5 w-5 text-primary" />}
+              WhatsApp
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!!sharing}
+              onClick={async () => { setShareDialogOpen(false); await shareViaEmail(); }}
+              className="h-20 flex-col gap-1.5 text-[11px] font-medium"
+            >
+              {sharing === "email" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Mail className="h-5 w-5 text-primary" />}
+              Email
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!!sharing}
+              onClick={async () => { setShareDialogOpen(false); await shareViaQr(); }}
+              className="h-20 flex-col gap-1.5 text-[11px] font-medium"
+            >
+              {sharing === "qr" ? <Loader2 className="h-5 w-5 animate-spin" /> : <QrCode className="h-5 w-5 text-primary" />}
+              QR code
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!!sharing}
+              onClick={async () => { setShareDialogOpen(false); await copyShareLink(); }}
+              className="h-20 flex-col gap-1.5 text-[11px] font-medium"
+            >
+              {sharing === "copylink" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Copy className="h-5 w-5 text-primary" />}
+              Copy link
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* QR dialog — shown after a secure link is created */}
       <Dialog open={!!qrDialog} onOpenChange={(o) => !o && setQrDialog(null)}>
