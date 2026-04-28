@@ -52,7 +52,8 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
 
-    const { fileName, fileType, fileContent, category, radiologyModality, radiologyUploadKind } = await req.json();
+    const { fileName, fileType, fileContent, category, radiologyModality, radiologyUploadKind, userNotes } = await req.json();
+    const trimmedNotes = typeof userNotes === 'string' ? userNotes.trim().slice(0, 2000) : '';
 
     console.log('Summarizing health record:', fileName, fileType);
 
