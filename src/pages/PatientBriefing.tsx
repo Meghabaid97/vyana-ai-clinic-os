@@ -60,7 +60,7 @@ const PatientBriefing = () => {
       toast({ title: t("briefing.toast.linkFail"), description: error?.message ?? "Unknown error", variant: "destructive" });
       return null;
     }
-    return `${window.location.origin}/emergency-access/${data.token}`;
+    return buildEmergencyAccessUrl(data.token);
   };
 
   // Honour ?demo=1 deep link from home "Try sample data"

@@ -71,7 +71,7 @@ const DoctorVisitMode = () => {
       toast({ title: "Could not create link", description: error?.message ?? "Unknown error", variant: "destructive" });
       return null;
     }
-    return `${window.location.origin}/emergency-access/${data.token}`;
+    return buildEmergencyAccessUrl(data.token);
   };
   // Auto-load demo via ?demo=1
   useEffect(() => {
