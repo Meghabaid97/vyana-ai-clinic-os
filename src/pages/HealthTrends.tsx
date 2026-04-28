@@ -145,7 +145,19 @@ const HealthTrends = () => {
         .eq("patient_id", patient.id)
         .order("uploaded_at", { ascending: false });
 
-      setRecords((r || []) as HealthRecord[]);
+      // Sort by clinical report date when available so the "latest" record reflects
+      // the most recent report, not the most recently uploaded file.
+      const sorted = ((r || []) as HealthRecord[]).slice().sort((a, b) => {
+        const aDate = a.radiology_study_date
+          ? new Date(`${a.radiology_study_date}T12:00:00Z`).getTime()
+          : new Date(a.uploaded_at).getTime();
+        const bDate = b.radiology_study_date
+          ? new Date(`${b.radiology_study_date}T12:00:00Z`).getTime()
+          : new Date(b.uploaded_at).getTime();
+        return bDate - aDate;
+      });
+
+      setRecords(sorted);
 
       // Load vital history for longitudinal view
       const { data: vh } = await supabase
