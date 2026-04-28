@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Stethoscope, Share2, Play, ArrowRight, Clock } from "lucide-react";
+import { Stethoscope, Share2, Shield, ArrowRight, Clock } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 
 interface Props {
@@ -81,12 +81,12 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
               <span className="text-[12px] font-medium text-foreground truncate">Share with doctor</span>
             </button>
             <button
-              onClick={() => navigate("/app/briefing?demo=1")}
+              onClick={() => navigate("/app/emergency-contacts")}
               style={stage(540)}
               className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-left hover:border-primary/30 transition-colors min-w-0"
             >
-              <Play className="h-4 w-4 text-primary fill-current shrink-0" />
-              <span className="text-[12px] font-medium text-foreground truncate">{t("briefingHero.cta.sampleData")}</span>
+              <Shield className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-[12px] font-medium text-foreground truncate">Emergency access</span>
             </button>
           </div>
         </div>
