@@ -1082,20 +1082,20 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       <Dialog open={!!notesRecord} onOpenChange={(o) => !o && !isSavingNotes && setNotesRecord(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <StickyNote className="h-4 w-4 text-primary" />
+            <DialogTitle className="flex items-center gap-2 text-[16px]">
+              <StickyNote className="h-4 w-4 text-primary shrink-0" />
               Your notes
             </DialogTitle>
-            <DialogDescription>
-              Add personal context to help you remember this record (e.g. "X-ray after fall on Apr 20, left wrist still sore"). Vyana will use it to enrich the summary.
+            <DialogDescription className="text-[12.5px] leading-relaxed">
+              Add personal context to help you remember this record. Vyana will use it to enrich the summary.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-2 space-y-1.5">
+          <div className="space-y-1.5">
             <Textarea
               autoFocus
               value={notesValue}
               onChange={(e) => setNotesValue(e.target.value.slice(0, 2000))}
-              placeholder="What should you remember about this report?"
+              placeholder={`e.g. "X-ray after fall on Apr 20, left wrist still sore"`}
               rows={5}
               className="resize-none text-[13px]"
             />
@@ -1103,32 +1103,35 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
               {notesValue.trim().length}/2000
             </p>
           </div>
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setNotesRecord(null)}
-              disabled={isSavingNotes}
-              className="sm:mr-auto"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => saveNotes(false)}
-              disabled={isSavingNotes}
-            >
-              {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Save only
-            </Button>
+          <div className="flex flex-col gap-2 pt-1">
             <Button
               onClick={() => saveNotes(true)}
               disabled={isSavingNotes || !notesValue.trim()}
+              className="w-full gap-2"
               title={!notesValue.trim() ? "Add notes first" : "Save and rerun the AI summary with your notes"}
             >
-              {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+              {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               Save & re-summarize
             </Button>
-          </DialogFooter>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setNotesRecord(null)}
+                disabled={isSavingNotes}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => saveNotes(false)}
+                disabled={isSavingNotes}
+                className="flex-1"
+              >
+                Save only
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
