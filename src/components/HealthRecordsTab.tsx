@@ -23,6 +23,7 @@ import {
   ArrowRight,
   ExternalLink,
   Pencil,
+  StickyNote,
 } from "lucide-react";
 import {
   Dialog,
