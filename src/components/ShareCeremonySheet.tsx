@@ -3,22 +3,18 @@ import QRCode from "qrcode";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Lock, Clock, Check, FileText, MessageCircle, Copy, Loader2, QrCode, ArrowLeft } from "lucide-react";
+import {
+  Clock, Check, MessageCircle, Copy, Loader2, QrCode, Mail, Link2, ArrowLeft,
+} from "lucide-react";
 
-type Stage =
-  | "form"        // ask for recipient name
-  | "packaging"   // card folds
-  | "locking"    // lock clicks shut
-  | "timing"      // 24h timer starts ticking
-  | "ready"       // copied to WhatsApp
-  | "qr";         // show QR code for doctor to scan
+type Stage = "form" | "creating" | "ready" | "qr";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Async creator. Should return the share URL once persisted. */
   onCreate: (recipientName: string) => Promise<string | null>;
-  /** Called once the ceremony completes successfully. */
+  /** Called once the link is created successfully. */
   onComplete?: () => void;
 }
 
@@ -60,51 +56,39 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
     return () => { cancelled = true; };
   }, [stage, shareUrl]);
 
-  const runCeremony = async () => {
+  const createLink = async () => {
     setError(null);
-    setStage("packaging");
-
-    // 1. Card folds (packaging) — 700ms
-    await new Promise((r) => setTimeout(r, 700));
-
-    // Kick off the actual create in parallel with the ceremony
-    const createPromise = onCreate(recipientName.trim());
-
-    // 2. Lock clicks shut — 600ms
-    setStage("locking");
-    await new Promise((r) => setTimeout(r, 600));
-
-    // 3. Timer starts ticking — 700ms
-    setStage("timing");
-    await new Promise((r) => setTimeout(r, 700));
-
-    // Wait for the actual link to be ready (already running in background)
-    const url = await createPromise;
+    setStage("creating");
+    const url = await onCreate(recipientName.trim());
     if (!url) {
       setError("Could not create your share link. Please try again.");
       setStage("form");
       return;
     }
     setShareUrl(url);
-
-    // Try to copy to clipboard so the user can paste into WhatsApp
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
     } catch {
       setCopied(false);
     }
-
     setStage("ready");
     onComplete?.();
   };
 
+  const shareMessage = (url: string) =>
+    `Here are my health records (secure link, valid 24 hours): ${url}`;
+
   const openWhatsApp = () => {
     if (!shareUrl) return;
-    const msg = encodeURIComponent(
-      `Here are my health records, valid for 24 hours:\n${shareUrl}`,
-    );
-    window.open(`https://wa.me/?text=${msg}`, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareMessage(shareUrl))}`, "_blank", "noopener,noreferrer");
+  };
+
+  const openEmail = () => {
+    if (!shareUrl) return;
+    const subject = encodeURIComponent("My health records from Vyana");
+    const body = encodeURIComponent(shareMessage(shareUrl));
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
   const copyAgain = async () => {
@@ -125,14 +109,15 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
       >
         <div className="mx-auto h-1 w-10 rounded-full bg-muted mb-4" aria-hidden />
 
-        {stage === "form" ? (
+        {/* ============ FORM ============ */}
+        {stage === "form" && (
           <div className="px-6">
             <SheetHeader className="text-left space-y-1.5">
               <SheetTitle className="text-[20px] font-bold tracking-[-0.01em]">
                 Share with your doctor
               </SheetTitle>
               <SheetDescription className="text-[13px] text-muted-foreground leading-relaxed">
-                We'll package your briefing into a secure link that expires in 24 hours.
+                We'll create a secure link to your briefing that expires in 24 hours.
               </SheetDescription>
             </SheetHeader>
 
@@ -146,21 +131,86 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
                 onChange={(e) => setRecipientName(e.target.value)}
                 autoFocus
               />
-              {error && (
-                <p className="text-[12px] text-destructive">{error}</p>
-              )}
+              {error && <p className="text-[12px] text-destructive">{error}</p>}
             </div>
 
             <div className="mt-6 flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button className="flex-1" onClick={runCeremony}>
-                Package & share
+              <Button className="flex-1" onClick={createLink}>
+                Create secure link
               </Button>
             </div>
           </div>
-        ) : stage === "qr" ? (
+        )}
+
+        {/* ============ CREATING ============ */}
+        {stage === "creating" && (
+          <div className="px-6 py-10 flex flex-col items-center gap-3">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <p className="text-[13px] text-muted-foreground">Creating your secure link…</p>
+          </div>
+        )}
+
+        {/* ============ READY ============ */}
+        {stage === "ready" && shareUrl && (
+          <div className="px-6">
+            {/* Link card — same visual language as Share Records list */}
+            <div className="rounded-xl border border-primary/20 bg-card p-4">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Link2 className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[13px] font-semibold text-foreground truncate">
+                      {recipientName.trim() || "Secure link"}
+                    </p>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide bg-green-500/10 text-green-700 border border-green-500/20 rounded px-1.5 py-0.5">
+                      Active
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[11px] text-muted-foreground">Expires in 24 hours</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action row — mirrors /app/share buttons */}
+            <div className="mt-4 grid grid-cols-4 gap-2">
+              <Button variant="outline" size="sm" onClick={openWhatsApp} className="h-10 flex-col gap-0.5 text-[10px] font-medium">
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </Button>
+              <Button variant="outline" size="sm" onClick={openEmail} className="h-10 flex-col gap-0.5 text-[10px] font-medium">
+                <Mail className="h-4 w-4" />
+                Email
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setStage("qr")} className="h-10 flex-col gap-0.5 text-[10px] font-medium">
+                <QrCode className="h-4 w-4" />
+                QR
+              </Button>
+              <Button variant="outline" size="sm" onClick={copyAgain} className="h-10 flex-col gap-0.5 text-[10px] font-medium">
+                {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                {copied ? "Copied" : "Copy"}
+              </Button>
+            </div>
+
+            <p className="mt-3 text-center text-[11px] text-muted-foreground">
+              {copied ? "Link copied to your clipboard." : "Choose how you want to share."}
+            </p>
+
+            <Button className="mt-5 w-full" onClick={() => onOpenChange(false)}>
+              Done
+            </Button>
+          </div>
+        )}
+
+        {/* ============ QR ============ */}
+        {stage === "qr" && (
           <div className="px-6">
             <div className="flex items-center justify-between mb-3">
               <button
@@ -170,11 +220,11 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
                 <ArrowLeft className="h-3.5 w-3.5" /> Back
               </button>
               <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
-                <Clock className="h-3 w-3 share-timer-tick" /> Expires in 24h
+                <Clock className="h-3 w-3" /> Expires in 24h
               </span>
             </div>
 
-            <div className="mx-auto flex h-[260px] w-[260px] items-center justify-center rounded-2xl border border-border bg-background p-4 shadow-sm animate-tab-content-in">
+            <div className="mx-auto flex h-[260px] w-[260px] items-center justify-center rounded-2xl border border-border bg-background p-4 shadow-sm">
               {qrDataUrl ? (
                 <img
                   src={qrDataUrl}
@@ -193,136 +243,9 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
               Their phone camera will open your records. No app needed.
             </p>
 
-            <div className="mt-5 flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={copyAgain}>
-                {copied ? <Check className="h-4 w-4 mr-1.5" /> : <Copy className="h-4 w-4 mr-1.5" />}
-                {copied ? "Copied" : "Copy link"}
-              </Button>
-              <Button className="flex-1" onClick={() => onOpenChange(false)}>
-                Done
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="px-6">
-            {/* Stage visual */}
-            <div className="relative mx-auto h-[180px] w-full max-w-[280px] flex items-center justify-center">
-              {/* Card folding */}
-              <div
-                className="absolute inset-x-6 top-2 rounded-2xl border border-primary/20 bg-card shadow-sm transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                style={{
-                  transformOrigin: "top center",
-                  transform:
-                    stage === "packaging"
-                      ? "scaleY(1) translateY(0)"
-                      : "scaleY(0.45) translateY(-6px)",
-                  opacity: stage === "packaging" ? 1 : 0.55,
-                  height: 120,
-                }}
-                aria-hidden
-              >
-                <div className="flex items-center gap-2 px-4 pt-3">
-                  <FileText className="h-4 w-4 text-primary" />
-                  <span className="text-[11px] font-semibold text-foreground">
-                    Clinical briefing
-                  </span>
-                </div>
-                <div className="px-4 pt-3 space-y-1.5">
-                  <div className="h-1.5 w-3/4 rounded-full bg-muted" />
-                  <div className="h-1.5 w-1/2 rounded-full bg-muted" />
-                  <div className="h-1.5 w-2/3 rounded-full bg-muted" />
-                </div>
-              </div>
-
-              {/* Lock */}
-              <div
-                className="absolute inset-x-0 top-[60px] flex justify-center transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                style={{
-                  opacity: stage === "locking" || stage === "timing" || stage === "ready" ? 1 : 0,
-                  transform:
-                    stage === "locking" || stage === "timing" || stage === "ready"
-                      ? "scale(1) translateY(0)"
-                      : "scale(0.7) translateY(8px)",
-                }}
-                aria-hidden
-              >
-                <div className="h-14 w-14 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-center">
-                  <Lock className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-
-              {/* Timer ring */}
-              <div
-                className="absolute inset-x-0 bottom-2 flex justify-center transition-all duration-500 ease-out"
-                style={{
-                  opacity: stage === "timing" || stage === "ready" ? 1 : 0,
-                  transform:
-                    stage === "timing" || stage === "ready"
-                      ? "translateY(0)"
-                      : "translateY(8px)",
-                }}
-                aria-hidden
-              >
-                <div className="flex items-center gap-1.5 rounded-full bg-muted/70 border border-border px-3 py-1.5">
-                  <Clock className="h-3.5 w-3.5 text-primary share-timer-tick" />
-                  <span className="text-[11px] font-semibold text-foreground tabular-nums">
-                    24:00:00 left
-                  </span>
-                </div>
-              </div>
-
-              {/* Success check */}
-              <div
-                className="absolute inset-0 flex items-center justify-center transition-all duration-400 ease-out"
-                style={{
-                  opacity: stage === "ready" ? 1 : 0,
-                  transform: stage === "ready" ? "scale(1)" : "scale(0.6)",
-                }}
-                aria-hidden
-              >
-                <div className="h-16 w-16 rounded-full bg-status-normal/15 border border-status-normal/40 flex items-center justify-center">
-                  <Check className="h-8 w-8 text-status-normal" strokeWidth={3} />
-                </div>
-              </div>
-            </div>
-
-            {/* Stage label */}
-            <p className="mt-2 text-center text-[13px] font-medium text-foreground min-h-[20px]">
-              {stage === "packaging" && "Packaging your briefing…"}
-              {stage === "locking" && "Locking it down…"}
-              {stage === "timing" && "Starting 24-hour timer…"}
-              {stage === "ready" && (copied ? "Copied. Ready to share on WhatsApp." : "Ready to share.")}
-            </p>
-
-            {stage === "ready" && (
-              <>
-                <div className="mt-5 flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={copyAgain}>
-                    {copied ? <Check className="h-4 w-4 mr-1.5" /> : <Copy className="h-4 w-4 mr-1.5" />}
-                    {copied ? "Copied" : "Copy link"}
-                  </Button>
-                  <Button className="flex-1" onClick={openWhatsApp}>
-                    <MessageCircle className="h-4 w-4 mr-1.5" />
-                    Open WhatsApp
-                  </Button>
-                </div>
-                <Button
-                  variant="secondary"
-                  className="mt-3 w-full gap-1.5 bg-primary/10 text-primary hover:bg-primary/15"
-                  onClick={() => setStage("qr")}
-                >
-                  <QrCode className="h-4 w-4" />
-                  Show QR for doctor to scan
-                </Button>
-              </>
-            )}
-
-            {(stage === "packaging" || stage === "locking" || stage === "timing") && (
-              <div className="mt-5 flex items-center justify-center gap-2 text-[12px] text-muted-foreground">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Securing the link
-              </div>
-            )}
+            <Button className="mt-5 w-full" onClick={() => onOpenChange(false)}>
+              Done
+            </Button>
           </div>
         )}
       </SheetContent>
