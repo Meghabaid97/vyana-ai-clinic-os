@@ -571,6 +571,56 @@ const PatientBriefing = () => {
         </>
       )}
 
+      {/* Share options popup */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Share with your doctor</DialogTitle>
+            <DialogDescription>
+              Creates a secure link that expires in 24 hours.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <Button
+              onClick={async () => { setShareDialogOpen(false); await shareViaWhatsApp(); }}
+              variant="outline"
+              disabled={!!sharing}
+              className="h-20 flex-col gap-1.5 text-[12px] font-medium"
+            >
+              {sharing === "whatsapp" ? <Loader2 className="h-5 w-5 animate-spin" /> : <MessageCircle className="h-5 w-5 text-primary" />}
+              WhatsApp
+            </Button>
+            <Button
+              onClick={async () => { setShareDialogOpen(false); await shareViaEmail(); }}
+              variant="outline"
+              disabled={!!sharing}
+              className="h-20 flex-col gap-1.5 text-[12px] font-medium"
+            >
+              {sharing === "email" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Mail className="h-5 w-5 text-primary" />}
+              Email
+            </Button>
+            <Button
+              onClick={async () => { setShareDialogOpen(false); await shareViaQr(); }}
+              variant="outline"
+              disabled={!!sharing}
+              className="h-20 flex-col gap-1.5 text-[12px] font-medium"
+            >
+              {sharing === "qr" ? <Loader2 className="h-5 w-5 animate-spin" /> : <QrCode className="h-5 w-5 text-primary" />}
+              QR code
+            </Button>
+            <Button
+              onClick={async () => { setShareDialogOpen(false); await copyShareLink(); }}
+              variant="outline"
+              disabled={!!sharing}
+              className="h-20 flex-col gap-1.5 text-[12px] font-medium"
+            >
+              {sharing === "copylink" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Copy className="h-5 w-5 text-primary" />}
+              Copy link
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* QR dialog — shown after a secure link is created */}
       <Dialog open={!!qrDialog} onOpenChange={(o) => !o && setQrDialog(null)}>
         <DialogContent className="sm:max-w-sm">
