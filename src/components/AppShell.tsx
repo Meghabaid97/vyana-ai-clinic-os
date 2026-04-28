@@ -148,9 +148,16 @@ const AppShell = () => {
   const firstName = patientName.split(" ")[0];
 
   const handleSignOut = async () => {
-    const { signOutFully } = await import("@/lib/signOut");
-    await signOutFully();
-    navigate("/auth", { replace: true });
+    try {
+      const { signOutFully } = await import("@/lib/signOut");
+      await signOutFully();
+    } finally {
+      // Hard reload to /auth so all in-memory state (React Query cache,
+      // AppShell session listeners, lazy chunks) is fully reset. This
+      // fixes "logout did nothing" cases where stale listeners re-hydrated
+      // a cached session right after signOut.
+      window.location.replace("/auth");
+    }
   };
 
   const handleLocationChange = async (newLocation: { pincode: string; city: string; latitude?: number; longitude?: number }) => {
