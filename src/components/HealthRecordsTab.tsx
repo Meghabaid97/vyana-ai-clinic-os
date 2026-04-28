@@ -21,6 +21,8 @@ import {
   Link2,
   MessageCircle,
   ArrowRight,
+  ExternalLink,
+  Pencil,
 } from "lucide-react";
 import {
   Dialog,
@@ -40,6 +42,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { RecordsTabSkeleton } from "@/components/ui/page-skeletons";
 import { RECORD_CATEGORIES, type RecordCategory } from "@/lib/recordCategories";
@@ -108,6 +111,10 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [uploadCategory, setUploadCategory] = useState<RecordCategory>("discharge_summary");
   const [radiologyModality, setRadiologyModality] = useState<string>("CT");
   const [radiologyUploadKind, setRadiologyUploadKind] = useState<RadiologyUploadKind>("report_with_optional_films");
+  const [renamingRecord, setRenamingRecord] = useState<HealthRecord | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [isOpeningFile, setIsOpeningFile] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -415,6 +422,60 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     }
   };
 
+  const openOriginalFile = async (record: HealthRecord) => {
+    setIsOpeningFile(record.id);
+    try {
+      const { data, error } = await supabase.storage
+        .from("health-records")
+        .createSignedUrl(record.file_path, 300);
+      if (error || !data?.signedUrl) throw error || new Error("No URL");
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (e: any) {
+      console.error("Open file failed:", e);
+      toast({ title: "Couldn't open file", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setIsOpeningFile(null);
+    }
+  };
+
+  const startRename = (record: HealthRecord) => {
+    setRenamingRecord(record);
+    setRenameValue(record.file_name);
+  };
+
+  const submitRename = async () => {
+    if (!renamingRecord) return;
+    const trimmed = renameValue.trim();
+    if (!trimmed) {
+      toast({ title: "Name can't be empty", variant: "destructive" });
+      return;
+    }
+    if (trimmed.length > 200) {
+      toast({ title: "Name is too long", description: "Keep it under 200 characters.", variant: "destructive" });
+      return;
+    }
+    if (trimmed === renamingRecord.file_name) {
+      setRenamingRecord(null);
+      return;
+    }
+    setIsRenaming(true);
+    try {
+      const { error } = await supabase
+        .from("health_records")
+        .update({ file_name: trimmed })
+        .eq("id", renamingRecord.id);
+      if (error) throw error;
+      setRecords((rs) => rs.map((r) => (r.id === renamingRecord.id ? { ...r, file_name: trimmed } : r)));
+      toast({ title: "Renamed" });
+      setRenamingRecord(null);
+    } catch (e: any) {
+      console.error("Rename failed:", e);
+      toast({ title: "Rename failed", description: e.message ?? "Please try again.", variant: "destructive" });
+    } finally {
+      setIsRenaming(false);
+    }
+  };
+
   const deleteRecord = async (record: HealthRecord) => {
     try {
       await supabase.storage.from("health-records").remove([record.file_path]);
@@ -709,6 +770,31 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => openOriginalFile(record)}
+                          disabled={isOpeningFile === record.id}
+                          className="h-8 w-8 rounded-full"
+                          aria-label="Open original file"
+                          title="Open original file"
+                        >
+                          {isOpeningFile === record.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : (
+                            <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => startRename(record)}
+                          className="h-8 w-8 rounded-full"
+                          aria-label="Rename"
+                          title="Rename"
+                        >
+                          <Pencil className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => openConsentDialog(record)}
                           className="h-8 w-8 rounded-full"
                           aria-label="Share"
@@ -903,6 +989,40 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename dialog */}
+      <Dialog open={!!renamingRecord} onOpenChange={(o) => !o && setRenamingRecord(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-4 w-4 text-primary" />
+              Rename file
+            </DialogTitle>
+            <DialogDescription>
+              Give this record a name that's easy to recognize later.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Input
+              autoFocus
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              maxLength={200}
+              placeholder="e.g. Blood test, Jan 2025"
+              onKeyDown={(e) => { if (e.key === "Enter") submitRename(); }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenamingRecord(null)} disabled={isRenaming}>
+              Cancel
+            </Button>
+            <Button onClick={submitRename} disabled={isRenaming}>
+              {isRenaming ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Save
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
