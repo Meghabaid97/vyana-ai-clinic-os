@@ -370,23 +370,36 @@ const EmergencyAccess = () => {
             </Card>
           ) : (
             <div className="space-y-2 mb-5">
-              {summary.healthRecords.map(r => (
-                <Card key={r.id}>
-                  <CardContent className="p-3.5">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-sm font-medium truncate">{r.file_name}</span>
-                      <span className="text-[11px] text-muted-foreground shrink-0">
-                        {new Date(r.uploaded_at).toLocaleDateString("en-IN", {
-                          day: "numeric", month: "short", year: "numeric"
-                        })}
-                      </span>
-                    </div>
-                    {r.ai_summary && (
-                      <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{r.ai_summary}</p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+              {summary.healthRecords.map(r => {
+                const Wrapper: any = r.file_url ? "a" : "div";
+                const wrapperProps = r.file_url
+                  ? { href: r.file_url, target: "_blank", rel: "noreferrer", className: "block" }
+                  : {};
+                return (
+                  <Wrapper key={r.id} {...wrapperProps}>
+                    <Card className={r.file_url ? "transition-colors hover:border-primary/40 hover:bg-muted/30 cursor-pointer" : ""}>
+                      <CardContent className="p-3.5">
+                        <div className="flex items-center justify-between gap-2 mb-0.5">
+                          <span className="text-sm font-medium truncate flex-1">{r.file_name}</span>
+                          <span className="text-[11px] text-muted-foreground shrink-0">
+                            {new Date(r.uploaded_at).toLocaleDateString("en-IN", {
+                              day: "numeric", month: "short", year: "numeric"
+                            })}
+                          </span>
+                        </div>
+                        {r.ai_summary && (
+                          <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{r.ai_summary}</p>
+                        )}
+                        {r.file_url && (
+                          <p className="text-[10px] font-medium text-primary mt-1.5 inline-flex items-center gap-1">
+                            {t("ea.openFile") || "Open file"}
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Wrapper>
+                );
+              })}
             </div>
           )}
 
