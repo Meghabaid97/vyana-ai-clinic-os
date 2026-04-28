@@ -319,13 +319,14 @@ const HealthTrends = () => {
       if (error) throw error;
       setAnalysisResult(data);
 
-      // Save vitals to history
+      // Save vitals to history (use the date on the report itself when known)
       if (data?.vitals) {
         await saveVitalHistory(
-          latestRecord.id,
-          latestRecord.file_name,
+          safeLatestRecord.id,
+          safeLatestRecord.file_name,
           data.vitals,
-          data.confidence || "medium"
+          data.confidence || "medium",
+          safeLatestRecord.radiology_study_date ?? null,
         );
       }
     } catch (err) {
