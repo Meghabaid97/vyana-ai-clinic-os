@@ -119,7 +119,7 @@ Need these fields:
 - allergies: only explicitly listed allergies or adverse reactions
 - vitals: only numerical measurements explicitly written in the document
 - recommendations: only explicitly written follow-up or recommendations
-- studyDate: only explicit study/report date in YYYY-MM-DD if visible, otherwise null
+- studyDate: the date printed on the report itself (study date, collection date, report date, sample date) in YYYY-MM-DD if visible, otherwise null. This is the clinical date of the report, NOT today's date and NOT the upload date.
 - provider: doctor, radiologist, clinic, hospital, or imaging centre name if visible
 - notes: any other explicit notes needed for context
 - confidence: high, medium, or low based on readability only
