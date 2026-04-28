@@ -85,7 +85,16 @@ const ShareRecords = () => {
     window.location.href = `mailto:${recipient ?? ""}?subject=${subject}&body=${body}`;
   };
 
-  const isExpired = (expiresAt: string) => new Date(expiresAt) < new Date();
+  const showQr = async (token: string, recipient: string | null) => {
+    const url = buildEmergencyAccessUrl(token);
+    try {
+      const dataUrl = await QRCode.toDataURL(url, { width: 320, margin: 1, errorCorrectionLevel: "M" });
+      setQrLink({ url, dataUrl, recipient: recipient || t("share.linkLabel") });
+    } catch {
+      toast({ title: "Could not generate QR", variant: "destructive" });
+    }
+  };
+
 
   if (loading) {
     return (
