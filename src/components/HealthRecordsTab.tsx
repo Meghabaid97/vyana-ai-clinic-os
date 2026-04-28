@@ -991,6 +991,40 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Rename dialog */}
+      <Dialog open={!!renamingRecord} onOpenChange={(o) => !o && setRenamingRecord(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-4 w-4 text-primary" />
+              Rename file
+            </DialogTitle>
+            <DialogDescription>
+              Give this record a name that's easy to recognize later.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Input
+              autoFocus
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              maxLength={200}
+              placeholder="e.g. Blood test, Jan 2025"
+              onKeyDown={(e) => { if (e.key === "Enter") submitRename(); }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenamingRecord(null)} disabled={isRenaming}>
+              Cancel
+            </Button>
+            <Button onClick={submitRename} disabled={isRenaming}>
+              {isRenaming ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
