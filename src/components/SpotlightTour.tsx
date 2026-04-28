@@ -167,11 +167,13 @@ const SpotlightTour = ({ open, onClose }: Props) => {
         setTargetMissing(true);
         return;
       }
+      const paddedWidth = Math.min(r.width + PADDING * 2, window.innerWidth - 16);
+      const paddedHeight = Math.min(r.height + PADDING * 2, window.innerHeight - 16);
       setRect({
-        top: Math.max(8, r.top - PADDING),
-        left: Math.max(8, r.left - PADDING),
-        width: r.width + PADDING * 2,
-        height: r.height + PADDING * 2,
+        top: Math.max(8, Math.min(r.top - PADDING, window.innerHeight - paddedHeight - 8)),
+        left: Math.max(8, Math.min(r.left - PADDING, window.innerWidth - paddedWidth - 8)),
+        width: paddedWidth,
+        height: paddedHeight,
       });
     };
 
