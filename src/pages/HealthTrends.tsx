@@ -31,6 +31,7 @@ type HealthRecord = {
   ai_summary: string | null;
   uploaded_at: string;
   updated_at?: string;
+  radiology_study_date?: string | null;
 };
 
 interface AnalysisResult {
