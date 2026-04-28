@@ -87,6 +87,7 @@ const HealthTrends = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     void loadTrends();
@@ -514,9 +515,16 @@ const HealthTrends = () => {
                 </p>
               </div>
             </div>
-            <p className="text-[12px] font-medium text-primary">
+            <p className="text-[12px] font-medium text-primary mb-3">
               {t("trends.preview.uploadCta", { what: records.length === 0 ? t("trends.preview.twoReports") : t("trends.preview.oneMore") })}
             </p>
+            <button
+              onClick={() => navigate("/app/records?upload=1")}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground text-[13px] font-semibold py-2.5 hover:bg-primary/90 transition-colors active:scale-[0.98]"
+            >
+              <Upload className="h-4 w-4" />
+              Upload reports
+            </button>
           </div>
         </section>
       )}
