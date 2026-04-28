@@ -249,7 +249,8 @@ const AskVyanaModal = ({ open, initialQuestion, onClose }: Props) => {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
