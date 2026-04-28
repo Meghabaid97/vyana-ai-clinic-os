@@ -210,16 +210,31 @@ const HealthTrends = () => {
       throw new Error(error?.message || t("trends.toast.summarizeErr"));
     }
 
+    // Persist report date (date printed on the document) when the AI extracts it.
+    const reportDate: string | null =
+      (typeof data.reportDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.reportDate) && data.reportDate) ||
+      (typeof data?.radiology?.studyDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.radiology.studyDate) && data.radiology.studyDate) ||
+      null;
+
+    const updatePayload: Record<string, unknown> = { ai_summary: data.summary };
+    if (reportDate && !record.radiology_study_date) {
+      updatePayload.radiology_study_date = reportDate;
+    }
+
     const { error: updateError } = await supabase
       .from("health_records")
-      .update({ ai_summary: data.summary })
+      .update(updatePayload)
       .eq("id", record.id);
 
     if (updateError) {
       throw new Error(updateError.message || t("trends.toast.saveErr"));
     }
 
-    const updatedRecord = { ...record, ai_summary: data.summary };
+    const updatedRecord = {
+      ...record,
+      ai_summary: data.summary,
+      radiology_study_date: record.radiology_study_date || reportDate || null,
+    };
     setRecords((prev) => prev.map((item) => (item.id === record.id ? updatedRecord : item)));
     return updatedRecord;
   };
