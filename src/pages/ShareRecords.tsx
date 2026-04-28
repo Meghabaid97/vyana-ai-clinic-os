@@ -238,6 +238,38 @@ const ShareRecords = () => {
         onCreate={createLink}
         onComplete={loadLinks}
       />
+
+      {/* QR code dialog */}
+      <Dialog open={!!qrLink} onOpenChange={(o) => !o && setQrLink(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Scan to open</DialogTitle>
+            <DialogDescription>
+              Have the doctor scan this code with their phone camera. The link expires in 24 hours.
+            </DialogDescription>
+          </DialogHeader>
+          {qrLink && (
+            <div className="flex flex-col items-center gap-3">
+              <div className="rounded-xl border border-border bg-white p-3">
+                <img src={qrLink.dataUrl} alt="QR code" className="h-56 w-56" />
+              </div>
+              <p className="text-[12px] text-muted-foreground text-center break-all px-4">
+                {qrLink.url}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(qrLink.url);
+                  toast({ title: t("share.copied"), description: t("share.copiedDesc") });
+                }}
+              >
+                <Copy className="h-3.5 w-3.5 mr-1" /> {t("share.copy")}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
