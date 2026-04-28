@@ -191,7 +191,6 @@ const PatientProfileEdit = () => {
   }
 
   const menuItems = [
-    { icon: FileText, label: t("prof.menu.history"), desc: t("prof.menu.historyDesc"), path: "/app/medical-history" as string | null, onClick: undefined as undefined | (() => void) },
     { icon: KeyRound, label: t("prof.menu.account"), desc: t("prof.menu.accountDesc"), path: null as string | null, onClick: () => setAccountMode(!accountMode) },
     { icon: Shield, label: t("prof.menu.emergency"), desc: t("prof.menu.emergencyDesc"), path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
     { icon: Bell, label: t("prof.menu.notifications"), desc: t("prof.menu.notificationsDesc"), path: null as string | null, onClick: undefined as undefined | (() => void) },

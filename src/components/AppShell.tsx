@@ -41,7 +41,7 @@ const buildSubRouteTitles = (t: (k: string, p?: any) => string): Record<string, 
   "/app/share": t("app.sub.share"),
   "/app/story": t("app.sub.story"),
   "/app/support": t("app.sub.support"),
-  "/app/medical-history": t("app.sub.medicalHistory"),
+  
   "/app/emergency-contacts": t("app.sub.emergencyContacts"),
   "/app/visit": t("app.sub.visit"),
   "/app/journal": t("app.sub.journal"),
