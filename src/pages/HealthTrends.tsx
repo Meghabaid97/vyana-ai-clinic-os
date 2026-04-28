@@ -750,7 +750,7 @@ const HealthTrends = () => {
                       const offBand = vital.status !== "normal" && vital.status !== "none";
                       const tone = offBand && vital.status !== "none" ? STATUS_TONE[vital.status] : null;
                       return (
-                        <div id={`vital-${vital.key}`} className="rounded-xl border border-border bg-card p-3.5 flex items-center gap-3 cursor-pointer hover:border-primary/30 transition-colors scroll-mt-24">
+                        <div id={`vital-${vital.key}`} className={`rounded-xl border border-border bg-card p-3.5 flex items-center gap-3 scroll-mt-24 transition-colors ${hasValue ? "cursor-pointer hover:border-primary/30" : "cursor-default"}`}>
                           <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${tone ? tone.track : "bg-primary/10"}`}>
                             <vital.icon className={`h-4 w-4 ${offBand ? statusColor(vital.status) : "text-primary"}`} />
                           </div>
