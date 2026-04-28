@@ -208,6 +208,58 @@ const DoctorVisitMode = () => {
     a.click(); URL.revokeObjectURL(url);
   };
 
+  const shareMessage = (url: string) =>
+    `${briefingToText()}\n\nView my full secure record (valid 24 hours):\n${url}`;
+
+  const shareViaWhatsAppLink = async () => {
+    if (sharing) return;
+    setSharing("whatsapp");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareMessage(url))}`, "_blank", "noopener,noreferrer");
+    } finally { setSharing(null); }
+  };
+
+  const shareViaEmail = async () => {
+    if (sharing) return;
+    setSharing("email");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      const subject = encodeURIComponent("My health briefing from Vyana");
+      const body = encodeURIComponent(shareMessage(url));
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    } finally { setSharing(null); }
+  };
+
+  const shareViaQr = async () => {
+    if (sharing) return;
+    setSharing("qr");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      const dataUrl = await QRCode.toDataURL(url, {
+        width: 480, margin: 1, errorCorrectionLevel: "M",
+        color: { dark: "#0f172a", light: "#ffffff" },
+      });
+      setQrDialog({ url, dataUrl });
+    } catch {
+      toast({ title: "Could not generate QR", variant: "destructive" });
+    } finally { setSharing(null); }
+  };
+
+  const copyShareLink = async () => {
+    if (sharing) return;
+    setSharing("copylink");
+    try {
+      const url = await createShareLink();
+      if (!url) return;
+      await navigator.clipboard.writeText(url);
+      toast({ title: "Secure link copied" });
+    } finally { setSharing(null); }
+  };
+
   const activeMeds = briefing?.current_medications.filter(m => m.status !== "stopped") ?? [];
 
   return (
