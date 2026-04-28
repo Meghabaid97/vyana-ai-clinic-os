@@ -139,25 +139,33 @@ const PatientProfileEdit = () => {
   const handleReferFriend = async () => {
     const shareData = {
       title: "Vyana",
-      text: "I’m using Vyana to keep my family’s health story ready for every doctor visit. Try it:",
+      text: "I'm using Vyana to keep my family's health story ready for every doctor visit. Try it:",
       url: WEB_APP_URL,
     };
+    const fallbackText = `${shareData.text} ${shareData.url}`;
 
-    try {
-      if (typeof navigator !== "undefined" && (navigator as any).share) {
+    // Try native share first (mobile / supported browsers)
+    if (typeof navigator !== "undefined" && typeof (navigator as any).share === "function") {
+      try {
         await (navigator as any).share(shareData);
+        return; // success
+      } catch (err: any) {
+        // User cancelled — exit silently. Any other error → fall through to copy.
+        if (err?.name === "AbortError") return;
+      }
+    }
+
+    // Clipboard fallback
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(fallbackText);
+        toast({ title: t("prof.share.inviteCopied"), description: t("prof.share.inviteCopiedDesc") });
         return;
       }
-    } catch {
-      return;
-    }
+    } catch { /* fall through */ }
 
-    try {
-      await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-      toast({ title: t("prof.share.inviteCopied"), description: t("prof.share.inviteCopiedDesc") });
-    } catch {
-      toast({ title: t("prof.share.referLink"), description: WEB_APP_URL });
-    }
+    // Last resort — show the link in a toast so the user can copy manually
+    toast({ title: t("prof.share.referLink"), description: WEB_APP_URL });
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -193,7 +201,6 @@ const PatientProfileEdit = () => {
   const menuItems = [
     { icon: KeyRound, label: t("prof.menu.account"), desc: t("prof.menu.accountDesc"), path: null as string | null, onClick: () => setAccountMode(!accountMode) },
     { icon: Shield, label: t("prof.menu.emergency"), desc: t("prof.menu.emergencyDesc"), path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
-    { icon: Bell, label: t("prof.menu.notifications"), desc: t("prof.menu.notificationsDesc"), path: null as string | null, onClick: undefined as undefined | (() => void) },
     { icon: Lock, label: t("prof.menu.privacy"), desc: t("prof.menu.privacyDesc"), path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
   ];
 
