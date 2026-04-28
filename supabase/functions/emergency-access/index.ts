@@ -26,40 +26,73 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Find the emergency contact by token
-    const { data: contact, error: contactError } = await adminClient
-      .from("emergency_contacts")
-      .select("id, patient_id, is_active, contact_name, relationship")
-      .eq("access_token", access_token)
-      .single();
+    // 1. Try doctor share link (shared_record_links) first — these expire after 24h
+    const { data: shareLink } = await adminClient
+      .from("shared_record_links")
+      .select("id, patient_id, expires_at, recipient_name")
+      .eq("token", access_token)
+      .maybeSingle();
 
-    if (contactError || !contact) {
-      return new Response(JSON.stringify({ error: "Invalid or expired access link" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    let patientId: string | null = null;
+    let viewerName = "Doctor";
+    let viewerRelationship = "Doctor";
+    let logSource: "share_link" | "emergency_contact" = "share_link";
+    let shareLinkId: string | null = null;
+    let emergencyContactId: string | null = null;
+
+    if (shareLink) {
+      if (new Date(shareLink.expires_at).getTime() < Date.now()) {
+        return new Response(JSON.stringify({ error: "This share link has expired. Ask the patient to send a fresh link." }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      patientId = shareLink.patient_id;
+      viewerName = shareLink.recipient_name || "Doctor";
+      viewerRelationship = "Doctor";
+      shareLinkId = shareLink.id;
+    } else {
+      // 2. Fall back to emergency contact token
+      const { data: contact, error: contactError } = await adminClient
+        .from("emergency_contacts")
+        .select("id, patient_id, is_active, contact_name, relationship")
+        .eq("access_token", access_token)
+        .maybeSingle();
+
+      if (contactError || !contact) {
+        return new Response(JSON.stringify({ error: "Invalid or expired access link" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (!contact.is_active) {
+        return new Response(JSON.stringify({ error: "This emergency access has been deactivated by the patient" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      patientId = contact.patient_id;
+      viewerName = contact.contact_name;
+      viewerRelationship = contact.relationship;
+      emergencyContactId = contact.id;
+      logSource = "emergency_contact";
     }
 
-    if (!contact.is_active) {
-      return new Response(JSON.stringify({ error: "This emergency access has been deactivated by the patient" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Log the access
+    // Log the access (best-effort; don't fail request if logging errors)
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || null;
-    await adminClient.from("emergency_access_logs").insert({
-      emergency_contact_id: contact.id,
-      patient_id: contact.patient_id,
-      ip_address: ip,
-    });
+    if (logSource === "emergency_contact" && emergencyContactId) {
+      await adminClient.from("emergency_access_logs").insert({
+        emergency_contact_id: emergencyContactId,
+        patient_id: patientId,
+        ip_address: ip,
+      });
+    }
 
     // Fetch patient info
     const { data: patient } = await adminClient
       .from("patients")
       .select("name, age, phone, national_health_id, weight, city")
-      .eq("id", contact.patient_id)
+      .eq("id", patientId)
       .single();
 
     if (!patient) {
@@ -85,7 +118,7 @@ serve(async (req) => {
     const { data: healthRecords } = await adminClient
       .from("health_records")
       .select("id, file_name, file_path, file_type, uploaded_at, category, ai_summary, document_type, important_findings, medications, allergies, diagnoses, extracted_vitals, ai_confidence, radiology_modality, radiology_body_part, radiology_study_date, radiology_impression, radiology_recommendations, radiology_provider, radiology_upload_kind")
-      .eq("patient_id", contact.patient_id)
+      .eq("patient_id", patientId)
       .order("uploaded_at", { ascending: false })
       .limit(50);
 
@@ -99,7 +132,7 @@ serve(async (req) => {
     const { data: activeMedicationReminders } = await adminClient
       .from("medication_reminders")
       .select("medication_name, dosage, frequency, time_slots, notes")
-      .eq("patient_id", contact.patient_id)
+      .eq("patient_id", patientId)
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(30);
@@ -110,8 +143,8 @@ serve(async (req) => {
       phone: patient.phone,
       weight: patient.weight,
       city: patient.city,
-      emergencyContactName: contact.contact_name,
-      emergencyContactRelationship: contact.relationship,
+      emergencyContactName: viewerName,
+      emergencyContactRelationship: viewerRelationship,
       consultationCount: consultations.length,
       recordCount: healthRecords?.length || 0,
       consultations,
