@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import {
   Loader2, User, Phone, Shield, Save, ChevronRight, LogOut,
-  FileText, Heart, Calendar, Bell, HelpCircle, BookOpen, Star,
+  FileText, Heart, Calendar, HelpCircle, BookOpen, Star,
   Lock, MapPin, Share2, KeyRound,
 } from "lucide-react";
 
