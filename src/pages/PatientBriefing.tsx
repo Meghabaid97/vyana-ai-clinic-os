@@ -347,7 +347,7 @@ const PatientBriefing = () => {
           {/* Share actions — one tap each, creates secure 24h link in background */}
           <section className="px-5 pb-4">
             <p className="text-[11px] font-medium text-muted-foreground mb-2">
-              {t("briefing.share.whatsapp") /* "Share with your doctor" */ ? "Share securely with your doctor" : "Share securely with your doctor"}
+              Share securely with your doctor
             </p>
             <div className="grid grid-cols-5 gap-2">
               <Button
