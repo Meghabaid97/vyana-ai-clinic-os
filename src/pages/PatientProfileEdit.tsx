@@ -335,8 +335,11 @@ const PatientProfileEdit = () => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="age" className="text-xs text-muted-foreground">{t("prof.field.age")}</Label>
-                <Input id="age" type="number" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} />
+                <Label htmlFor="dob" className="text-xs text-muted-foreground">Date of birth</Label>
+                <Input id="dob" type="date" max={new Date().toISOString().split("T")[0]} value={formData.date_of_birth} onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })} />
+                {formData.date_of_birth && calculateAgeFromDob(formData.date_of_birth) !== null && (
+                  <p className="text-[10px] text-muted-foreground">Age: {calculateAgeFromDob(formData.date_of_birth)} years</p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="phone" className="text-xs text-muted-foreground">{t("prof.field.phone")}</Label>
