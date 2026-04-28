@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { vitalStatus, STATUS_TONE, type VitalStatus } from "@/lib/vitalStatus";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   TrendingUp, TrendingDown, Activity, Heart, Droplets, Thermometer, Eye,
   Brain, Bone, Pill, Zap, Loader2, Sparkles, ArrowRight, ArrowUp, ArrowDown,
-  Minus, FileText, ShieldCheck, Info, AlertTriangle,
+  Minus, FileText, ShieldCheck, Info, AlertTriangle, Upload,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
