@@ -18,6 +18,9 @@ import {
   Camera,
   ImagePlus,
   ScanLine,
+  Link2,
+  MessageCircle,
+  ArrowRight,
 } from "lucide-react";
 import {
   Dialog,
