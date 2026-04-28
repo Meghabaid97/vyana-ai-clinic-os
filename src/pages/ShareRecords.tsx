@@ -59,12 +59,11 @@ const ShareRecords = () => {
       return null;
     }
     if (!data) return null;
-    return `${window.location.origin}/emergency-access/${data.token}`;
+    return buildEmergencyAccessUrl(data.token);
   };
 
   const copyLink = async (token: string) => {
-    const url = `${window.location.origin}/emergency-access/${token}`;
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(buildEmergencyAccessUrl(token));
     toast({ title: t("share.copied"), description: t("share.copiedDesc") });
   };
 
