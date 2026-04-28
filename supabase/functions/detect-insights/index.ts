@@ -178,23 +178,56 @@ async function runScheduled(admin: ReturnType<typeof createClient>) {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  // Tier 2: Pre-visit prep — visit is tomorrow
-  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
-  const { data: visitsTomorrow } = await admin
-    .from("patients")
-    .select("id, user_id, name, next_visit_date")
-    .eq("next_visit_date", tomorrowStr);
-
-  for (const p of visitsTomorrow ?? []) {
-    if (await alreadyNotified(admin, p.user_id, "pre_visit", p.id, 36)) continue;
-    await insertNotif(admin, {
-      user_id: p.user_id,
+  // Tier 2: Pre-visit prep — fire at 7d, 3d, 1d, and same-day windows.
+  // We use a unique related_entity_type per window so dedupe doesn't suppress
+  // later reminders after the first one fires.
+  const visitWindows: Array<{ days: number; type: string; title: string; message: string }> = [
+    {
+      days: 7,
+      type: "pre_visit_7d",
+      title: "Doctor visit in a week",
+      message: "Your visit is 7 days away. Start logging any symptoms so your briefing is ready.",
+    },
+    {
+      days: 3,
+      type: "pre_visit_3d",
+      title: "Doctor visit in 3 days",
+      message: "Upload any new reports now so your clinical briefing reflects them.",
+    },
+    {
+      days: 1,
+      type: "pre_visit",
       title: "Doctor visit tomorrow. Your summary is ready.",
       message: "Don't explain everything again. Tap to open your 30-second clinical briefing before you walk in.",
-      type: "info",
-      related_entity_id: p.id,
-      related_entity_type: "pre_visit",
-    });
+    },
+    {
+      days: 0,
+      type: "pre_visit_today",
+      title: "Doctor visit today",
+      message: "Open your briefing before you walk in. Share the secure link with your doctor in one tap.",
+    },
+  ];
+
+  for (const w of visitWindows) {
+    const target = new Date(today);
+    target.setDate(target.getDate() + w.days);
+    const targetStr = target.toISOString().slice(0, 10);
+    const { data: visits } = await admin
+      .from("patients")
+      .select("id, user_id, name, next_visit_date")
+      .eq("next_visit_date", targetStr);
+
+    for (const p of visits ?? []) {
+      if (await alreadyNotified(admin, p.user_id, w.type, p.id, 36)) continue;
+      await insertNotif(admin, {
+        user_id: p.user_id,
+        title: w.title,
+        message: w.message,
+        type: "info",
+        related_entity_id: p.id,
+        related_entity_type: w.type,
+      });
+    }
   }
 
   // Tier 4: Re-engagement — inactive 7+ days, has at least 1 record
