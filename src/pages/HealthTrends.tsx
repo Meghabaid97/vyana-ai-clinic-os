@@ -145,7 +145,19 @@ const HealthTrends = () => {
         .eq("patient_id", patient.id)
         .order("uploaded_at", { ascending: false });
 
-      setRecords((r || []) as HealthRecord[]);
+      // Sort by clinical report date when available so the "latest" record reflects
+      // the most recent report, not the most recently uploaded file.
+      const sorted = ((r || []) as HealthRecord[]).slice().sort((a, b) => {
+        const aDate = a.radiology_study_date
+          ? new Date(`${a.radiology_study_date}T12:00:00Z`).getTime()
+          : new Date(a.uploaded_at).getTime();
+        const bDate = b.radiology_study_date
+          ? new Date(`${b.radiology_study_date}T12:00:00Z`).getTime()
+          : new Date(b.uploaded_at).getTime();
+        return bDate - aDate;
+      });
+
+      setRecords(sorted);
 
       // Load vital history for longitudinal view
       const { data: vh } = await supabase
@@ -257,21 +269,37 @@ const HealthTrends = () => {
       .maybeSingle();
     if (!patient) return;
 
-    // Check if entry already exists for this record
-    const { data: existing } = await supabase
-      .from("vital_history")
-      .select("id")
-      .eq("health_record_id", recordId)
-      .maybeSingle() as { data: { id: string } | null };
-
-    if (existing) return; // Already stored
-
     // Use the date printed on the report when available, so trends reflect the
     // clinical timeline rather than when the user uploaded the document.
     const recordedAt =
       reportDate && /^\d{4}-\d{2}-\d{2}$/.test(reportDate)
         ? new Date(`${reportDate}T12:00:00Z`).toISOString()
         : undefined;
+
+    // Check if entry already exists for this record
+    const { data: existing } = await supabase
+      .from("vital_history")
+      .select("id, recorded_at")
+      .eq("health_record_id", recordId)
+      .maybeSingle() as { data: { id: string; recorded_at: string } | null };
+
+    if (existing) {
+      // Backfill recorded_at if we now know the clinical report date and it differs
+      if (recordedAt && new Date(existing.recorded_at).toISOString() !== recordedAt) {
+        await supabase
+          .from("vital_history")
+          .update({ recorded_at: recordedAt })
+          .eq("id", existing.id);
+
+        const { data: vh } = await supabase
+          .from("vital_history")
+          .select("*")
+          .eq("patient_id", patient.id)
+          .order("recorded_at", { ascending: true }) as { data: VitalHistoryEntry[] | null };
+        setVitalHistory(vh || []);
+      }
+      return;
+    }
 
     await supabase.from("vital_history").insert({
       patient_id: patient.id,
