@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode,
+  Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode, MessageCircle, Mail,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -66,6 +66,20 @@ const ShareRecords = () => {
   const copyLink = async (token: string) => {
     await navigator.clipboard.writeText(buildEmergencyAccessUrl(token));
     toast({ title: t("share.copied"), description: t("share.copiedDesc") });
+  };
+
+  const shareMessage = (token: string) =>
+    `Here are my health records (secure link, valid 24 hours): ${buildEmergencyAccessUrl(token)}`;
+
+  const shareWhatsApp = (token: string) => {
+    const url = `https://wa.me/?text=${encodeURIComponent(shareMessage(token))}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const shareEmail = (token: string, recipient: string | null) => {
+    const subject = encodeURIComponent("My health records from Vyana");
+    const body = encodeURIComponent(shareMessage(token));
+    window.location.href = `mailto:${recipient ?? ""}?subject=${subject}&body=${body}`;
   };
 
   const isExpired = (expiresAt: string) => new Date(expiresAt) < new Date();
@@ -159,14 +173,34 @@ const ShareRecords = () => {
                     </div>
                   </div>
                   {!expired && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => copyLink(link.token)}
-                      className="shrink-0"
-                    >
-                      <Copy className="h-3.5 w-3.5 mr-1" /> {t("share.copy")}
-                    </Button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => shareWhatsApp(link.token)}
+                        aria-label="Share via WhatsApp"
+                        className="h-8 w-8"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => shareEmail(link.token, link.recipient_email)}
+                        aria-label="Share via email"
+                        className="h-8 w-8"
+                      >
+                        <Mail className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => copyLink(link.token)}
+                        className="h-8"
+                      >
+                        <Copy className="h-3.5 w-3.5 mr-1" /> {t("share.copy")}
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
