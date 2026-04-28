@@ -747,9 +747,10 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                               setShowSummaryDialog(true);
                             }}
                             className="h-8 w-8 rounded-full"
-                            aria-label="View summary"
+                            aria-label="View Vyana summary"
+                            title="View Vyana summary"
                           >
-                            <Eye className="h-4 w-4 text-muted-foreground" />
+                            <Sparkles className="h-4 w-4 text-primary" />
                           </Button>
                         ) : (
                           <Button
@@ -758,12 +759,13 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                             onClick={() => summarizeRecord(record)}
                             disabled={isSummarizing === record.id}
                             className="h-8 w-8 rounded-full"
-                            aria-label="Summarize"
+                            aria-label="Ask Vyana for summary"
+                            title="Ask Vyana for summary"
                           >
                             {isSummarizing === record.id ? (
                               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                             ) : (
-                              <Sparkles className="h-4 w-4 text-muted-foreground" />
+                              <Sparkles className="h-4 w-4 text-primary" />
                             )}
                           </Button>
                         )}
@@ -773,13 +775,13 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                           onClick={() => openOriginalFile(record)}
                           disabled={isOpeningFile === record.id}
                           className="h-8 w-8 rounded-full"
-                          aria-label="Open original file"
-                          title="Open original file"
+                          aria-label="View original file"
+                          title="View original file"
                         >
                           {isOpeningFile === record.id ? (
                             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                           ) : (
-                            <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                            <Eye className="h-4 w-4 text-muted-foreground" />
                           )}
                         </Button>
                         <Button
