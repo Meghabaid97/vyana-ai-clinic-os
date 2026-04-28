@@ -240,7 +240,13 @@ const HealthTrends = () => {
     return updatedRecord;
   };
 
-  const saveVitalHistory = async (recordId: string, fileName: string, vitals: VitalsMap, confidence: string) => {
+  const saveVitalHistory = async (
+    recordId: string,
+    fileName: string,
+    vitals: VitalsMap,
+    confidence: string,
+    reportDate?: string | null,
+  ) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
@@ -260,12 +266,20 @@ const HealthTrends = () => {
 
     if (existing) return; // Already stored
 
+    // Use the date printed on the report when available, so trends reflect the
+    // clinical timeline rather than when the user uploaded the document.
+    const recordedAt =
+      reportDate && /^\d{4}-\d{2}-\d{2}$/.test(reportDate)
+        ? new Date(`${reportDate}T12:00:00Z`).toISOString()
+        : undefined;
+
     await supabase.from("vital_history").insert({
       patient_id: patient.id,
       health_record_id: recordId,
       source_file_name: fileName,
       confidence,
       vitals: vitals as any,
+      ...(recordedAt ? { recorded_at: recordedAt } : {}),
     });
 
     // Reload history
