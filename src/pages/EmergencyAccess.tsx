@@ -181,6 +181,11 @@ const EmergencyAccess = () => {
     ...fhirMedications,
   ]));
   const radiologyRecords = summary.healthRecords.filter((r) => r.category === "radiology_imaging");
+  const openRecordFile = (url: string | null) => {
+    if (!url) return;
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    if (!opened) window.location.href = url;
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
@@ -330,7 +335,19 @@ const EmergencyAccess = () => {
                   const impression = toTextList(r.radiology_impression);
                   const recommendations = toTextList(r.radiology_recommendations);
                   return (
-                    <Card key={r.id}>
+                    <Card
+                      key={r.id}
+                      role={r.file_url ? "button" : undefined}
+                      tabIndex={r.file_url ? 0 : undefined}
+                      onClick={() => openRecordFile(r.file_url)}
+                      onKeyDown={(event) => {
+                        if (r.file_url && (event.key === "Enter" || event.key === " ")) {
+                          event.preventDefault();
+                          openRecordFile(r.file_url);
+                        }
+                      }}
+                      className={r.file_url ? "transition-colors hover:border-primary/40 hover:bg-muted/30 cursor-pointer" : ""}
+                    >
                       <CardContent className="p-3.5 space-y-2">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm font-medium truncate">
@@ -347,9 +364,9 @@ const EmergencyAccess = () => {
                           <p className="text-[11px] text-muted-foreground">{t("ea.filmOnly")}</p>
                         )}
                         {r.file_url && (
-                          <a href={r.file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
                             {t("ea.viewOriginal")} <ExternalLink className="h-3 w-3" />
-                          </a>
+                          </span>
                         )}
                       </CardContent>
                     </Card>
@@ -371,13 +388,20 @@ const EmergencyAccess = () => {
           ) : (
             <div className="space-y-2 mb-5">
               {summary.healthRecords.map(r => {
-                const Wrapper: any = r.file_url ? "a" : "div";
-                const wrapperProps = r.file_url
-                  ? { href: r.file_url, target: "_blank", rel: "noreferrer", className: "block" }
-                  : {};
                 return (
-                  <Wrapper key={r.id} {...wrapperProps}>
-                    <Card className={r.file_url ? "transition-colors hover:border-primary/40 hover:bg-muted/30 cursor-pointer" : ""}>
+                  <Card
+                    key={r.id}
+                    role={r.file_url ? "button" : undefined}
+                    tabIndex={r.file_url ? 0 : undefined}
+                    onClick={() => openRecordFile(r.file_url)}
+                    onKeyDown={(event) => {
+                      if (r.file_url && (event.key === "Enter" || event.key === " ")) {
+                        event.preventDefault();
+                        openRecordFile(r.file_url);
+                      }
+                    }}
+                    className={r.file_url ? "transition-colors hover:border-primary/40 hover:bg-muted/30 cursor-pointer" : ""}
+                  >
                       <CardContent className="p-3.5">
                         <div className="flex items-center justify-between gap-2 mb-0.5">
                           <span className="text-sm font-medium truncate flex-1">{r.file_name}</span>
@@ -391,13 +415,12 @@ const EmergencyAccess = () => {
                           <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{r.ai_summary}</p>
                         )}
                         {r.file_url && (
-                          <p className="text-[10px] font-medium text-primary mt-1.5 inline-flex items-center gap-1">
-                            {t("ea.openFile") || "Open file"}
+                          <p className="text-xs font-semibold text-primary mt-2 inline-flex items-center gap-1">
+                            {t("ea.viewOriginal")} <ExternalLink className="h-3 w-3" />
                           </p>
                         )}
                       </CardContent>
                     </Card>
-                  </Wrapper>
                 );
               })}
             </div>
