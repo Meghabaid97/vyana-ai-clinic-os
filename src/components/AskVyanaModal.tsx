@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, X, ExternalLink, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -110,14 +111,15 @@ const AskVyanaModal = ({ open, initialQuestion, onClose }: Props) => {
   if (!open) return null;
   const conf = result ? confidenceStyle[result.confidence] : null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] bg-foreground/40 backdrop-blur-sm flex items-stretch md:items-start justify-center md:pt-[6vh] md:px-4 animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-[9999] h-[100svh] w-screen overflow-hidden bg-foreground/40 backdrop-blur-sm flex items-stretch justify-center lg:items-start lg:px-4 lg:pt-[6vh]"
       onClick={onClose}
-      style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div
-        className="w-full md:max-w-2xl bg-background md:rounded-2xl shadow-2xl border-0 md:border border-border h-[100svh] md:h-auto md:max-h-[88vh] overflow-hidden flex flex-col"
+        className="w-full bg-background shadow-2xl border-0 h-[100svh] overflow-hidden flex flex-col lg:h-auto lg:max-h-[88vh] lg:max-w-2xl lg:rounded-2xl lg:border lg:border-border"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header / input */}
