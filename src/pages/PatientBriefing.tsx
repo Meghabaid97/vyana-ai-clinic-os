@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, Pill, FileText,
-  Share2, Copy, CheckCircle2, Heart, Brain, Stethoscope,
+  Copy, CheckCircle2, Heart, Brain, Stethoscope, MessageCircle, Mail,
   ArrowUp, ArrowDown, Minus, Activity, Play, QrCode, NotebookPen,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BriefingResultSkeleton } from "@/components/ui/page-skeletons";
 import { SAMPLE_BRIEFING } from "@/lib/sampleBriefingData";
-import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
 import { useLanguage } from "@/lib/i18n";
 import { buildEmergencyAccessUrl } from "@/lib/share-url";
@@ -33,15 +33,15 @@ const PatientBriefing = () => {
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [shareState, setShareState] = useState<ButtonState>("idle");
   const [isDemo, setIsDemo] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [shareSheetOpen, setShareSheetOpen] = useState(false);
+  const [qrDialog, setQrDialog] = useState<{ url: string; dataUrl: string } | null>(null);
+  const [sharing, setSharing] = useState<null | "whatsapp" | "email" | "qr" | "copylink">(null);
   const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const createShareLink = async (recipientName: string): Promise<string | null> => {
+  const createShareLink = async (): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       toast({ title: t("briefing.toast.signinTitle"), description: t("briefing.toast.signinDesc"), variant: "destructive" });
@@ -55,7 +55,7 @@ const PatientBriefing = () => {
     }
     const { data, error } = await supabase.from("shared_record_links").insert({
       patient_id: patient.id,
-      recipient_name: recipientName || null,
+      recipient_name: null,
     }).select().single() as { data: { token: string } | null; error: { message: string } | null };
     if (error || !data) {
       toast({ title: t("briefing.toast.linkFail"), description: error?.message ?? "Unknown error", variant: "destructive" });
