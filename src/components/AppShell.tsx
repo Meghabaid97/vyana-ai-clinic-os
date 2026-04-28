@@ -11,7 +11,7 @@ import { useLanguage } from "@/lib/i18n";
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
 const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSelector"));
 const AskVyanaModal = lazy(() => import("@/components/AskVyanaModal"));
-const HowItWorksTour = lazy(() => import("@/components/HowItWorksTour"));
+const SpotlightTour = lazy(() => import("@/components/SpotlightTour"));
 
 const TOUR_STORAGE_KEY = "vyana-tour-completed-v1";
 const hasSeenTour = () => typeof window !== "undefined" && localStorage.getItem(TOUR_STORAGE_KEY) === "1";
