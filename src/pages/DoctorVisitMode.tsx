@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, Pill, Activity,
-  Share2, Copy, CheckCircle2, ArrowUp, ArrowDown, Minus,
+  Share2, Copy, CheckCircle2, ArrowUp, ArrowDown, Minus, MessageCircle, Mail,
   Stethoscope, ChevronLeft, Play, FileDown, FileText, QrCode, NotebookPen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SAMPLE_BRIEFING, SAMPLE_PATIENT } from "@/lib/sampleBriefingData";
 import { Change, computeChangesSinceLastVisit, SAMPLE_CHANGES } from "@/lib/changesSinceLastVisit";
 import PageHero from "@/components/PageHero";
-import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
 import { buildEmergencyAccessUrl } from "@/lib/share-url";
 
@@ -49,10 +50,11 @@ const DoctorVisitMode = () => {
   const [patientName, setPatientName] = useState<string>("");
   const [isDemo, setIsDemo] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [shareSheetOpen, setShareSheetOpen] = useState(false);
+  const [qrDialog, setQrDialog] = useState<{ url: string; dataUrl: string } | null>(null);
+  const [sharing, setSharing] = useState<null | "whatsapp" | "email" | "qr" | "copylink">(null);
   const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
 
-  const createShareLink = async (recipientName: string): Promise<string | null> => {
+  const createShareLink = async (): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       toast({ title: "Sign in required", variant: "destructive" });
@@ -66,7 +68,7 @@ const DoctorVisitMode = () => {
     }
     const { data, error } = await supabase.from("shared_record_links").insert({
       patient_id: patient.id,
-      recipient_name: recipientName || null,
+      recipient_name: null,
     }).select("token").single();
     if (error || !data) {
       toast({ title: "Could not create link", description: error?.message ?? "Unknown error", variant: "destructive" });
