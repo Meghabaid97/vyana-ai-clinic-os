@@ -14,6 +14,7 @@ import { Change, computeChangesSinceLastVisit, SAMPLE_CHANGES } from "@/lib/chan
 import PageHero from "@/components/PageHero";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
+import { buildEmergencyAccessUrl } from "@/lib/share-url";
 
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };

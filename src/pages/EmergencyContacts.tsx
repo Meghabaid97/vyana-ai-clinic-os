@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
+import { buildEmergencyAccessUrl } from "@/lib/share-url";
 import {
   AlertTriangle, Copy, Loader2, Plus, Shield, Trash2, UserPlus,
   Heart, Clock, ExternalLink, Users, Share2,
