@@ -92,7 +92,7 @@ serve(async (req) => {
     const { data: patient } = await adminClient
       .from("patients")
       .select("name, age, phone, national_health_id, weight, city")
-      .eq("id", contact.patient_id)
+      .eq("id", patientId)
       .single();
 
     if (!patient) {
