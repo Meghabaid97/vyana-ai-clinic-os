@@ -151,6 +151,15 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     let settleTimer: number | undefined;
     let raf = 0;
 
+    const findVisibleTarget = () => {
+      const candidates = Array.from(document.querySelectorAll(step.target as string)) as HTMLElement[];
+      return candidates.find((candidate) => {
+        const r = candidate.getBoundingClientRect();
+        const style = window.getComputedStyle(candidate);
+        return r.width > 0 && r.height > 0 && style.display !== "none" && style.visibility !== "hidden";
+      }) ?? null;
+    };
+
     const commit = (el: HTMLElement) => {
       if (cancelled) return;
       const r = el.getBoundingClientRect();
@@ -168,7 +177,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
 
     const tryFind = () => {
       if (cancelled) return;
-      const el = document.querySelector(step.target as string) as HTMLElement | null;
+      const el = findVisibleTarget();
 
       if (!el) {
         attempts += 1;
@@ -197,7 +206,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     pollTimer = window.setTimeout(tryFind, 120);
 
     const onResize = () => {
-      const el = document.querySelector(step.target as string) as HTMLElement | null;
+      const el = findVisibleTarget();
       if (el) commit(el);
     };
 
