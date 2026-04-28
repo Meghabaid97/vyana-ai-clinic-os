@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import ShareCeremonySheet from "@/components/ShareCeremonySheet";
+import { buildEmergencyAccessUrl } from "@/lib/share-url";
 
 interface ShareLink {
   id: string;
