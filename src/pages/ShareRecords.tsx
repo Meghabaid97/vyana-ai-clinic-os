@@ -95,6 +95,7 @@ const ShareRecords = () => {
     }
   };
 
+  const isExpired = (expiresAt: string) => new Date(expiresAt) < new Date();
 
   if (loading) {
     return (
