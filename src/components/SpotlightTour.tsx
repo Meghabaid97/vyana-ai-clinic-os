@@ -303,19 +303,20 @@ const SpotlightTour = ({ open, onClose }: Props) => {
           </mask>
         </defs>
         <rect width="100%" height="100%" fill="hsl(var(--foreground) / 0.72)" mask="url(#spotlight-mask)" />
-        {rect && (
-          <rect
-            x={rect.left}
-            y={rect.top}
-            width={rect.width}
-            height={rect.height}
-            rx={12}
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth={2}
-          />
-        )}
       </svg>
+
+      {rect && (
+        <div
+          aria-hidden="true"
+          className="absolute pointer-events-none rounded-[12px] tour-glow"
+          style={{
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+          }}
+        />
+      )}
 
       <div
         className="absolute rounded-2xl bg-background border border-border shadow-2xl p-4 sm:p-5 overflow-y-auto"
