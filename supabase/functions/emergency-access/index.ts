@@ -132,7 +132,7 @@ serve(async (req) => {
     const { data: activeMedicationReminders } = await adminClient
       .from("medication_reminders")
       .select("medication_name, dosage, frequency, time_slots, notes")
-      .eq("patient_id", contact.patient_id)
+      .eq("patient_id", patientId)
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(30);
