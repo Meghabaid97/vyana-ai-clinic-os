@@ -42,6 +42,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { RecordsTabSkeleton } from "@/components/ui/page-skeletons";
 import { RECORD_CATEGORIES, type RecordCategory } from "@/lib/recordCategories";
@@ -110,6 +111,10 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [uploadCategory, setUploadCategory] = useState<RecordCategory>("discharge_summary");
   const [radiologyModality, setRadiologyModality] = useState<string>("CT");
   const [radiologyUploadKind, setRadiologyUploadKind] = useState<RadiologyUploadKind>("report_with_optional_films");
+  const [renamingRecord, setRenamingRecord] = useState<HealthRecord | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [isOpeningFile, setIsOpeningFile] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
