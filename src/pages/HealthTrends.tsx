@@ -31,6 +31,7 @@ type HealthRecord = {
   ai_summary: string | null;
   uploaded_at: string;
   updated_at?: string;
+  radiology_study_date?: string | null;
 };
 
 interface AnalysisResult {
@@ -140,7 +141,7 @@ const HealthTrends = () => {
 
       const { data: r } = await supabase
         .from("health_records")
-        .select("id, file_name, file_path, file_type, ai_summary, uploaded_at, updated_at")
+        .select("id, file_name, file_path, file_type, ai_summary, uploaded_at, updated_at, radiology_study_date")
         .eq("patient_id", patient.id)
         .order("uploaded_at", { ascending: false });
 
@@ -210,21 +211,42 @@ const HealthTrends = () => {
       throw new Error(error?.message || t("trends.toast.summarizeErr"));
     }
 
+    // Persist report date (date printed on the document) when the AI extracts it.
+    const reportDate: string | null =
+      (typeof data.reportDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.reportDate) && data.reportDate) ||
+      (typeof data?.radiology?.studyDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.radiology.studyDate) && data.radiology.studyDate) ||
+      null;
+
+    const updatePayload: Record<string, unknown> = { ai_summary: data.summary };
+    if (reportDate && !record.radiology_study_date) {
+      updatePayload.radiology_study_date = reportDate;
+    }
+
     const { error: updateError } = await supabase
       .from("health_records")
-      .update({ ai_summary: data.summary })
+      .update(updatePayload)
       .eq("id", record.id);
 
     if (updateError) {
       throw new Error(updateError.message || t("trends.toast.saveErr"));
     }
 
-    const updatedRecord = { ...record, ai_summary: data.summary };
+    const updatedRecord = {
+      ...record,
+      ai_summary: data.summary,
+      radiology_study_date: record.radiology_study_date || reportDate || null,
+    };
     setRecords((prev) => prev.map((item) => (item.id === record.id ? updatedRecord : item)));
     return updatedRecord;
   };
 
-  const saveVitalHistory = async (recordId: string, fileName: string, vitals: VitalsMap, confidence: string) => {
+  const saveVitalHistory = async (
+    recordId: string,
+    fileName: string,
+    vitals: VitalsMap,
+    confidence: string,
+    reportDate?: string | null,
+  ) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
@@ -244,12 +266,20 @@ const HealthTrends = () => {
 
     if (existing) return; // Already stored
 
+    // Use the date printed on the report when available, so trends reflect the
+    // clinical timeline rather than when the user uploaded the document.
+    const recordedAt =
+      reportDate && /^\d{4}-\d{2}-\d{2}$/.test(reportDate)
+        ? new Date(`${reportDate}T12:00:00Z`).toISOString()
+        : undefined;
+
     await supabase.from("vital_history").insert({
       patient_id: patient.id,
       health_record_id: recordId,
       source_file_name: fileName,
       confidence,
       vitals: vitals as any,
+      ...(recordedAt ? { recorded_at: recordedAt } : {}),
     });
 
     // Reload history
@@ -289,13 +319,14 @@ const HealthTrends = () => {
       if (error) throw error;
       setAnalysisResult(data);
 
-      // Save vitals to history
+      // Save vitals to history (use the date on the report itself when known)
       if (data?.vitals) {
         await saveVitalHistory(
-          latestRecord.id,
-          latestRecord.file_name,
+          safeLatestRecord.id,
+          safeLatestRecord.file_name,
           data.vitals,
-          data.confidence || "medium"
+          data.confidence || "medium",
+          safeLatestRecord.radiology_study_date ?? null,
         );
       }
     } catch (err) {
