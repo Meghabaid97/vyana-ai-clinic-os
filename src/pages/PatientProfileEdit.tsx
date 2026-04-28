@@ -34,7 +34,7 @@ const PatientProfileEdit = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [profile, setProfile] = useState<PatientProfileData | null>(null);
   const [email, setEmail] = useState("");
-  const [formData, setFormData] = useState({ name: "", age: "", phone: "", national_health_id: "" });
+  const [formData, setFormData] = useState({ name: "", date_of_birth: "", phone: "", national_health_id: "" });
   const [stats, setStats] = useState({ totalConsultations: 0, totalDoctors: 0, lastVisit: null as string | null });
   const [editMode, setEditMode] = useState(false);
   const [accountMode, setAccountMode] = useState(false);
