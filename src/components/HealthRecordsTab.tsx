@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +18,9 @@ import {
   Camera,
   ImagePlus,
   ScanLine,
+  Link2,
+  MessageCircle,
+  ArrowRight,
 } from "lucide-react";
 import {
   Dialog,
@@ -106,6 +110,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [radiologyUploadKind, setRadiologyUploadKind] = useState<RadiologyUploadKind>("report_with_optional_films");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const isRadiologyUpload = uploadCategory === "radiology_imaging";
 
@@ -745,12 +750,65 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
           <div className="space-y-4 py-4">
             {doctors.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="h-12 w-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-3">
-                  <Share2 className="h-6 w-6 text-muted-foreground" />
+              <div className="py-2">
+                <div className="text-center mb-5">
+                  <div className="h-12 w-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <Share2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-[15px] font-semibold text-foreground">
+                    Share this record in seconds
+                  </p>
+                  <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">
+                    No need to add a doctor. Use one of these to send your record safely.
+                  </p>
                 </div>
-                <p className="text-muted-foreground">
-                  No doctors to share with yet. Visit a doctor first to share records.
+
+                <div className="space-y-2.5">
+                  <button
+                    onClick={() => {
+                      setShowConsentDialog(false);
+                      navigate("/app/share");
+                    }}
+                    className="w-full flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                  >
+                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Link2 className="h-4.5 w-4.5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13.5px] font-semibold text-foreground">
+                        Create a 24-hour secure link
+                      </p>
+                      <p className="text-[11.5px] text-muted-foreground mt-0.5">
+                        Doctor scans a QR or opens the link. Auto-expires in 24h.
+                      </p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowConsentDialog(false);
+                      navigate("/app/briefing");
+                    }}
+                    className="w-full flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                  >
+                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <MessageCircle className="h-4.5 w-4.5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13.5px] font-semibold text-foreground">
+                        Send a clinical briefing on WhatsApp
+                      </p>
+                      <p className="text-[11.5px] text-muted-foreground mt-0.5">
+                        A short summary your doctor can read in 30 seconds.
+                      </p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </button>
+                </div>
+
+                <p className="mt-4 text-center text-[11px] text-muted-foreground">
+                  Doctors you've shared with will appear here next time.
                 </p>
               </div>
             ) : (
@@ -798,11 +856,13 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowConsentDialog(false)}>
-              Cancel
+              {doctors.length === 0 ? "Close" : "Cancel"}
             </Button>
-            <Button onClick={saveConsent}>
-              Save Preferences
-            </Button>
+            {doctors.length > 0 && (
+              <Button onClick={saveConsent}>
+                Save Preferences
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
