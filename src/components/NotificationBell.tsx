@@ -30,6 +30,9 @@ const routeFor = (n: Notification): string | null => {
     case "comparison":
       return "/app/trends";
     case "pre_visit":
+    case "pre_visit_7d":
+    case "pre_visit_3d":
+    case "pre_visit_today":
       return "/app/briefing";
     case "re_engagement":
       return "/app/records";
