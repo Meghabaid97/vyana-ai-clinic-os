@@ -422,6 +422,60 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     }
   };
 
+  const openOriginalFile = async (record: HealthRecord) => {
+    setIsOpeningFile(record.id);
+    try {
+      const { data, error } = await supabase.storage
+        .from("health-records")
+        .createSignedUrl(record.file_path, 300);
+      if (error || !data?.signedUrl) throw error || new Error("No URL");
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (e: any) {
+      console.error("Open file failed:", e);
+      toast({ title: "Couldn't open file", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setIsOpeningFile(null);
+    }
+  };
+
+  const startRename = (record: HealthRecord) => {
+    setRenamingRecord(record);
+    setRenameValue(record.file_name);
+  };
+
+  const submitRename = async () => {
+    if (!renamingRecord) return;
+    const trimmed = renameValue.trim();
+    if (!trimmed) {
+      toast({ title: "Name can't be empty", variant: "destructive" });
+      return;
+    }
+    if (trimmed.length > 200) {
+      toast({ title: "Name is too long", description: "Keep it under 200 characters.", variant: "destructive" });
+      return;
+    }
+    if (trimmed === renamingRecord.file_name) {
+      setRenamingRecord(null);
+      return;
+    }
+    setIsRenaming(true);
+    try {
+      const { error } = await supabase
+        .from("health_records")
+        .update({ file_name: trimmed })
+        .eq("id", renamingRecord.id);
+      if (error) throw error;
+      setRecords((rs) => rs.map((r) => (r.id === renamingRecord.id ? { ...r, file_name: trimmed } : r)));
+      toast({ title: "Renamed" });
+      setRenamingRecord(null);
+    } catch (e: any) {
+      console.error("Rename failed:", e);
+      toast({ title: "Rename failed", description: e.message ?? "Please try again.", variant: "destructive" });
+    } finally {
+      setIsRenaming(false);
+    }
+  };
+
   const deleteRecord = async (record: HealthRecord) => {
     try {
       await supabase.storage.from("health-records").remove([record.file_path]);
