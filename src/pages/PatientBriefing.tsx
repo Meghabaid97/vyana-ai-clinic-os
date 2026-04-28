@@ -344,36 +344,67 @@ const PatientBriefing = () => {
       {/* Briefing display */}
       {briefing && (
         <>
-          {/* Share actions */}
+          {/* Share actions — one tap each, creates secure 24h link in background */}
           <section className="px-5 pb-4">
-            <div className="flex gap-2">
-              <StatefulButton
-                state={shareState}
+            <p className="text-[11px] font-medium text-muted-foreground mb-2">
+              {t("briefing.share.whatsapp") /* "Share with your doctor" */ ? "Share securely with your doctor" : "Share securely with your doctor"}
+            </p>
+            <div className="grid grid-cols-5 gap-2">
+              <Button
                 onClick={shareViaWhatsApp}
                 variant="outline"
-                className="flex-1"
-                loadingLabel={t("briefing.share.preparing")}
-                successLabel={t("briefing.share.opened")}
-                errorLabel={t("briefing.share.try")}
-                idleIcon={<Share2 className="h-4 w-4" />}
+                disabled={isDemo || !!sharing}
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label="Share via WhatsApp"
               >
-                {t("briefing.share.whatsapp")}
-              </StatefulButton>
+                {sharing === "whatsapp" ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
+                WhatsApp
+              </Button>
               <Button
-                onClick={() => setShareSheetOpen(true)}
+                onClick={shareViaEmail}
                 variant="outline"
-                className="gap-1.5"
-                aria-label={t("briefing.share.qrTitle")}
-                disabled={isDemo}
+                disabled={isDemo || !!sharing}
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label="Share via email"
+              >
+                {sharing === "email" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                Email
+              </Button>
+              <Button
+                onClick={shareViaQr}
+                variant="outline"
+                disabled={isDemo || !!sharing}
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label="Show QR code"
                 title={isDemo ? t("briefing.share.qrDisabled") : t("briefing.share.qrEnabled")}
               >
-                <QrCode className="h-4 w-4" />
+                {sharing === "qr" ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode className="h-4 w-4" />}
+                QR
               </Button>
-              <Button onClick={copyToClipboard} variant="outline" className="gap-2" aria-label={t("briefing.share.copy")}>
-                {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+              <Button
+                onClick={copyShareLink}
+                variant="outline"
+                disabled={isDemo || !!sharing}
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label="Copy secure link"
+              >
+                {sharing === "copylink" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+                Link
               </Button>
-              <Button onClick={generateBriefing} variant="outline" size="icon" disabled={isLoading} aria-label={t("briefing.share.regenerate")}>
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              <Button
+                onClick={copyToClipboard}
+                variant="outline"
+                className="h-14 flex-col gap-1 text-[10px] font-medium"
+                aria-label={t("briefing.share.copy")}
+              >
+                {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <FileText className="h-4 w-4" />}
+                Text
+              </Button>
+            </div>
+            <div className="mt-2 flex justify-end">
+              <Button onClick={generateBriefing} variant="ghost" size="sm" disabled={isLoading} aria-label={t("briefing.share.regenerate")} className="h-7 text-[11px] text-muted-foreground gap-1">
+                {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {t("briefing.share.regenerate")}
               </Button>
             </div>
           </section>
