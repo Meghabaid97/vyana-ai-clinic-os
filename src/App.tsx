@@ -22,12 +22,12 @@ const AccessPending = lazy(() => import("./pages/AccessPending"));
 const AdminWaitlist = lazy(() => import("./pages/AdminWaitlist"));
 const ShareReceive = lazy(() => import("./pages/ShareReceive"));
 const HealthTrends = lazy(() => import("./pages/HealthTrends"));
-const PatientMedicalHistory = lazy(() => import("./pages/PatientMedicalHistory"));
+
 const PatientHealthRecords = lazy(() => import("./pages/PatientHealthRecords"));
 const PatientProfileEdit = lazy(() => import("./pages/PatientProfileEdit"));
 const PatientBriefing = lazy(() => import("./pages/PatientBriefing"));
 const DoctorVisitMode = lazy(() => import("./pages/DoctorVisitMode"));
-const PatientProfilePage = lazy(() => import("./pages/PatientProfilePage"));
+
 const EmergencyContacts = lazy(() => import("./pages/EmergencyContacts"));
 const EmergencyAccess = lazy(() => import("./pages/EmergencyAccess"));
 const PatientTimeline = lazy(() => import("./pages/PatientTimeline"));
@@ -100,16 +100,12 @@ const App = () => (
               <Route path="recovery" element={<ClaimAssistant />} />
               <Route path="support" element={<Support />} />
               <Route path="domain-checklist" element={<DomainChecklist />} />
-              <Route path="medical-history" element={<PatientMedicalHistory />} />
               <Route path="journal" element={<SymptomJournal />} />
               <Route path="emergency-contacts" element={<EmergencyContacts />} />
               <Route path="share-receive" element={<ShareReceive />} />
             </Route>
 
             {/* Patient standalone pages */}
-            <Route path="/patient-medical-history" element={<PatientMedicalHistory />} />
-            <Route path="/patient-profile-page" element={<PatientProfilePage />} />
-            <Route path="/emergency-contacts" element={<EmergencyContacts />} />
             <Route path="/emergency-access/:token" element={<EmergencyAccess />} />
 
             <Route path="*" element={<NotFound />} />

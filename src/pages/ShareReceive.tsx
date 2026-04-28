@@ -10,7 +10,7 @@ import {
   saveToHealthRecords,
   summarizeHealthRecord,
 } from "@/lib/healthRecordsPipeline";
-import BackHeader from "@/components/BackHeader";
+
 
 interface PendingShare {
   url: string;
@@ -126,7 +126,6 @@ const ShareReceive = () => {
 
   return (
     <div className="min-h-svh bg-background">
-      <BackHeader title="Add to Vyana" />
       <div className="max-w-md mx-auto px-4 py-6 space-y-5">
         {loading ? (
           <div className="flex items-center justify-center py-16">
