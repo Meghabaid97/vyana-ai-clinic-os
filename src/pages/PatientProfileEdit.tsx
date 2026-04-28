@@ -16,10 +16,18 @@ interface PatientProfileData {
   id: string;
   name: string;
   age: number | null;
+  date_of_birth: string | null;
   phone: string | null;
   national_health_id: string | null;
   next_visit_date: string | null;
 }
+
+const calculateAgeFromDob = (dob: string | null | undefined): number | null => {
+  if (!dob) return null;
+  const d = new Date(dob);
+  if (Number.isNaN(d.getTime())) return null;
+  return Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+};
 
 const PatientProfileEdit = () => {
   const [isLoading, setIsLoading] = useState(true);
