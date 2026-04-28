@@ -57,7 +57,8 @@ const PatientProfileEdit = () => {
       if (patientData) {
         setProfile(patientData);
         setFormData({
-          name: patientData.name || "", age: patientData.age?.toString() || "",
+          name: patientData.name || "",
+          date_of_birth: patientData.date_of_birth || "",
           phone: patientData.phone || "", national_health_id: patientData.national_health_id || "",
         });
         if (patientData.national_health_id) {
