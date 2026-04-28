@@ -23,6 +23,7 @@ import {
   ArrowRight,
   ExternalLink,
   Pencil,
+  StickyNote,
 } from "lucide-react";
 import {
   Dialog,
@@ -43,6 +44,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { StatefulButton, ButtonState } from "@/components/ui/stateful-button";
 import { RecordsTabSkeleton } from "@/components/ui/page-skeletons";
 import { RECORD_CATEGORIES, type RecordCategory } from "@/lib/recordCategories";
@@ -72,6 +74,7 @@ interface HealthRecord {
   radiology_recommendations?: string[] | null;
   radiology_provider?: string | null;
   radiology_upload_kind?: string | null;
+  user_notes?: string | null;
 }
 
 interface DoctorForConsent {
@@ -115,6 +118,9 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [renameValue, setRenameValue] = useState("");
   const [isRenaming, setIsRenaming] = useState(false);
   const [isOpeningFile, setIsOpeningFile] = useState<string | null>(null);
+  const [notesRecord, setNotesRecord] = useState<HealthRecord | null>(null);
+  const [notesValue, setNotesValue] = useState("");
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -338,6 +344,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           category: record.category,
           radiologyModality: record.radiology_modality,
           radiologyUploadKind: record.radiology_upload_kind,
+          userNotes: record.user_notes || null,
         },
       });
 
@@ -473,6 +480,36 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       toast({ title: "Rename failed", description: e.message ?? "Please try again.", variant: "destructive" });
     } finally {
       setIsRenaming(false);
+    }
+  };
+
+  const openNotes = (record: HealthRecord) => {
+    setNotesRecord(record);
+    setNotesValue(record.user_notes || "");
+  };
+
+  const saveNotes = async (regenerate: boolean) => {
+    if (!notesRecord) return;
+    const trimmed = notesValue.trim().slice(0, 2000);
+    setIsSavingNotes(true);
+    try {
+      const { error } = await supabase
+        .from("health_records")
+        .update({ user_notes: trimmed || null })
+        .eq("id", notesRecord.id);
+      if (error) throw error;
+      const updated = { ...notesRecord, user_notes: trimmed || null };
+      setRecords((rs) => rs.map((r) => (r.id === notesRecord.id ? updated : r)));
+      toast({ title: trimmed ? "Notes saved" : "Notes cleared" });
+      setNotesRecord(null);
+      if (regenerate && trimmed) {
+        await summarizeRecord(updated);
+      }
+    } catch (e: any) {
+      console.error("Save notes failed:", e);
+      toast({ title: "Could not save notes", description: e.message ?? "Please try again.", variant: "destructive" });
+    } finally {
+      setIsSavingNotes(false);
     }
   };
 
@@ -787,6 +824,19 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => openNotes(record)}
+                          className="h-8 w-8 rounded-full relative"
+                          aria-label={record.user_notes ? "Edit personal notes" : "Add personal notes"}
+                          title={record.user_notes ? "Edit personal notes" : "Add personal notes"}
+                        >
+                          <StickyNote className={`h-4 w-4 ${record.user_notes ? "text-primary" : "text-muted-foreground"}`} />
+                          {record.user_notes && (
+                            <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-primary" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => startRename(record)}
                           className="h-8 w-8 rounded-full"
                           aria-label="Rename"
@@ -1023,6 +1073,60 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
             <Button onClick={submitRename} disabled={isRenaming}>
               {isRenaming ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Personal notes dialog */}
+      <Dialog open={!!notesRecord} onOpenChange={(o) => !o && !isSavingNotes && setNotesRecord(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <StickyNote className="h-4 w-4 text-primary" />
+              Your notes
+            </DialogTitle>
+            <DialogDescription>
+              Add personal context to help you remember this record (e.g. "X-ray after fall on Apr 20, left wrist still sore"). Vyana will use it to enrich the summary.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2 space-y-1.5">
+            <Textarea
+              autoFocus
+              value={notesValue}
+              onChange={(e) => setNotesValue(e.target.value.slice(0, 2000))}
+              placeholder="What should you remember about this report?"
+              rows={5}
+              className="resize-none text-[13px]"
+            />
+            <p className="text-[10.5px] text-muted-foreground text-right">
+              {notesValue.trim().length}/2000
+            </p>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setNotesRecord(null)}
+              disabled={isSavingNotes}
+              className="sm:mr-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => saveNotes(false)}
+              disabled={isSavingNotes}
+            >
+              {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Save only
+            </Button>
+            <Button
+              onClick={() => saveNotes(true)}
+              disabled={isSavingNotes || !notesValue.trim()}
+              title={!notesValue.trim() ? "Add notes first" : "Save and rerun the AI summary with your notes"}
+            >
+              {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+              Save & re-summarize
             </Button>
           </DialogFooter>
         </DialogContent>

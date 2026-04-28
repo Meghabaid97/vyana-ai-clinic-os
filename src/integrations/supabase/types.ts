@@ -584,6 +584,7 @@ export type Database = {
           radiology_upload_kind: string
           updated_at: string
           uploaded_at: string
+          user_notes: string | null
         }
         Insert: {
           ai_confidence?: string | null
@@ -611,6 +612,7 @@ export type Database = {
           radiology_upload_kind?: string
           updated_at?: string
           uploaded_at?: string
+          user_notes?: string | null
         }
         Update: {
           ai_confidence?: string | null
@@ -638,6 +640,7 @@ export type Database = {
           radiology_upload_kind?: string
           updated_at?: string
           uploaded_at?: string
+          user_notes?: string | null
         }
         Relationships: [
           {

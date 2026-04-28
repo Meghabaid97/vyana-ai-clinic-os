@@ -1,0 +1,1 @@
+ALTER TABLE public.health_records ADD COLUMN IF NOT EXISTS user_notes text;
