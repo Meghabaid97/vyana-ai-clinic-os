@@ -770,6 +770,31 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => openOriginalFile(record)}
+                          disabled={isOpeningFile === record.id}
+                          className="h-8 w-8 rounded-full"
+                          aria-label="Open original file"
+                          title="Open original file"
+                        >
+                          {isOpeningFile === record.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : (
+                            <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => startRename(record)}
+                          className="h-8 w-8 rounded-full"
+                          aria-label="Rename"
+                          title="Rename"
+                        >
+                          <Pencil className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => openConsentDialog(record)}
                           className="h-8 w-8 rounded-full"
                           aria-label="Share"
