@@ -84,7 +84,9 @@ const PatientProfileEdit = () => {
     setIsSaving(true);
     try {
       const { error } = await supabase.from("patients").update({
-        name: formData.name, age: formData.age ? parseInt(formData.age) : null,
+        name: formData.name,
+        date_of_birth: formData.date_of_birth || null,
+        age: calculateAgeFromDob(formData.date_of_birth),
         phone: formData.phone || null, national_health_id: formData.national_health_id || null,
       }).eq("id", profile.id);
       if (error) throw error;
