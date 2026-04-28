@@ -611,11 +611,37 @@ const PatientBriefing = () => {
         </>
       )}
 
-      <ShareCeremonySheet
-        open={shareSheetOpen}
-        onOpenChange={setShareSheetOpen}
-        onCreate={createShareLink}
-      />
+      {/* QR dialog — shown after a secure link is created */}
+      <Dialog open={!!qrDialog} onOpenChange={(o) => !o && setQrDialog(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Scan to open</DialogTitle>
+            <DialogDescription>
+              Have the doctor scan this code with their phone camera. Link expires in 24 hours.
+            </DialogDescription>
+          </DialogHeader>
+          {qrDialog && (
+            <div className="flex flex-col items-center gap-3">
+              <div className="rounded-xl border border-border bg-white p-3">
+                <img src={qrDialog.dataUrl} alt="QR code" className="h-56 w-56" />
+              </div>
+              <p className="text-[12px] text-muted-foreground text-center break-all px-4">
+                {qrDialog.url}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(qrDialog.url);
+                  toast({ title: t("briefing.copied") });
+                }}
+              >
+                <Copy className="h-3.5 w-3.5 mr-1" /> Copy link
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
