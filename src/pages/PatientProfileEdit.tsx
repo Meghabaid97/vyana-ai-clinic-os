@@ -99,9 +99,14 @@ const PatientProfileEdit = () => {
   };
 
   const handleSignOut = async () => {
-    const { signOutFully } = await import("@/lib/signOut");
-    await signOutFully();
-    navigate("/auth");
+    try {
+      const { signOutFully } = await import("@/lib/signOut");
+      await signOutFully();
+    } finally {
+      // Hard reload to fully reset in-memory state and avoid stale
+      // session listeners bouncing the user back to /app.
+      window.location.replace("/auth");
+    }
   };
 
   const APP_STORE_URL = "https://apps.apple.com/app/vyana/id0000000000"; // TODO: replace with real ID once published
