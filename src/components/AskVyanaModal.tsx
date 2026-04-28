@@ -112,12 +112,12 @@ const AskVyanaModal = ({ open, initialQuestion, onClose }: Props) => {
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-foreground/40 backdrop-blur-sm flex items-stretch sm:items-start justify-center sm:pt-[8vh] sm:px-4 animate-fade-in overflow-y-auto"
+      className="fixed inset-0 z-[100] bg-foreground/40 backdrop-blur-sm flex items-stretch md:items-start justify-center md:pt-[6vh] md:px-4 animate-fade-in"
       onClick={onClose}
       style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div
-        className="w-full sm:max-w-2xl bg-background sm:rounded-2xl shadow-2xl border-0 sm:border border-border h-[100svh] sm:h-auto sm:max-h-[84vh] overflow-hidden flex flex-col"
+        className="w-full md:max-w-2xl bg-background md:rounded-2xl shadow-2xl border-0 md:border border-border h-[100svh] md:h-auto md:max-h-[88vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header / input */}
