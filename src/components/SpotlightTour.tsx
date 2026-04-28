@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowRight, X, Sparkles } from "lucide-react";
 
@@ -27,35 +28,35 @@ const STEPS: TourStep[] = [
   },
   {
     target: '[data-tour="nav-briefing"]',
-    path: "/app",
+    path: "/app/briefing",
     eyebrow: "Briefing",
     title: "Open this before any doctor visit.",
     body: "Vyana generates a one-page clinical briefing of your history, vitals and meds, ready to share on WhatsApp.",
   },
   {
     target: '[data-tour="nav-trends"]',
-    path: "/app",
+    path: "/app/trends",
     eyebrow: "Trends",
     title: "Track vitals and lab results over time.",
     body: "BP, sugar, cholesterol, thyroid and 30+ markers, plotted automatically from your uploaded reports.",
   },
   {
     target: '[data-tour="nav-records"]',
-    path: "/app",
+    path: "/app/records",
     eyebrow: "Records",
     title: "All your reports in one place.",
     body: "Upload prescriptions, lab reports or X-rays. Vyana extracts and summarises them so you never explain your history again.",
   },
   {
     target: '[data-tour="nav-claims"]',
-    path: "/app",
+    path: "/app/recovery",
     eyebrow: "Recovery & Claims",
     title: "Recover faster, file claims easier.",
     body: "Get post-discharge guidance and a step-by-step assistant to file insurance claims from your discharge papers.",
   },
   {
     target: '[data-tour="nav-profile"]',
-    path: "/app",
+    path: "/app/profile",
     eyebrow: "Profile",
     title: "Your identity and settings.",
     body: "Manage your ABHA Health ID, emergency contacts, language and family access. You can replay this tour any time from the help icon.",
@@ -150,6 +151,15 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     let settleTimer: number | undefined;
     let raf = 0;
 
+    const findVisibleTarget = () => {
+      const candidates = Array.from(document.querySelectorAll(step.target as string)) as HTMLElement[];
+      return candidates.find((candidate) => {
+        const r = candidate.getBoundingClientRect();
+        const style = window.getComputedStyle(candidate);
+        return r.width > 0 && r.height > 0 && style.display !== "none" && style.visibility !== "hidden";
+      }) ?? null;
+    };
+
     const commit = (el: HTMLElement) => {
       if (cancelled) return;
       const r = el.getBoundingClientRect();
@@ -157,22 +167,25 @@ const SpotlightTour = ({ open, onClose }: Props) => {
         setTargetMissing(true);
         return;
       }
+      const paddedWidth = Math.min(r.width + PADDING * 2, window.innerWidth - 16);
+      const paddedHeight = Math.min(r.height + PADDING * 2, window.innerHeight - 16);
       setRect({
-        top: Math.max(8, r.top - PADDING),
-        left: Math.max(8, r.left - PADDING),
-        width: r.width + PADDING * 2,
-        height: r.height + PADDING * 2,
+        top: Math.max(8, Math.min(r.top - PADDING, window.innerHeight - paddedHeight - 8)),
+        left: Math.max(8, Math.min(r.left - PADDING, window.innerWidth - paddedWidth - 8)),
+        width: paddedWidth,
+        height: paddedHeight,
       });
     };
 
     const tryFind = () => {
       if (cancelled) return;
-      const el = document.querySelector(step.target as string) as HTMLElement | null;
+      const el = findVisibleTarget();
 
       if (!el) {
         attempts += 1;
         if (attempts >= maxAttempts) {
           setTargetMissing(true);
+          setRect(null);
           return;
         }
         pollTimer = window.setTimeout(tryFind, 100);
@@ -180,7 +193,10 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       }
 
       try {
-        el.scrollIntoView({ block: "center", inline: "nearest", behavior: "auto" });
+        const isFixedNavTarget = el.closest("header, nav") !== null;
+        if (!isFixedNavTarget) {
+          el.scrollIntoView({ block: "center", inline: "nearest", behavior: "auto" });
+        }
       } catch {
       }
 
@@ -193,7 +209,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
     pollTimer = window.setTimeout(tryFind, 120);
 
     const onResize = () => {
-      const el = document.querySelector(step.target as string) as HTMLElement | null;
+      const el = findVisibleTarget();
       if (el) commit(el);
     };
 
@@ -275,14 +291,14 @@ const SpotlightTour = ({ open, onClose }: Props) => {
 
     const bottomEdge = rect.top - 12;
     return {
-      top: Math.max(safeTop, bottomEdge - 280),
+        top: Math.min(Math.max(safeTop, bottomEdge - 280), window.innerHeight - safeBottom - 220),
       left,
       width: cardWidth,
       maxHeight: bottomEdge - safeTop,
     };
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] animate-fade-in overscroll-none">
       <div className="absolute inset-0 bg-foreground/72" onClick={handleSkip} aria-hidden="true" />
 
@@ -308,7 +324,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       {rect && (
         <div
           aria-hidden="true"
-          className="absolute pointer-events-none rounded-[12px] tour-glow"
+          className="absolute z-[101] pointer-events-none rounded-[12px] tour-glow"
           style={{
             top: rect.top,
             left: rect.left,
@@ -319,7 +335,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
       )}
 
       <div
-        className="absolute rounded-2xl bg-background border border-border shadow-2xl p-4 sm:p-5 overflow-y-auto"
+        className="absolute z-[102] rounded-2xl bg-background border border-border shadow-2xl p-4 sm:p-5 overflow-y-auto"
         style={getCardStyle()}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -393,7 +409,8 @@ const SpotlightTour = ({ open, onClose }: Props) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
