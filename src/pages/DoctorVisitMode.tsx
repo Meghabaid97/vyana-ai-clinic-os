@@ -541,26 +541,26 @@ const DoctorVisitMode = () => {
                 <span className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">5</span>
                 <h3 className="text-[13px] font-bold text-foreground">Share with your doctor</h3>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Button onClick={shareWA} size="sm" className="h-10 gap-1.5 text-[12px]">
-                  <Share2 className="h-3.5 w-3.5" /> WhatsApp
+              <div className="grid grid-cols-5 gap-2">
+                <Button onClick={shareViaWhatsAppLink} size="sm" variant="outline" disabled={isDemo || !!sharing} className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Share via WhatsApp">
+                  {sharing === "whatsapp" ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
+                  WhatsApp
                 </Button>
-                <Button
-                  onClick={() => setShareSheetOpen(true)}
-                  size="sm"
-                  variant="secondary"
-                  className="h-10 gap-1.5 text-[12px] bg-primary/10 text-primary hover:bg-primary/15"
-                  disabled={isDemo}
-                  title={isDemo ? "QR sharing isn't available for sample data" : "Show QR for doctor to scan"}
-                >
-                  <QrCode className="h-3.5 w-3.5" /> Show QR
+                <Button onClick={shareViaEmail} size="sm" variant="outline" disabled={isDemo || !!sharing} className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Share via email">
+                  {sharing === "email" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                  Email
                 </Button>
-                <Button onClick={copy} size="sm" variant="outline" className="h-10 gap-1.5 text-[12px]">
-                  {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied ? "Copied" : "Copy"}
+                <Button onClick={shareViaQr} size="sm" variant="outline" disabled={isDemo || !!sharing} className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Show QR" title={isDemo ? "QR sharing isn't available for sample data" : "Show QR for doctor to scan"}>
+                  {sharing === "qr" ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode className="h-4 w-4" />}
+                  QR
                 </Button>
-                <Button onClick={downloadTxt} size="sm" variant="outline" className="h-10 gap-1.5 text-[12px]">
-                  <FileDown className="h-3.5 w-3.5" /> Save
+                <Button onClick={copyShareLink} size="sm" variant="outline" disabled={isDemo || !!sharing} className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Copy secure link">
+                  {sharing === "copylink" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+                  Link
+                </Button>
+                <Button onClick={downloadTxt} size="sm" variant="outline" className="h-14 flex-col gap-1 text-[10px] font-medium" aria-label="Save as file">
+                  <FileDown className="h-4 w-4" />
+                  Save
                 </Button>
               </div>
               <p className="mt-3 text-[10.5px] text-muted-foreground leading-snug">
@@ -582,11 +582,30 @@ const DoctorVisitMode = () => {
         </>
       )}
 
-      <ShareCeremonySheet
-        open={shareSheetOpen}
-        onOpenChange={setShareSheetOpen}
-        onCreate={createShareLink}
-      />
+      {/* QR dialog — shown after a secure link is created */}
+      <Dialog open={!!qrDialog} onOpenChange={(o) => !o && setQrDialog(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Scan to open</DialogTitle>
+            <DialogDescription>
+              Have the doctor scan this code with their phone camera. Link expires in 24 hours.
+            </DialogDescription>
+          </DialogHeader>
+          {qrDialog && (
+            <div className="flex flex-col items-center gap-3">
+              <div className="rounded-xl border border-border bg-white p-3">
+                <img src={qrDialog.dataUrl} alt="QR code" className="h-56 w-56" />
+              </div>
+              <p className="text-[12px] text-muted-foreground text-center break-all px-4">
+                {qrDialog.url}
+              </p>
+              <Button variant="outline" size="sm" onClick={async () => { await navigator.clipboard.writeText(qrDialog.url); toast({ title: "Secure link copied" }); }}>
+                <Copy className="h-3.5 w-3.5 mr-1" /> Copy link
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
