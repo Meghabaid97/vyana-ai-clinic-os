@@ -483,6 +483,36 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     }
   };
 
+  const openNotes = (record: HealthRecord) => {
+    setNotesRecord(record);
+    setNotesValue(record.user_notes || "");
+  };
+
+  const saveNotes = async (regenerate: boolean) => {
+    if (!notesRecord) return;
+    const trimmed = notesValue.trim().slice(0, 2000);
+    setIsSavingNotes(true);
+    try {
+      const { error } = await supabase
+        .from("health_records")
+        .update({ user_notes: trimmed || null })
+        .eq("id", notesRecord.id);
+      if (error) throw error;
+      const updated = { ...notesRecord, user_notes: trimmed || null };
+      setRecords((rs) => rs.map((r) => (r.id === notesRecord.id ? updated : r)));
+      toast({ title: trimmed ? "Notes saved" : "Notes cleared" });
+      setNotesRecord(null);
+      if (regenerate && trimmed) {
+        await summarizeRecord(updated);
+      }
+    } catch (e: any) {
+      console.error("Save notes failed:", e);
+      toast({ title: "Could not save notes", description: e.message ?? "Please try again.", variant: "destructive" });
+    } finally {
+      setIsSavingNotes(false);
+    }
+  };
+
   const deleteRecord = async (record: HealthRecord) => {
     try {
       await supabase.storage.from("health-records").remove([record.file_path]);
