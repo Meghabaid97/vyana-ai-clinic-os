@@ -344,6 +344,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           category: record.category,
           radiologyModality: record.radiology_modality,
           radiologyUploadKind: record.radiology_upload_kind,
+          userNotes: record.user_notes || null,
         },
       });
 
