@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Loader2, ExternalLink, RefreshCw, AlertTriangle } from "lucide-react";
-import BackHeader from "@/components/BackHeader";
 
 type CheckState = "pending" | "ok" | "fail";
 
@@ -114,9 +113,7 @@ const DomainChecklist = () => {
   const anyFailing = checks.some((c) => c.reachable === "fail" || c.oauthProxy === "fail");
 
   return (
-    <div className="min-h-screen bg-background">
-      <BackHeader title="Domain checklist" />
-
+    <div className="bg-background">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 py-6 space-y-6">
         {/* Summary card */}
         <section className="rounded-2xl border border-border bg-card p-5">

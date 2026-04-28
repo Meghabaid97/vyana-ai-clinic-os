@@ -45,6 +45,8 @@ const buildSubRouteTitles = (t: (k: string, p?: any) => string): Record<string, 
   "/app/emergency-contacts": t("app.sub.emergencyContacts"),
   "/app/visit": t("app.sub.visit"),
   "/app/journal": t("app.sub.journal"),
+  "/app/domain-checklist": "Domain checklist",
+  "/app/share-receive": "Add to Vyana",
 });
 
 const AppShell = () => {
