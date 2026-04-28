@@ -243,6 +243,7 @@ ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` 
     return new Response(JSON.stringify({
       summary,
       documentType: extracted.documentType || null,
+      reportDate: normalizedStudyDate,
       importantFindings: [...(extracted.radiologyImpression || []), ...(extracted.findings || [])],
       diagnoses: extracted.diagnoses || [],
       medications: extracted.medications || [],
