@@ -204,6 +204,7 @@ const ShareRecords = () => {
                       >
                         <QrCode className="h-3.5 w-3.5" />
                       </Button>
+                      <Button
                         size="sm"
                         variant="outline"
                         onClick={() => copyLink(link.token)}
