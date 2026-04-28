@@ -824,6 +824,19 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => openNotes(record)}
+                          className="h-8 w-8 rounded-full relative"
+                          aria-label={record.user_notes ? "Edit personal notes" : "Add personal notes"}
+                          title={record.user_notes ? "Edit personal notes" : "Add personal notes"}
+                        >
+                          <StickyNote className={`h-4 w-4 ${record.user_notes ? "text-primary" : "text-muted-foreground"}`} />
+                          {record.user_notes && (
+                            <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-primary" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => startRename(record)}
                           className="h-8 w-8 rounded-full"
                           aria-label="Rename"
