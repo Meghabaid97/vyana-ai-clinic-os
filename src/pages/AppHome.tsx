@@ -199,9 +199,11 @@ const AppHome = () => {
       {/* Doctor-visit briefing is the wedge — give it the dominant tile. */}
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:auto-rows-min">
         {/* Soft opener — warm "letter" tile on the side */}
-        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-2 lg:order-1 lg:px-7 lg:pt-7 lg:pb-7 lg:rounded-3xl lg:border lg:border-border/70 lg:bg-gradient-to-br lg:from-card lg:via-card lg:to-primary/5 lg:flex lg:flex-col lg:justify-center lg:items-center lg:text-center lg:relative lg:overflow-hidden">
-          <div className="max-w-sm md:max-w-xl lg:max-w-none relative lg:flex lg:flex-col lg:items-center">
-            <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-2 sm:mb-3 flex items-center gap-1.5 lg:justify-center">
+        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-2 lg:order-1 lg:px-7 lg:pt-7 lg:pb-7 lg:rounded-3xl lg:border lg:border-border/70 lg:bg-gradient-to-br lg:from-card lg:via-card lg:to-primary/5 lg:flex lg:flex-col lg:justify-center lg:relative lg:overflow-hidden">
+          {/* tiny accent bar — desktop only */}
+          <div className="hidden lg:block absolute left-0 top-7 h-10 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
+          <div className="max-w-sm md:max-w-xl lg:max-w-none relative">
+            <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-2 sm:mb-3 flex items-center gap-1.5">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               {t("home.welcomeBack", { name: firstName })}
             </p>
@@ -211,7 +213,7 @@ const AppHome = () => {
                 {t("home.h1.l2")}
               </span>
             </h1>
-            <p className="mt-2 sm:mt-3 lg:mt-3 max-w-[34ch] md:max-w-[42ch] lg:max-w-[28ch] text-[13px] sm:text-[14px] lg:text-[13.5px] text-muted-foreground leading-relaxed lg:mx-auto">
+            <p className="mt-2 sm:mt-3 lg:mt-3 max-w-[34ch] md:max-w-[42ch] lg:max-w-[28ch] text-[13px] sm:text-[14px] lg:text-[13.5px] text-muted-foreground leading-relaxed">
               {t("home.subtitle")}
             </p>
           </div>
