@@ -199,21 +199,21 @@ const AppHome = () => {
       {/* Doctor-visit briefing is the wedge — give it the dominant tile. */}
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:auto-rows-min">
         {/* Soft opener — warm "letter" tile on the side */}
-        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-2 lg:order-1 lg:px-7 lg:pt-7 lg:pb-7 lg:rounded-3xl lg:border lg:border-border/70 lg:bg-gradient-to-br lg:from-card lg:via-card lg:to-primary/5 lg:flex lg:flex-col lg:justify-center lg:relative lg:overflow-hidden">
+        <section className="px-4 sm:px-6 pt-3 sm:pt-4 pb-2 sm:pb-3 lg:col-span-2 lg:order-1 lg:px-6 lg:pt-5 lg:pb-5 lg:rounded-3xl lg:border lg:border-border/70 lg:bg-gradient-to-br lg:from-card lg:via-card lg:to-primary/5 lg:flex lg:flex-col lg:justify-center lg:relative lg:overflow-hidden">
           {/* tiny accent bar — desktop only */}
-          <div className="hidden lg:block absolute left-0 top-7 h-10 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
+          <div className="hidden lg:block absolute left-0 top-5 h-8 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
           <div className="max-w-sm md:max-w-xl lg:max-w-none relative">
-            <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-2 sm:mb-3 flex items-center gap-1.5">
+            <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-1.5 sm:mb-2 flex items-center gap-1.5">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               {t("home.welcomeBack", { name: firstName })}
             </p>
-            <h1 className="text-[22px] sm:text-[26px] md:text-[30px] lg:text-[28px] xl:text-[32px] font-extrabold leading-[1.08] tracking-[-0.02em] text-foreground">
+            <h1 className="text-[20px] sm:text-[24px] md:text-[26px] lg:text-[24px] xl:text-[28px] font-extrabold leading-[1.1] tracking-[-0.02em] text-foreground">
               {t("home.h1.l1")}{" "}
               <span className="block bg-gradient-to-br from-primary via-primary to-primary/70 bg-clip-text text-transparent">
                 {t("home.h1.l2")}
               </span>
             </h1>
-            <p className="mt-2 sm:mt-3 lg:mt-3 max-w-[34ch] md:max-w-[42ch] lg:max-w-[28ch] text-[13px] sm:text-[14px] lg:text-[13.5px] text-muted-foreground leading-relaxed">
+            <p className="mt-1.5 sm:mt-2 lg:mt-2 max-w-[34ch] md:max-w-[42ch] lg:max-w-[28ch] text-[12.5px] sm:text-[13px] lg:text-[13px] text-muted-foreground leading-snug">
               {t("home.subtitle")}
             </p>
           </div>
