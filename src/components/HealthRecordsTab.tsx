@@ -1088,6 +1088,45 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                   </div>
                 </div>
               )}
+              {viewingSummary.category === "radiology_imaging" && (viewingSummary.imaging_discussion_points?.length ?? 0) > 0 && (
+                <div className="p-4 rounded-lg border border-primary/30 bg-primary/5 space-y-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-primary" />
+                      Things to discuss with your doctor
+                    </h4>
+                    <p className="text-[11.5px] text-muted-foreground mt-0.5">
+                      AI suggestions based on the image. Not a diagnosis.
+                    </p>
+                  </div>
+                  <ul className="space-y-2.5">
+                    {viewingSummary.imaging_discussion_points!.map((p, i) => {
+                      const pct = Math.round((p.confidence || 0) * 100);
+                      const tone =
+                        pct >= 70 ? "bg-primary" : pct >= 40 ? "bg-amber-500" : "bg-muted-foreground";
+                      return (
+                        <li key={i} className="rounded-lg bg-background/70 border border-border p-2.5">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-[13px] text-foreground leading-snug flex-1">{p.point}</p>
+                            <span className="text-[11px] font-semibold text-muted-foreground whitespace-nowrap">{pct}%</span>
+                          </div>
+                          <div className="mt-1.5 h-1 w-full rounded-full bg-muted overflow-hidden">
+                            <div className={`h-full ${tone}`} style={{ width: `${pct}%` }} />
+                          </div>
+                          {p.rationale && (
+                            <p className="text-[11.5px] text-muted-foreground mt-1.5 leading-snug">{p.rationale}</p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  {viewingSummary.imaging_discussion_disclaimer && (
+                    <p className="text-[11.5px] text-muted-foreground italic leading-snug">
+                      {viewingSummary.imaging_discussion_disclaimer}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
