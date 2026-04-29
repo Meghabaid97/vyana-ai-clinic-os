@@ -26,25 +26,25 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
 
   return (
     <section className="px-4 sm:px-5 pb-5 lg:px-0 lg:pb-0">
-      <div className="relative overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/12 via-primary/6 to-transparent p-5">
+      <div className="relative overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/12 via-primary/6 to-transparent p-5 lg:p-7">
         {/* subtle decorative ring */}
-        <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-primary/10 blur-2xl" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 lg:h-64 lg:w-64 rounded-full bg-primary/10 blur-2xl" />
 
         <div className="relative">
           <div className="flex items-center gap-2 mb-3" style={stage(0)}>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase text-primary">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[10px] lg:text-[11px] font-semibold tracking-wider uppercase text-primary">
               <Clock className="h-3 w-3" /> {t("briefingHero.eyebrow")}
             </span>
           </div>
 
           <h2
-            className="text-[24px] sm:text-[26px] font-extrabold leading-[1.1] tracking-[-0.02em] text-foreground"
+            className="text-[24px] sm:text-[26px] lg:text-[36px] xl:text-[42px] font-extrabold leading-[1.05] tracking-[-0.02em] text-foreground"
             style={stage(120)}
           >
             {t("briefingHero.title.l1")} <span className="text-primary">{t("briefingHero.title.l2")}</span>
           </h2>
           <p
-            className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed max-w-[36ch]"
+            className="mt-2 lg:mt-3 text-[13.5px] lg:text-[15px] text-muted-foreground leading-relaxed max-w-[36ch] lg:max-w-[52ch]"
             style={stage(220)}
           >
             {t("briefingHero.body")}
@@ -54,20 +54,20 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
           <button
             onClick={() => navigate("/app/briefing")}
             style={stage(340)}
-            className="group mt-5 flex w-full items-center gap-3 rounded-2xl bg-primary p-4 text-left shadow-sm transition-transform active:scale-[0.99]"
+            className="group mt-5 lg:mt-6 flex w-full items-center gap-3 rounded-2xl bg-primary p-4 lg:p-5 text-left shadow-sm transition-transform active:scale-[0.99]"
           >
-            <div className="h-11 w-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0">
-              <Stethoscope className="h-5 w-5 text-primary-foreground" />
+            <div className="h-11 w-11 lg:h-13 lg:w-13 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0">
+              <Stethoscope className="h-5 w-5 lg:h-6 lg:w-6 text-primary-foreground" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[15.5px] font-semibold text-primary-foreground leading-tight">
+              <p className="text-[15.5px] lg:text-[17px] font-semibold text-primary-foreground leading-tight">
                 {t("briefingHero.cta.start")}
               </p>
-              <p className="text-[12px] text-primary-foreground/85 mt-0.5 leading-snug">
+              <p className="text-[12px] lg:text-[13px] text-primary-foreground/85 mt-0.5 leading-snug">
                 {hasRecords ? t("briefingHero.cta.fromRecords") : t("briefingHero.cta.fromSample")}
               </p>
             </div>
-            <ArrowRight className="h-4 w-4 text-primary-foreground shrink-0 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="h-4 w-4 lg:h-5 lg:w-5 text-primary-foreground shrink-0 transition-transform group-hover:translate-x-0.5" />
           </button>
 
           {/* Secondary path */}

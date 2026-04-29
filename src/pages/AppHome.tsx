@@ -195,25 +195,26 @@ const AppHome = () => {
         </div>
       )}
 
-      {/* ============ HERO BAND — bento on lg+ (welcome 4 / briefing 2) ============ */}
+      {/* ============ HERO BAND — bento on lg+ (briefing 4 / welcome 2) ============ */}
+      {/* Doctor-visit briefing is the wedge — give it the dominant tile. */}
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:auto-rows-min">
-        {/* Soft opener — wider tile */}
-        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-4 lg:px-6 lg:pt-7 lg:pb-7 lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:flex lg:flex-col lg:justify-center">
+        {/* Soft opener — compact tile on the side */}
+        <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 lg:col-span-2 lg:order-2 lg:px-6 lg:pt-6 lg:pb-6 lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:flex lg:flex-col lg:justify-center">
           <div className="max-w-sm md:max-w-xl lg:max-w-none">
             <p className="text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-2 sm:mb-3">
               {t("home.welcomeBack", { name: firstName })}
             </p>
-            <h1 className="text-[26px] sm:text-[32px] md:text-[38px] lg:text-[44px] xl:text-5xl font-extrabold leading-[1.05] tracking-[-0.03em] text-foreground">
+            <h1 className="text-[22px] sm:text-[26px] md:text-[30px] lg:text-[26px] xl:text-[30px] font-extrabold leading-[1.1] tracking-[-0.02em] text-foreground">
               {t("home.h1.l1")}{" "}
               <span className="block text-primary">{t("home.h1.l2")}</span>
             </h1>
-            <p className="mt-2 sm:mt-3 lg:mt-4 max-w-[34ch] md:max-w-[42ch] lg:max-w-[48ch] text-[13px] sm:text-[14px] lg:text-base text-muted-foreground leading-relaxed">
+            <p className="mt-2 sm:mt-3 lg:mt-3 max-w-[34ch] md:max-w-[42ch] lg:max-w-[28ch] text-[13px] sm:text-[14px] lg:text-[13px] text-muted-foreground leading-relaxed">
               {t("home.subtitle")}
             </p>
           </div>
         </section>
 
-        <div className="lg:col-span-2 lg:pb-0" data-tour="briefing-hero">
+        <div className="lg:col-span-4 lg:order-1 lg:pb-0" data-tour="briefing-hero">
           <DashboardBriefingHero hasRecords={hasRecords} />
         </div>
       </div>
