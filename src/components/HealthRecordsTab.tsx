@@ -199,7 +199,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         .order("uploaded_at", { ascending: false });
 
       if (error) throw error;
-      setRecords((data || []) as HealthRecord[]);
+      setRecords((data || []) as unknown as HealthRecord[]);
     } catch (error: any) {
       console.error("Error loading health records:", error);
     } finally {
