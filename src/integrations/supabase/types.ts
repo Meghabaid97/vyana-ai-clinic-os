@@ -572,6 +572,8 @@ export type Database = {
           file_size: number
           file_type: string
           id: string
+          imaging_discussion_disclaimer: string | null
+          imaging_discussion_points: Json
           important_findings: Json
           medications: Json
           patient_id: string
@@ -600,6 +602,8 @@ export type Database = {
           file_size: number
           file_type: string
           id?: string
+          imaging_discussion_disclaimer?: string | null
+          imaging_discussion_points?: Json
           important_findings?: Json
           medications?: Json
           patient_id: string
@@ -628,6 +632,8 @@ export type Database = {
           file_size?: number
           file_type?: string
           id?: string
+          imaging_discussion_disclaimer?: string | null
+          imaging_discussion_points?: Json
           important_findings?: Json
           medications?: Json
           patient_id?: string
