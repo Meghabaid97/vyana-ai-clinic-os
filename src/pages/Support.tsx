@@ -8,8 +8,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Send, MessageCircle, Clock, CheckCircle2, Trash2, Globe, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Loader2, Send, MessageCircle, Clock, CheckCircle2, Trash2 } from "lucide-react";
 
 interface Ticket {
   id: string;
