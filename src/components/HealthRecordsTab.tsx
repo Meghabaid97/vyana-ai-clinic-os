@@ -352,10 +352,55 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
       if (error) throw error;
 
+      // For imaging uploads where we actually have a viewable image, also generate
+      // patient-friendly "discussion points" with confidence scores. This is a
+      // SEPARATE call from the strict extractor (which by design refuses to
+      // interpret pixels). Framed as decision support, never as a diagnosis.
+      let discussionPoints: { point: string; confidence: number; rationale?: string }[] = [];
+      let discussionDisclaimer: string | null = null;
+      const isImagingFile =
+        record.category === "radiology_imaging" &&
+        (record.file_type.startsWith("image/") || record.file_type === "application/pdf");
+      if (isImagingFile) {
+        try {
+          const { data: dp, error: dpErr } = await supabase.functions.invoke(
+            "analyze-imaging-discussion-points",
+            {
+              body: {
+                fileName: record.file_name,
+                fileType: record.file_type,
+                fileContent,
+                modality: data.radiology?.modality || record.radiology_modality || null,
+                bodyPart: data.radiology?.bodyPart || null,
+                userNotes: record.user_notes || null,
+              },
+            }
+          );
+          if (!dpErr && dp) {
+            discussionPoints = Array.isArray(dp.points) ? dp.points : [];
+            discussionDisclaimer = typeof dp.disclaimer === "string" ? dp.disclaimer : null;
+          } else if (dpErr) {
+            console.warn("Imaging discussion-points step failed (non-fatal)", dpErr);
+          }
+        } catch (e) {
+          console.warn("Imaging discussion-points step threw (non-fatal)", e);
+        }
+      }
+
+      // Append discussion points to ai_summary so the briefing automatically picks them up.
+      let summaryWithDiscussion: string = data.summary || "";
+      if (discussionPoints.length > 0) {
+        const lines = discussionPoints
+          .map((p) => `- ${p.point} (AI confidence: ${Math.round((p.confidence || 0) * 100)}%)`)
+          .join("\n");
+        summaryWithDiscussion += `\n\nPossible Things to Discuss with Your Doctor (AI suggestions, not a diagnosis):\n${lines}`;
+        if (discussionDisclaimer) summaryWithDiscussion += `\n\n${discussionDisclaimer}`;
+      }
+
       const { error: updateError } = await supabase
         .from("health_records")
         .update({
-          ai_summary: data.summary,
+          ai_summary: summaryWithDiscussion,
           document_type: data.documentType,
           important_findings: data.importantFindings || [],
           medications: data.medications || [],
@@ -369,6 +414,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           radiology_impression: data.radiology?.impression || [],
           radiology_recommendations: data.radiology?.recommendations || [],
           radiology_provider: data.radiology?.provider || null,
+          imaging_discussion_points: discussionPoints,
+          imaging_discussion_disclaimer: discussionDisclaimer,
         })
         .eq("id", record.id);
 
