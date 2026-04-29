@@ -498,6 +498,40 @@ const Auth = () => {
     return !!data;
   };
 
+  const handleForgotPassword = async () => {
+    if (!email || !validateEmail(email)) {
+      setEmailError("Please enter a valid email address first");
+      toast({
+        title: "Email required",
+        description: "Enter your email above, then tap Forgot password again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      const redirectBase = Capacitor.isNativePlatform()
+        ? CUSTOMER_APP_ORIGIN
+        : window.location.origin;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${redirectBase}/reset-password`,
+      });
+      if (error) throw error;
+      toast({
+        title: "Check your inbox",
+        description: `We sent a password reset link to ${email}.`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Couldn't send reset link",
+        description: err?.message ?? "Please try again in a moment.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLockedOut) {
