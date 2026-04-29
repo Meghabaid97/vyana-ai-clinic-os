@@ -75,6 +75,8 @@ interface HealthRecord {
   radiology_provider?: string | null;
   radiology_upload_kind?: string | null;
   user_notes?: string | null;
+  imaging_discussion_points?: { point: string; confidence: number; rationale?: string }[] | null;
+  imaging_discussion_disclaimer?: string | null;
 }
 
 interface DoctorForConsent {
