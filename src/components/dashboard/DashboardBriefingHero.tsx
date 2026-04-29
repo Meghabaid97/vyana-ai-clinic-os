@@ -25,9 +25,9 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
   });
 
   return (
-    <section className="px-4 sm:px-5 pb-5 lg:px-0 lg:pb-0">
+    <section className="px-4 sm:px-5 pb-4 lg:px-0 lg:pb-0">
       <div
-        className="group/hero relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/8 to-background p-5 lg:p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_32px_-12px_hsl(var(--primary)/0.25)] transition-shadow duration-500 hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_16px_48px_-12px_hsl(var(--primary)/0.35)]"
+        className="group/hero relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/8 to-background p-4 lg:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_32px_-12px_hsl(var(--primary)/0.25)] transition-shadow duration-500 hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_16px_48px_-12px_hsl(var(--primary)/0.35)]"
       >
         {/* Layered glows for depth */}
         <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 lg:h-80 lg:w-80 rounded-full bg-primary/15 blur-3xl" />
@@ -36,7 +36,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
         <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-tr from-transparent via-white/0 to-white/10 opacity-0 group-hover/hero:opacity-100 transition-opacity duration-700" />
 
         <div className="relative">
-          <div className="flex items-center gap-2 mb-3 lg:mb-4" style={stage(0)}>
+          <div className="flex items-center gap-2 mb-2 lg:mb-3" style={stage(0)}>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/20 px-2.5 py-1 text-[10px] lg:text-[11px] font-semibold tracking-wider uppercase text-primary ring-1 ring-primary/20">
               <Clock className="h-3 w-3" /> {t("briefingHero.eyebrow")}
             </span>
@@ -47,7 +47,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
           </div>
 
           <h2
-            className="text-[26px] sm:text-[30px] lg:text-[40px] xl:text-[46px] font-extrabold leading-[1.02] tracking-[-0.025em] text-foreground"
+            className="text-[22px] sm:text-[26px] lg:text-[34px] xl:text-[38px] font-extrabold leading-[1.05] tracking-[-0.025em] text-foreground"
             style={stage(120)}
           >
             {t("briefingHero.title.l1")}{" "}
@@ -56,7 +56,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
             </span>
           </h2>
           <p
-            className="mt-3 lg:mt-4 text-[14px] lg:text-[15.5px] text-muted-foreground leading-relaxed max-w-[40ch] lg:max-w-[54ch]"
+            className="mt-2 lg:mt-2.5 text-[13px] lg:text-[14px] text-muted-foreground leading-snug max-w-[40ch] lg:max-w-[54ch]"
             style={stage(220)}
           >
             {t("briefingHero.body")}
@@ -66,19 +66,19 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
           <button
             onClick={() => navigate("/app/briefing")}
             style={stage(340)}
-            className="group relative mt-5 lg:mt-7 flex w-full items-center gap-3 lg:gap-4 rounded-2xl bg-gradient-to-br from-primary to-primary/90 p-4 lg:p-5 text-left shadow-[0_4px_14px_-2px_hsl(var(--primary)/0.45)] transition-all duration-300 hover:shadow-[0_8px_24px_-4px_hsl(var(--primary)/0.55)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] overflow-hidden"
+            className="group relative mt-3 lg:mt-4 flex w-full items-center gap-3 lg:gap-4 rounded-2xl bg-gradient-to-br from-primary to-primary/90 p-3 lg:p-4 text-left shadow-[0_4px_14px_-2px_hsl(var(--primary)/0.45)] transition-all duration-300 hover:shadow-[0_8px_24px_-4px_hsl(var(--primary)/0.55)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] overflow-hidden"
           >
             {/* Subtle shimmer sweep on hover */}
             <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:translate-x-full transition-transform duration-1000" />
 
-            <div className="relative h-11 w-11 lg:h-14 lg:w-14 rounded-xl bg-primary-foreground/15 ring-1 ring-primary-foreground/20 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-4deg] transition-transform duration-300">
-              <Stethoscope className="h-5 w-5 lg:h-6 lg:w-6 text-primary-foreground" />
+            <div className="relative h-10 w-10 lg:h-12 lg:w-12 rounded-xl bg-primary-foreground/15 ring-1 ring-primary-foreground/20 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-4deg] transition-transform duration-300">
+              <Stethoscope className="h-4.5 w-4.5 lg:h-5 lg:w-5 text-primary-foreground" />
             </div>
             <div className="relative flex-1 min-w-0">
-              <p className="text-[16px] lg:text-[18px] font-semibold text-primary-foreground leading-tight">
+              <p className="text-[15px] lg:text-[16px] font-semibold text-primary-foreground leading-tight">
                 {t("briefingHero.cta.start")}
               </p>
-              <p className="text-[12px] lg:text-[13px] text-primary-foreground/85 mt-1 leading-snug">
+              <p className="text-[11.5px] lg:text-[12.5px] text-primary-foreground/85 mt-0.5 leading-snug">
                 {hasRecords ? t("briefingHero.cta.fromRecords") : t("briefingHero.cta.fromSample")}
               </p>
             </div>
@@ -88,11 +88,11 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
           </button>
 
           {/* Secondary path */}
-          <div className="mt-3 grid grid-cols-2 gap-2 lg:gap-3">
+          <div className="mt-2.5 grid grid-cols-2 gap-2 lg:gap-3">
             <button
               onClick={() => navigate("/app/share")}
               style={stage(460)}
-              className="group/btn flex items-center gap-2 rounded-xl border border-border bg-card/70 backdrop-blur-sm px-3 py-2.5 lg:py-3 text-left hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 transition-all duration-200 min-w-0"
+              className="group/btn flex items-center gap-2 rounded-xl border border-border bg-card/70 backdrop-blur-sm px-3 py-2 lg:py-2.5 text-left hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 transition-all duration-200 min-w-0"
             >
               <Share2 className="h-4 w-4 text-primary shrink-0 group-hover/btn:scale-110 transition-transform" />
               <span className="text-[12px] lg:text-[13px] font-medium text-foreground truncate">Share with doctor</span>
@@ -100,7 +100,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
             <button
               onClick={() => navigate("/app/emergency-contacts")}
               style={stage(540)}
-              className="group/btn flex items-center gap-2 rounded-xl border border-border bg-card/70 backdrop-blur-sm px-3 py-2.5 lg:py-3 text-left hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 transition-all duration-200 min-w-0"
+              className="group/btn flex items-center gap-2 rounded-xl border border-border bg-card/70 backdrop-blur-sm px-3 py-2 lg:py-2.5 text-left hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 transition-all duration-200 min-w-0"
             >
               <Shield className="h-4 w-4 text-primary shrink-0 group-hover/btn:scale-110 transition-transform" />
               <span className="text-[12px] lg:text-[13px] font-medium text-foreground truncate">Emergency access</span>
