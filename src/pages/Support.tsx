@@ -8,8 +8,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Send, MessageCircle, Clock, CheckCircle2, Trash2, Globe, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Loader2, Send, MessageCircle, Clock, CheckCircle2, Trash2 } from "lucide-react";
 
 interface Ticket {
   id: string;
@@ -97,24 +96,6 @@ const Support = () => {
         <p className="text-sm text-muted-foreground mt-1">
           Raise a ticket and we will get back to you. Tickets are kept for 30 days.
         </p>
-      </section>
-
-      <section className="px-5 pt-5">
-        <Link
-          to="/app/domain-checklist"
-          className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary/30 transition-colors"
-        >
-          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <Globe className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground">Domain & Google sign-in checklist</p>
-            <p className="text-[12px] text-muted-foreground mt-0.5">
-              Verify vyana.care and www.vyana.care are connected and OAuth is reachable.
-            </p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-        </Link>
       </section>
 
       <section className="px-5 pt-6">
