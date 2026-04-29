@@ -387,20 +387,10 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         }
       }
 
-      // Append discussion points to ai_summary so the briefing automatically picks them up.
-      let summaryWithDiscussion: string = data.summary || "";
-      if (discussionPoints.length > 0) {
-        const lines = discussionPoints
-          .map((p) => `- ${p.point} (AI confidence: ${Math.round((p.confidence || 0) * 100)}%)`)
-          .join("\n");
-        summaryWithDiscussion += `\n\nPossible Things to Discuss with Your Doctor (AI suggestions, not a diagnosis):\n${lines}`;
-        if (discussionDisclaimer) summaryWithDiscussion += `\n\n${discussionDisclaimer}`;
-      }
-
       const { error: updateError } = await supabase
         .from("health_records")
         .update({
-          ai_summary: summaryWithDiscussion,
+          ai_summary: data.summary || "",
           document_type: data.documentType,
           important_findings: data.importantFindings || [],
           medications: data.medications || [],
