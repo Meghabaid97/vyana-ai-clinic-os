@@ -11,6 +11,7 @@ import ChunkErrorBoundary from "@/components/ChunkErrorBoundary";
 // Eager: minimal route shell only
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AppShell = lazy(() => import("./components/AppShell"));
 const AppHome = lazy(() => import("./pages/AppHome"));
 
