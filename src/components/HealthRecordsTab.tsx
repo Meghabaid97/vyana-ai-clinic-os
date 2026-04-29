@@ -75,6 +75,8 @@ interface HealthRecord {
   radiology_provider?: string | null;
   radiology_upload_kind?: string | null;
   user_notes?: string | null;
+  imaging_discussion_points?: { point: string; confidence: number; rationale?: string }[] | null;
+  imaging_discussion_disclaimer?: string | null;
 }
 
 interface DoctorForConsent {
@@ -197,7 +199,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         .order("uploaded_at", { ascending: false });
 
       if (error) throw error;
-      setRecords((data || []) as HealthRecord[]);
+      setRecords((data || []) as unknown as HealthRecord[]);
     } catch (error: any) {
       console.error("Error loading health records:", error);
     } finally {
@@ -350,10 +352,55 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
 
       if (error) throw error;
 
+      // For imaging uploads where we actually have a viewable image, also generate
+      // patient-friendly "discussion points" with confidence scores. This is a
+      // SEPARATE call from the strict extractor (which by design refuses to
+      // interpret pixels). Framed as decision support, never as a diagnosis.
+      let discussionPoints: { point: string; confidence: number; rationale?: string }[] = [];
+      let discussionDisclaimer: string | null = null;
+      const isImagingFile =
+        record.category === "radiology_imaging" &&
+        (record.file_type.startsWith("image/") || record.file_type === "application/pdf");
+      if (isImagingFile) {
+        try {
+          const { data: dp, error: dpErr } = await supabase.functions.invoke(
+            "analyze-imaging-discussion-points",
+            {
+              body: {
+                fileName: record.file_name,
+                fileType: record.file_type,
+                fileContent,
+                modality: data.radiology?.modality || record.radiology_modality || null,
+                bodyPart: data.radiology?.bodyPart || null,
+                userNotes: record.user_notes || null,
+              },
+            }
+          );
+          if (!dpErr && dp) {
+            discussionPoints = Array.isArray(dp.points) ? dp.points : [];
+            discussionDisclaimer = typeof dp.disclaimer === "string" ? dp.disclaimer : null;
+          } else if (dpErr) {
+            console.warn("Imaging discussion-points step failed (non-fatal)", dpErr);
+          }
+        } catch (e) {
+          console.warn("Imaging discussion-points step threw (non-fatal)", e);
+        }
+      }
+
+      // Append discussion points to ai_summary so the briefing automatically picks them up.
+      let summaryWithDiscussion: string = data.summary || "";
+      if (discussionPoints.length > 0) {
+        const lines = discussionPoints
+          .map((p) => `- ${p.point} (AI confidence: ${Math.round((p.confidence || 0) * 100)}%)`)
+          .join("\n");
+        summaryWithDiscussion += `\n\nPossible Things to Discuss with Your Doctor (AI suggestions, not a diagnosis):\n${lines}`;
+        if (discussionDisclaimer) summaryWithDiscussion += `\n\n${discussionDisclaimer}`;
+      }
+
       const { error: updateError } = await supabase
         .from("health_records")
         .update({
-          ai_summary: data.summary,
+          ai_summary: summaryWithDiscussion,
           document_type: data.documentType,
           important_findings: data.importantFindings || [],
           medications: data.medications || [],
@@ -367,6 +414,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           radiology_impression: data.radiology?.impression || [],
           radiology_recommendations: data.radiology?.recommendations || [],
           radiology_provider: data.radiology?.provider || null,
+          imaging_discussion_points: discussionPoints,
+          imaging_discussion_disclaimer: discussionDisclaimer,
         })
         .eq("id", record.id);
 
@@ -1037,6 +1086,45 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                     <p className="sm:col-span-2">Impression: {viewingSummary.radiology_impression?.join(" • ") || "Not extracted"}</p>
                     <p className="sm:col-span-2">Follow-up advice: {viewingSummary.radiology_recommendations?.join(" • ") || "Not extracted"}</p>
                   </div>
+                </div>
+              )}
+              {viewingSummary.category === "radiology_imaging" && (viewingSummary.imaging_discussion_points?.length ?? 0) > 0 && (
+                <div className="p-4 rounded-lg border border-primary/30 bg-primary/5 space-y-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-primary" />
+                      Things to discuss with your doctor
+                    </h4>
+                    <p className="text-[11.5px] text-muted-foreground mt-0.5">
+                      AI suggestions based on the image. Not a diagnosis.
+                    </p>
+                  </div>
+                  <ul className="space-y-2.5">
+                    {viewingSummary.imaging_discussion_points!.map((p, i) => {
+                      const pct = Math.round((p.confidence || 0) * 100);
+                      const tone =
+                        pct >= 70 ? "bg-primary" : pct >= 40 ? "bg-amber-500" : "bg-muted-foreground";
+                      return (
+                        <li key={i} className="rounded-lg bg-background/70 border border-border p-2.5">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-[13px] text-foreground leading-snug flex-1">{p.point}</p>
+                            <span className="text-[11px] font-semibold text-muted-foreground whitespace-nowrap">{pct}%</span>
+                          </div>
+                          <div className="mt-1.5 h-1 w-full rounded-full bg-muted overflow-hidden">
+                            <div className={`h-full ${tone}`} style={{ width: `${pct}%` }} />
+                          </div>
+                          {p.rationale && (
+                            <p className="text-[11.5px] text-muted-foreground mt-1.5 leading-snug">{p.rationale}</p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  {viewingSummary.imaging_discussion_disclaimer && (
+                    <p className="text-[11.5px] text-muted-foreground italic leading-snug">
+                      {viewingSummary.imaging_discussion_disclaimer}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
