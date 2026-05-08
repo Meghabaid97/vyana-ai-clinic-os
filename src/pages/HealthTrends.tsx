@@ -116,12 +116,19 @@ const HealthTrends = () => {
       return;
     }
 
-    const latestRecord = records[0];
-    const marker = `${latestRecord.id}:${latestRecord.updated_at ?? latestRecord.uploaded_at}`;
+    // Trends should always reflect the latest VITALS-bearing report.
+    // Skip imaging, prescriptions, and hospital bills — they don't contain
+    // lab vitals, and analyzing them would just blank out the displayed trends.
+    const VITAL_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
+    const latestVitalsRecord =
+      records.find((r) => VITAL_CATEGORIES.has((r as any).category)) || null;
+    if (!latestVitalsRecord) return;
+
+    const marker = `${latestVitalsRecord.id}:${latestVitalsRecord.updated_at ?? latestVitalsRecord.uploaded_at}`;
     if (autoProcessedRecordRef.current === marker) return;
     autoProcessedRecordRef.current = marker;
 
-    void autoAnalyzeLatestRecord(latestRecord);
+    void autoAnalyzeLatestRecord(latestVitalsRecord);
   }, [records]);
 
   const loadTrends = async () => {
