@@ -380,8 +380,10 @@ const HealthTrends = () => {
 
   const runAnalysis = async () => {
     if (!records.length) return;
+    const VITAL_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
+    const target = records.find((r) => VITAL_CATEGORIES.has((r as any).category)) || records[0];
     autoProcessedRecordRef.current = null;
-    await autoAnalyzeLatestRecord(records[0]);
+    await autoAnalyzeLatestRecord(target);
   };
 
   const runTrendAnalysis = async () => {
