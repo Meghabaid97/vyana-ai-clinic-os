@@ -28,6 +28,7 @@ type HealthRecord = {
   file_name: string;
   file_path: string;
   file_type: string;
+  category?: string;
   ai_summary: string | null;
   uploaded_at: string;
   updated_at?: string;
