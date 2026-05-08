@@ -28,6 +28,7 @@ type HealthRecord = {
   file_name: string;
   file_path: string;
   file_type: string;
+  category?: string;
   ai_summary: string | null;
   uploaded_at: string;
   updated_at?: string;
@@ -116,12 +117,19 @@ const HealthTrends = () => {
       return;
     }
 
-    const latestRecord = records[0];
-    const marker = `${latestRecord.id}:${latestRecord.updated_at ?? latestRecord.uploaded_at}`;
+    // Trends should always reflect the latest VITALS-bearing report.
+    // Skip imaging, prescriptions, and hospital bills — they don't contain
+    // lab vitals, and analyzing them would just blank out the displayed trends.
+    const VITAL_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
+    const latestVitalsRecord =
+      records.find((r) => VITAL_CATEGORIES.has((r as any).category)) || null;
+    if (!latestVitalsRecord) return;
+
+    const marker = `${latestVitalsRecord.id}:${latestVitalsRecord.updated_at ?? latestVitalsRecord.uploaded_at}`;
     if (autoProcessedRecordRef.current === marker) return;
     autoProcessedRecordRef.current = marker;
 
-    void autoAnalyzeLatestRecord(latestRecord);
+    void autoAnalyzeLatestRecord(latestVitalsRecord);
   }, [records]);
 
   const loadTrends = async () => {
@@ -141,7 +149,7 @@ const HealthTrends = () => {
 
       const { data: r } = await supabase
         .from("health_records")
-        .select("id, file_name, file_path, file_type, ai_summary, uploaded_at, updated_at, radiology_study_date")
+        .select("id, file_name, file_path, file_type, category, ai_summary, uploaded_at, updated_at, radiology_study_date")
         .eq("patient_id", patient.id)
         .order("uploaded_at", { ascending: false });
 
@@ -372,8 +380,10 @@ const HealthTrends = () => {
 
   const runAnalysis = async () => {
     if (!records.length) return;
+    const VITAL_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
+    const target = records.find((r) => VITAL_CATEGORIES.has((r as any).category)) || records[0];
     autoProcessedRecordRef.current = null;
-    await autoAnalyzeLatestRecord(records[0]);
+    await autoAnalyzeLatestRecord(target);
   };
 
   const runTrendAnalysis = async () => {
@@ -419,12 +429,17 @@ const HealthTrends = () => {
     return <Activity className="h-3 w-3 text-yellow-500" />;
   };
 
-  // Use latest vital_history entry if available, fall back to live analysis
+  // Use latest vital_history entry if available, fall back to live analysis.
+  // Trends never reflect imaging/prescription/bill uploads — those don't carry vitals.
   const latestHistory = vitalHistory.length > 0 ? vitalHistory[vitalHistory.length - 1] : null;
+  const VITAL_CATEGORIES_DISPLAY = new Set(["report", "discharge_summary", "other"]);
+  const latestVitalsRecordForDisplay =
+    records.find((r) => VITAL_CATEGORIES_DISPLAY.has((r as any).category)) || null;
   const v = analysisResult?.vitals || latestHistory?.vitals || {};
   const sources = analysisResult?.vital_sources || {};
   const confidence = analysisResult?.confidence || latestHistory?.confidence || null;
-  const sourceFileName = records[0]?.file_name || latestHistory?.source_file_name || "Unknown";
+  const sourceFileName =
+    latestVitalsRecordForDisplay?.file_name || latestHistory?.source_file_name || "Unknown";
 
   const fmt = (val: number | null | undefined, decimals = 0): string => {
     if (val === null || val === undefined) return "-";
