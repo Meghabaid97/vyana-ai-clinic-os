@@ -149,7 +149,7 @@ const HealthTrends = () => {
 
       const { data: r } = await supabase
         .from("health_records")
-        .select("id, file_name, file_path, file_type, ai_summary, uploaded_at, updated_at, radiology_study_date")
+        .select("id, file_name, file_path, file_type, category, ai_summary, uploaded_at, updated_at, radiology_study_date")
         .eq("patient_id", patient.id)
         .order("uploaded_at", { ascending: false });
 
