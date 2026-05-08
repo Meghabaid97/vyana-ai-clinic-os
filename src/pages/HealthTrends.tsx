@@ -429,12 +429,17 @@ const HealthTrends = () => {
     return <Activity className="h-3 w-3 text-yellow-500" />;
   };
 
-  // Use latest vital_history entry if available, fall back to live analysis
+  // Use latest vital_history entry if available, fall back to live analysis.
+  // Trends never reflect imaging/prescription/bill uploads — those don't carry vitals.
   const latestHistory = vitalHistory.length > 0 ? vitalHistory[vitalHistory.length - 1] : null;
+  const VITAL_CATEGORIES_DISPLAY = new Set(["report", "discharge_summary", "other"]);
+  const latestVitalsRecordForDisplay =
+    records.find((r) => VITAL_CATEGORIES_DISPLAY.has((r as any).category)) || null;
   const v = analysisResult?.vitals || latestHistory?.vitals || {};
   const sources = analysisResult?.vital_sources || {};
   const confidence = analysisResult?.confidence || latestHistory?.confidence || null;
-  const sourceFileName = records[0]?.file_name || latestHistory?.source_file_name || "Unknown";
+  const sourceFileName =
+    latestVitalsRecordForDisplay?.file_name || latestHistory?.source_file_name || "Unknown";
 
   const fmt = (val: number | null | undefined, decimals = 0): string => {
     if (val === null || val === undefined) return "-";
