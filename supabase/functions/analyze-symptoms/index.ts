@@ -15,6 +15,55 @@ interface ReqBody {
   mode: "insights" | "visit_prep";
 }
 
+const symptomLabel = (log: any) => log.custom_symptom_name || String(log.symptom_type || "symptom").replace(/_/g, " ");
+
+function buildLocalInsights(logs: any[]) {
+  const groups = new Map<string, any[]>();
+  for (const log of logs) {
+    const label = symptomLabel(log);
+    groups.set(label, [...(groups.get(label) || []), log]);
+  }
+
+  const patterns = [...groups.entries()]
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, 6)
+    .map(([symptom, entries]) => {
+      const avg = entries.reduce((sum, log) => sum + Number(log.severity || 0), 0) / Math.max(entries.length, 1);
+      const latest = new Date(entries[0]?.logged_at || Date.now()).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+      const triggers = [...new Set(entries.flatMap((log) => Array.isArray(log.triggers) ? log.triggers : []))].slice(0, 3);
+      return {
+        title: `${symptom}: ${entries.length} log${entries.length === 1 ? "" : "s"}`,
+        detail: `Average severity ${avg.toFixed(1)}/10. Latest log ${latest}${triggers.length ? `. Often noted with: ${triggers.join(", ")}` : ""}. Discuss patterns with your doctor.`,
+        symptom,
+      };
+    });
+
+  return {
+    patterns,
+    disclaimer: "This is based on patient-reported journal entries only. It is not a diagnosis. Discuss with your doctor.",
+  };
+}
+
+function buildLocalVisitPrep(patient: any, logs: any[], medications: any[]) {
+  const insights = buildLocalInsights(logs);
+  return {
+    summary: `${patient.name || "Patient"} logged ${logs.length} symptom entr${logs.length === 1 ? "y" : "ies"} in the last 90 days. The most frequent items are ${insights.patterns.slice(0, 3).map((p: any) => p.symptom).join(", ") || "recent symptoms"}. Use this as a factual discussion note for the doctor.`,
+    recent_symptoms: insights.patterns.slice(0, 5).map((p: any) => ({
+      symptom: p.symptom,
+      frequency: p.title.split(": ")[1] || "recently logged",
+      avg_severity: p.detail.match(/Average severity ([\d.]+\/10)/)?.[1] || "not available",
+      notes: p.detail,
+    })),
+    related_medications: medications.map((m: any) => [m.medication_name, m.dosage, m.frequency].filter(Boolean).join(" · ")),
+    questions_for_doctor: [
+      "Do these symptom patterns need any tests or examination?",
+      "Could any current medication or routine be related to these symptoms?",
+      "What warning signs should make me seek urgent care?",
+      "What should I track before the next visit?",
+    ],
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -97,76 +146,9 @@ ABSOLUTE RULES:
 - Always remind: "Discuss with your doctor."
 - Numbers and frequencies are facts; interpretations belong to clinicians.`;
 
-    const tools = body.mode === "insights" ? [{
-      type: "function",
-      function: {
-        name: "return_insights",
-        description: "Return factual symptom patterns from the patient's journal.",
-        parameters: {
-          type: "object",
-          properties: {
-            patterns: {
-              type: "array",
-              description: "3-6 factual observations about frequency, severity trends, or co-occurrences.",
-              items: {
-                type: "object",
-                properties: {
-                  title: { type: "string", description: "Short factual headline, e.g. 'Headaches: 9 logs in 30 days'" },
-                  detail: { type: "string", description: "1-2 sentences of neutral, factual context." },
-                  symptom: { type: "string" },
-                },
-                required: ["title", "detail", "symptom"],
-                additionalProperties: false,
-              },
-            },
-            disclaimer: { type: "string", description: "A reminder that this is patient-reported data, not a diagnosis." },
-          },
-          required: ["patterns", "disclaimer"],
-          additionalProperties: false,
-        },
-      },
-    }] : [{
-      type: "function",
-      function: {
-        name: "return_visit_prep",
-        description: "Generate a doctor visit preparation summary.",
-        parameters: {
-          type: "object",
-          properties: {
-            summary: { type: "string", description: "2-4 sentence factual summary of recent symptoms, frequency, and what changed." },
-            recent_symptoms: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  symptom: { type: "string" },
-                  frequency: { type: "string", description: "e.g. '9 times in 30 days'" },
-                  avg_severity: { type: "string", description: "e.g. '7/10'" },
-                  notes: { type: "string" },
-                },
-                required: ["symptom", "frequency", "avg_severity"],
-                additionalProperties: false,
-              },
-            },
-            related_medications: {
-              type: "array",
-              items: { type: "string", description: "Medication name and any patient-noted effect." },
-            },
-            questions_for_doctor: {
-              type: "array",
-              description: "4-7 specific, factual questions the patient can ask.",
-              items: { type: "string" },
-            },
-          },
-          required: ["summary", "recent_symptoms", "questions_for_doctor", "related_medications"],
-          additionalProperties: false,
-        },
-      },
-    }];
-
     const userPrompt = body.mode === "insights"
-      ? `Patient symptom journal (last 90 days, newest first):\n${JSON.stringify(logs, null, 2)}\n\nReturn factual patterns only. Do not diagnose.`
-      : `Patient: ${patient.name}, age ${patient.age ?? "unknown"}.\n\nSymptom journal (last 90 days):\n${JSON.stringify(logs, null, 2)}\n\nActive medications:\n${JSON.stringify(medications, null, 2)}\n\nRecent records (summaries):\n${JSON.stringify(recentRecords.map(r => ({ name: r.file_name, type: r.document_type, summary: r.ai_summary, diagnoses: r.diagnoses, date: r.uploaded_at })), null, 2)}\n\nCreate a doctor visit prep. Stick to facts from the data above.`;
+      ? `Patient symptom journal (last 90 days, newest first):\n${JSON.stringify(logs, null, 2)}\n\nReturn ONLY valid JSON in this shape: {"patterns":[{"title":"","detail":"","symptom":""}],"disclaimer":""}. Return factual patterns only. Do not diagnose.`
+      : `Patient: ${patient.name}, age ${patient.age ?? "unknown"}.\n\nSymptom journal (last 90 days):\n${JSON.stringify(logs, null, 2)}\n\nActive medications:\n${JSON.stringify(medications, null, 2)}\n\nRecent records (summaries):\n${JSON.stringify(recentRecords.map(r => ({ name: r.file_name, type: r.document_type, summary: r.ai_summary, diagnoses: r.diagnoses, date: r.uploaded_at })), null, 2)}\n\nReturn ONLY valid JSON in this shape: {"summary":"","recent_symptoms":[{"symptom":"","frequency":"","avg_severity":"","notes":""}],"related_medications":[],"questions_for_doctor":[]}. Create a doctor visit prep. Stick to facts from the data above.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -177,25 +159,25 @@ ABSOLUTE RULES:
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        tools,
-        tool_choice: { type: "function", function: { name: tools[0].function.name } },
+        response_format: { type: "json_object" },
       }),
     });
 
     if (!aiResp.ok) {
-      if (aiResp.status === 429) return new Response(JSON.stringify({ error: "Rate limit reached. Try again in a moment." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (aiResp.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits in Workspace settings." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const t = await aiResp.text();
       console.error("AI error:", aiResp.status, t);
-      return new Response(JSON.stringify({ error: "AI service error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const fallback = body.mode === "insights" ? buildLocalInsights(logs) : buildLocalVisitPrep(patient, logs, medications);
+      return new Response(JSON.stringify(fallback), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const data = await aiResp.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) {
-      return new Response(JSON.stringify({ error: "No structured response" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const raw = data.choices?.[0]?.message?.content || "{}";
+    let result: any;
+    try {
+      result = JSON.parse(raw);
+    } catch {
+      result = body.mode === "insights" ? buildLocalInsights(logs) : buildLocalVisitPrep(patient, logs, medications);
     }
-    const result = JSON.parse(toolCall.function.arguments);
 
     // Persist visit prep
     if (body.mode === "visit_prep") {
