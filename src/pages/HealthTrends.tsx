@@ -158,12 +158,9 @@ const HealthTrends = () => {
       return;
     }
 
-    // Trends should always reflect the latest VITALS-bearing report.
-    // Skip imaging, prescriptions, and hospital bills — they don't contain
-    // lab vitals, and analyzing them would just blank out the displayed trends.
-    const VITAL_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
-    const latestVitalsRecord =
-      records.find((r) => VITAL_CATEGORIES.has((r as any).category)) || null;
+    // Trends should always reflect the latest record that actually carries vitals.
+    // Skip imaging, prescriptions, and hospital bills, even if they were uploaded later.
+    const latestVitalsRecord = pickLatestVitalsBearingRecord(records, vitalHistory);
     if (!latestVitalsRecord) return;
 
     const marker = `${latestVitalsRecord.id}:${latestVitalsRecord.updated_at ?? latestVitalsRecord.uploaded_at}`;
@@ -171,7 +168,7 @@ const HealthTrends = () => {
     autoProcessedRecordRef.current = marker;
 
     void autoAnalyzeLatestRecord(latestVitalsRecord);
-  }, [records]);
+  }, [records, vitalHistory]);
 
   const loadTrends = async () => {
     try {
@@ -190,7 +187,7 @@ const HealthTrends = () => {
 
       const { data: r } = await supabase
         .from("health_records")
-        .select("id, file_name, file_path, file_type, category, ai_summary, uploaded_at, updated_at, radiology_study_date")
+        .select("id, file_name, file_path, file_type, category, ai_summary, uploaded_at, updated_at, radiology_study_date, extracted_vitals, ai_confidence")
         .eq("patient_id", patient.id)
         .order("uploaded_at", { ascending: false });
 
@@ -199,10 +196,10 @@ const HealthTrends = () => {
       const sorted = ((r || []) as HealthRecord[]).slice().sort((a, b) => {
         const aDate = a.radiology_study_date
           ? new Date(`${a.radiology_study_date}T12:00:00Z`).getTime()
-          : new Date(a.uploaded_at).getTime();
+          : recordClinicalTime(a);
         const bDate = b.radiology_study_date
           ? new Date(`${b.radiology_study_date}T12:00:00Z`).getTime()
-          : new Date(b.uploaded_at).getTime();
+          : recordClinicalTime(b);
         return bDate - aDate;
       });
 
