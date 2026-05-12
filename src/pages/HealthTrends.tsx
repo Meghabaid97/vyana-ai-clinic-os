@@ -478,7 +478,8 @@ const HealthTrends = () => {
 
   // Use latest vital_history entry if available, fall back to live analysis.
   // Trends never reflect imaging/prescription/bill uploads — those don't carry vitals.
-  const latestHistory = vitalHistory.filter((entry) => hasUsableVitalsMap(entry.vitals)).at(-1) || null;
+  const usableHistory = vitalHistory.filter((entry) => hasUsableVitalsMap(entry.vitals));
+  const latestHistory = usableHistory.length > 0 ? usableHistory[usableHistory.length - 1] : null;
   const latestVitalsRecordForDisplay = pickLatestVitalsBearingRecord(records, vitalHistory);
   const v = hasUsableVitalsMap(analysisResult?.vitals) ? analysisResult?.vitals || {} : latestHistory?.vitals || {};
   const sources = analysisResult?.vital_sources || {};
