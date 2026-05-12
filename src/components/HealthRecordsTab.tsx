@@ -190,7 +190,21 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   // Load records on mount - FIXED: was useState, should be useEffect
   useEffect(() => {
     loadRecords();
+    loadPatientName();
   }, [patientId]);
+
+  const loadPatientName = async () => {
+    try {
+      const { data } = await supabase
+        .from("patients")
+        .select("name")
+        .eq("id", patientId)
+        .maybeSingle();
+      if (data?.name) setPatientName(data.name);
+    } catch (e) {
+      console.warn("Could not load patient name", e);
+    }
+  };
 
   const loadRecords = async () => {
     try {
