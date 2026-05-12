@@ -72,7 +72,7 @@ serve(async (req) => {
 1. ONLY report values, conditions, and findings that are EXPLICITLY stated in the provided health records.
 2. NEVER infer, predict, or speculate about conditions not directly mentioned in the records.
 3. NEVER diagnose conditions like dysplasia, cancer, or any serious condition unless the record EXPLICITLY states it.
-4. If a vital value is not found in any record, you MUST return null for that value — do NOT estimate or guess.
+4. If a vital value is not found in any record, omit that key entirely — do NOT estimate or guess.
 5. For the summary, ONLY describe what the records actually contain. Do NOT add speculative assessments.
 6. For risks, ONLY flag risks that are directly supported by abnormal values found in the records.
 7. If records are insufficient for analysis, say so honestly rather than making things up.
@@ -86,7 +86,7 @@ Patient: ${patientName || "Unknown"}, Age: ${patientAge || "Unknown"}
 Health Records & Summaries:
 ${healthContext}
 
-Extract every vital/lab value you can find. Return null for any value not explicitly present in the records. Do NOT guess or estimate missing values.`;
+Extract every vital/lab value you can find. Omit values not explicitly present in the records. Do NOT guess or estimate missing values.`;
 
     const tools = [{
       type: "function",
@@ -98,43 +98,8 @@ Extract every vital/lab value you can find. Return null for any value not explic
           properties: {
             vitals: {
               type: "object",
-              description: "Extracted vital/lab values. Use null for any value not found in records.",
-              properties: {
-                bp_systolic: { type: ["number", "null"], description: "Systolic BP in mmHg" },
-                bp_diastolic: { type: ["number", "null"], description: "Diastolic BP in mmHg" },
-                heart_rate: { type: ["number", "null"], description: "Heart rate in bpm" },
-                total_cholesterol: { type: ["number", "null"], description: "Total cholesterol mg/dL" },
-                hdl: { type: ["number", "null"], description: "HDL cholesterol mg/dL" },
-                ldl: { type: ["number", "null"], description: "LDL cholesterol mg/dL" },
-                triglycerides: { type: ["number", "null"], description: "Triglycerides mg/dL" },
-                fasting_blood_sugar: { type: ["number", "null"], description: "Fasting blood sugar mg/dL" },
-                hba1c: { type: ["number", "null"], description: "HbA1c %" },
-                post_prandial_glucose: { type: ["number", "null"], description: "Post-prandial glucose mg/dL" },
-                weight: { type: ["number", "null"], description: "Weight in kg" },
-                bmi: { type: ["number", "null"], description: "BMI kg/m²" },
-                hemoglobin: { type: ["number", "null"], description: "Hemoglobin g/dL" },
-                wbc: { type: ["number", "null"], description: "WBC count /μL" },
-                platelet_count: { type: ["number", "null"], description: "Platelet count /μL" },
-                rbc: { type: ["number", "null"], description: "RBC count M/μL" },
-                esr: { type: ["number", "null"], description: "ESR mm/hr" },
-                creatinine: { type: ["number", "null"], description: "Creatinine mg/dL" },
-                bun: { type: ["number", "null"], description: "BUN mg/dL" },
-                uric_acid: { type: ["number", "null"], description: "Uric acid mg/dL" },
-                sgot: { type: ["number", "null"], description: "SGOT/AST U/L" },
-                sgpt: { type: ["number", "null"], description: "SGPT/ALT U/L" },
-                bilirubin: { type: ["number", "null"], description: "Total bilirubin mg/dL" },
-                albumin: { type: ["number", "null"], description: "Albumin g/dL" },
-                tsh: { type: ["number", "null"], description: "TSH mIU/L" },
-                t3: { type: ["number", "null"], description: "T3 ng/dL" },
-                t4: { type: ["number", "null"], description: "T4 μg/dL" },
-                vitamin_d: { type: ["number", "null"], description: "Vitamin D ng/mL" },
-                vitamin_b12: { type: ["number", "null"], description: "Vitamin B12 pg/mL" },
-                calcium: { type: ["number", "null"], description: "Calcium mg/dL" },
-                iron: { type: ["number", "null"], description: "Iron μg/dL" },
-                ferritin: { type: ["number", "null"], description: "Ferritin ng/mL" },
-                folate: { type: ["number", "null"], description: "Folate ng/mL" },
-              },
-              required: ["bp_systolic", "bp_diastolic", "heart_rate", "total_cholesterol", "hdl", "ldl", "triglycerides", "fasting_blood_sugar", "hba1c", "post_prandial_glucose", "weight", "bmi", "hemoglobin", "wbc", "platelet_count", "rbc", "esr", "creatinine", "bun", "uric_acid", "sgot", "sgpt", "bilirubin", "albumin", "tsh", "t3", "t4", "vitamin_d", "vitamin_b12", "calcium", "iron", "ferritin", "folate"],
+              description: "Extracted vital/lab values. Only include keys that are explicitly present. Valid keys include bp_systolic, bp_diastolic, heart_rate, total_cholesterol, hdl, ldl, triglycerides, fasting_blood_sugar, hba1c, post_prandial_glucose, weight, bmi, hemoglobin, wbc, platelet_count, rbc, esr, creatinine, bun, uric_acid, sgot, sgpt, bilirubin, albumin, tsh, t3, t4, vitamin_d, vitamin_b12, calcium, iron, ferritin, folate.",
+              additionalProperties: { type: "number" },
             },
             vital_sources: {
               type: "object",
