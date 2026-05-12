@@ -468,10 +468,10 @@ const HealthTrends = () => {
   const latestHistory = usableHistory.length > 0 ? usableHistory[usableHistory.length - 1] : null;
   const latestVitalsRecordForDisplay = pickLatestVitalsBearingRecord(records, vitalHistory);
   const v = hasUsableVitalsMap(analysisResult?.vitals) ? analysisResult?.vitals || {} : latestHistory?.vitals || {};
-  const sources = analysisResult?.vital_sources || {};
+  const sources = hasUsableVitalsMap(analysisResult?.vitals) ? analysisResult?.vital_sources || {} : {};
   const confidence = (hasUsableVitalsMap(analysisResult?.vitals) ? analysisResult?.confidence : null) || latestHistory?.confidence || null;
   const sourceFileName =
-    latestVitalsRecordForDisplay?.file_name || latestHistory?.source_file_name || "Unknown";
+    (hasUsableVitalsMap(analysisResult?.vitals) ? latestVitalsRecordForDisplay?.file_name : null) || latestHistory?.source_file_name || latestVitalsRecordForDisplay?.file_name || "Unknown";
 
   const fmt = (val: number | null | undefined, decimals = 0): string => {
     if (val === null || val === undefined) return "-";
