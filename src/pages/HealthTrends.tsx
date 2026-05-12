@@ -445,7 +445,10 @@ const HealthTrends = () => {
         .maybeSingle();
 
       const safeLatestRecord = await refreshLatestRecordSummary(latestRecord);
-      const localVitals = vitalsArrayToMap(safeLatestRecord.extracted_vitals);
+      const localVitals = {
+        ...vitalsSummaryToMap(safeLatestRecord.ai_summary),
+        ...vitalsArrayToMap(safeLatestRecord.extracted_vitals),
+      };
       const localAnalysis: AnalysisResult | null = hasUsableVitalsMap(localVitals)
         ? {
             vitals: localVitals,
