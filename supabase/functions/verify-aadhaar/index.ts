@@ -120,8 +120,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           verified: false,
-          error: "Aadhaar number not found in records",
-          message: "For testing, use: 123456789012, 234567890123, 345678901234, or 456789012345"
+          error: "Aadhaar number not found in records"
         }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
