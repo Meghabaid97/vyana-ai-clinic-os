@@ -100,6 +100,23 @@ interface BatchScanItem {
 const RADIOLOGY_MODALITIES = ["X-ray", "CT", "MRI", "Ultrasound", "PET", "Other"] as const;
 type RadiologyUploadKind = "report_with_optional_films" | "film_only";
 
+const normalizeNameTokens = (raw: string): string[] => {
+  return raw
+    .toLowerCase()
+    .replace(/\b(mr|mrs|ms|miss|dr|smt|shri|sri|md|mbbs)\.?\b/g, " ")
+    .replace(/[^a-z\s]/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length >= 2);
+};
+
+const namesLooselyMatch = (a: string, b: string): boolean => {
+  const at = new Set(normalizeNameTokens(a));
+  const bt = new Set(normalizeNameTokens(b));
+  if (at.size === 0 || bt.size === 0) return true; // can't compare, be permissive
+  for (const t of at) if (bt.has(t)) return true;
+  return false;
+};
+
 const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps) => {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -123,6 +140,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [notesRecord, setNotesRecord] = useState<HealthRecord | null>(null);
   const [notesValue, setNotesValue] = useState("");
   const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const [patientName, setPatientName] = useState<string>("");
+  const [nameMismatch, setNameMismatch] = useState<{ record: HealthRecord; extractedName: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -188,7 +207,21 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   // Load records on mount - FIXED: was useState, should be useEffect
   useEffect(() => {
     loadRecords();
+    loadPatientName();
   }, [patientId]);
+
+  const loadPatientName = async () => {
+    try {
+      const { data } = await supabase
+        .from("patients")
+        .select("name")
+        .eq("id", patientId)
+        .maybeSingle();
+      if (data?.name) setPatientName(data.name);
+    } catch (e) {
+      console.warn("Could not load patient name", e);
+    }
+  };
 
   const loadRecords = async () => {
     try {
@@ -415,6 +448,12 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         title: "Summary generated",
         description: "AI has analyzed your health record",
       });
+
+      // Verify the document actually belongs to this patient by name
+      const extractedName: string | null = typeof data.patientName === "string" ? data.patientName.trim() : null;
+      if (extractedName && patientName && !namesLooselyMatch(extractedName, patientName)) {
+        setNameMismatch({ record, extractedName });
+      }
 
       // Trigger insight detection (non-blocking)
       supabase.functions.invoke("detect-insights", {
@@ -1210,6 +1249,44 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!nameMismatch}
+        onOpenChange={(open) => { if (!open) setNameMismatch(null); }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Is this document yours?</DialogTitle>
+            <DialogDescription>
+              The name on this document doesn't match your profile. Please confirm it actually belongs to you, otherwise remove it to keep your records accurate.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 text-sm">
+            <p>
+              <span className="text-muted-foreground">Name on document:</span>{" "}
+              <span className="font-medium">{nameMismatch?.extractedName}</span>
+            </p>
+            <p>
+              <span className="text-muted-foreground">Your profile name:</span>{" "}
+              <span className="font-medium">{patientName || "—"}</span>
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (nameMismatch) await deleteRecord(nameMismatch.record);
+                setNameMismatch(null);
+              }}
+            >
+              Delete record
+            </Button>
+            <Button onClick={() => setNameMismatch(null)}>
+              Yes, it's mine
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

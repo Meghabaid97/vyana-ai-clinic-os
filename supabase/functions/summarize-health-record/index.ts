@@ -122,6 +122,7 @@ Need these fields:
 - recommendations: only explicitly written follow-up or recommendations
 - studyDate: the date printed on the report itself (study date, collection date, report date, sample date) in YYYY-MM-DD if visible, otherwise null. This is the clinical date of the report, NOT today's date and NOT the upload date.
 - provider: doctor, radiologist, clinic, hospital, or imaging centre name if visible
+- patientName: the full name of the patient the document is about, exactly as written on the document (e.g. "Mr. Rajesh Kumar", "Patient Name: Anita Sharma" -> "Anita Sharma"). Strip salutations like Mr/Mrs/Ms/Dr. Return null if no patient name is visible. Do NOT confuse with doctor or provider names.
 - notes: any other explicit notes needed for context
 - confidence: high, medium, or low based on readability only
 
@@ -172,10 +173,11 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
             recommendations: { type: "array", items: { type: "string" } },
             studyDate: { type: ["string", "null"] },
             provider: { type: ["string", "null"] },
+            patientName: { type: ["string", "null"] },
             notes: { type: "array", items: { type: "string" } },
             confidence: { type: "string", enum: ["high", "medium", "low"] }
           },
-          required: ["documentType", "findings", "radiologyImpression", "modality", "bodyPart", "diagnoses", "medications", "allergies", "vitals", "recommendations", "studyDate", "provider", "notes", "confidence"],
+          required: ["documentType", "findings", "radiologyImpression", "modality", "bodyPart", "diagnoses", "medications", "allergies", "vitals", "recommendations", "studyDate", "provider", "patientName", "notes", "confidence"],
           additionalProperties: false
         }
       }
@@ -251,6 +253,7 @@ ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` 
       allergies: extracted.allergies || [],
       vitals: extracted.vitals || [],
       confidence: extracted.confidence || 'low',
+      patientName: typeof extracted.patientName === 'string' ? extracted.patientName.trim() || null : null,
       radiology: {
         modality: extracted.modality || radiologyModality || null,
         bodyPart: extracted.bodyPart || null,
