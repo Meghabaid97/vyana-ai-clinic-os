@@ -253,6 +253,7 @@ ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` 
       allergies: extracted.allergies || [],
       vitals: extracted.vitals || [],
       confidence: extracted.confidence || 'low',
+      patientName: typeof extracted.patientName === 'string' ? extracted.patientName.trim() || null : null,
       radiology: {
         modality: extracted.modality || radiologyModality || null,
         bodyPart: extracted.bodyPart || null,
