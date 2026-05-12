@@ -87,6 +87,57 @@ const hasExtractedVitals = (record: HealthRecord) => {
 const summaryHasVitalsSection = (summary: string | null | undefined) =>
   Boolean(summary && /Vitals\s*\/\s*Lab Values:\s*\n\s*-/i.test(summary));
 
+const VITAL_NAME_PATTERNS: Array<[VitalKey, RegExp]> = [
+  ["bp_systolic", /\b(systolic|sbp)\b/i],
+  ["bp_diastolic", /\b(diastolic|dbp)\b/i],
+  ["heart_rate", /\b(heart\s*rate|pulse)\b/i],
+  ["total_cholesterol", /\b(total\s*cholesterol|cholesterol\s*total)\b/i],
+  ["hdl", /\bhdl\b/i],
+  ["ldl", /\bldl\b/i],
+  ["triglycerides", /\btriglycerides?|\btg\b/i],
+  ["fasting_blood_sugar", /\b(fasting\s*(blood\s*)?(sugar|glucose)|fbs)\b/i],
+  ["hba1c", /\b(hb\s*a1c|hba1c|a1c)\b/i],
+  ["post_prandial_glucose", /\b(post\s*prandial|ppbs|pp\s*(sugar|glucose))\b/i],
+  ["weight", /\bweight\b/i],
+  ["bmi", /\bbmi\b/i],
+  ["hemoglobin", /\b(h[ae]moglobin|hb)\b/i],
+  ["wbc", /\b(wbc|white\s*blood)\b/i],
+  ["platelet_count", /\bplatelet/i],
+  ["rbc", /\brbc\b|red\s*blood/i],
+  ["esr", /\besr\b/i],
+  ["creatinine", /\bcreatinine\b/i],
+  ["bun", /\b(bun|blood\s*urea)\b/i],
+  ["uric_acid", /\buric\s*acid\b/i],
+  ["sgot", /\b(sgot|ast)\b/i],
+  ["sgpt", /\b(sgpt|alt)\b/i],
+  ["bilirubin", /\bbilirubin\b/i],
+  ["albumin", /\balbumin\b/i],
+  ["tsh", /\btsh\b/i],
+  ["t3", /\bt3\b/i],
+  ["t4", /\bt4\b/i],
+  ["vitamin_d", /\bvitamin\s*d\b|\b25\s*oh\b/i],
+  ["vitamin_b12", /\b(vitamin\s*b12|b12)\b/i],
+  ["calcium", /\bcalcium\b/i],
+  ["iron", /\biron\b/i],
+  ["ferritin", /\bferritin\b/i],
+  ["folate", /\bfolate\b/i],
+];
+
+const vitalsArrayToMap = (items: unknown): VitalsMap => {
+  const vitals: VitalsMap = {};
+  if (!Array.isArray(items)) return vitals;
+  for (const item of items) {
+    const entry = item as { name?: unknown; value?: unknown };
+    const name = typeof entry.name === "string" ? entry.name : "";
+    const rawValue = typeof entry.value === "number" ? String(entry.value) : typeof entry.value === "string" ? entry.value : "";
+    const value = Number(rawValue.replace(/,/g, "").match(/-?\d+(?:\.\d+)?/)?.[0]);
+    if (!name || !Number.isFinite(value)) continue;
+    const match = VITAL_NAME_PATTERNS.find(([, pattern]) => pattern.test(name));
+    if (match) vitals[match[0]] = value;
+  }
+  return vitals;
+};
+
 const recordClinicalTime = (record: HealthRecord) => {
   if (record.radiology_study_date && /^\d{4}-\d{2}-\d{2}$/.test(record.radiology_study_date)) {
     return new Date(`${record.radiology_study_date}T12:00:00Z`).getTime();
