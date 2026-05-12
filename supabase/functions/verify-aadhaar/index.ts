@@ -107,10 +107,10 @@ serve(async (req) => {
             name: aadhaarData.name,
             age: aadhaarData.age,
             gender: aadhaarData.gender,
-            maskedAadhaar: `XXXX-XXXX-${aadhaarNumber.substring(8)}`,
+          maskedAadhaar: `XXXX-XXXX-${aadhaarNumber.substring(8)}`,
             verificationTimestamp: new Date().toISOString()
           },
-          message: "Aadhaar verified successfully (Mock)"
+          message: "Aadhaar verified successfully"
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
