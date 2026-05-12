@@ -337,21 +337,7 @@ const HealthTrends = () => {
       .maybeSingle() as { data: { id: string; recorded_at: string } | null };
 
     if (existing) {
-      // Backfill recorded_at if we now know the clinical report date and it differs
-      if (recordedAt && new Date(existing.recorded_at).toISOString() !== recordedAt) {
-        await supabase
-          .from("vital_history")
-          .update({ recorded_at: recordedAt })
-          .eq("id", existing.id);
-
-        const { data: vh } = await supabase
-          .from("vital_history")
-          .select("*")
-          .eq("patient_id", patient.id)
-          .order("recorded_at", { ascending: true }) as { data: VitalHistoryEntry[] | null };
-        setVitalHistory(vh || []);
-      }
-      return;
+      await supabase.from("vital_history").delete().eq("id", existing.id);
     }
 
     await supabase.from("vital_history").insert({
