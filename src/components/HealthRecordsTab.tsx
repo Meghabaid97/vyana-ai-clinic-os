@@ -432,6 +432,12 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         description: "AI has analyzed your health record",
       });
 
+      // Verify the document actually belongs to this patient by name
+      const extractedName: string | null = typeof data.patientName === "string" ? data.patientName.trim() : null;
+      if (extractedName && patientName && !namesLooselyMatch(extractedName, patientName)) {
+        setNameMismatch({ record, extractedName });
+      }
+
       // Trigger insight detection (non-blocking)
       supabase.functions.invoke("detect-insights", {
         body: { mode: "on-upload", recordId: record.id },
