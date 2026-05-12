@@ -262,6 +262,7 @@ const HealthTrends = () => {
         fileName: record.file_name,
         fileType: record.file_type,
         fileContent,
+        category: record.category,
       },
     });
 
@@ -275,7 +276,11 @@ const HealthTrends = () => {
       (typeof data?.radiology?.studyDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.radiology.studyDate) && data.radiology.studyDate) ||
       null;
 
-    const updatePayload: Record<string, unknown> = { ai_summary: data.summary };
+    const updatePayload: Record<string, unknown> = {
+      ai_summary: data.summary,
+      extracted_vitals: data.vitals || [],
+      ai_confidence: data.confidence || record.ai_confidence || null,
+    };
     if (reportDate && !record.radiology_study_date) {
       updatePayload.radiology_study_date = reportDate;
     }
@@ -292,6 +297,8 @@ const HealthTrends = () => {
     const updatedRecord = {
       ...record,
       ai_summary: data.summary,
+      extracted_vitals: data.vitals || [],
+      ai_confidence: data.confidence || record.ai_confidence || null,
       radiology_study_date: record.radiology_study_date || reportDate || null,
     };
     setRecords((prev) => prev.map((item) => (item.id === record.id ? updatedRecord : item)));
