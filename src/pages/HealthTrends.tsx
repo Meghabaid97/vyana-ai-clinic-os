@@ -138,6 +138,29 @@ const vitalsArrayToMap = (items: unknown): VitalsMap => {
   return vitals;
 };
 
+const vitalsSummaryToMap = (summary: string | null | undefined): VitalsMap => {
+  const vitals: VitalsMap = {};
+  if (!summary) return vitals;
+  for (const line of summary.split("\n")) {
+    if (!line.includes(":")) continue;
+    const [rawName, ...rest] = line.replace(/^\s*-\s*/, "").split(":");
+    const valueText = rest.join(":");
+    if (/\b(blood\s*pressure|bp)\b/i.test(rawName)) {
+      const bp = valueText.match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
+      if (bp) {
+        vitals.bp_systolic = Number(bp[1]);
+        vitals.bp_diastolic = Number(bp[2]);
+        continue;
+      }
+    }
+    const value = Number(valueText.replace(/,/g, "").match(/-?\d+(?:\.\d+)?/)?.[0]);
+    if (!Number.isFinite(value)) continue;
+    const match = VITAL_NAME_PATTERNS.find(([, pattern]) => pattern.test(rawName));
+    if (match) vitals[match[0]] = value;
+  }
+  return vitals;
+};
+
 const recordClinicalTime = (record: HealthRecord) => {
   if (record.radiology_study_date && /^\d{4}-\d{2}-\d{2}$/.test(record.radiology_study_date)) {
     return new Date(`${record.radiology_study_date}T12:00:00Z`).getTime();
