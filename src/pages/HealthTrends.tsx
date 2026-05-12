@@ -422,6 +422,18 @@ const HealthTrends = () => {
         .maybeSingle();
 
       const safeLatestRecord = await refreshLatestRecordSummary(latestRecord);
+      const localVitals = vitalsArrayToMap(safeLatestRecord.extracted_vitals);
+      const localAnalysis: AnalysisResult | null = hasUsableVitalsMap(localVitals)
+        ? {
+            vitals: localVitals,
+            vital_sources: {},
+            confidence: (safeLatestRecord.ai_confidence as AnalysisResult["confidence"]) || "medium",
+            summary: `Vitals extracted from ${safeLatestRecord.file_name}.`,
+            risks: [],
+            recommendations: [],
+            disclaimer: "This analysis is based only on values found in your uploaded records. It is not a substitute for professional medical advice.",
+          }
+        : null;
 
       const { data, error } = await supabase.functions.invoke("analyze-health-risks", {
         body: {
@@ -434,18 +446,19 @@ const HealthTrends = () => {
         },
       });
 
-      if (error) throw error;
+      if (error && !localAnalysis) throw error;
       const nextAnalysis = data as AnalysisResult;
       const hasVitals = hasUsableVitalsMap(nextAnalysis?.vitals);
-      setAnalysisResult(hasVitals || !latestHistory ? nextAnalysis : null);
+      const finalAnalysis = hasVitals ? nextAnalysis : localAnalysis;
+      setAnalysisResult(finalAnalysis || (!latestHistory ? nextAnalysis : null));
 
       // Save vitals to history (use the date on the report itself when known)
-      if (hasVitals) {
+      if (finalAnalysis && hasUsableVitalsMap(finalAnalysis.vitals)) {
         await saveVitalHistory(
           safeLatestRecord.id,
           safeLatestRecord.file_name,
-          nextAnalysis.vitals || {},
-          nextAnalysis.confidence || "medium",
+          finalAnalysis.vitals || {},
+          finalAnalysis.confidence || "medium",
           safeLatestRecord.radiology_study_date ?? null,
         );
       }
