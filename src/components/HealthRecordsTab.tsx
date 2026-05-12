@@ -1251,6 +1251,44 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={!!nameMismatch}
+        onOpenChange={(open) => { if (!open) setNameMismatch(null); }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Is this document yours?</DialogTitle>
+            <DialogDescription>
+              The name on this document doesn't match your profile. Please confirm it actually belongs to you, otherwise remove it to keep your records accurate.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 text-sm">
+            <p>
+              <span className="text-muted-foreground">Name on document:</span>{" "}
+              <span className="font-medium">{nameMismatch?.extractedName}</span>
+            </p>
+            <p>
+              <span className="text-muted-foreground">Your profile name:</span>{" "}
+              <span className="font-medium">{patientName || "—"}</span>
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (nameMismatch) await deleteRecord(nameMismatch.record);
+                setNameMismatch(null);
+              }}
+            >
+              Delete record
+            </Button>
+            <Button onClick={() => setNameMismatch(null)}>
+              Yes, it's mine
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
