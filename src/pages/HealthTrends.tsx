@@ -398,15 +398,17 @@ const HealthTrends = () => {
       });
 
       if (error) throw error;
-      setAnalysisResult(data);
+      const nextAnalysis = data as AnalysisResult;
+      const hasVitals = hasUsableVitalsMap(nextAnalysis?.vitals);
+      setAnalysisResult(hasVitals || !latestHistory ? nextAnalysis : null);
 
       // Save vitals to history (use the date on the report itself when known)
-      if (data?.vitals) {
+      if (hasVitals) {
         await saveVitalHistory(
           safeLatestRecord.id,
           safeLatestRecord.file_name,
-          data.vitals,
-          data.confidence || "medium",
+          nextAnalysis.vitals || {},
+          nextAnalysis.confidence || "medium",
           safeLatestRecord.radiology_study_date ?? null,
         );
       }
@@ -425,8 +427,8 @@ const HealthTrends = () => {
 
   const runAnalysis = async () => {
     if (!records.length) return;
-    const VITAL_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
-    const target = records.find((r) => VITAL_CATEGORIES.has((r as any).category)) || records[0];
+    const target = pickLatestVitalsBearingRecord(records, vitalHistory);
+    if (!target) return;
     autoProcessedRecordRef.current = null;
     await autoAnalyzeLatestRecord(target);
   };
