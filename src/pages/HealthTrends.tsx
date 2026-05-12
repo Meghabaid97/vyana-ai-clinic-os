@@ -29,6 +29,8 @@ type HealthRecord = {
   file_path: string;
   file_type: string;
   category?: string;
+  extracted_vitals?: unknown;
+  ai_confidence?: string | null;
   ai_summary: string | null;
   uploaded_at: string;
   updated_at?: string;
@@ -65,6 +67,119 @@ interface TrendAnalysis {
 const hasStrictStructuredSummary = (summary: string | null | undefined) => {
   if (!summary) return false;
   return summary.includes("Safety Note:") && summary.includes("Confidence:") && summary.includes("Document Type:");
+};
+
+const VITAL_RECORD_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
+
+const hasUsableVitalsMap = (vitals: VitalsMap | null | undefined) => {
+  if (!vitals) return false;
+  return Object.values(vitals).some((value) => typeof value === "number" && Number.isFinite(value));
+};
+
+const hasExtractedVitals = (record: HealthRecord) => {
+  if (!Array.isArray(record.extracted_vitals)) return false;
+  return record.extracted_vitals.some((item) => {
+    const value = (item as { value?: unknown })?.value;
+    return value !== null && value !== undefined && String(value).trim().length > 0;
+  });
+};
+
+const summaryHasVitalsSection = (summary: string | null | undefined) =>
+  Boolean(summary && /Vitals\s*\/\s*Lab Values:\s*\n\s*-/i.test(summary));
+
+const VITAL_NAME_PATTERNS: Array<[VitalKey, RegExp]> = [
+  ["bp_systolic", /\b(systolic|sbp)\b/i],
+  ["bp_diastolic", /\b(diastolic|dbp)\b/i],
+  ["heart_rate", /\b(heart\s*rate|pulse)\b/i],
+  ["total_cholesterol", /\b(total\s*cholesterol|cholesterol\s*total)\b/i],
+  ["hdl", /\bhdl\b/i],
+  ["ldl", /\bldl\b/i],
+  ["triglycerides", /\btriglycerides?|\btg\b/i],
+  ["fasting_blood_sugar", /\b(fasting\s*(blood\s*)?(sugar|glucose)|fbs)\b/i],
+  ["hba1c", /\b(hb\s*a1c|hba1c|a1c)\b/i],
+  ["post_prandial_glucose", /\b(post\s*prandial|ppbs|pp\s*(sugar|glucose))\b/i],
+  ["weight", /\bweight\b/i],
+  ["bmi", /\bbmi\b/i],
+  ["hemoglobin", /\b(h[ae]moglobin|hb)\b/i],
+  ["wbc", /\b(wbc|white\s*blood)\b/i],
+  ["platelet_count", /\bplatelet/i],
+  ["rbc", /\brbc\b|red\s*blood/i],
+  ["esr", /\besr\b/i],
+  ["creatinine", /\bcreatinine\b/i],
+  ["bun", /\b(bun|blood\s*urea)\b/i],
+  ["uric_acid", /\buric\s*acid\b/i],
+  ["sgot", /\b(sgot|ast)\b/i],
+  ["sgpt", /\b(sgpt|alt)\b/i],
+  ["bilirubin", /\bbilirubin\b/i],
+  ["albumin", /\balbumin\b/i],
+  ["tsh", /\btsh\b/i],
+  ["t3", /\bt3\b/i],
+  ["t4", /\bt4\b/i],
+  ["vitamin_d", /\bvitamin\s*d\b|\b25\s*oh\b/i],
+  ["vitamin_b12", /\b(vitamin\s*b12|b12)\b/i],
+  ["calcium", /\bcalcium\b/i],
+  ["iron", /\biron\b/i],
+  ["ferritin", /\bferritin\b/i],
+  ["folate", /\bfolate\b/i],
+];
+
+const vitalsArrayToMap = (items: unknown): VitalsMap => {
+  const vitals: VitalsMap = {};
+  if (!Array.isArray(items)) return vitals;
+  for (const item of items) {
+    const entry = item as { name?: unknown; value?: unknown };
+    const name = typeof entry.name === "string" ? entry.name : "";
+    const rawValue = typeof entry.value === "number" ? String(entry.value) : typeof entry.value === "string" ? entry.value : "";
+    const value = Number(rawValue.replace(/,/g, "").match(/-?\d+(?:\.\d+)?/)?.[0]);
+    if (!name || !Number.isFinite(value)) continue;
+    const match = VITAL_NAME_PATTERNS.find(([, pattern]) => pattern.test(name));
+    if (match) vitals[match[0]] = value;
+  }
+  return vitals;
+};
+
+const vitalsSummaryToMap = (summary: string | null | undefined): VitalsMap => {
+  const vitals: VitalsMap = {};
+  if (!summary) return vitals;
+  for (const line of summary.split("\n")) {
+    if (!line.includes(":")) continue;
+    const [rawName, ...rest] = line.replace(/^\s*-\s*/, "").split(":");
+    const valueText = rest.join(":");
+    if (/\b(blood\s*pressure|bp)\b/i.test(rawName)) {
+      const bp = valueText.match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
+      if (bp) {
+        vitals.bp_systolic = Number(bp[1]);
+        vitals.bp_diastolic = Number(bp[2]);
+        continue;
+      }
+    }
+    const value = Number(valueText.replace(/,/g, "").match(/-?\d+(?:\.\d+)?/)?.[0]);
+    if (!Number.isFinite(value)) continue;
+    const match = VITAL_NAME_PATTERNS.find(([, pattern]) => pattern.test(rawName));
+    if (match) vitals[match[0]] = value;
+  }
+  return vitals;
+};
+
+const recordClinicalTime = (record: HealthRecord) => {
+  if (record.radiology_study_date && /^\d{4}-\d{2}-\d{2}$/.test(record.radiology_study_date)) {
+    return new Date(`${record.radiology_study_date}T12:00:00Z`).getTime();
+  }
+  return new Date(record.uploaded_at).getTime();
+};
+
+const pickLatestVitalsBearingRecord = (records: HealthRecord[], history: VitalHistoryEntry[] = []) => {
+  const historyRecordIds = new Set(
+    history.filter((entry) => hasUsableVitalsMap(entry.vitals)).map((entry) => entry.health_record_id),
+  );
+  const eligible = records.filter((record) => VITAL_RECORD_CATEGORIES.has(record.category || "other"));
+  const knownVitalsRecords = eligible.filter(
+    (record) => hasExtractedVitals(record) || summaryHasVitalsSection(record.ai_summary) || historyRecordIds.has(record.id),
+  );
+
+  return (knownVitalsRecords.length > 0 ? knownVitalsRecords : eligible)
+    .slice()
+    .sort((a, b) => recordClinicalTime(b) - recordClinicalTime(a))[0] || null;
 };
 
 const confidenceConfig = {
@@ -117,12 +232,9 @@ const HealthTrends = () => {
       return;
     }
 
-    // Trends should always reflect the latest VITALS-bearing report.
-    // Skip imaging, prescriptions, and hospital bills — they don't contain
-    // lab vitals, and analyzing them would just blank out the displayed trends.
-    const VITAL_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
-    const latestVitalsRecord =
-      records.find((r) => VITAL_CATEGORIES.has((r as any).category)) || null;
+    // Trends should always reflect the latest record that actually carries vitals.
+    // Skip imaging, prescriptions, and hospital bills, even if they were uploaded later.
+    const latestVitalsRecord = pickLatestVitalsBearingRecord(records, vitalHistory);
     if (!latestVitalsRecord) return;
 
     const marker = `${latestVitalsRecord.id}:${latestVitalsRecord.updated_at ?? latestVitalsRecord.uploaded_at}`;
@@ -130,7 +242,7 @@ const HealthTrends = () => {
     autoProcessedRecordRef.current = marker;
 
     void autoAnalyzeLatestRecord(latestVitalsRecord);
-  }, [records]);
+  }, [records, vitalHistory]);
 
   const loadTrends = async () => {
     try {
@@ -149,7 +261,7 @@ const HealthTrends = () => {
 
       const { data: r } = await supabase
         .from("health_records")
-        .select("id, file_name, file_path, file_type, category, ai_summary, uploaded_at, updated_at, radiology_study_date")
+        .select("id, file_name, file_path, file_type, category, ai_summary, uploaded_at, updated_at, radiology_study_date, extracted_vitals, ai_confidence")
         .eq("patient_id", patient.id)
         .order("uploaded_at", { ascending: false });
 
@@ -158,10 +270,10 @@ const HealthTrends = () => {
       const sorted = ((r || []) as HealthRecord[]).slice().sort((a, b) => {
         const aDate = a.radiology_study_date
           ? new Date(`${a.radiology_study_date}T12:00:00Z`).getTime()
-          : new Date(a.uploaded_at).getTime();
+          : recordClinicalTime(a);
         const bDate = b.radiology_study_date
           ? new Date(`${b.radiology_study_date}T12:00:00Z`).getTime()
-          : new Date(b.uploaded_at).getTime();
+          : recordClinicalTime(b);
         return bDate - aDate;
       });
 
@@ -224,6 +336,7 @@ const HealthTrends = () => {
         fileName: record.file_name,
         fileType: record.file_type,
         fileContent,
+        category: record.category,
       },
     });
 
@@ -237,7 +350,11 @@ const HealthTrends = () => {
       (typeof data?.radiology?.studyDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.radiology.studyDate) && data.radiology.studyDate) ||
       null;
 
-    const updatePayload: Record<string, unknown> = { ai_summary: data.summary };
+    const updatePayload: Record<string, unknown> = {
+      ai_summary: data.summary,
+      extracted_vitals: data.vitals || [],
+      ai_confidence: data.confidence || record.ai_confidence || null,
+    };
     if (reportDate && !record.radiology_study_date) {
       updatePayload.radiology_study_date = reportDate;
     }
@@ -254,6 +371,8 @@ const HealthTrends = () => {
     const updatedRecord = {
       ...record,
       ai_summary: data.summary,
+      extracted_vitals: data.vitals || [],
+      ai_confidence: data.confidence || record.ai_confidence || null,
       radiology_study_date: record.radiology_study_date || reportDate || null,
     };
     setRecords((prev) => prev.map((item) => (item.id === record.id ? updatedRecord : item)));
@@ -292,21 +411,7 @@ const HealthTrends = () => {
       .maybeSingle() as { data: { id: string; recorded_at: string } | null };
 
     if (existing) {
-      // Backfill recorded_at if we now know the clinical report date and it differs
-      if (recordedAt && new Date(existing.recorded_at).toISOString() !== recordedAt) {
-        await supabase
-          .from("vital_history")
-          .update({ recorded_at: recordedAt })
-          .eq("id", existing.id);
-
-        const { data: vh } = await supabase
-          .from("vital_history")
-          .select("*")
-          .eq("patient_id", patient.id)
-          .order("recorded_at", { ascending: true }) as { data: VitalHistoryEntry[] | null };
-        setVitalHistory(vh || []);
-      }
-      return;
+      await supabase.from("vital_history").delete().eq("id", existing.id);
     }
 
     await supabase.from("vital_history").insert({
@@ -340,6 +445,21 @@ const HealthTrends = () => {
         .maybeSingle();
 
       const safeLatestRecord = await refreshLatestRecordSummary(latestRecord);
+      const localVitals = {
+        ...vitalsSummaryToMap(safeLatestRecord.ai_summary),
+        ...vitalsArrayToMap(safeLatestRecord.extracted_vitals),
+      };
+      const localAnalysis: AnalysisResult | null = hasUsableVitalsMap(localVitals)
+        ? {
+            vitals: localVitals,
+            vital_sources: {},
+            confidence: (safeLatestRecord.ai_confidence as AnalysisResult["confidence"]) || "medium",
+            summary: `Vitals extracted from ${safeLatestRecord.file_name}.`,
+            risks: [],
+            recommendations: [],
+            disclaimer: "This analysis is based only on values found in your uploaded records. It is not a substitute for professional medical advice.",
+          }
+        : null;
 
       const { data, error } = await supabase.functions.invoke("analyze-health-risks", {
         body: {
@@ -352,16 +472,19 @@ const HealthTrends = () => {
         },
       });
 
-      if (error) throw error;
-      setAnalysisResult(data);
+      if (error && !localAnalysis) throw error;
+      const nextAnalysis = data as AnalysisResult;
+      const hasVitals = hasUsableVitalsMap(nextAnalysis?.vitals);
+      const finalAnalysis = hasVitals ? nextAnalysis : localAnalysis;
+      setAnalysisResult(finalAnalysis || (!latestHistory ? nextAnalysis : null));
 
       // Save vitals to history (use the date on the report itself when known)
-      if (data?.vitals) {
+      if (finalAnalysis && hasUsableVitalsMap(finalAnalysis.vitals)) {
         await saveVitalHistory(
           safeLatestRecord.id,
           safeLatestRecord.file_name,
-          data.vitals,
-          data.confidence || "medium",
+          finalAnalysis.vitals || {},
+          finalAnalysis.confidence || "medium",
           safeLatestRecord.radiology_study_date ?? null,
         );
       }
@@ -380,8 +503,8 @@ const HealthTrends = () => {
 
   const runAnalysis = async () => {
     if (!records.length) return;
-    const VITAL_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
-    const target = records.find((r) => VITAL_CATEGORIES.has((r as any).category)) || records[0];
+    const target = pickLatestVitalsBearingRecord(records, vitalHistory);
+    if (!target) return;
     autoProcessedRecordRef.current = null;
     await autoAnalyzeLatestRecord(target);
   };
@@ -431,15 +554,14 @@ const HealthTrends = () => {
 
   // Use latest vital_history entry if available, fall back to live analysis.
   // Trends never reflect imaging/prescription/bill uploads — those don't carry vitals.
-  const latestHistory = vitalHistory.length > 0 ? vitalHistory[vitalHistory.length - 1] : null;
-  const VITAL_CATEGORIES_DISPLAY = new Set(["report", "discharge_summary", "other"]);
-  const latestVitalsRecordForDisplay =
-    records.find((r) => VITAL_CATEGORIES_DISPLAY.has((r as any).category)) || null;
-  const v = analysisResult?.vitals || latestHistory?.vitals || {};
-  const sources = analysisResult?.vital_sources || {};
-  const confidence = analysisResult?.confidence || latestHistory?.confidence || null;
+  const usableHistory = vitalHistory.filter((entry) => hasUsableVitalsMap(entry.vitals));
+  const latestHistory = usableHistory.length > 0 ? usableHistory[usableHistory.length - 1] : null;
+  const latestVitalsRecordForDisplay = pickLatestVitalsBearingRecord(records, vitalHistory);
+  const v = hasUsableVitalsMap(analysisResult?.vitals) ? analysisResult?.vitals || {} : latestHistory?.vitals || {};
+  const sources = hasUsableVitalsMap(analysisResult?.vitals) ? analysisResult?.vital_sources || {} : {};
+  const confidence = (hasUsableVitalsMap(analysisResult?.vitals) ? analysisResult?.confidence : null) || latestHistory?.confidence || null;
   const sourceFileName =
-    latestVitalsRecordForDisplay?.file_name || latestHistory?.source_file_name || "Unknown";
+    (hasUsableVitalsMap(analysisResult?.vitals) ? latestVitalsRecordForDisplay?.file_name : null) || latestHistory?.source_file_name || latestVitalsRecordForDisplay?.file_name || "Unknown";
 
   const fmt = (val: number | null | undefined, decimals = 0): string => {
     if (val === null || val === undefined) return "-";
