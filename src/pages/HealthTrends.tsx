@@ -29,6 +29,8 @@ type HealthRecord = {
   file_path: string;
   file_type: string;
   category?: string;
+  extracted_vitals?: unknown;
+  ai_confidence?: string | null;
   ai_summary: string | null;
   uploaded_at: string;
   updated_at?: string;
@@ -65,6 +67,45 @@ interface TrendAnalysis {
 const hasStrictStructuredSummary = (summary: string | null | undefined) => {
   if (!summary) return false;
   return summary.includes("Safety Note:") && summary.includes("Confidence:") && summary.includes("Document Type:");
+};
+
+const VITAL_RECORD_CATEGORIES = new Set(["report", "discharge_summary", "other"]);
+
+const hasUsableVitalsMap = (vitals: VitalsMap | null | undefined) => {
+  if (!vitals) return false;
+  return Object.values(vitals).some((value) => typeof value === "number" && Number.isFinite(value));
+};
+
+const hasExtractedVitals = (record: HealthRecord) => {
+  if (!Array.isArray(record.extracted_vitals)) return false;
+  return record.extracted_vitals.some((item) => {
+    const value = (item as { value?: unknown })?.value;
+    return value !== null && value !== undefined && String(value).trim().length > 0;
+  });
+};
+
+const summaryHasVitalsSection = (summary: string | null | undefined) =>
+  Boolean(summary && /Vitals\s*\/\s*Lab Values:\s*\n\s*-/i.test(summary));
+
+const recordClinicalTime = (record: HealthRecord) => {
+  if (record.radiology_study_date && /^\d{4}-\d{2}-\d{2}$/.test(record.radiology_study_date)) {
+    return new Date(`${record.radiology_study_date}T12:00:00Z`).getTime();
+  }
+  return new Date(record.uploaded_at).getTime();
+};
+
+const pickLatestVitalsBearingRecord = (records: HealthRecord[], history: VitalHistoryEntry[] = []) => {
+  const historyRecordIds = new Set(
+    history.filter((entry) => hasUsableVitalsMap(entry.vitals)).map((entry) => entry.health_record_id),
+  );
+  const eligible = records.filter((record) => VITAL_RECORD_CATEGORIES.has(record.category || "other"));
+  const knownVitalsRecords = eligible.filter(
+    (record) => hasExtractedVitals(record) || summaryHasVitalsSection(record.ai_summary) || historyRecordIds.has(record.id),
+  );
+
+  return (knownVitalsRecords.length > 0 ? knownVitalsRecords : eligible)
+    .slice()
+    .sort((a, b) => recordClinicalTime(b) - recordClinicalTime(a))[0] || null;
 };
 
 const confidenceConfig = {
