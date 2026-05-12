@@ -100,6 +100,23 @@ interface BatchScanItem {
 const RADIOLOGY_MODALITIES = ["X-ray", "CT", "MRI", "Ultrasound", "PET", "Other"] as const;
 type RadiologyUploadKind = "report_with_optional_films" | "film_only";
 
+const normalizeNameTokens = (raw: string): string[] => {
+  return raw
+    .toLowerCase()
+    .replace(/\b(mr|mrs|ms|miss|dr|smt|shri|sri|md|mbbs)\.?\b/g, " ")
+    .replace(/[^a-z\s]/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length >= 2);
+};
+
+const namesLooselyMatch = (a: string, b: string): boolean => {
+  const at = new Set(normalizeNameTokens(a));
+  const bt = new Set(normalizeNameTokens(b));
+  if (at.size === 0 || bt.size === 0) return true; // can't compare, be permissive
+  for (const t of at) if (bt.has(t)) return true;
+  return false;
+};
+
 const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps) => {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
