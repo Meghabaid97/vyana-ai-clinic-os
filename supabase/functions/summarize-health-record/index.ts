@@ -173,10 +173,11 @@ Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
             recommendations: { type: "array", items: { type: "string" } },
             studyDate: { type: ["string", "null"] },
             provider: { type: ["string", "null"] },
+            patientName: { type: ["string", "null"] },
             notes: { type: "array", items: { type: "string" } },
             confidence: { type: "string", enum: ["high", "medium", "low"] }
           },
-          required: ["documentType", "findings", "radiologyImpression", "modality", "bodyPart", "diagnoses", "medications", "allergies", "vitals", "recommendations", "studyDate", "provider", "notes", "confidence"],
+          required: ["documentType", "findings", "radiologyImpression", "modality", "bodyPart", "diagnoses", "medications", "allergies", "vitals", "recommendations", "studyDate", "provider", "patientName", "notes", "confidence"],
           additionalProperties: false
         }
       }
