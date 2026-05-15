@@ -1,0 +1,16 @@
+# Vyana
+
+> Vyana is a longitudinal health memory layer for patients in India. Upload your records once and never explain your medical history again — Vyana keeps a unified timeline, vitals trends, medications, and a doctor-ready briefing always at hand.
+
+Vyana is a consumer health app (patients only). It turns scattered prescriptions, lab reports, discharge summaries, and imaging into a single, searchable health story. The hero of the product is the AI-generated clinical briefing patients carry into every doctor visit. Vyana provides clinical decision support and discussion points only — it is not a diagnosis engine and does not replace medical advice.
+
+## Pages
+
+- [Home](/): Vyana's mission, wedge, and trust pillars.
+- [Why Vyana](/why-vyana): The founder story and why a longitudinal health memory matters in India.
+- [Request access](/request-access): Join the gated beta waitlist.
+- [Legal](/legal): Privacy policy, terms, and DPDPA 2023 compliance.
+
+## Optional
+
+- [Sign in](/auth): Existing-account sign-in (gated beta — invite required for new sign-ups).
