@@ -7,6 +7,8 @@ import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate"
 import NotificationBell from "@/components/NotificationBell";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useLanguage } from "@/lib/i18n";
+import { ActivePatientProvider, useActivePatient } from "@/contexts/ActivePatientContext";
+import HouseholdSwitcher from "@/components/HouseholdSwitcher";
 
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
 const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSelector"));
@@ -49,7 +51,7 @@ const buildSubRouteTitles = (t: (k: string, p?: any) => string): Record<string, 
   "/app/share-receive": "Add to Vyana",
 });
 
-const AppShell = () => {
+const AppShellInner = () => {
   const navigate = useNavigate();
   const vtNavigate = useViewTransitionNavigate();
   const location = useLocation();
@@ -57,12 +59,12 @@ const AppShell = () => {
   const tabs = buildTabs(t);
   const desktopTabs = buildDesktopTabs(t);
   const subRouteTitles = buildSubRouteTitles(t);
-  const [patientName, setPatientName] = useState("Patient");
-  const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
+  const { activePatient } = useActivePatient();
+  const patientName = activePatient?.name ?? "Patient";
+  const location_ = { pincode: activePatient?.pincode ?? null, city: activePatient?.city ?? null };
   const [tourOpen, setTourOpen] = useState(false);
 
   // Auto-launch the spotlight tour once per device on first visit to /app.
-  // Manual replay is always available via the help (?) button in the top bar.
   useEffect(() => {
     if (hasSeenTour()) return;
     if (location.pathname !== "/app") return;
@@ -70,47 +72,31 @@ const AppShell = () => {
     return () => window.clearTimeout(t);
   }, [location.pathname]);
 
+  // Auth gate + last_app_open_at touch (no patient fetch — provider handles it)
   useEffect(() => {
     let cancelled = false;
-    let loadedForUser: string | null = null;
+    let touchedForUser: string | null = null;
 
-    const loadPatient = async (userId: string) => {
-      // Dedupe: skip if we've already loaded for this user in this mount
-      if (loadedForUser === userId) return;
-      loadedForUser = userId;
-
-      const { data } = await supabase
-        .from("patients")
-        .select("name, pincode, city")
-        .eq("user_id", userId)
-        .maybeSingle();
-      if (cancelled) return;
-      if (data) {
-        setPatientName(data.name);
-        setLocation_({ pincode: data.pincode, city: data.city });
-      }
-      // Fire-and-forget: don't await, don't block UI
+    const touch = (userId: string) => {
+      if (touchedForUser === userId) return;
+      touchedForUser = userId;
       void supabase
         .from("patients")
         .update({ last_app_open_at: new Date().toISOString() })
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .eq("is_primary", true);
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (cancelled) return;
-      // Only react to real sign-in events, not every token refresh / tab focus
-      if (event === "SIGNED_IN" && session) {
-        void loadPatient(session.user.id);
-      }
-      if (event === "SIGNED_OUT") {
-        loadedForUser = null;
-      }
+      if (event === "SIGNED_IN" && session) touch(session.user.id);
+      if (event === "SIGNED_OUT") touchedForUser = null;
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (cancelled) return;
       if (session) {
-        void loadPatient(session.user.id);
+        touch(session.user.id);
       } else {
         setTimeout(async () => {
           if (cancelled) return;
@@ -140,9 +126,7 @@ const AppShell = () => {
   const isSubRoute = !tabPaths.has(location.pathname) && location.pathname.startsWith("/app");
   const subTitle = subRouteTitles[location.pathname];
 
-  // Title for mobile top bar when on a primary tab
   const activeTabLabel = allTabs.find((t) => t.id === activeTab)?.label;
-
   const firstName = patientName.split(" ")[0];
 
   const handleSignOut = async () => {
@@ -150,24 +134,18 @@ const AppShell = () => {
       const { signOutFully } = await import("@/lib/signOut");
       await signOutFully();
     } finally {
-      // Hard reload to /auth so all in-memory state (React Query cache,
-      // AppShell session listeners, lazy chunks) is fully reset. This
-      // fixes "logout did nothing" cases where stale listeners re-hydrated
-      // a cached session right after signOut.
       window.location.replace("/auth");
     }
   };
 
   const handleLocationChange = async (newLocation: { pincode: string; city: string; latitude?: number; longitude?: number }) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!activePatient) return;
     await supabase.from("patients").update({
       pincode: newLocation.pincode,
       city: newLocation.city,
       latitude: newLocation.latitude ?? null,
       longitude: newLocation.longitude ?? null,
-    }).eq("user_id", session.user.id);
-    setLocation_({ pincode: newLocation.pincode, city: newLocation.city });
+    }).eq("id", activePatient.id);
   };
 
   return (
@@ -195,6 +173,7 @@ const AppShell = () => {
 
           {/* RIGHT — compact icon cluster (iOS 24pt standard) */}
           <div className="flex items-center gap-0.5 shrink-0">
+            <HouseholdSwitcher variant="mobile" />
             <button
               onClick={() => setTourOpen(true)}
               aria-label="Take the tour"
@@ -222,6 +201,7 @@ const AppShell = () => {
           <div className="flex-1" />
 
           <div className="flex items-center gap-2 shrink-0">
+            <HouseholdSwitcher variant="desktop" />
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
             <LanguageSelector />
             <button
@@ -363,5 +343,11 @@ const AppShell = () => {
     </div>
   );
 };
+
+const AppShell = () => (
+  <ActivePatientProvider>
+    <AppShellInner />
+  </ActivePatientProvider>
+);
 
 export default AppShell;
