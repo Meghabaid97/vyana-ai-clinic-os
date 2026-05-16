@@ -1218,6 +1218,10 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      doctor_can_access_patient: {
+        Args: { _doctor_user: string; _patient_id: string }
+        Returns: boolean
+      }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
