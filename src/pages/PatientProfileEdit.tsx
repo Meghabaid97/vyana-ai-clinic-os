@@ -94,7 +94,18 @@ const PatientProfileEdit = () => {
       setEditMode(false);
       loadProfile();
     } catch (error: any) {
-      toast({ title: t("prof.toast.error"), description: error.message || t("prof.toast.errorDesc"), variant: "destructive" });
+      // Friendly mapping for unique-constraint violations on phone / ABHA ID.
+      let description = error?.message || t("prof.toast.errorDesc");
+      if (error?.code === "23505" || /duplicate key|already exists/i.test(error?.message || "")) {
+        if (/national_health_id/i.test(error?.message || "")) {
+          description = "This ABHA Health ID is already linked to another account.";
+        } else if (/phone/i.test(error?.message || "")) {
+          description = "This phone number is already registered.";
+        } else {
+          description = "This value is already in use by another account.";
+        }
+      }
+      toast({ title: t("prof.toast.error"), description, variant: "destructive" });
     } finally { setIsSaving(false); }
   };
 
