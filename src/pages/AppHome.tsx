@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
+import { useActivePatient } from "@/contexts/ActivePatientContext";
 
 interface PatientProfile {
   id: string;
@@ -27,6 +28,15 @@ interface PatientProfile {
 }
 
 const PROFILE_BANNER_DISMISSED_KEY = "vyana-profile-banner-dismissed";
+const REQUIRED_PROFILE_PROMPT_SEEN_KEY = "vyana-required-profile-prompt-seen";
+
+const normalizePhone = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (trimmed.startsWith("+")) return `+${trimmed.slice(1).replace(/\D/g, "")}`;
+  const digits = trimmed.replace(/\D/g, "");
+  return digits.length === 10 ? `+91${digits}` : digits;
+};
 
 const AppHome = () => {
   const navigate = useNavigate();
@@ -41,8 +51,10 @@ const AppHome = () => {
   const [reqName, setReqName] = useState("");
   const [reqPhone, setReqPhone] = useState("");
   const [savingRequired, setSavingRequired] = useState(false);
+  const [requiredError, setRequiredError] = useState("");
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { refresh: refreshPatients } = useActivePatient();
 
   useEffect(() => {
     void loadData();
@@ -65,10 +77,11 @@ const AppHome = () => {
     const p = await fetchActivePatient<PatientProfile>("*");
 
     // No patient row yet → still prompt for required fields so we can create it.
+    const promptAlreadySeen = typeof window !== "undefined" && sessionStorage.getItem(REQUIRED_PROFILE_PROMPT_SEEN_KEY) === "1";
     if (!p) {
       setReqName("");
       setReqPhone("");
-      setRequiredOpen(true);
+      if (!promptAlreadySeen) setRequiredOpen(true);
       return;
     }
     setProfile(p);
@@ -78,7 +91,7 @@ const AppHome = () => {
     if (missingRequired) {
       setReqName(p.name || "");
       setReqPhone(p.phone || "");
-      setRequiredOpen(true);
+      if (!promptAlreadySeen) setRequiredOpen(true);
     }
 
     const { data: r } = await supabase
@@ -101,29 +114,48 @@ const AppHome = () => {
 
   const saveRequired = async () => {
     const name = reqName.trim();
-    const phone = reqPhone.trim();
+    const phone = normalizePhone(reqPhone);
+    setRequiredError("");
     if (name.length < 2) { toast({ title: "Please enter your full name", variant: "destructive" }); return; }
-    if (!/^[+0-9 ()-]{7,20}$/.test(phone)) { toast({ title: "Please enter a valid phone number", variant: "destructive" }); return; }
+    if (!/^\+?\d{7,15}$/.test(phone)) { toast({ title: "Please enter a valid phone number", variant: "destructive" }); return; }
     setSavingRequired(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setSavingRequired(false); return; }
     let saveError: { message: string } | null = null;
+    let savedProfile: PatientProfile | null = null;
     if (profile) {
-      const { error } = await supabase.from("patients").update({ name, phone }).eq("id", profile.id);
-      saveError = error;
-      if (!error) setProfile({ ...profile, name, phone });
-    } else {
       const { data, error } = await supabase
         .from("patients")
-        .insert({ user_id: session.user.id, name, phone, is_primary: true, relationship: "Self", avatar_emoji: "👤" })
+        .update({ name, phone })
+        .eq("id", profile.id)
+        .eq("user_id", session.user.id)
         .select("*")
         .maybeSingle();
       saveError = error;
-      if (!error && data) setProfile(data as PatientProfile);
+      if (!error && data) savedProfile = data as PatientProfile;
+    } else {
+      const { data, error } = await supabase
+        .from("patients")
+        .upsert({ user_id: session.user.id, name, phone, is_primary: true, relationship: "Self", avatar_emoji: "👤" }, { onConflict: "user_id" })
+        .select("*")
+        .maybeSingle();
+      saveError = error;
+      if (!error && data) savedProfile = data as PatientProfile;
     }
     setSavingRequired(false);
-    if (saveError) { toast({ title: "Could not save", description: saveError.message, variant: "destructive" }); return; }
+    if (saveError || !savedProfile) {
+      const description = saveError?.message?.includes("duplicate")
+        ? "That phone number is already linked to another account. Use your own number or update it from Profile."
+        : saveError?.message || "We could not confirm the save. Please try again.";
+      setRequiredError(description);
+      toast({ title: "Could not save", description, variant: "destructive" });
+      return;
+    }
+    setProfile(savedProfile);
+    sessionStorage.setItem(REQUIRED_PROFILE_PROMPT_SEEN_KEY, "1");
     setRequiredOpen(false);
+    await refreshPatients();
+    window.dispatchEvent(new CustomEvent("vyana:active-patient-changed", { detail: { id: savedProfile.id } }));
     toast({ title: "Profile saved", description: "You can add more details anytime." });
     void loadData();
   };
