@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Mic, Check } from "lucide-react";
+import { Mic, Check, NotebookPen, Pill, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Props {
