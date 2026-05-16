@@ -30,7 +30,9 @@ export default function HouseholdSwitcher({ variant = "mobile" }: Props) {
                 : "h-9 px-2.5 hover:bg-muted"
             )}
           >
-            <span className="text-base leading-none">{activePatient.avatar_emoji}</span>
+            <span className="h-5 w-5 rounded-full bg-primary/15 text-primary text-[10.5px] font-semibold flex items-center justify-center leading-none">
+              {firstName.charAt(0).toUpperCase()}
+            </span>
             <span className={cn(
               "font-medium text-foreground truncate max-w-[6.5rem]",
               variant === "mobile" ? "text-[13px]" : "text-sm"
@@ -53,7 +55,9 @@ export default function HouseholdSwitcher({ variant = "mobile" }: Props) {
                 onClick={() => setActiveById(p.id)}
                 className="gap-3 py-2.5 cursor-pointer"
               >
-                <span className="text-lg leading-none shrink-0">{p.avatar_emoji}</span>
+                <span className="h-7 w-7 rounded-full bg-primary/15 text-primary text-[12px] font-semibold flex items-center justify-center shrink-0 leading-none">
+                  {p.name.charAt(0).toUpperCase()}
+                </span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-foreground truncate">{p.name}</div>
                   <div className="text-[11px] text-muted-foreground">
