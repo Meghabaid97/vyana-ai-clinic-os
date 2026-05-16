@@ -593,6 +593,54 @@ const DoctorVisitMode = () => {
             </section>
           )}
 
+          {/* Drug-drug interactions */}
+          {(interactionsLoading || (briefing.drug_interactions?.interactions?.length ?? 0) > 0) && (
+            <section className="pb-3">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <Pill className="h-4 w-4 text-primary" />
+                  <h3 className="text-[13px] font-bold text-foreground">Drug interaction check</h3>
+                  {briefing.drug_interactions?.overallRisk && (
+                    <Badge variant="outline" className={`text-[10px] ml-auto ${severityStyle(briefing.drug_interactions.overallRisk)}`}>
+                      overall risk: {briefing.drug_interactions.overallRisk}
+                    </Badge>
+                  )}
+                </div>
+                {interactionsLoading ? (
+                  <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" /> Checking interactions across your active medications…
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {briefing.drug_interactions!.interactions.map((d, i) => (
+                      <div key={i} className={`rounded-lg border p-3 ${severityStyle(d.severity)}`}>
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className="text-[13px] font-semibold text-foreground">{d.drugs.join(" + ")}</span>
+                          <Badge variant="outline" className={`text-[10px] ${severityStyle(d.severity)}`}>{d.severity}</Badge>
+                        </div>
+                        <p className="text-[12px] text-foreground/80 leading-snug">{d.description}</p>
+                        {d.recommendation && (
+                          <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                            <span className="font-semibold">Action:</span> {d.recommendation}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                    {briefing.drug_interactions?.safetyNotes?.length ? (
+                      <ul className="mt-2 space-y-1">
+                        {briefing.drug_interactions.safetyNotes.map((n, i) => (
+                          <li key={i} className="text-[11px] text-muted-foreground flex gap-1.5">
+                            <span className="text-primary">•</span> {n}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
           {/* Regenerate */}
           <section className="pt-2 pb-6">
             <p className="text-[10.5px] text-muted-foreground leading-snug text-center px-4">
