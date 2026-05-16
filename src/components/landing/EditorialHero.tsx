@@ -78,7 +78,7 @@ const EditorialHero = () => {
           <div className="lg:grid lg:grid-cols-[minmax(0,700px)_minmax(320px,1fr)] lg:items-center lg:gap-2">
             <div className="relative z-10 max-w-[860px] space-y-5 lg:space-y-8">
               <p
-                className="hero-soft font-serif italic text-[14px] lg:text-[15px] text-foreground/65"
+                className="hero-soft font-serif italic text-[14px] lg:text-[15px] text-foreground/80"
                 style={{ ["--d" as string]: `${D_EYEBROW}ms` }}
               >
                 {eyebrow}
