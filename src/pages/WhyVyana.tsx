@@ -19,7 +19,7 @@ const WhyVyana = () => {
   const inApp = location.pathname.startsWith("/app");
 
   usePageMeta({
-    title: "Why Vyana — a letter from the founder",
+    title: "Why Vyana: a letter from the founder",
     description:
       "A founder's letter on why Vyana exists: the loss in Tirupur 2005, the COVID call, the 75 pages of paperwork, and the longitudinal health memory layer we built in response.",
     path: "/why-vyana",
@@ -54,7 +54,7 @@ const WhyVyana = () => {
     script.text = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Article",
-      headline: "Why Vyana — a letter from the founder",
+      headline: "Why Vyana: a letter from the founder",
       author: { "@type": "Organization", name: "Vyana" },
       publisher: { "@type": "Organization", name: "Vyana", logo: { "@type": "ImageObject", url: "https://vyanacare.lovable.app/app-icon.png" } },
       datePublished: "2024-01-01",
