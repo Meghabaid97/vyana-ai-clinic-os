@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { withGuardrails } from "../_shared/guardrails.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -49,7 +50,7 @@ B) INSURANCE CLAIM DATA — patient details, admission/discharge dates, diagnose
 
 Return structured data by calling the tool.`;
 
-    const messages: any[] = [{ role: "system", content: systemPrompt }];
+    const messages: any[] = [{ role: "system", content: withGuardrails(systemPrompt) }];
 
     if (fileContent && (fileType?.startsWith('image/') || fileType === 'application/pdf')) {
       messages.push({ role: "user", content: [

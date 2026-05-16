@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { withGuardrails } from "../_shared/guardrails.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -120,7 +121,7 @@ Suggest discussion points the patient may want to raise with their doctor when r
     }];
 
     const messages: any[] = [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: withGuardrails(systemPrompt) },
       {
         role: "user",
         content: [
