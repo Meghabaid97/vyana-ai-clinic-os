@@ -140,12 +140,17 @@ const AppShellInner = () => {
 
   const handleLocationChange = async (newLocation: { pincode: string; city: string; latitude?: number; longitude?: number }) => {
     if (!activePatient) return;
-    await supabase.from("patients").update({
+    const { error } = await supabase.from("patients").update({
       pincode: newLocation.pincode,
       city: newLocation.city,
       latitude: newLocation.latitude ?? null,
       longitude: newLocation.longitude ?? null,
     }).eq("id", activePatient.id);
+    if (error) {
+      console.error("Location save failed:", error);
+      return;
+    }
+    await refreshActivePatient();
   };
 
   return (
