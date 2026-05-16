@@ -17,7 +17,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ClinicalRiskDashboard from "@/components/ClinicalRiskDashboard";
 import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
-import BodyHeatmap from "@/components/dashboard/BodyHeatmap";
+import SkeletalAnalysisOverlay from "@/components/trends/SkeletalAnalysisOverlay";
 import PageHero from "@/components/PageHero";
 import { TrendsSkeleton } from "@/components/ui/page-skeletons";
 import { useLanguage } from "@/lib/i18n";
