@@ -295,11 +295,6 @@ const AppHome = () => {
           <ContextualNudgeCard patientId={profile?.id ?? null} city={profile?.city ?? null} />
         </div>
 
-        {/* Health Journal quick log */}
-        <div className="lg:col-span-6">
-          <JournalQuickLog patientId={profile?.id ?? null} />
-        </div>
-
         {/* Latest vitals — 4 cols on desktop, with quick actions beside */}
         <div className="lg:col-span-4">
           <LatestVitalsStrip patientId={profile?.id ?? null} />
