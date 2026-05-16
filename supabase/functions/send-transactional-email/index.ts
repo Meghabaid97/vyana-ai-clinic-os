@@ -97,6 +97,46 @@ Deno.serve(async (req) => {
     )
   }
 
+  // === Per-template authorization ===
+  const authHeader = req.headers.get('Authorization') ?? ''
+  const isServiceRole = authHeader === `Bearer ${supabaseServiceKey}`
+
+  if (!isServiceRole) {
+    if (ANON_ALLOWED_TEMPLATES.has(templateName)) {
+      const forced = FORCED_RECIPIENTS[templateName]
+      if (forced) recipientEmail = forced
+    } else if (ADMIN_ALLOWED_TEMPLATES.has(templateName)) {
+      const { createClient: createSb } = await import('npm:@supabase/supabase-js@2')
+      const userClient = createSb(
+        supabaseUrl,
+        supabaseAnonKey ?? '',
+        { global: { headers: { Authorization: authHeader } } }
+      )
+      const token = authHeader.replace('Bearer ', '')
+      const { data: claims } = await userClient.auth.getClaims(token)
+      const userId = claims?.claims?.sub
+      if (!userId) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      const adminClient = createSb(supabaseUrl, supabaseServiceKey)
+      const { data: isAdmin } = await adminClient.rpc('has_role', {
+        _user_id: userId, _role: 'admin',
+      })
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+    } else {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+  }
+
+
   // 1. Look up template from registry (early — needed to resolve recipient)
   const template = TEMPLATES[templateName]
 
