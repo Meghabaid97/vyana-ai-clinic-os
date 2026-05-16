@@ -144,9 +144,9 @@ const DoctorVisitMode = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth"); return; }
 
-      const { data: patient } = await supabase
-        .from("patients").select("id, national_health_id, name, age")
-        .eq("user_id", session.user.id).maybeSingle();
+      const patient = await fetchActivePatient<{ id: string; national_health_id: string | null; name: string; age: number | null }>(
+        "id, national_health_id, name, age"
+      );
 
       if (!patient) {
         toast({ title: "Complete your profile first", variant: "destructive" });
