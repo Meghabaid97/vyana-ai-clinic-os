@@ -179,6 +179,29 @@ const DoctorVisitMode = () => {
       if (error) throw error;
       setBriefing(data);
 
+      // Drug-drug interaction check on current/active meds
+      try {
+        const medNames = Array.from(new Set(
+          (data?.current_medications ?? [])
+            .filter((m: any) => m?.status !== "stopped")
+            .map((m: any) => extractDrugName(m.name))
+            .filter((n: string) => n && n.length > 1)
+        ));
+        if (medNames.length >= 2) {
+          setInteractionsLoading(true);
+          const { data: ddi } = await supabase.functions.invoke("check-drug-interactions", {
+            body: { medications: medNames },
+          });
+          if (ddi && Array.isArray(ddi.interactions)) {
+            setBriefing((prev) => prev ? { ...prev, drug_interactions: ddi } : prev);
+          }
+        }
+      } catch (e) {
+        console.warn("Drug interaction check failed:", e);
+      } finally {
+        setInteractionsLoading(false);
+      }
+
       try {
         const ch = await computeChangesSinceLastVisit(patient.id);
         setChanges(ch.length ? ch : []);
