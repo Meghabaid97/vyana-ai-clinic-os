@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import {
   Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode, MessageCircle, Mail,
 } from "lucide-react";
