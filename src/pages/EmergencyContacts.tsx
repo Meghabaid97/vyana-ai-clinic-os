@@ -66,6 +66,8 @@ const EmergencyContacts = () => {
 
   useEffect(() => {
     loadData();
+    const off = onActivePatientChange(() => { setIsLoading(true); void loadData(); });
+    return () => off();
   }, []);
 
   const loadData = async () => {
@@ -74,11 +76,7 @@ const EmergencyContacts = () => {
       if (!session) { setHasSession(false); setIsLoading(false); return; }
       setHasSession(true);
 
-      const { data: patient } = await supabase
-        .from("patients")
-        .select("id, name")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const patient = await fetchActivePatient<{ id: string; name: string }>("id, name");
 
       if (!patient) { setPatientId(null); setIsLoading(false); return; }
       setPatientId(patient.id);
