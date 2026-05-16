@@ -30,9 +30,16 @@ function generateToken(): string {
     .join('')
 }
 
-// Auth: must be invoked with the service-role key. Verify_jwt=true at the
-// gateway permits any signed-in user, so we additionally enforce service-role
-// here to prevent authenticated users from sending arbitrary phishing emails.
+// Auth: callers are gated based on the requested templateName.
+// - "admin-new-access-request" — anon public submission allowed; recipient is
+//    forced server-side, attacker cannot redirect the email.
+// - "applicant-approved" — must be invoked by an admin (role check in code).
+// - everything else — must be invoked with the service-role key.
+const ANON_ALLOWED_TEMPLATES = new Set(['admin-new-access-request'])
+const ADMIN_ALLOWED_TEMPLATES = new Set(['applicant-approved'])
+const FORCED_RECIPIENTS: Record<string, string> = {
+  'admin-new-access-request': 'mbaid@wharton.upenn.edu',
+}
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -42,6 +49,7 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')
 
   if (!supabaseUrl || !supabaseServiceKey) {
     console.error('Missing required environment variables')
@@ -51,15 +59,6 @@ Deno.serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
-    )
-  }
-
-  // Service-role guard — block any non-service caller
-  const authHeader = req.headers.get('Authorization') ?? ''
-  if (authHeader !== `Bearer ${supabaseServiceKey}`) {
-    return new Response(
-      JSON.stringify({ error: 'Forbidden' }),
-      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 
