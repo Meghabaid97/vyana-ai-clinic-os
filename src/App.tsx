@@ -44,6 +44,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const LayoutQA = lazy(() => import("./pages/LayoutQA"));
 const SymptomJournal = lazy(() => import("./pages/SymptomJournal"));
+const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 
 const queryClient = new QueryClient();
 
@@ -105,6 +106,7 @@ const App = () => (
               <Route path="journal" element={<SymptomJournal />} />
               <Route path="emergency-contacts" element={<EmergencyContacts />} />
               <Route path="share-receive" element={<ShareReceive />} />
+              <Route path="accept-invite/:token" element={<AcceptInvite />} />
             </Route>
 
             {/* Patient standalone pages */}

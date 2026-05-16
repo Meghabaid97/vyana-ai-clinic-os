@@ -10,6 +10,8 @@ export type HouseholdPatient = {
   date_of_birth: string | null;
   pincode: string | null;
   city: string | null;
+  /** "owned" = I own this patient row. "granted" = a real user granted me access via invite. */
+  access: "owned" | "granted";
 };
 
 type Ctx = {
@@ -39,22 +41,46 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    const { data, error } = await supabase
+
+    // a) Patients I own (self + dependents)
+    const { data: owned, error: e1 } = await supabase
       .from("patients")
       .select("id, name, relationship, avatar_emoji, is_primary, date_of_birth, pincode, city")
       .eq("user_id", session.user.id)
       .order("is_primary", { ascending: false })
       .order("created_at", { ascending: true });
-    if (error) {
-      console.error("[ActivePatient] load error", error);
-      setLoading(false);
-      return;
+    if (e1) console.error("[ActivePatient] owned load error", e1);
+
+    // b) Patients an adult family member has granted me access to
+    const { data: grants, error: e2 } = await supabase
+      .from("patient_access_grants")
+      .select("patient_id, permission")
+      .eq("grantee_user_id", session.user.id)
+      .is("revoked_at", null);
+    if (e2) console.error("[ActivePatient] grants load error", e2);
+
+    const grantedIds = (grants || []).map((g) => (g as { patient_id: string }).patient_id);
+    let grantedRows: HouseholdPatient[] = [];
+    if (grantedIds.length > 0) {
+      const { data: granted, error: e3 } = await supabase
+        .from("patients")
+        .select("id, name, relationship, avatar_emoji, is_primary, date_of_birth, pincode, city")
+        .in("id", grantedIds);
+      if (e3) console.error("[ActivePatient] granted patients load error", e3);
+      grantedRows = (granted || []).map((p) => ({ ...(p as Omit<HouseholdPatient, "access">), access: "granted" as const }));
     }
-    const rows = (data || []) as HouseholdPatient[];
+
+    const ownedRows: HouseholdPatient[] = (owned || []).map((p) => ({ ...(p as Omit<HouseholdPatient, "access">), access: "owned" as const }));
+
+    // Avoid duplicates (shouldn't happen but defensive)
+    const map = new Map<string, HouseholdPatient>();
+    [...ownedRows, ...grantedRows].forEach((p) => map.set(p.id, p));
+    const rows = Array.from(map.values());
+
     setPatients(rows);
     setActiveId((current) => {
       if (current && rows.some((r) => r.id === current)) return current;
-      const primary = rows.find((r) => r.is_primary) ?? rows[0] ?? null;
+      const primary = rows.find((r) => r.is_primary && r.access === "owned") ?? rows[0] ?? null;
       const nextId = primary?.id ?? null;
       if (nextId) localStorage.setItem(STORAGE_KEY, nextId);
       return nextId;
@@ -78,7 +104,6 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
   const setActiveById = useCallback((id: string) => {
     setActiveId(id);
     localStorage.setItem(STORAGE_KEY, id);
-    // Notify any legacy screens listening via storage event
     window.dispatchEvent(new CustomEvent("vyana:active-patient-changed", { detail: { id } }));
   }, []);
 
@@ -101,7 +126,6 @@ export function useActivePatient() {
   return ctx;
 }
 
-/** Read the active patient id outside React (legacy screens). */
 export function getActivePatientId(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem(STORAGE_KEY);
