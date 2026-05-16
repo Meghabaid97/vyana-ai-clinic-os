@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import skeletalMeshHuman from "@/assets/skeletal-mesh-human.png";
 
 interface Props {
   open: boolean;
@@ -108,62 +109,18 @@ const SkeletalAnalysisOverlay = ({
             }}
           />
 
-          {/* Skeletal human SVG (wireframe) */}
-          <svg
-            viewBox="0 0 200 320"
-            className="absolute inset-0 m-auto h-full w-auto"
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ filter: "drop-shadow(0 0 6px hsl(var(--primary)/0.35))" }}
-          >
-            {/* Head */}
-            <circle cx="100" cy="38" r="22" />
-            {/* Mesh lines on head */}
-            <path d="M78 38 H122 M100 16 V60 M84 22 L116 54 M116 22 L84 54" opacity="0.55" />
-            {/* Neck */}
-            <path d="M93 60 V72 M107 60 V72" />
-            {/* Spine */}
-            <path d="M100 72 V210" strokeDasharray="2 3" opacity="0.8" />
-            {/* Shoulders */}
-            <path d="M60 80 L100 72 L140 80" />
-            {/* Ribcage mesh */}
-            <path d="M68 88 Q100 110 132 88" opacity="0.7" />
-            <path d="M66 102 Q100 124 134 102" opacity="0.7" />
-            <path d="M66 118 Q100 138 134 118" opacity="0.7" />
-            <path d="M68 134 Q100 150 132 134" opacity="0.7" />
-            {/* Pelvis */}
-            <path d="M72 200 L100 210 L128 200 L120 230 L100 240 L80 230 Z" opacity="0.85" />
-            {/* Left arm */}
-            <path d="M60 80 L48 130 L42 180" />
-            <circle cx="42" cy="184" r="5" opacity="0.7" />
-            {/* Right arm */}
-            <path d="M140 80 L152 130 L158 180" />
-            <circle cx="158" cy="184" r="5" opacity="0.7" />
-            {/* Left leg */}
-            <path d="M85 235 L78 280 L72 310" />
-            <circle cx="72" cy="312" r="5" opacity="0.7" />
-            {/* Right leg */}
-            <path d="M115 235 L122 280 L128 310" />
-            <circle cx="128" cy="312" r="5" opacity="0.7" />
-            {/* Joints */}
-            {[
-              [100, 72],
-              [60, 80],
-              [140, 80],
-              [48, 130],
-              [152, 130],
-              [100, 210],
-              [85, 235],
-              [115, 235],
-              [78, 280],
-              [122, 280],
-            ].map(([cx, cy], i) => (
-              <circle key={i} cx={cx} cy={cy} r="2.4" fill="hsl(var(--primary))" stroke="none" />
-            ))}
-          </svg>
+          {/* Skeletal mesh human */}
+          <img
+            src={skeletalMeshHuman}
+            alt="Skeletal mesh body scan"
+            loading="lazy"
+            width={512}
+            height={896}
+            className="absolute inset-0 m-auto h-[92%] w-auto object-contain select-none pointer-events-none"
+            style={{
+              filter: "drop-shadow(0 0 14px hsl(var(--primary)/0.45))",
+            }}
+          />
 
           {/* Pulsing focus dots — moving across regions */}
           {!done && (
