@@ -61,12 +61,12 @@ const DashboardMoodPill = ({ patientId, patientName }: Props) => {
   return (
     <section className="px-4 sm:px-6 lg:px-0 pt-3 pb-1">
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="px-4 sm:px-5 pt-4 pb-2 flex items-baseline justify-between gap-2">
+        <div className="px-4 sm:px-5 pt-4 pb-2.5 flex items-baseline justify-between gap-2">
           <div className="min-w-0">
-            <p className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
-              <Heart className="h-3 w-3 text-primary fill-primary/20" /> Health Journal
+            <p className="inline-flex items-center gap-1.5 text-[10.5px] sm:text-xs font-medium tracking-[0.18em] uppercase text-primary mb-1.5">
+              <Heart className="h-3 w-3 fill-primary/30 text-primary" /> Health Journal
             </p>
-            <h3 className="mt-0.5 text-[15px] sm:text-base font-bold text-foreground leading-tight">
+            <h3 className="text-[17px] sm:text-[19px] font-extrabold leading-[1.15] tracking-[-0.01em] text-foreground">
               {loggedToday
                 ? <>Today felt <span className="text-primary">{loggedToday.label.toLowerCase()}</span> {loggedToday.emoji}</>
                 : <>How are you feeling today{firstName ? `, ${firstName}` : ""}?</>}
