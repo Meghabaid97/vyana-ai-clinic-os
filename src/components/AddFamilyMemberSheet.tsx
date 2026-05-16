@@ -79,6 +79,20 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
       .finally(() => setLoadingManage(false));
   }, [mode, open]);
 
+  // Generate the QR code as a data URL whenever the QR sheet is opened.
+  useEffect(() => {
+    if (!qrOpen || !createdLink) return;
+    let cancelled = false;
+    QRCode.toDataURL(createdLink, {
+      width: 512,
+      margin: 1,
+      color: { dark: "#1a1a1a", light: "#ffffff" },
+    })
+      .then((url) => { if (!cancelled) setQrDataUrl(url); })
+      .catch(() => { if (!cancelled) toast.error("Could not generate QR"); });
+    return () => { cancelled = true; };
+  }, [qrOpen, createdLink]);
+
   // ---------- INVITE ----------
   const handleSendInvite = async (e: React.FormEvent) => {
     e.preventDefault();
