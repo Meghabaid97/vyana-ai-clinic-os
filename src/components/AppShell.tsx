@@ -59,7 +59,7 @@ const AppShellInner = () => {
   const tabs = buildTabs(t);
   const desktopTabs = buildDesktopTabs(t);
   const subRouteTitles = buildSubRouteTitles(t);
-  const { activePatient } = useActivePatient();
+  const { activePatient, refresh: refreshActivePatient } = useActivePatient();
   const patientName = activePatient?.name ?? "Patient";
   const location_ = { pincode: activePatient?.pincode ?? null, city: activePatient?.city ?? null };
   const [tourOpen, setTourOpen] = useState(false);
@@ -140,12 +140,17 @@ const AppShellInner = () => {
 
   const handleLocationChange = async (newLocation: { pincode: string; city: string; latitude?: number; longitude?: number }) => {
     if (!activePatient) return;
-    await supabase.from("patients").update({
+    const { error } = await supabase.from("patients").update({
       pincode: newLocation.pincode,
       city: newLocation.city,
       latitude: newLocation.latitude ?? null,
       longitude: newLocation.longitude ?? null,
     }).eq("id", activePatient.id);
+    if (error) {
+      console.error("Location save failed:", error);
+      return;
+    }
+    await refreshActivePatient();
   };
 
   return (
