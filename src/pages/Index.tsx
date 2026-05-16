@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 // Landing sections are heavy and only needed for unauthed visitors.
 // Lazy-load so authed users (who get redirected to /app) don't pay for them.
@@ -22,6 +23,13 @@ const SideRail = lazy(() => import("@/components/landing/SideRail"));
 const Index = () => {
   const navigate = useNavigate();
   const [authChecked, setAuthChecked] = useState(false);
+
+  usePageMeta({
+    title: "Vyana — Your longitudinal health story",
+    description:
+      "Vyana is India's longitudinal health memory layer. Carry every prescription, lab report, and discharge summary into every doctor visit, so you never explain your medical history again.",
+    path: "/",
+  });
 
   useEffect(() => {
     // Native app should always boot to the splash screen, never the

@@ -16,6 +16,7 @@ import {
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(200),
@@ -27,6 +28,12 @@ const schema = z.object({
 
 const RequestAccess = () => {
   const navigate = useViewTransitionNavigate();
+  usePageMeta({
+    title: "Request early access — Vyana",
+    description:
+      "Vyana is in invite-only beta. Tell us a little about yourself and we'll send a private invite when your slot opens.",
+    path: "/request-access",
+  });
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");

@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const LAST_UPDATED = "13 April 2026";
 const COMPANY = "Vyana Health Technologies";
@@ -11,6 +12,12 @@ const Legal = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const defaultTab = location.hash === "#privacy" ? "privacy" : "terms";
+  usePageMeta({
+    title: "Terms and privacy — Vyana",
+    description:
+      "Vyana's terms of service and privacy policy. How we collect, store, and protect your health data under India's DPDPA 2023 and IT Act frameworks.",
+    path: "/legal",
+  });
 
   return (
     <div className="min-h-screen bg-background">
