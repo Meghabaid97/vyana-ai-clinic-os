@@ -17,6 +17,18 @@ import PageHero from "@/components/PageHero";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
 import { buildEmergencyAccessUrl } from "@/lib/share-url";
 
+interface DrugInteraction {
+  drugs: string[];
+  severity: string; // minor | moderate | severe | contraindicated
+  description: string;
+  recommendation?: string;
+}
+interface DrugInteractionReport {
+  overallRisk?: string;
+  interactions: DrugInteraction[];
+  safetyNotes?: string[];
+}
+
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
   key_trends: Array<{ vital: string; direction: string; detail: string; concern_level: string }>;
@@ -26,7 +38,28 @@ interface Briefing {
   soap_note: { subjective: string; objective: string; assessment: string; plan: string };
   medication_correlations: Array<{ observation: string; confidence: string; supporting_data: string }>;
   recent_symptoms?: Array<{ symptom: string; frequency: string; avg_severity: string; pattern?: string }>;
+  drug_interactions?: DrugInteractionReport;
 }
+
+/** Strip dosage/frequency tokens so the AI sees clean drug names. */
+const extractDrugName = (raw: string): string => {
+  return raw
+    .replace(/\b\d+(\.\d+)?\s*(mg|mcg|g|ml|iu|units?)\b/gi, "")
+    .replace(/\b(od|bd|tds|qid|hs|prn|sos|po|iv|im|sc|q\d+h|stat)\b/gi, "")
+    .replace(/[()]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(/[\s,/+]/)[0];
+};
+
+const severityStyle = (sev: string) => {
+  const s = sev.toLowerCase();
+  if (s === "contraindicated" || s === "severe")
+    return "border-destructive/40 bg-destructive/5 text-destructive";
+  if (s === "moderate")
+    return "border-yellow-500/40 bg-yellow-500/5 text-yellow-700";
+  return "border-border bg-muted/40 text-muted-foreground";
+};
 
 const dirIcon = (d: string) => {
   if (d === "increasing") return <ArrowUp className="h-3 w-3 text-destructive" />;
