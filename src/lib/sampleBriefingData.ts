@@ -76,6 +76,24 @@ export const SAMPLE_BRIEFING = {
     { symptom: "Fatigue", frequency: "6× in 30 days", avg_severity: "6/10", pattern: "Worse on days after poor sleep" },
     { symptom: "Stomach pain", frequency: "3× in 30 days", avg_severity: "5/10", pattern: "After dairy meals" },
   ],
+  drug_interactions: {
+    overallRisk: "moderate",
+    interactions: [
+      {
+        drugs: ["Glimepiride", "Aspirin"],
+        severity: "moderate",
+        description: "Aspirin can enhance the hypoglycaemic effect of sulfonylureas like glimepiride.",
+        recommendation: "Monitor blood glucose; warn patient about hypo symptoms, especially with fasting.",
+      },
+      {
+        drugs: ["Amlodipine", "Atorvastatin"],
+        severity: "moderate",
+        description: "Amlodipine raises atorvastatin plasma levels; higher risk of myopathy at 40 mg.",
+        recommendation: "Cap atorvastatin at 20 mg if symptoms occur, or watch for muscle pain / CK rise.",
+      },
+    ],
+    safetyNotes: ["Patient is on dual antiplatelet-like exposure (aspirin) plus sulfonylurea — confirm bleeding and hypo risk."],
+  },
   disclaimer:
     "This is a demo briefing using sample patient data. AI-generated content for illustration only, not real clinical data.",
 } as const;
