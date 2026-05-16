@@ -22,6 +22,19 @@ interface ClinicalBriefingProps {
   patientHealthId: string;
 }
 
+interface DrugInteraction {
+  drugs: string[];
+  severity: string;
+  description: string;
+  recommendation?: string;
+}
+
+interface DrugInteractionReport {
+  overallRisk?: string;
+  interactions: DrugInteraction[];
+  safetyNotes?: string[];
+}
+
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
   key_trends: Array<{ vital: string; direction: string; detail: string; concern_level: string }>;
@@ -30,8 +43,19 @@ interface Briefing {
   recent_changes: string[];
   soap_note: { subjective: string; objective: string; assessment: string; plan: string };
   medication_correlations: Array<{ observation: string; confidence: string; supporting_data: string }>;
+  drug_interactions?: DrugInteractionReport;
   disclaimer?: string;
 }
+
+const extractDrugName = (full: string) =>
+  full.replace(/\d+\s?(mg|mcg|g|ml|iu|units?)\b.*$/i, "").replace(/\s+(od|bd|tds|qid|hs|sos|prn|qd|qhs)\b.*$/i, "").trim();
+
+const severityStyle = (sev: string) => {
+  const s = sev?.toLowerCase();
+  if (s === "contraindicated" || s === "severe") return "bg-destructive/10 text-destructive border-destructive/30";
+  if (s === "moderate") return "bg-yellow-500/10 text-yellow-700 border-yellow-500/30";
+  return "bg-muted text-muted-foreground border-border";
+};
 
 const directionIcon = (dir: string) => {
   if (dir === "increasing") return <TrendingUp className="h-3.5 w-3.5 text-destructive" />;
