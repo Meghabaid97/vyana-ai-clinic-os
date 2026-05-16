@@ -59,7 +59,7 @@ const AppShellInner = () => {
   const tabs = buildTabs(t);
   const desktopTabs = buildDesktopTabs(t);
   const subRouteTitles = buildSubRouteTitles(t);
-  const { activePatient } = useActivePatient();
+  const { activePatient, refresh: refreshActivePatient } = useActivePatient();
   const patientName = activePatient?.name ?? "Patient";
   const location_ = { pincode: activePatient?.pincode ?? null, city: activePatient?.city ?? null };
   const [tourOpen, setTourOpen] = useState(false);
