@@ -388,11 +388,7 @@ const HealthTrends = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    const { data: patient } = await supabase
-      .from("patients")
-      .select("id")
-      .eq("user_id", session.user.id)
-      .maybeSingle();
+    const patient = await fetchActivePatient<{ id: string }>("id");
     if (!patient) return;
 
     // Use the date printed on the report when available, so trends reflect the
