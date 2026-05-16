@@ -6,6 +6,8 @@ import { ArrowRight, Upload, UserCog, X, UserCircle2 } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
 import TrustReassuranceStrip from "@/components/dashboard/TrustReassuranceStrip";
+import DashboardMoodPill from "@/components/dashboard/DashboardMoodPill";
+import ContextualNudgeCard from "@/components/dashboard/ContextualNudgeCard";
 import JournalQuickLog from "@/components/journal/JournalQuickLog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -21,6 +23,7 @@ interface PatientProfile {
   national_health_id: string | null;
   phone: string | null;
   date_of_birth: string | null;
+  city: string | null;
 }
 
 const PROFILE_BANNER_DISMISSED_KEY = "vyana-profile-banner-dismissed";
@@ -232,6 +235,12 @@ const AppHome = () => {
 
       {/* ============ BENTO BODY — varied tile sizes on lg+ ============ */}
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:mt-5 lg:auto-rows-min">
+        {/* Daily mood check-in — one-tap, sits right under the briefing */}
+        <div className="lg:col-span-6">
+          <DashboardMoodPill patientId={profile?.id ?? null} patientName={profile?.name} />
+          <ContextualNudgeCard patientId={profile?.id ?? null} city={profile?.city ?? null} />
+        </div>
+
         {/* Health Journal quick log */}
         <div className="lg:col-span-6">
           <JournalQuickLog patientId={profile?.id ?? null} />

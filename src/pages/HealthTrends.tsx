@@ -17,6 +17,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ClinicalRiskDashboard from "@/components/ClinicalRiskDashboard";
 import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
+import BodyHeatmap from "@/components/dashboard/BodyHeatmap";
 import PageHero from "@/components/PageHero";
 import { TrendsSkeleton } from "@/components/ui/page-skeletons";
 import { useLanguage } from "@/lib/i18n";
@@ -684,6 +685,9 @@ const HealthTrends = () => {
 
       {/* Lead: What changed since last visit (the killer feature) */}
       <DashboardChangesCard patientId={patientId} />
+
+      {/* Body silhouette heatmap — tap a zone to see every related log */}
+      <BodyHeatmap patientId={patientId} />
 
 
       {/* Preview insight card, shown until user has 2+ records */}
