@@ -195,14 +195,14 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   );
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl max-h-[92svh] overflow-y-auto">
-        <SheetHeader className="text-left">
-          <SheetTitle>Family access</SheetTitle>
-          <SheetDescription>
-            Invite adults to share their records with you, or add a dependent you manage directly.
-          </SheetDescription>
-        </SheetHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md max-h-[90svh] overflow-y-auto p-5 rounded-2xl">
+        <DialogHeader className="text-left space-y-1">
+          <DialogTitle>Family access</DialogTitle>
+          <DialogDescription className="text-[12.5px]">
+            Invite adults to share their records, or add a dependent you manage directly.
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="mt-4 flex gap-1.5 p-1 rounded-xl bg-muted/40">
           {tabBtn("invite", "Invite adult")}
