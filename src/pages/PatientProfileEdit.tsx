@@ -50,7 +50,11 @@ const PatientProfileEdit = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  useEffect(() => { loadProfile(); }, []);
+  useEffect(() => {
+    loadProfile();
+    const off = onActivePatientChange(() => { setIsLoading(true); loadProfile(); });
+    return () => off();
+  }, []);
 
   const loadProfile = async () => {
     try {
