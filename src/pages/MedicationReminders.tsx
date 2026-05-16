@@ -37,13 +37,14 @@ const MedicationReminders = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  useEffect(() => { loadReminders(); }, []);
+  useEffect(() => {
+    void loadReminders();
+    const off = onActivePatientChange(() => { setLoading(true); void loadReminders(); });
+    return () => off();
+  }, []);
 
   const loadReminders = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    const { data: patient } = await supabase
-      .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    const patient = await fetchActivePatient<{ id: string }>("id");
     if (!patient) { setLoading(false); return; }
     setPatientId(patient.id);
 
