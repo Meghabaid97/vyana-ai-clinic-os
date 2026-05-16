@@ -115,12 +115,29 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
     }
   };
 
+  const shareText = () =>
+    `Hi ${name.split(" ")[0] || "there"}, I'd like you to join my Vyana family so we can keep your health records together. Tap to accept (valid 14 days): ${createdLink}`;
+
   const shareWhatsApp = () => {
     if (!createdLink) return;
-    const text = encodeURIComponent(
-      `Hi ${name.split(" ")[0]}, I'd like you to join my Vyana family so we can keep your health records together. Open this link to accept (valid 14 days): ${createdLink}`
-    );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText())}`, "_blank");
+  };
+  const shareSMS = () => {
+    if (!createdLink) return;
+    window.location.href = `sms:?&body=${encodeURIComponent(shareText())}`;
+  };
+  const shareEmail = () => {
+    if (!createdLink) return;
+    const subject = encodeURIComponent("Join my Vyana family");
+    window.location.href = `mailto:${email || ""}?subject=${subject}&body=${encodeURIComponent(shareText())}`;
+  };
+  const shareNative = async () => {
+    if (!createdLink) return;
+    if (navigator.share) {
+      try { await navigator.share({ title: "Vyana family invite", text: shareText(), url: createdLink }); } catch {}
+    } else {
+      copyLink();
+    }
   };
 
   // ---------- DEPENDENT ----------
