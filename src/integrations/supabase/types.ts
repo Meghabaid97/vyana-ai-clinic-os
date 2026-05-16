@@ -633,6 +633,63 @@ export type Database = {
           },
         ]
       }
+      family_invites: {
+        Row: {
+          accepted_at: string | null
+          accepted_by_user_id: string | null
+          accepted_patient_id: string | null
+          avatar_emoji: string
+          created_at: string
+          expires_at: string
+          id: string
+          invitee_email: string | null
+          invitee_name: string
+          invitee_phone: string | null
+          inviter_user_id: string
+          message: string | null
+          permission: string
+          relationship: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by_user_id?: string | null
+          accepted_patient_id?: string | null
+          avatar_emoji?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitee_email?: string | null
+          invitee_name: string
+          invitee_phone?: string | null
+          inviter_user_id: string
+          message?: string | null
+          permission?: string
+          relationship: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by_user_id?: string | null
+          accepted_patient_id?: string | null
+          avatar_emoji?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitee_email?: string | null
+          invitee_name?: string
+          invitee_phone?: string | null
+          inviter_user_id?: string
+          message?: string | null
+          permission?: string
+          relationship?: string
+          status?: string
+          token?: string
+        }
+        Relationships: []
+      }
       follow_up_reminders: {
         Row: {
           consultation_id: string
@@ -915,6 +972,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      patient_access_grants: {
+        Row: {
+          created_at: string
+          grantee_user_id: string
+          id: string
+          patient_id: string
+          permission: string
+          revoked_at: string | null
+          source_invite_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          grantee_user_id: string
+          id?: string
+          patient_id: string
+          permission?: string
+          revoked_at?: string | null
+          source_invite_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          grantee_user_id?: string
+          id?: string
+          patient_id?: string
+          permission?: string
+          revoked_at?: string | null
+          source_invite_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_access_grants_source_invite_id_fkey"
+            columns: ["source_invite_id"]
+            isOneToOne: false
+            referencedRelation: "family_invites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patients: {
         Row: {
@@ -1214,8 +1309,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_family_invite: { Args: { _token: string }; Returns: string }
       cleanup_expired_support_tickets: { Args: never; Returns: undefined }
       consume_invite_token: { Args: { _token: string }; Returns: boolean }
+      decline_family_invite: { Args: { _token: string }; Returns: undefined }
       decrypt_health_record_phi: {
         Args: { _record_id: string }
         Returns: {
@@ -1245,6 +1342,20 @@ export type Database = {
           token_used_at: string
         }[]
       }
+      get_family_invite_by_token: {
+        Args: { _token: string }
+        Returns: {
+          avatar_emoji: string
+          expires_at: string
+          invitee_email: string
+          invitee_name: string
+          inviter_name: string
+          message: string
+          permission: string
+          relationship: string
+          status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1269,6 +1380,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      user_can_access_patient: {
+        Args: { _patient_id: string; _user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
