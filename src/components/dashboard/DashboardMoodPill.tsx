@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Mic, Check, NotebookPen, Pill, ArrowRight, Heart } from "lucide-react";
+import { Check, NotebookPen, Pill, BookOpen, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import SymptomLogDialog from "@/components/journal/SymptomLogDialog";
 
