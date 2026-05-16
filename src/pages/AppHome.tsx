@@ -235,6 +235,12 @@ const AppHome = () => {
 
       {/* ============ BENTO BODY — varied tile sizes on lg+ ============ */}
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:mt-5 lg:auto-rows-min">
+        {/* Daily mood check-in — one-tap, sits right under the briefing */}
+        <div className="lg:col-span-6">
+          <DashboardMoodPill patientId={profile?.id ?? null} patientName={profile?.name} />
+          <ContextualNudgeCard patientId={profile?.id ?? null} city={profile?.city ?? null} />
+        </div>
+
         {/* Health Journal quick log */}
         <div className="lg:col-span-6">
           <JournalQuickLog patientId={profile?.id ?? null} />
