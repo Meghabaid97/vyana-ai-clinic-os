@@ -23,6 +23,7 @@ interface PatientProfile {
   national_health_id: string | null;
   phone: string | null;
   date_of_birth: string | null;
+  city: string | null;
 }
 
 const PROFILE_BANNER_DISMISSED_KEY = "vyana-profile-banner-dismissed";
