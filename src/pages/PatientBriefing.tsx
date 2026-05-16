@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient } from "@/lib/activePatient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, Pill, FileText,
