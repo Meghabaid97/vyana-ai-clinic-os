@@ -283,11 +283,11 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
               <p className="text-[12px] text-foreground/90 mt-1 break-all leading-snug">{createdLink}</p>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Button onClick={shareWhatsApp} className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
-                <MessageCircle className="h-4 w-4 mr-1.5" /> WhatsApp
+              <Button variant="outline" onClick={shareWhatsApp}>
+                <MessageCircle className="h-4 w-4 mr-1.5 text-[#25D366]" /> WhatsApp
               </Button>
-              <Button variant="outline" onClick={shareSMS}>
-                <Phone className="h-4 w-4 mr-1.5" /> SMS
+              <Button variant="outline" onClick={() => setQrOpen(true)}>
+                <QrCode className="h-4 w-4 mr-1.5" /> QR code
               </Button>
               <Button variant="outline" onClick={shareEmail}>
                 <Mail className="h-4 w-4 mr-1.5" /> Email
