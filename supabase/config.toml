@@ -43,3 +43,7 @@ project_id = "gnfaxcdapizhfqloiajn"
     verify_jwt = false
   [functions.validate-invite-token]
     verify_jwt = false
+  [functions.ask-vyana]
+    verify_jwt = true
+  [functions.detect-insights]
+    verify_jwt = false
