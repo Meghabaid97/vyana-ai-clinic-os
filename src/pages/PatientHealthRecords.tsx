@@ -33,6 +33,8 @@ const PatientHealthRecords = () => {
 
   useEffect(() => {
     loadData();
+    const off = onActivePatientChange(() => { setIsLoading(true); void loadData(); });
+    return () => off();
   }, []);
 
   const loadData = async () => {
@@ -41,11 +43,7 @@ const PatientHealthRecords = () => {
       if (!session) { navigate("/auth"); return; }
       setUserId(session.user.id);
 
-      const { data: patientData } = await supabase
-        .from("patients")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .single();
+      const patientData = await fetchActivePatient<PatientProfile>("*");
 
       if (patientData) {
         setProfile(patientData);
