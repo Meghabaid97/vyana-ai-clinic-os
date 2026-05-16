@@ -90,15 +90,57 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void load();
+
+    let realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+
+    const setupRealtime = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const uid = session.user.id;
+
+      // Debounced refresh so a burst of events triggers one reload.
+      let pending: ReturnType<typeof setTimeout> | null = null;
+      const scheduleReload = () => {
+        if (pending) clearTimeout(pending);
+        pending = setTimeout(() => { void load(); }, 250);
+      };
+
+      realtimeChannel = supabase
+        .channel(`household:${uid}`)
+        // New / revoked grants where I am the grantee → new shared profile shows up
+        .on("postgres_changes", {
+          event: "*", schema: "public", table: "patient_access_grants",
+          filter: `grantee_user_id=eq.${uid}`,
+        }, scheduleReload)
+        // Any update to a patient row I can see (own or granted) — name, pincode, dob, etc.
+        .on("postgres_changes", {
+          event: "UPDATE", schema: "public", table: "patients",
+        }, scheduleReload)
+        // Inviter side: my outgoing invite flipped to accepted/declined/revoked
+        .on("postgres_changes", {
+          event: "UPDATE", schema: "public", table: "family_invites",
+          filter: `inviter_user_id=eq.${uid}`,
+        }, scheduleReload)
+        .subscribe();
+    };
+    void setupRealtime();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") void load();
+      if (event === "SIGNED_IN") {
+        void load();
+        void setupRealtime();
+      }
       if (event === "SIGNED_OUT") {
         localStorage.removeItem(STORAGE_KEY);
         setActiveId(null);
         setPatients([]);
+        if (realtimeChannel) { void supabase.removeChannel(realtimeChannel); realtimeChannel = null; }
       }
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (realtimeChannel) void supabase.removeChannel(realtimeChannel);
+    };
   }, [load]);
 
   const setActiveById = useCallback((id: string) => {
