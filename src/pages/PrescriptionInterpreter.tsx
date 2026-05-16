@@ -91,13 +91,16 @@ const PrescriptionInterpreter = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    (async () => {
+    const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const { data: patient } = await supabase
-        .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+      const patient = await fetchActivePatient<{ id: string }>("id");
       if (patient) setPatientCtx({ patientId: patient.id, userId: session.user.id });
-    })();
+      else setPatientCtx(null);
+    };
+    void init();
+    const off = onActivePatientChange(() => { void init(); });
+    return () => off();
   }, []);
 
   const openSavedRxPicker = async () => {
