@@ -382,7 +382,7 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
             )}
           </div>
         )}
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }
