@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Mic, Check, NotebookPen, Pill, ArrowRight } from "lucide-react";
+import { Mic, Check, NotebookPen, Pill, ArrowRight, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Props {
@@ -63,8 +63,8 @@ const DashboardMoodPill = ({ patientId, patientName }: Props) => {
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
         <div className="px-4 sm:px-5 pt-4 pb-2 flex items-baseline justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-[10.5px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
-              Daily check-in
+            <p className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
+              <Heart className="h-3 w-3 text-primary fill-primary/20" /> Health Journal
             </p>
             <h3 className="mt-0.5 text-[15px] sm:text-base font-bold text-foreground leading-tight">
               {loggedToday
