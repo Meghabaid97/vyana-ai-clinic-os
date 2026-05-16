@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import {
   Pill, Plus, Trash2, Clock, Bell, Loader2, ToggleLeft, ToggleRight,
 } from "lucide-react";
