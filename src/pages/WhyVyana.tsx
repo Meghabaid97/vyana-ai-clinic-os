@@ -39,6 +39,22 @@ const WhyVyana = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: "Why Vyana — a letter from the founder",
+      author: { "@type": "Organization", name: "Vyana" },
+      publisher: { "@type": "Organization", name: "Vyana", logo: { "@type": "ImageObject", url: "https://vyanacare.lovable.app/app-icon.png" } },
+      datePublished: "2024-01-01",
+      mainEntityOfPage: "https://vyanacare.lovable.app/why-vyana",
+    });
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, []);
+
   const scrollToChapter = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
