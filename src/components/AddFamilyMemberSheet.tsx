@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { MessageCircle, Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -114,12 +115,29 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
     }
   };
 
+  const shareText = () =>
+    `Hi ${name.split(" ")[0] || "there"}, I'd like you to join my Vyana family so we can keep your health records together. Tap to accept (valid 14 days): ${createdLink}`;
+
   const shareWhatsApp = () => {
     if (!createdLink) return;
-    const text = encodeURIComponent(
-      `Hi ${name.split(" ")[0]}, I'd like you to join my Vyana family so we can keep your health records together. Open this link to accept (valid 14 days): ${createdLink}`
-    );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText())}`, "_blank");
+  };
+  const shareSMS = () => {
+    if (!createdLink) return;
+    window.location.href = `sms:?&body=${encodeURIComponent(shareText())}`;
+  };
+  const shareEmail = () => {
+    if (!createdLink) return;
+    const subject = encodeURIComponent("Join my Vyana family");
+    window.location.href = `mailto:${email || ""}?subject=${subject}&body=${encodeURIComponent(shareText())}`;
+  };
+  const shareNative = async () => {
+    if (!createdLink) return;
+    if (navigator.share) {
+      try { await navigator.share({ title: "Vyana family invite", text: shareText(), url: createdLink }); } catch {}
+    } else {
+      copyLink();
+    }
   };
 
   // ---------- DEPENDENT ----------
@@ -194,14 +212,14 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   );
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl max-h-[92svh] overflow-y-auto">
-        <SheetHeader className="text-left">
-          <SheetTitle>Family access</SheetTitle>
-          <SheetDescription>
-            Invite adults to share their records with you, or add a dependent you manage directly.
-          </SheetDescription>
-        </SheetHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md max-h-[90svh] overflow-y-auto p-5 rounded-2xl">
+        <DialogHeader className="text-left space-y-1">
+          <DialogTitle>Family access</DialogTitle>
+          <DialogDescription className="text-[12.5px]">
+            Invite adults to share their records, or add a dependent you manage directly.
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="mt-4 flex gap-1.5 p-1 rounded-xl bg-muted/40">
           {tabBtn("invite", "Invite adult")}
@@ -265,8 +283,18 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
               <p className="text-[12px] text-foreground/90 mt-1 break-all leading-snug">{createdLink}</p>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={copyLink}><Copy className="h-4 w-4 mr-1.5" /> Copy</Button>
-              <Button onClick={shareWhatsApp}><Mail className="h-4 w-4 mr-1.5" /> WhatsApp</Button>
+              <Button onClick={shareWhatsApp} className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
+                <MessageCircle className="h-4 w-4 mr-1.5" /> WhatsApp
+              </Button>
+              <Button variant="outline" onClick={shareSMS}>
+                <Phone className="h-4 w-4 mr-1.5" /> SMS
+              </Button>
+              <Button variant="outline" onClick={shareEmail}>
+                <Mail className="h-4 w-4 mr-1.5" /> Email
+              </Button>
+              <Button variant="outline" onClick={copyLink}>
+                <Copy className="h-4 w-4 mr-1.5" /> Copy link
+              </Button>
             </div>
             <Button variant="ghost" className="w-full" onClick={() => onOpenChange(false)}>Done</Button>
           </div>
@@ -381,7 +409,7 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
             )}
           </div>
         )}
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }

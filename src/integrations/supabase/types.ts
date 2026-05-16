@@ -1312,6 +1312,7 @@ export type Database = {
       accept_family_invite: { Args: { _token: string }; Returns: string }
       cleanup_expired_support_tickets: { Args: never; Returns: undefined }
       consume_invite_token: { Args: { _token: string }; Returns: boolean }
+      current_user_email: { Args: never; Returns: string }
       decline_family_invite: { Args: { _token: string }; Returns: undefined }
       decrypt_health_record_phi: {
         Args: { _record_id: string }
