@@ -344,4 +344,10 @@ const AppShellInner = () => {
   );
 };
 
+const AppShell = () => (
+  <ActivePatientProvider>
+    <AppShellInner />
+  </ActivePatientProvider>
+);
+
 export default AppShell;
