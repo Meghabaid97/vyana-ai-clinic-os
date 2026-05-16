@@ -250,11 +250,9 @@ const HealthTrends = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { data: patient } = await supabase
-        .from("patients")
-        .select("id, national_health_id, age")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const patient = await fetchActivePatient<{ id: string; national_health_id: string | null; age: number | null }>(
+        "id, national_health_id, age"
+      );
 
       if (!patient) return;
       setPatientAge(patient.age ?? null);
