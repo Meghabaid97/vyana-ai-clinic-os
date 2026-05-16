@@ -347,6 +347,9 @@ const Auth = () => {
           pincode: signupDraft?.pincode ?? null,
           latitude: signupDraft?.latitude ?? null,
           longitude: signupDraft?.longitude ?? null,
+          is_primary: true,
+          relationship: "Self",
+          avatar_emoji: "👤",
         });
 
         if (insertPatientError) throw insertPatientError;
