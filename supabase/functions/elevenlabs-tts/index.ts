@@ -105,7 +105,8 @@ Deno.serve(async (req) => {
     );
     if (!resp.ok) {
       const t = await resp.text();
-      return new Response(JSON.stringify({ error: t }), { status: resp.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      console.error("elevenlabs-tts upstream error:", resp.status, t);
+      return new Response(JSON.stringify({ error: "Text-to-speech provider error" }), { status: resp.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const buf = await resp.arrayBuffer();
     const audioContent = base64Encode(buf);
@@ -113,7 +114,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown" }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

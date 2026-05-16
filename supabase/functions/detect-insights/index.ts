@@ -275,7 +275,14 @@ serve(async (req) => {
     const mode: DetectMode = body?.mode ?? "on-upload";
 
     if (mode === "scheduled") {
-      // Cron-triggered: no per-user auth required (called with service key)
+      // Cron-triggered: must be invoked with the service-role key
+      const authHeader = req.headers.get("Authorization") ?? "";
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+      if (!serviceKey || authHeader !== `Bearer ${serviceKey}`) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       await runScheduled(admin);
       return new Response(JSON.stringify({ ok: true, mode }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -323,7 +330,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("detect-insights error", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : String(e) }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

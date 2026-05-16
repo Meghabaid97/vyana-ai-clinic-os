@@ -61,6 +61,14 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Auth guard
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { question, context } = await req.json();
     if (!question || typeof question !== "string" || question.trim().length < 3) {
       return new Response(JSON.stringify({ error: "Please enter a question." }), {
@@ -162,7 +170,7 @@ Deno.serve(async (req) => {
   } catch (e) {
     console.error("ask-vyana error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "An unexpected error occurred." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }

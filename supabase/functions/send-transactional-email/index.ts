@@ -30,9 +30,16 @@ function generateToken(): string {
     .join('')
 }
 
-// Auth note: this function uses verify_jwt = true in config.toml, so Supabase's
-// gateway validates the caller's JWT (anon or service_role) before the request
-// reaches this code. No in-function auth check is needed.
+// Auth: callers are gated based on the requested templateName.
+// - "admin-new-access-request" — anon public submission allowed; recipient is
+//    forced server-side, attacker cannot redirect the email.
+// - "applicant-approved" — must be invoked by an admin (role check in code).
+// - everything else — must be invoked with the service-role key.
+const ANON_ALLOWED_TEMPLATES = new Set(['admin-new-access-request'])
+const ADMIN_ALLOWED_TEMPLATES = new Set(['applicant-approved'])
+const FORCED_RECIPIENTS: Record<string, string> = {
+  'admin-new-access-request': 'mbaid@wharton.upenn.edu',
+}
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -42,6 +49,7 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')
 
   if (!supabaseUrl || !supabaseServiceKey) {
     console.error('Missing required environment variables')
@@ -88,6 +96,46 @@ Deno.serve(async (req) => {
       }
     )
   }
+
+  // === Per-template authorization ===
+  const authHeader = req.headers.get('Authorization') ?? ''
+  const isServiceRole = authHeader === `Bearer ${supabaseServiceKey}`
+
+  if (!isServiceRole) {
+    if (ANON_ALLOWED_TEMPLATES.has(templateName)) {
+      const forced = FORCED_RECIPIENTS[templateName]
+      if (forced) recipientEmail = forced
+    } else if (ADMIN_ALLOWED_TEMPLATES.has(templateName)) {
+      const { createClient: createSb } = await import('npm:@supabase/supabase-js@2')
+      const userClient = createSb(
+        supabaseUrl,
+        supabaseAnonKey ?? '',
+        { global: { headers: { Authorization: authHeader } } }
+      )
+      const token = authHeader.replace('Bearer ', '')
+      const { data: claims } = await userClient.auth.getClaims(token)
+      const userId = claims?.claims?.sub
+      if (!userId) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      const adminClient = createSb(supabaseUrl, supabaseServiceKey)
+      const { data: isAdmin } = await adminClient.rpc('has_role', {
+        _user_id: userId, _role: 'admin',
+      })
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+    } else {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+  }
+
 
   // 1. Look up template from registry (early — needed to resolve recipient)
   const template = TEMPLATES[templateName]
