@@ -209,6 +209,12 @@ const HealthTrends = () => {
 
   useEffect(() => {
     void loadTrends();
+    const off = onActivePatientChange(() => {
+      autoProcessedRecordRef.current = null;
+      setTrendAnalysis(null);
+      void loadTrends();
+    });
+    return () => off();
   }, []);
 
   // Deep-link: scroll to a specific vital when ?vital=key is present
