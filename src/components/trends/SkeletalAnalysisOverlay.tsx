@@ -92,7 +92,7 @@ const SkeletalAnalysisOverlay = ({
               style={{
                 background:
                   "linear-gradient(180deg, transparent 0%, hsl(var(--primary)/0.18) 45%, hsl(var(--primary)/0.35) 50%, hsl(var(--primary)/0.18) 55%, transparent 100%)",
-                animation: "vy-scan 2.4s ease-in-out infinite",
+                animation: "vy-scan 2.6s linear infinite",
               }}
             />
           )}
@@ -171,9 +171,10 @@ const SkeletalAnalysisOverlay = ({
           {/* Inline keyframes (scoped via style tag) */}
           <style>{`
             @keyframes vy-scan {
-              0%   { transform: translateY(-20%); opacity: 0.4; }
-              50%  { transform: translateY(110%); opacity: 1; }
-              100% { transform: translateY(-20%); opacity: 0.4; }
+              0%   { transform: translateY(-100%); opacity: 0; }
+              10%  { opacity: 1; }
+              90%  { opacity: 1; }
+              100% { transform: translateY(280px); opacity: 0; }
             }
             @keyframes vy-pulse {
               0%   { transform: translate(-50%, -50%) scale(0.6); opacity: 0.9; }
