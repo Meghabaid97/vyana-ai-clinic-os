@@ -7,6 +7,8 @@ import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate"
 import NotificationBell from "@/components/NotificationBell";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useLanguage } from "@/lib/i18n";
+import { ActivePatientProvider, useActivePatient } from "@/contexts/ActivePatientContext";
+import HouseholdSwitcher from "@/components/HouseholdSwitcher";
 
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
 const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSelector"));
