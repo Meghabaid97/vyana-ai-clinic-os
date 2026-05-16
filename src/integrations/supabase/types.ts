@@ -678,10 +678,12 @@ export type Database = {
         Row: {
           ai_confidence: string | null
           ai_summary: string | null
+          ai_summary_encrypted: string | null
           allergies: Json
           category: string
           consent_shared_with: string[] | null
           diagnoses: Json
+          diagnoses_encrypted: string | null
           document_type: string | null
           extracted_vitals: Json
           file_name: string
@@ -708,10 +710,12 @@ export type Database = {
         Insert: {
           ai_confidence?: string | null
           ai_summary?: string | null
+          ai_summary_encrypted?: string | null
           allergies?: Json
           category?: string
           consent_shared_with?: string[] | null
           diagnoses?: Json
+          diagnoses_encrypted?: string | null
           document_type?: string | null
           extracted_vitals?: Json
           file_name: string
@@ -738,10 +742,12 @@ export type Database = {
         Update: {
           ai_confidence?: string | null
           ai_summary?: string | null
+          ai_summary_encrypted?: string | null
           allergies?: Json
           category?: string
           consent_shared_with?: string[] | null
           diagnoses?: Json
+          diagnoses_encrypted?: string | null
           document_type?: string | null
           extracted_vitals?: Json
           file_name?: string
@@ -922,6 +928,8 @@ export type Database = {
           longitude: number | null
           name: string
           national_health_id: string | null
+          national_health_id_encrypted: string | null
+          national_health_id_hash: string | null
           next_visit_date: string | null
           phone: string | null
           pincode: string | null
@@ -940,6 +948,8 @@ export type Database = {
           longitude?: number | null
           name: string
           national_health_id?: string | null
+          national_health_id_encrypted?: string | null
+          national_health_id_hash?: string | null
           next_visit_date?: string | null
           phone?: string | null
           pincode?: string | null
@@ -958,6 +968,8 @@ export type Database = {
           longitude?: number | null
           name?: string
           national_health_id?: string | null
+          national_health_id_encrypted?: string | null
+          national_health_id_hash?: string | null
           next_visit_date?: string | null
           phone?: string | null
           pincode?: string | null
@@ -1195,6 +1207,13 @@ export type Database = {
     Functions: {
       cleanup_expired_support_tickets: { Args: never; Returns: undefined }
       consume_invite_token: { Args: { _token: string }; Returns: boolean }
+      decrypt_health_record_phi: {
+        Args: { _record_id: string }
+        Returns: {
+          ai_summary: string
+          diagnoses: Json
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1229,6 +1248,7 @@ export type Database = {
         }
         Returns: number
       }
+      private_phi_key: { Args: never; Returns: string }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
