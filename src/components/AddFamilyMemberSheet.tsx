@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { MessageCircle, Phone } from "lucide-react";
+import { MessageCircle, QrCode } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Copy, Mail, Send, UserPlus, Check, Trash2, Loader2, X } from "lucide-react";
 import { useActivePatient } from "@/contexts/ActivePatientContext";
+import QRCode from "qrcode";
 import {
   createFamilyInvite,
   inviteLink,
@@ -48,7 +49,8 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [createdLink, setCreatedLink] = useState<string | null>(null);
-
+  const [qrOpen, setQrOpen] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   // Dependent mode
   const [dob, setDob] = useState("");
   const [abha, setAbha] = useState("");
@@ -76,6 +78,20 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
       .catch((e) => toast.error(e?.message || "Could not load access"))
       .finally(() => setLoadingManage(false));
   }, [mode, open]);
+
+  // Generate the QR code as a data URL whenever the QR sheet is opened.
+  useEffect(() => {
+    if (!qrOpen || !createdLink) return;
+    let cancelled = false;
+    QRCode.toDataURL(createdLink, {
+      width: 512,
+      margin: 1,
+      color: { dark: "#1a1a1a", light: "#ffffff" },
+    })
+      .then((url) => { if (!cancelled) setQrDataUrl(url); })
+      .catch(() => { if (!cancelled) toast.error("Could not generate QR"); });
+    return () => { cancelled = true; };
+  }, [qrOpen, createdLink]);
 
   // ---------- INVITE ----------
   const handleSendInvite = async (e: React.FormEvent) => {
@@ -121,10 +137,6 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   const shareWhatsApp = () => {
     if (!createdLink) return;
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText())}`, "_blank");
-  };
-  const shareSMS = () => {
-    if (!createdLink) return;
-    window.location.href = `sms:?&body=${encodeURIComponent(shareText())}`;
   };
   const shareEmail = () => {
     if (!createdLink) return;
@@ -283,11 +295,11 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
               <p className="text-[12px] text-foreground/90 mt-1 break-all leading-snug">{createdLink}</p>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Button onClick={shareWhatsApp} className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
-                <MessageCircle className="h-4 w-4 mr-1.5" /> WhatsApp
+              <Button variant="outline" onClick={shareWhatsApp}>
+                <MessageCircle className="h-4 w-4 mr-1.5 text-[#25D366]" /> WhatsApp
               </Button>
-              <Button variant="outline" onClick={shareSMS}>
-                <Phone className="h-4 w-4 mr-1.5" /> SMS
+              <Button variant="outline" onClick={() => setQrOpen(true)}>
+                <QrCode className="h-4 w-4 mr-1.5" /> QR code
               </Button>
               <Button variant="outline" onClick={shareEmail}>
                 <Mail className="h-4 w-4 mr-1.5" /> Email
@@ -410,6 +422,30 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
           </div>
         )}
       </DialogContent>
+
+      {/* QR code share dialog */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="max-w-xs p-5 rounded-2xl">
+          <DialogHeader className="text-left space-y-1">
+            <DialogTitle>Scan to accept</DialogTitle>
+            <DialogDescription className="text-[12px]">
+              Ask {name.split(" ")[0] || "them"} to scan this with their phone camera.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-3 flex items-center justify-center rounded-xl border border-border bg-white p-4">
+            {qrDataUrl ? (
+              <img src={qrDataUrl} alt="Family invite QR code" className="h-56 w-56" />
+            ) : (
+              <div className="h-56 w-56 flex items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            )}
+          </div>
+          <Button variant="outline" className="w-full mt-3" onClick={copyLink}>
+            <Copy className="h-4 w-4 mr-1.5" /> Copy link instead
+          </Button>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
