@@ -92,7 +92,7 @@ const SkeletalAnalysisOverlay = ({
               style={{
                 background:
                   "linear-gradient(180deg, transparent 0%, hsl(var(--primary)/0.18) 45%, hsl(var(--primary)/0.35) 50%, hsl(var(--primary)/0.18) 55%, transparent 100%)",
-                animation: "vy-scan 2.4s ease-in-out infinite",
+                animation: "vy-scan 2.6s linear infinite",
               }}
             />
           )}
