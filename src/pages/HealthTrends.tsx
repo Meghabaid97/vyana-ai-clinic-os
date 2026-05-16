@@ -509,7 +509,7 @@ const HealthTrends = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const { data: patient } = await supabase.from("patients").select("name, age, id").eq("user_id", session.user.id).maybeSingle();
+      const patient = await fetchActivePatient<{ id: string; name: string; age: number | null }>("id, name, age");
       const { data: meds } = await supabase.from("medication_reminders").select("*").eq("patient_id", patient?.id || "");
 
       const { data, error } = await supabase.functions.invoke("analyze-trends", {
