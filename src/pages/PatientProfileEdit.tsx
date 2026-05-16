@@ -495,6 +495,58 @@ const PatientProfileEdit = () => {
         ))}
       </section>
 
+      {/* Privacy & Data Rights (DPDPA 2023) */}
+      <section className="px-5 pt-6">
+        <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">Your data rights</p>
+        <button
+          onClick={handleDownloadData}
+          disabled={isExporting}
+          className="w-full flex items-center justify-between py-3.5 border-b border-border disabled:opacity-60"
+        >
+          <div className="flex items-center gap-3">
+            {isExporting ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" /> : <Download className="h-5 w-5 text-muted-foreground" />}
+            <div className="text-left">
+              <p className="text-[15px] font-medium text-foreground">Download my data</p>
+              <p className="text-xs text-muted-foreground">A complete copy of everything Vyana stores about you</p>
+            </div>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="w-full flex items-center justify-between py-3.5 border-b border-border">
+              <div className="flex items-center gap-3">
+                <Trash2 className="h-5 w-5 text-destructive" />
+                <div className="text-left">
+                  <p className="text-[15px] font-medium text-destructive">Delete my account</p>
+                  <p className="text-xs text-muted-foreground">Permanent erasure of all your records after a 30 day grace period</p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete your Vyana account?</AlertDialogTitle>
+              <AlertDialogDescription>
+                We will schedule permanent deletion of your account and every health record, vital, medication, symptom log, and shared link tied to it. You have 30 days to change your mind before erasure is final. This cannot be undone after that.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Keep my account</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? "Scheduling..." : "Yes, schedule deletion"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </section>
+
       {/* Sign Out */}
       <section className="px-5 py-6">
         <button
