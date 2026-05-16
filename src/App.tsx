@@ -106,6 +106,7 @@ const App = () => (
               <Route path="journal" element={<SymptomJournal />} />
               <Route path="emergency-contacts" element={<EmergencyContacts />} />
               <Route path="share-receive" element={<ShareReceive />} />
+              <Route path="accept-invite/:token" element={<AcceptInvite />} />
             </Route>
 
             {/* Patient standalone pages */}
