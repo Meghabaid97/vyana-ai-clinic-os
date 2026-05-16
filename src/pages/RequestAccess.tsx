@@ -28,6 +28,12 @@ const schema = z.object({
 
 const RequestAccess = () => {
   const navigate = useViewTransitionNavigate();
+  usePageMeta({
+    title: "Request early access — Vyana",
+    description:
+      "Vyana is in invite-only beta. Tell us a little about yourself and we'll send a private invite when your slot opens.",
+    path: "/request-access",
+  });
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
