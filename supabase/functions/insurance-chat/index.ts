@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { withGuardrails } from "../_shared/guardrails.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -55,7 +56,7 @@ RULES:
 - If unsure, say so honestly`;
 
     const aiMessages = [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: withGuardrails(systemPrompt) },
       ...messages.slice(-20) // Keep last 20 messages for context
     ];
 

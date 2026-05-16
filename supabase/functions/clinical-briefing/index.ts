@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { withGuardrails } from "../_shared/guardrails.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -273,7 +274,7 @@ ${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` 
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: withGuardrails(systemPrompt) },
           { role: "user", content: userPrompt },
         ],
         tools,

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { withGuardrails } from "../_shared/guardrails.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -129,7 +130,7 @@ Need these fields:
 Do not guess. Do not fill missing data. Do not add generalized medical advice.`;
 
     const messages: any[] = [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: withGuardrails(systemPrompt) },
     ];
 
     if (fileContent && (fileType.startsWith('image/') || fileType === 'application/pdf')) {

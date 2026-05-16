@@ -1,6 +1,7 @@
 // Transcribe a short voice note and extract structured symptom fields.
 // Uses Lovable AI (Gemini) which supports audio input + JSON output.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { withGuardrails } from "../_shared/guardrails.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -100,7 +101,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: SYSTEM },
+          { role: "system", content: withGuardrails(SYSTEM) },
           {
             role: "user",
             content: [

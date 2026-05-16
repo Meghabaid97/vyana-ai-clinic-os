@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { withGuardrails } from "../_shared/guardrails.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -81,7 +82,7 @@ Respond in JSON: { "medications": "...", "dosage": "...", "duration": "...", "in
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a medical AI assistant that helps generate prescriptions from consultation data." },
+          { role: "system", content: withGuardrails("You are a medical AI assistant that helps generate prescriptions from consultation data.") },
           { role: "user", content: prompt }
         ],
       }),
