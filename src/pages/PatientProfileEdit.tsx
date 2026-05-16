@@ -9,8 +9,13 @@ import { useLanguage } from "@/lib/i18n";
 import {
   Loader2, User, Phone, Shield, Save, ChevronRight, LogOut,
   FileText, Heart, Calendar, HelpCircle, BookOpen, Star,
-  Lock, MapPin, Share2, KeyRound,
+  Lock, MapPin, Share2, KeyRound, Download, Trash2,
 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface PatientProfileData {
   id: string;
