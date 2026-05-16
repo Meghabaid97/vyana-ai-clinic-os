@@ -330,7 +330,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("detect-insights error", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : String(e) }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
