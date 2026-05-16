@@ -8,7 +8,7 @@ import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
 import TrustReassuranceStrip from "@/components/dashboard/TrustReassuranceStrip";
 import DashboardMoodPill from "@/components/dashboard/DashboardMoodPill";
 import ContextualNudgeCard from "@/components/dashboard/ContextualNudgeCard";
-import JournalQuickLog from "@/components/journal/JournalQuickLog";
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -293,11 +293,6 @@ const AppHome = () => {
         <div className="lg:col-span-6">
           <DashboardMoodPill patientId={profile?.id ?? null} patientName={profile?.name} />
           <ContextualNudgeCard patientId={profile?.id ?? null} city={profile?.city ?? null} />
-        </div>
-
-        {/* Health Journal quick log */}
-        <div className="lg:col-span-6">
-          <JournalQuickLog patientId={profile?.id ?? null} />
         </div>
 
         {/* Latest vitals — 4 cols on desktop, with quick actions beside */}
