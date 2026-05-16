@@ -225,10 +225,7 @@ const AppShellInner = () => {
               <div className="h-7 w-7 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground">
                 <User className="h-3.5 w-3.5" />
               </div>
-              <div className="text-left leading-tight">
-                <div className="text-[10px] text-muted-foreground">Account</div>
-                <div className="text-xs font-semibold text-foreground max-w-[8rem] truncate">{firstName}</div>
-              </div>
+              <div className="text-xs font-semibold text-foreground">Account</div>
             </button>
             <button
               onClick={handleSignOut}
