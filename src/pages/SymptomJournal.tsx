@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { Plus, Sparkles, FileText, Loader2, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -56,13 +57,14 @@ const SymptomJournal = () => {
   };
 
   useEffect(() => {
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      const { data: p } = await supabase
-        .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    const init = async () => {
+      const p = await fetchActivePatient<{ id: string }>("id");
       if (p) { setPatientId(p.id); await load(p.id); }
-    })();
+      else { setPatientId(null); setLogs([]); }
+    };
+    void init();
+    const off = onActivePatientChange(() => { setPatterns([]); setPrep(null); void init(); });
+    return () => off();
   }, []);
 
   const reload = async () => { if (patientId) await load(patientId); };

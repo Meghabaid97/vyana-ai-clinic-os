@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { vitalStatus, STATUS_TONE, type VitalStatus } from "@/lib/vitalStatus";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import {
   TrendingUp, TrendingDown, Activity, Heart, Droplets, Thermometer, Eye,
   Brain, Bone, Pill, Zap, Loader2, Sparkles, ArrowRight, ArrowUp, ArrowDown,
@@ -208,6 +209,12 @@ const HealthTrends = () => {
 
   useEffect(() => {
     void loadTrends();
+    const off = onActivePatientChange(() => {
+      autoProcessedRecordRef.current = null;
+      setTrendAnalysis(null);
+      void loadTrends();
+    });
+    return () => off();
   }, []);
 
   // Deep-link: scroll to a specific vital when ?vital=key is present
@@ -249,11 +256,9 @@ const HealthTrends = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { data: patient } = await supabase
-        .from("patients")
-        .select("id, national_health_id, age")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const patient = await fetchActivePatient<{ id: string; national_health_id: string | null; age: number | null }>(
+        "id, national_health_id, age"
+      );
 
       if (!patient) return;
       setPatientAge(patient.age ?? null);
@@ -389,11 +394,7 @@ const HealthTrends = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    const { data: patient } = await supabase
-      .from("patients")
-      .select("id")
-      .eq("user_id", session.user.id)
-      .maybeSingle();
+    const patient = await fetchActivePatient<{ id: string }>("id");
     if (!patient) return;
 
     // Use the date printed on the report when available, so trends reflect the
@@ -438,11 +439,7 @@ const HealthTrends = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { data: patient } = await supabase
-        .from("patients")
-        .select("name, age")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const patient = await fetchActivePatient<{ name: string; age: number | null }>("name, age");
 
       const safeLatestRecord = await refreshLatestRecordSummary(latestRecord);
       const localVitals = {
@@ -518,7 +515,7 @@ const HealthTrends = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const { data: patient } = await supabase.from("patients").select("name, age, id").eq("user_id", session.user.id).maybeSingle();
+      const patient = await fetchActivePatient<{ id: string; name: string; age: number | null }>("id, name, age");
       const { data: meds } = await supabase.from("medication_reminders").select("*").eq("patient_id", patient?.id || "");
 
       const { data, error } = await supabase.functions.invoke("analyze-trends", {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient } from "@/lib/activePatient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, Pill, FileText,
@@ -48,8 +49,7 @@ const PatientBriefing = () => {
       toast({ title: t("briefing.toast.signinTitle"), description: t("briefing.toast.signinDesc"), variant: "destructive" });
       return null;
     }
-    const { data: patient } = await supabase
-      .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    const patient = await fetchActivePatient<{ id: string }>("id");
     if (!patient) {
       toast({ title: t("briefing.toast.profileTitle"), description: t("briefing.toast.profileDesc"), variant: "destructive" });
       return null;
@@ -92,11 +92,9 @@ const PatientBriefing = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { data: patient } = await supabase
-        .from("patients")
-        .select("id, national_health_id, name, age")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const patient = await fetchActivePatient<{ id: string; national_health_id: string | null; name: string; age: number | null }>(
+        "id, national_health_id, name, age"
+      );
 
       if (!patient) {
         toast({ title: t("briefing.toast.profileFirst"), variant: "destructive" });

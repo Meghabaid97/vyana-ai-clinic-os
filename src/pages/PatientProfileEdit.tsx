@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { useLanguage } from "@/lib/i18n";
 import {
   Loader2, User, Phone, Shield, Save, ChevronRight, LogOut,
@@ -49,7 +50,11 @@ const PatientProfileEdit = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  useEffect(() => { loadProfile(); }, []);
+  useEffect(() => {
+    loadProfile();
+    const off = onActivePatientChange(() => { setIsLoading(true); loadProfile(); });
+    return () => off();
+  }, []);
 
   const loadProfile = async () => {
     try {
@@ -57,7 +62,8 @@ const PatientProfileEdit = () => {
       if (!session) { navigate("/auth"); return; }
       setEmail(session.user.email || "");
 
-      const { data: patientData, error } = await supabase.from("patients").select("*").eq("user_id", session.user.id).maybeSingle();
+      const patientData = await fetchActivePatient<any>("*");
+      const error = null as any;
       if (error) throw error;
       if (patientData) {
         setProfile(patientData);

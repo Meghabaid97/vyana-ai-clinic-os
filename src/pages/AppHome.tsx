@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { ArrowRight, Upload, UserCog, X, UserCircle2 } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
@@ -45,15 +46,20 @@ const AppHome = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) void loadData();
     });
-    return () => subscription.unsubscribe();
+    const off = onActivePatientChange(() => {
+      setProfile(null);
+      setRecordCount(0);
+      setRecordDates([]);
+      setConsultationCount(0);
+      void loadData();
+    });
+    return () => { subscription.unsubscribe(); off(); };
   }, []);
 
   const loadData = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    const { data: p } = await supabase
-      .from("patients").select("*")
-      .eq("user_id", session.user.id).maybeSingle();
+    const p = await fetchActivePatient<PatientProfile>("*");
 
     // No patient row yet → still prompt for required fields so we can create it.
     if (!p) {
@@ -106,7 +112,7 @@ const AppHome = () => {
     } else {
       const { data, error } = await supabase
         .from("patients")
-        .insert({ user_id: session.user.id, name, phone })
+        .insert({ user_id: session.user.id, name, phone, is_primary: true, relationship: "Self", avatar_emoji: "👤" })
         .select("*")
         .maybeSingle();
       saveError = error;

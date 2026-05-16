@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient } from "@/lib/activePatient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, Pill, Activity,
@@ -95,8 +96,7 @@ const DoctorVisitMode = () => {
       toast({ title: "Sign in required", variant: "destructive" });
       return null;
     }
-    const { data: patient } = await supabase
-      .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    const patient = await fetchActivePatient<{ id: string }>("id");
     if (!patient) {
       toast({ title: "Profile missing", description: "Complete your profile first.", variant: "destructive" });
       return null;
@@ -144,9 +144,9 @@ const DoctorVisitMode = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth"); return; }
 
-      const { data: patient } = await supabase
-        .from("patients").select("id, national_health_id, name, age")
-        .eq("user_id", session.user.id).maybeSingle();
+      const patient = await fetchActivePatient<{ id: string; national_health_id: string | null; name: string; age: number | null }>(
+        "id, national_health_id, name, age"
+      );
 
       if (!patient) {
         toast({ title: "Complete your profile first", variant: "destructive" });

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import {
   Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode, MessageCircle, Mail,
 } from "lucide-react";
@@ -31,13 +32,14 @@ const ShareRecords = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  useEffect(() => { loadLinks(); }, []);
+  useEffect(() => {
+    void loadLinks();
+    const off = onActivePatientChange(() => { setLoading(true); void loadLinks(); });
+    return () => off();
+  }, []);
 
   const loadLinks = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    const { data: patient } = await supabase
-      .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    const patient = await fetchActivePatient<{ id: string }>("id");
     if (!patient) { setLoading(false); return; }
     setPatientId(patient.id);
 
