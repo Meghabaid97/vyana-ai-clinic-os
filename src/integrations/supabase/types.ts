@@ -1363,6 +1363,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_patient_owner: {
+        Args: { _patient_id: string; _user_id: string }
+        Returns: boolean
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -1383,6 +1387,14 @@ export type Database = {
       }
       user_can_access_patient: {
         Args: { _patient_id: string; _user_id: string }
+        Returns: boolean
+      }
+      user_has_grant_on_patient: {
+        Args: {
+          _patient_id: string
+          _require_manage?: boolean
+          _user_id: string
+        }
         Returns: boolean
       }
     }
