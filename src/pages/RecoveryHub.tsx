@@ -166,14 +166,13 @@ const ClaimAssistant = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth"); return; }
       setUserId(session.user.id);
-      const { data: patient } = await supabase
-        .from("patients")
-        .select("id")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const patient = await fetchActivePatient<{ id: string }>("id");
       if (patient) setPatientId(patient.id);
+      else setPatientId(null);
     };
-    load();
+    void load();
+    const off = onActivePatientChange(() => { void load(); });
+    return () => off();
   }, [navigate]);
 
   useEffect(() => {
