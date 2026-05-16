@@ -222,8 +222,8 @@ const AppShellInner = () => {
               onClick={() => vtNavigate("/app/profile")}
               className="flex items-center gap-2 rounded-full px-3 h-10 hover:bg-muted transition-colors"
             >
-              <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-bold text-primary">
-                {firstName.charAt(0).toUpperCase()}
+              <div className="h-7 w-7 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground">
+                <User className="h-3.5 w-3.5" />
               </div>
               <div className="text-left leading-tight">
                 <div className="text-[10px] text-muted-foreground">Account</div>
