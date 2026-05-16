@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut, HelpCircle, User } from "lucide-react";
+import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, LogOut, HelpCircle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
@@ -10,7 +10,6 @@ import { useLanguage } from "@/lib/i18n";
 
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
 const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSelector"));
-const AskVyanaModal = lazy(() => import("@/components/AskVyanaModal"));
 const SpotlightTour = lazy(() => import("@/components/SpotlightTour"));
 
 const TOUR_STORAGE_KEY = "vyana-tour-completed-v1";
@@ -60,8 +59,6 @@ const AppShell = () => {
   const subRouteTitles = buildSubRouteTitles(t);
   const [patientName, setPatientName] = useState("Patient");
   const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
-  const [askOpen, setAskOpen] = useState(false);
-  const [askInitial, setAskInitial] = useState("");
   const [tourOpen, setTourOpen] = useState(false);
 
   // Auto-launch the spotlight tour once per device on first visit to /app.
@@ -199,13 +196,6 @@ const AppShell = () => {
           {/* RIGHT — compact icon cluster (iOS 24pt standard) */}
           <div className="flex items-center gap-0.5 shrink-0">
             <button
-              onClick={() => { setAskInitial(""); setAskOpen(true); }}
-              aria-label="Ask Vyana"
-              className="h-9 w-9 rounded-full active:bg-muted flex items-center justify-center text-primary transition-colors"
-            >
-              <Sparkles className="h-[20px] w-[20px]" />
-            </button>
-            <button
               onClick={() => setTourOpen(true)}
               aria-label="Take the tour"
               className="h-9 w-9 rounded-full active:bg-muted flex items-center justify-center text-muted-foreground transition-colors"
@@ -229,21 +219,7 @@ const AppShell = () => {
             V<span className="text-primary italic">yana</span>
           </button>
 
-          {/* Ask Vyana — grounded medical Q&A */}
-          <div className="flex-1 max-w-2xl">
-            <button
-              onClick={() => { setAskInitial(""); setAskOpen(true); }}
-              className="group w-full h-10 pl-4 pr-3 rounded-full border border-border bg-muted/40 hover:bg-background hover:border-primary/40 hover:shadow-sm flex items-center gap-3 text-left transition-all"
-            >
-              <Sparkles className="h-4 w-4 text-primary shrink-0" />
-              <span className="flex-1 text-sm text-muted-foreground truncate">
-                Ask Vyana anything about your health…
-              </span>
-              <span className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground bg-background border border-border rounded px-1.5 py-0.5 group-hover:border-primary/30 group-hover:text-primary transition-colors">
-                Cited
-              </span>
-            </button>
-          </div>
+          <div className="flex-1" />
 
           <div className="flex items-center gap-2 shrink-0">
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
@@ -377,7 +353,7 @@ const AppShell = () => {
           </div>
         </div>
       </footer>
-      <AskVyanaModal open={askOpen} initialQuestion={askInitial} onClose={() => setAskOpen(false)} />
+      
       <Suspense fallback={null}>
         <SpotlightTour
           open={tourOpen}

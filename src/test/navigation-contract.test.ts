@@ -34,24 +34,3 @@ describe("AppShell navigation contract", () => {
     expect(src).not.toMatch(/PatientHeader/);
   });
 });
-
-describe("AskVyanaModal mobile contract", () => {
-  const src = readFileSync(
-    path.resolve(__dirname, "../components/AskVyanaModal.tsx"),
-    "utf8",
-  );
-
-  it("uses 100svh (not 100vh) so the iOS keyboard does not break layout", () => {
-    expect(src).toMatch(/100svh/);
-  });
-
-  it("respects safe-area inset env vars", () => {
-    expect(src).toMatch(/env\(safe-area-inset-top\)/);
-    expect(src).toMatch(/env\(safe-area-inset-bottom\)/);
-  });
-
-  it("is full-screen on mobile and centered on desktop", () => {
-    expect(src).toMatch(/items-stretch sm:items-start/);
-    expect(src).toMatch(/sm:rounded-2xl/);
-  });
-});
