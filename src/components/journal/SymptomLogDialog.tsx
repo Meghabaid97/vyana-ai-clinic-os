@@ -19,9 +19,10 @@ interface Props {
   onClose: () => void;
   patientId: string | null;
   onLogged?: () => void;
+  autoStartVoice?: boolean;
 }
 
-const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
+const SymptomLogDialog = ({ open, onClose, patientId, onLogged, autoStartVoice }: Props) => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [step, setStep] = useState<"pick" | "details">("pick");
@@ -55,6 +56,14 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged }: Props) => {
       mediaRecorderRef.current = null;
     }
   }, [open]);
+
+  // Auto-start the recorder if requested (e.g. dashboard "Voice note" tap)
+  useEffect(() => {
+    if (open && autoStartVoice && !recording && !parsing) {
+      void startRecording();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, autoStartVoice]);
 
   const def = symptomId ? symptomById(symptomId) : null;
 
