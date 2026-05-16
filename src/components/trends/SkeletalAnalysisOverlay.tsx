@@ -65,16 +65,7 @@ const SkeletalAnalysisOverlay = ({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className="max-w-md p-0 overflow-hidden border-primary/20 bg-background"
-        hideClose
       >
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 z-20 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center border border-border hover:bg-muted transition"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4 text-muted-foreground" />
-        </button>
 
         {/* Header */}
         <div className="px-5 pt-5 pb-2">
