@@ -113,9 +113,11 @@ const SymptomJournal = () => {
         <div className="min-w-0">
           <h1 className="text-xl font-bold text-foreground tracking-tight">{t("journal.title")}</h1>
         </div>
-        <Button onClick={() => setOpenLog(true)} size="sm">
-          <Plus className="h-4 w-4 mr-1" /> {t("journal.log")}
-        </Button>
+        {logs.length > 0 && (
+          <Button onClick={() => setOpenLog(true)} size="sm">
+            <Plus className="h-4 w-4 mr-1" /> {t("journal.log")}
+          </Button>
+        )}
       </div>
 
       {/* AI Insights */}
