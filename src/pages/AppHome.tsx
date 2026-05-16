@@ -155,7 +155,6 @@ const AppHome = () => {
     sessionStorage.setItem(REQUIRED_PROFILE_PROMPT_SEEN_KEY, "1");
     setRequiredOpen(false);
     await refreshPatients();
-    window.dispatchEvent(new CustomEvent("vyana:active-patient-changed", { detail: { id: savedProfile.id } }));
     toast({ title: "Profile saved", description: "You can add more details anytime." });
     void loadData();
   };
