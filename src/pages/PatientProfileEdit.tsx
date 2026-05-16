@@ -58,7 +58,8 @@ const PatientProfileEdit = () => {
       if (!session) { navigate("/auth"); return; }
       setEmail(session.user.email || "");
 
-      const { data: patientData, error } = await supabase.from("patients").select("*").eq("user_id", session.user.id).maybeSingle();
+      const patientData = await fetchActivePatient<any>("*");
+      const error = null as any;
       if (error) throw error;
       if (patientData) {
         setProfile(patientData);
