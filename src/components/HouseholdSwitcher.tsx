@@ -61,7 +61,9 @@ export default function HouseholdSwitcher({ variant = "mobile" }: Props) {
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-foreground truncate">{p.name}</div>
                   <div className="text-[11px] text-muted-foreground">
-                    {p.is_primary ? "You" : p.relationship}
+                    {p.access === "owned"
+                      ? (p.is_primary ? "You" : p.relationship)
+                      : "Shared with you"}
                   </div>
                 </div>
                 {isActive && <Check className="h-4 w-4 text-primary shrink-0" />}
