@@ -501,6 +501,11 @@ const HealthTrends = () => {
 
   const [analysisOverlayOpen, setAnalysisOverlayOpen] = useState(false);
 
+  // Auto-open the skeletal analyzer whenever analysis kicks off (including on page load)
+  useEffect(() => {
+    if (isAnalyzing) setAnalysisOverlayOpen(true);
+  }, [isAnalyzing]);
+
   const runAnalysis = async () => {
     if (!records.length) return;
     const target = pickLatestVitalsBearingRecord(records, vitalHistory);
