@@ -7,7 +7,7 @@ import { getActivePatientId } from "@/contexts/ActivePatientContext";
  * Falls back to the primary (is_primary=true) patient when no selection exists
  * or the selected id no longer belongs to the signed-in user.
  *
- * RLS guarantees we only ever see rows owned by the signed-in user.
+ * RLS guarantees we only ever see rows the signed-in user can access.
  */
 export async function fetchActivePatient<T = { id: string }>(
   select: string = "id"
@@ -20,7 +20,6 @@ export async function fetchActivePatient<T = { id: string }>(
     const { data } = await supabase
       .from("patients")
       .select(select)
-      .eq("user_id", session.user.id)
       .eq("id", activeId)
       .maybeSingle();
     if (data) return data as T;
