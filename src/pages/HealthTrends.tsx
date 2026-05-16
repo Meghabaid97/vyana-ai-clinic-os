@@ -1021,6 +1021,14 @@ const HealthTrends = () => {
         </section>
       ))}
 
+      <SkeletalAnalysisOverlay
+        open={analysisOverlayOpen}
+        isAnalyzing={isAnalyzing}
+        onClose={() => setAnalysisOverlayOpen(false)}
+        recordsCount={records.length}
+        snapshotsCount={vitalHistory.length}
+        sourceFileName={sourceFileName}
+      />
     </div>
   );
 };
