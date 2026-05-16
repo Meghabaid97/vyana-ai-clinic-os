@@ -149,10 +149,7 @@ export async function listGrantsOnMyProfiles(): Promise<Array<ActiveGrant & { pa
   }));
 }
 
-export async function revokeGrant(grant_id: string) {
-  const { error } = await supabase
-    .from("patient_access_grants")
-    .update({ revoked_at: new Date().toISOString() })
-    .eq("id", grant_id);
+export async function revokeGrant(patient_id: string) {
+  const { error } = await (supabase as any).rpc("remove_family_member", { _patient_id: patient_id });
   if (error) throw error;
 }

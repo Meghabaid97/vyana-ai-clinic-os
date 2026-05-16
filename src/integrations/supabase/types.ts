@@ -1386,6 +1386,10 @@ export type Database = {
           read_ct: number
         }[]
       }
+      remove_family_member: {
+        Args: { _patient_id: string }
+        Returns: undefined
+      }
       user_can_access_patient: {
         Args: { _patient_id: string; _user_id: string }
         Returns: boolean

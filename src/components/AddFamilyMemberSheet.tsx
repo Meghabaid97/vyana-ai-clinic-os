@@ -200,10 +200,10 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
     }
   };
 
-  const onRevokeGrant = async (id: string) => {
+  const onRevokeGrant = async (patientId: string) => {
     try {
-      await revokeGrant(id);
-      setGrants((prev) => prev.filter((g) => g.id !== id));
+      await revokeGrant(patientId);
+      setGrants((prev) => prev.filter((g) => g.patient_id !== patientId));
       toast.success("Access removed");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Could not remove access";
@@ -409,7 +409,7 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
                             <p className="text-[13px] font-semibold text-foreground truncate">{g.patient_name}</p>
                             <p className="text-[11px] text-muted-foreground">Shared with a family member · {g.permission}</p>
                           </div>
-                          <button onClick={() => onRevokeGrant(g.id)} className="p-1.5 text-muted-foreground hover:text-destructive" aria-label="Remove access">
+                          <button onClick={() => onRevokeGrant(g.patient_id)} className="p-1.5 text-muted-foreground hover:text-destructive" aria-label="Remove access">
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         </div>

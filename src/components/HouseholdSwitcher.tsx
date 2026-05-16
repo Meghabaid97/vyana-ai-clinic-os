@@ -27,15 +27,7 @@ export default function HouseholdSwitcher({ variant = "mobile" }: Props) {
     setRemoving(true);
     try {
       if (removeTarget.access === "granted") {
-        // Revoke the access grant the inviter gave me
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) throw new Error("not_authenticated");
-        const { error } = await supabase
-          .from("patient_access_grants")
-          .update({ revoked_at: new Date().toISOString() })
-          .eq("patient_id", removeTarget.id)
-          .eq("grantee_user_id", session.user.id)
-          .is("revoked_at", null);
+        const { error } = await (supabase as any).rpc("remove_family_member", { _patient_id: removeTarget.id });
         if (error) throw error;
       } else {
         // Owned dependent — revoke any grants I gave to others, then nothing else (patients table has no DELETE policy)
@@ -147,8 +139,8 @@ export default function HouseholdSwitcher({ variant = "mobile" }: Props) {
             <AlertDialogTitle>Remove {removeTarget?.name}?</AlertDialogTitle>
             <AlertDialogDescription>
               {removeTarget?.access === "granted"
-                ? "You'll lose access to their health records. They can re-invite you anytime."
-                : "Access to this profile will be revoked from everyone it was shared with."}
+                ? "This family link will be disconnected. You won't see their records anymore, and any sharing from this invite will stop."
+                : "This family link will be disconnected and their access from this invite will stop."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
