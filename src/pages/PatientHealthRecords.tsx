@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { Loader2, FolderOpen, Upload, ChevronRight, Shield } from "lucide-react";
 
 import PageHero from "@/components/PageHero";
