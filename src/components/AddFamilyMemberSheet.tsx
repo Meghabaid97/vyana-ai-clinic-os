@@ -116,7 +116,7 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   };
 
   const shareText = () =>
-    `Hi ${name.split(" ")[0] || "there"}, I'd like you to join my Vyana family so we can keep your health records together. Tap to accept (valid 14 days): ${createdLink}`;
+    `Hi ${name.split(" ")[0] || "there"}, I'd like you to join my Vyana family so we can keep our health records together. Tap to accept (valid 14 days): ${createdLink}`;
 
   const shareWhatsApp = () => {
     if (!createdLink) return;
