@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { vitalStatus, STATUS_TONE, type VitalStatus } from "@/lib/vitalStatus";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import {
   TrendingUp, TrendingDown, Activity, Heart, Droplets, Thermometer, Eye,
   Brain, Bone, Pill, Zap, Loader2, Sparkles, ArrowRight, ArrowUp, ArrowDown,
