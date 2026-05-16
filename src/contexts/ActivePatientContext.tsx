@@ -10,6 +10,8 @@ export type HouseholdPatient = {
   date_of_birth: string | null;
   pincode: string | null;
   city: string | null;
+  /** "owned" = I own this patient row. "granted" = a real user granted me access via invite. */
+  access: "owned" | "granted";
 };
 
 type Ctx = {
@@ -39,22 +41,43 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    const { data, error } = await supabase
+
+    // a) Patients I own (self + dependents)
+    const ownedReq = supabase
       .from("patients")
       .select("id, name, relationship, avatar_emoji, is_primary, date_of_birth, pincode, city")
       .eq("user_id", session.user.id)
       .order("is_primary", { ascending: false })
       .order("created_at", { ascending: true });
-    if (error) {
-      console.error("[ActivePatient] load error", error);
-      setLoading(false);
-      return;
-    }
-    const rows = (data || []) as HouseholdPatient[];
+
+    // b) Patients an adult family member has granted me access to
+    const grantedReq = supabase
+      .from("patient_access_grants")
+      .select("patient_id, permission, patients!inner(id, name, relationship, avatar_emoji, is_primary, date_of_birth, pincode, city)")
+      .eq("grantee_user_id", session.user.id)
+      .is("revoked_at", null);
+
+    const [{ data: owned, error: e1 }, { data: granted, error: e2 }] = await Promise.all([ownedReq, grantedReq]);
+    if (e1) console.error("[ActivePatient] owned load error", e1);
+    if (e2) console.error("[ActivePatient] granted load error", e2);
+
+    const ownedRows: HouseholdPatient[] = (owned || []).map((p) => ({ ...(p as Omit<HouseholdPatient, "access">), access: "owned" }));
+    const grantedRows: HouseholdPatient[] = (granted || [])
+      .map((g) => {
+        const p = (g as { patients: Omit<HouseholdPatient, "access"> }).patients;
+        return p ? { ...p, access: "granted" as const } : null;
+      })
+      .filter(Boolean) as HouseholdPatient[];
+
+    // Avoid duplicates (shouldn't happen but defensive)
+    const map = new Map<string, HouseholdPatient>();
+    [...ownedRows, ...grantedRows].forEach((p) => map.set(p.id, p));
+    const rows = Array.from(map.values());
+
     setPatients(rows);
     setActiveId((current) => {
       if (current && rows.some((r) => r.id === current)) return current;
-      const primary = rows.find((r) => r.is_primary) ?? rows[0] ?? null;
+      const primary = rows.find((r) => r.is_primary && r.access === "owned") ?? rows[0] ?? null;
       const nextId = primary?.id ?? null;
       if (nextId) localStorage.setItem(STORAGE_KEY, nextId);
       return nextId;
@@ -78,7 +101,6 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
   const setActiveById = useCallback((id: string) => {
     setActiveId(id);
     localStorage.setItem(STORAGE_KEY, id);
-    // Notify any legacy screens listening via storage event
     window.dispatchEvent(new CustomEvent("vyana:active-patient-changed", { detail: { id } }));
   }, []);
 
@@ -101,7 +123,6 @@ export function useActivePatient() {
   return ctx;
 }
 
-/** Read the active patient id outside React (legacy screens). */
 export function getActivePatientId(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem(STORAGE_KEY);
