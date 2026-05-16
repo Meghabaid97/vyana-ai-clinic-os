@@ -49,7 +49,8 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [createdLink, setCreatedLink] = useState<string | null>(null);
-
+  const [qrOpen, setQrOpen] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   // Dependent mode
   const [dob, setDob] = useState("");
   const [abha, setAbha] = useState("");
