@@ -19,6 +19,7 @@ import { useActivePatient } from "@/contexts/ActivePatientContext";
 
 interface PatientProfile {
   id: string;
+  user_id: string;
   name: string;
   age: number | null;
   national_health_id: string | null;
@@ -87,7 +88,7 @@ const AppHome = () => {
     setProfile(p);
 
     // Mandatory: name + phone. ABHA + DOB are soft nudges only.
-    const missingRequired = !p.name?.trim() || !p.phone?.trim();
+    const missingRequired = p.user_id === session.user.id && (!p.name?.trim() || !p.phone?.trim());
     if (missingRequired) {
       setReqName(p.name || "");
       setReqPhone(p.phone || "");
