@@ -919,10 +919,12 @@ export type Database = {
       patients: {
         Row: {
           age: number | null
+          avatar_emoji: string
           city: string | null
           created_at: string
           date_of_birth: string | null
           id: string
+          is_primary: boolean
           last_app_open_at: string | null
           latitude: number | null
           longitude: number | null
@@ -933,16 +935,19 @@ export type Database = {
           next_visit_date: string | null
           phone: string | null
           pincode: string | null
+          relationship: string
           updated_at: string
           user_id: string
           weight: number | null
         }
         Insert: {
           age?: number | null
+          avatar_emoji?: string
           city?: string | null
           created_at?: string
           date_of_birth?: string | null
           id?: string
+          is_primary?: boolean
           last_app_open_at?: string | null
           latitude?: number | null
           longitude?: number | null
@@ -953,16 +958,19 @@ export type Database = {
           next_visit_date?: string | null
           phone?: string | null
           pincode?: string | null
+          relationship?: string
           updated_at?: string
           user_id: string
           weight?: number | null
         }
         Update: {
           age?: number | null
+          avatar_emoji?: string
           city?: string | null
           created_at?: string
           date_of_birth?: string | null
           id?: string
+          is_primary?: boolean
           last_app_open_at?: string | null
           latitude?: number | null
           longitude?: number | null
@@ -973,6 +981,7 @@ export type Database = {
           next_visit_date?: string | null
           phone?: string | null
           pincode?: string | null
+          relationship?: string
           updated_at?: string
           user_id?: string
           weight?: number | null
