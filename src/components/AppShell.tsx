@@ -219,21 +219,7 @@ const AppShell = () => {
             V<span className="text-primary italic">yana</span>
           </button>
 
-          {/* Ask Vyana — grounded medical Q&A */}
-          <div className="flex-1 max-w-2xl">
-            <button
-              onClick={() => { setAskInitial(""); setAskOpen(true); }}
-              className="group w-full h-10 pl-4 pr-3 rounded-full border border-border bg-muted/40 hover:bg-background hover:border-primary/40 hover:shadow-sm flex items-center gap-3 text-left transition-all"
-            >
-              <Sparkles className="h-4 w-4 text-primary shrink-0" />
-              <span className="flex-1 text-sm text-muted-foreground truncate">
-                Ask Vyana anything about your health…
-              </span>
-              <span className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground bg-background border border-border rounded px-1.5 py-0.5 group-hover:border-primary/30 group-hover:text-primary transition-colors">
-                Cited
-              </span>
-            </button>
-          </div>
+          <div className="flex-1" />
 
           <div className="flex items-center gap-2 shrink-0">
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
