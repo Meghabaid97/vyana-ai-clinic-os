@@ -5,6 +5,7 @@ import { toast } from "sonner";
 export type HouseholdPatient = {
   id: string;
   name: string;
+  profile_name?: string;
   relationship: string;
   avatar_emoji: string;
   is_primary: boolean;
@@ -55,20 +56,47 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
     // b) Patients an adult family member has granted me access to
     const { data: grants, error: e2 } = await supabase
       .from("patient_access_grants")
-      .select("patient_id, permission")
+      .select("patient_id, permission, source_invite_id")
       .eq("grantee_user_id", session.user.id)
       .is("revoked_at", null);
     if (e2) console.error("[ActivePatient] grants load error", e2);
 
-    const grantedIds = (grants || []).map((g) => (g as { patient_id: string }).patient_id);
+    const grantRows = (grants || []) as Array<{ patient_id: string; source_invite_id: string | null }>;
+    const grantedIds = grantRows.map((g) => g.patient_id);
     let grantedRows: HouseholdPatient[] = [];
     if (grantedIds.length > 0) {
+      const sourceInviteIds = grantRows.map((g) => g.source_invite_id).filter(Boolean) as string[];
+      const inviteByPatientId = new Map<string, { invitee_name: string; relationship: string; avatar_emoji: string }>();
+
+      if (sourceInviteIds.length > 0) {
+        const { data: invites, error: inviteError } = await supabase
+          .from("family_invites")
+          .select("id, invitee_name, relationship, avatar_emoji")
+          .in("id", sourceInviteIds);
+        if (inviteError) console.error("[ActivePatient] invite display load error", inviteError);
+        const inviteById = new Map((invites || []).map((i) => [i.id, i]));
+        grantRows.forEach((grant) => {
+          const invite = grant.source_invite_id ? inviteById.get(grant.source_invite_id) : null;
+          if (invite) inviteByPatientId.set(grant.patient_id, invite);
+        });
+      }
+
       const { data: granted, error: e3 } = await supabase
         .from("patients")
         .select("id, name, relationship, avatar_emoji, is_primary, date_of_birth, pincode, city")
         .in("id", grantedIds);
       if (e3) console.error("[ActivePatient] granted patients load error", e3);
-      grantedRows = (granted || []).map((p) => ({ ...(p as Omit<HouseholdPatient, "access">), access: "granted" as const }));
+      grantedRows = (granted || []).map((p) => {
+        const invite = inviteByPatientId.get(p.id);
+        return {
+          ...(p as Omit<HouseholdPatient, "access">),
+          profile_name: p.name,
+          name: invite?.invitee_name || p.name,
+          relationship: invite?.relationship || p.relationship,
+          avatar_emoji: invite?.avatar_emoji || p.avatar_emoji,
+          access: "granted" as const,
+        };
+      });
     }
 
     const ownedRows: HouseholdPatient[] = (owned || []).map((p) => ({ ...(p as Omit<HouseholdPatient, "access">), access: "owned" as const }));
