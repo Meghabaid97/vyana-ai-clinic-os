@@ -23,17 +23,16 @@ const PatientTimeline = () => {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  useEffect(() => { loadTimeline(); }, []);
+  useEffect(() => {
+    void loadTimeline();
+    const off = onActivePatientChange(() => { setLoading(true); setEvents([]); void loadTimeline(); });
+    return () => off();
+  }, []);
 
   const loadTimeline = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
-    const { data: patient } = await supabase
-      .from("patients")
-      .select("id, national_health_id")
-      .eq("user_id", session.user.id)
-      .maybeSingle();
+    const patient = await fetchActivePatient<{ id: string; national_health_id: string | null }>(
+      "id, national_health_id"
+    );
     if (!patient) { setLoading(false); return; }
 
     const allEvents: TimelineEvent[] = [];
