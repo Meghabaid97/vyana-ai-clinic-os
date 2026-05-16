@@ -422,6 +422,30 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
           </div>
         )}
       </DialogContent>
+
+      {/* QR code share dialog */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="max-w-xs p-5 rounded-2xl">
+          <DialogHeader className="text-left space-y-1">
+            <DialogTitle>Scan to accept</DialogTitle>
+            <DialogDescription className="text-[12px]">
+              Ask {name.split(" ")[0] || "them"} to scan this with their phone camera.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-3 flex items-center justify-center rounded-xl border border-border bg-white p-4">
+            {qrDataUrl ? (
+              <img src={qrDataUrl} alt="Family invite QR code" className="h-56 w-56" />
+            ) : (
+              <div className="h-56 w-56 flex items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            )}
+          </div>
+          <Button variant="outline" className="w-full mt-3" onClick={copyLink}>
+            <Copy className="h-4 w-4 mr-1.5" /> Copy link instead
+          </Button>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
