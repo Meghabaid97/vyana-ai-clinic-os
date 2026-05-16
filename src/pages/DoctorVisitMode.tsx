@@ -87,6 +87,7 @@ const DoctorVisitMode = () => {
   const [sharing, setSharing] = useState<null | "whatsapp" | "email" | "qr" | "copylink">(null);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
+  const [interactionsLoading, setInteractionsLoading] = useState(false);
 
   const createShareLink = async (): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
