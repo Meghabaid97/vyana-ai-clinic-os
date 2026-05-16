@@ -204,9 +204,9 @@ const SkeletalAnalysisOverlay = ({
               style={{ width: `${progressPct}%` }}
             />
           </div>
-          <div className="mt-1.5 flex items-center justify-between text-[10.5px] text-muted-foreground">
+          <div className="mt-1.5 grid grid-cols-[auto_1fr] items-center gap-3 text-[10.5px] text-muted-foreground">
             <span>{progressPct}%</span>
-            <span>
+            <span className="min-w-0 truncate text-right">
               {recordsCount} records · {snapshotsCount} snapshots
             </span>
           </div>
@@ -220,7 +220,7 @@ const SkeletalAnalysisOverlay = ({
             return (
               <li
                 key={label}
-                className={`flex items-center gap-2 text-[12.5px] transition-colors ${
+                className={`flex min-w-0 items-center gap-2 text-[12.5px] transition-colors ${
                   complete
                     ? "text-foreground"
                     : active
@@ -235,9 +235,8 @@ const SkeletalAnalysisOverlay = ({
                 ) : (
                   <span className="h-3.5 w-3.5 rounded-full border border-border shrink-0" />
                 )}
-                <span className="truncate">
+                <span className="min-w-0 truncate">
                   {label}
-                  {active && sourceFileName && i === 0 ? ` — ${sourceFileName}` : ""}
                 </span>
               </li>
             );
