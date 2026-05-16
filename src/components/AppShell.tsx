@@ -353,7 +353,7 @@ const AppShell = () => {
           </div>
         </div>
       </footer>
-      <AskVyanaModal open={askOpen} initialQuestion={askInitial} onClose={() => setAskOpen(false)} />
+      
       <Suspense fallback={null}>
         <SpotlightTour
           open={tourOpen}
