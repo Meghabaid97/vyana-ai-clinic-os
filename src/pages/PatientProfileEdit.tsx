@@ -215,6 +215,58 @@ const PatientProfileEdit = () => {
     }
   };
 
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDownloadData = async () => {
+    setIsExporting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not signed in");
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/export-my-data`,
+        { method: "POST", headers: { Authorization: `Bearer ${session.access_token}` } },
+      );
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vyana-my-data-${Date.now()}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast({ title: "Download started", description: "Your data export is being downloaded." });
+    } catch (e: any) {
+      toast({ title: "Export failed", description: "Please try again later.", variant: "destructive" });
+    } finally { setIsExporting(false); }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not signed in");
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/request-account-deletion`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "request" }),
+        },
+      );
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || "Request failed");
+      toast({
+        title: "Deletion scheduled",
+        description: json.status === "already_pending"
+          ? "Your account is already scheduled for deletion."
+          : "Your account will be permanently deleted in 30 days. You can cancel from this screen.",
+      });
+    } catch (e: any) {
+      toast({ title: "Could not schedule deletion", description: "Please try again later.", variant: "destructive" });
+    } finally { setIsDeleting(false); }
+  };
+
   if (isLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
