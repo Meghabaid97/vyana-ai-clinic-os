@@ -194,6 +194,11 @@ const AppHome = () => {
               <Label htmlFor="req-phone">{t("home.required.phone")}</Label>
               <Input id="req-phone" value={reqPhone} onChange={(e) => setReqPhone(e.target.value)} placeholder="+91 98765 43210" inputMode="tel" maxLength={20} />
             </div>
+            {requiredError && (
+              <p className="text-[12px] leading-snug text-destructive" role="alert">
+                {requiredError}
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button onClick={saveRequired} disabled={savingRequired} className="w-full">
