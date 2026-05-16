@@ -3,6 +3,12 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import skeletalMeshHuman from "@/assets/skeletal-mesh-human.png";
 
+// Preload the mesh image as soon as this module is imported
+if (typeof window !== "undefined") {
+  const preload = new Image();
+  preload.src = skeletalMeshHuman;
+}
+
 interface Props {
   open: boolean;
   isAnalyzing: boolean;
