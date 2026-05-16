@@ -96,8 +96,7 @@ const DoctorVisitMode = () => {
       toast({ title: "Sign in required", variant: "destructive" });
       return null;
     }
-    const { data: patient } = await supabase
-      .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    const patient = await fetchActivePatient<{ id: string }>("id");
     if (!patient) {
       toast({ title: "Profile missing", description: "Complete your profile first.", variant: "destructive" });
       return null;
