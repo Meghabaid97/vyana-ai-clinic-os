@@ -49,8 +49,7 @@ const PatientBriefing = () => {
       toast({ title: t("briefing.toast.signinTitle"), description: t("briefing.toast.signinDesc"), variant: "destructive" });
       return null;
     }
-    const { data: patient } = await supabase
-      .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+    const patient = await fetchActivePatient<{ id: string }>("id");
     if (!patient) {
       toast({ title: t("briefing.toast.profileTitle"), description: t("briefing.toast.profileDesc"), variant: "destructive" });
       return null;
