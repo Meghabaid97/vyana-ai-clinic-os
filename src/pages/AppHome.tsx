@@ -134,9 +134,21 @@ const AppHome = () => {
       saveError = error;
       if (!error && data) savedProfile = data as PatientProfile;
     } else {
-      const { data, error } = await supabase
+      const { data: existingOwnProfile, error: lookupError } = await supabase
         .from("patients")
-        .upsert({ user_id: session.user.id, name, phone, is_primary: true, relationship: "Self", avatar_emoji: "👤" }, { onConflict: "user_id" })
+        .select("id")
+        .eq("user_id", session.user.id)
+        .order("is_primary", { ascending: false })
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (lookupError) saveError = lookupError;
+
+      const query = existingOwnProfile
+        ? supabase.from("patients").update({ name, phone, is_primary: true }).eq("id", existingOwnProfile.id).eq("user_id", session.user.id)
+        : supabase.from("patients").insert({ user_id: session.user.id, name, phone, is_primary: true, relationship: "Self", avatar_emoji: "👤" });
+
+      const { data, error } = saveError ? { data: null, error: saveError } : await query
         .select("*")
         .maybeSingle();
       saveError = error;
