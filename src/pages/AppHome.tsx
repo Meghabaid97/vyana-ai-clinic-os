@@ -184,10 +184,15 @@ const AppHome = () => {
     setBannerDismissed(true);
   };
 
+  const handleRequiredOpenChange = (open: boolean) => {
+    if (!open) sessionStorage.setItem(REQUIRED_PROFILE_PROMPT_SEEN_KEY, "1");
+    setRequiredOpen(open);
+  };
+
   return (
     <div className="animate-fade-in overflow-x-hidden pb-2 lg:overflow-x-visible">
       {/* Mandatory profile capture — name + phone before using the app */}
-      <Dialog open={requiredOpen} onOpenChange={setRequiredOpen}>
+      <Dialog open={requiredOpen} onOpenChange={handleRequiredOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center mb-2">
