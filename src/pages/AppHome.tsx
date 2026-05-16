@@ -112,7 +112,7 @@ const AppHome = () => {
     } else {
       const { data, error } = await supabase
         .from("patients")
-        .insert({ user_id: session.user.id, name, phone })
+        .insert({ user_id: session.user.id, name, phone, is_primary: true, relationship: "Self", avatar_emoji: "👤" })
         .select("*")
         .maybeSingle();
       saveError = error;
