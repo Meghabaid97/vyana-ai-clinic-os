@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, TrendingDown,
-  Minus, Pill, FileText, ChevronDown, ChevronUp, Activity,
+  Minus, Pill, FileText, ChevronDown, ChevronUp, Activity, ShieldAlert,
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,19 @@ interface ClinicalBriefingProps {
   patientHealthId: string;
 }
 
+interface DrugInteraction {
+  drugs: string[];
+  severity: string;
+  description: string;
+  recommendation?: string;
+}
+
+interface DrugInteractionReport {
+  overallRisk?: string;
+  interactions: DrugInteraction[];
+  safetyNotes?: string[];
+}
+
 interface Briefing {
   patient_overview: { key_conditions: string[]; summary: string };
   key_trends: Array<{ vital: string; direction: string; detail: string; concern_level: string }>;
@@ -30,8 +43,19 @@ interface Briefing {
   recent_changes: string[];
   soap_note: { subjective: string; objective: string; assessment: string; plan: string };
   medication_correlations: Array<{ observation: string; confidence: string; supporting_data: string }>;
+  drug_interactions?: DrugInteractionReport;
   disclaimer?: string;
 }
+
+const extractDrugName = (full: string) =>
+  full.replace(/\d+\s?(mg|mcg|g|ml|iu|units?)\b.*$/i, "").replace(/\s+(od|bd|tds|qid|hs|sos|prn|qd|qhs)\b.*$/i, "").trim();
+
+const severityStyle = (sev: string) => {
+  const s = sev?.toLowerCase();
+  if (s === "contraindicated" || s === "severe") return "bg-destructive/10 text-destructive border-destructive/30";
+  if (s === "moderate") return "bg-yellow-500/10 text-yellow-700 border-yellow-500/30";
+  return "bg-muted text-muted-foreground border-border";
+};
 
 const directionIcon = (dir: string) => {
   if (dir === "increasing") return <TrendingUp className="h-3.5 w-3.5 text-destructive" />;
@@ -68,6 +92,24 @@ const ClinicalBriefing = ({ consultations, patientHealthId }: ClinicalBriefingPr
       });
       if (error) throw error;
       setBriefing(data);
+
+      // Cross-check current medications for drug-to-drug interactions
+      const meds = (data?.current_medications ?? [])
+        .filter((m: any) => m.status === "active" || m.status === "recently_started")
+        .map((m: any) => extractDrugName(m.name))
+        .filter(Boolean);
+      if (meds.length >= 2) {
+        try {
+          const { data: dx } = await supabase.functions.invoke("check-drug-interactions", {
+            body: { medications: meds },
+          });
+          if (dx && Array.isArray(dx.interactions) && dx.interactions.length > 0) {
+            setBriefing((prev) => prev ? { ...prev, drug_interactions: dx } : prev);
+          }
+        } catch (e) {
+          console.warn("Drug interaction check failed:", e);
+        }
+      }
     } catch (err: any) {
       console.error("Briefing error:", err);
       toast({ title: "Error", description: "Failed to generate clinical briefing", variant: "destructive" });
@@ -181,7 +223,36 @@ const ClinicalBriefing = ({ consultations, patientHealthId }: ClinicalBriefingPr
         </div>
       )}
 
-      {/* Recent Changes */}
+      {/* Drug Interaction Flags */}
+      {briefing.drug_interactions && briefing.drug_interactions.interactions.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider flex items-center gap-1 text-destructive">
+            <ShieldAlert className="h-3 w-3" /> Drug Interaction Flags
+            {briefing.drug_interactions.overallRisk && (
+              <Badge variant="outline" className={`ml-1 text-[10px] ${severityStyle(briefing.drug_interactions.overallRisk)}`}>
+                {briefing.drug_interactions.overallRisk} risk
+              </Badge>
+            )}
+          </p>
+          {briefing.drug_interactions.interactions.map((it, i) => (
+            <div key={i} className={`rounded-lg p-3 border ${severityStyle(it.severity)}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-sm font-semibold">{it.drugs.join(" + ")}</p>
+                <Badge variant="outline" className={`text-[10px] ${severityStyle(it.severity)}`}>{it.severity}</Badge>
+              </div>
+              <p className="text-xs text-foreground/80">{it.description}</p>
+              {it.recommendation && (
+                <p className="text-xs mt-1 text-muted-foreground"><span className="font-medium">Action:</span> {it.recommendation}</p>
+              )}
+            </div>
+          ))}
+          {briefing.drug_interactions.safetyNotes?.map((n, i) => (
+            <p key={`sn-${i}`} className="text-xs text-muted-foreground italic">• {n}</p>
+          ))}
+        </div>
+      )}
+
+
       {briefing.recent_changes.length > 0 && (
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Recent Changes</p>
