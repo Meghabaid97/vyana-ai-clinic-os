@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, Sparkles, LogOut, HelpCircle, User } from "lucide-react";
+import { Home, TrendingUp, FolderOpen, Stethoscope, Shield, Heart, ArrowLeft, LogOut, HelpCircle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate";
