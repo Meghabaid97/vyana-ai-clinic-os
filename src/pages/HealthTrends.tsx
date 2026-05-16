@@ -499,11 +499,14 @@ const HealthTrends = () => {
     }
   };
 
+  const [analysisOverlayOpen, setAnalysisOverlayOpen] = useState(false);
+
   const runAnalysis = async () => {
     if (!records.length) return;
     const target = pickLatestVitalsBearingRecord(records, vitalHistory);
     if (!target) return;
     autoProcessedRecordRef.current = null;
+    setAnalysisOverlayOpen(true);
     await autoAnalyzeLatestRecord(target);
   };
 
