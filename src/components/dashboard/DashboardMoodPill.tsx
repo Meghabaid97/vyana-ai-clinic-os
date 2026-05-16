@@ -25,7 +25,7 @@ const DashboardMoodPill = ({ patientId, patientName }: Props) => {
   const { toast } = useToast();
   const [loggedToday, setLoggedToday] = useState<Mood | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
-  const [voiceOpen, setVoiceOpen] = useState(false);
+  const [symptomOpen, setSymptomOpen] = useState(false);
 
   // On patient switch, check localStorage for today's mood for THIS patient.
   useEffect(() => {
