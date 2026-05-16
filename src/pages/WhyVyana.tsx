@@ -4,6 +4,7 @@ import { useViewTransitionNavigate } from "@/hooks/use-view-transition-navigate"
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import familyPhoto from "@/assets/family-tirupur-2005.jpg";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const chapters = [
   { id: "ch-1", numeral: "01", title: "Tirupur, 2005", short: "The loss" },
@@ -16,6 +17,14 @@ const WhyVyana = () => {
   const navigate = useViewTransitionNavigate();
   const location = useLocation();
   const inApp = location.pathname.startsWith("/app");
+
+  usePageMeta({
+    title: "Why Vyana — a letter from the founder",
+    description:
+      "A founder's letter on why Vyana exists: the loss in Tirupur 2005, the COVID call, the 75 pages of paperwork, and the longitudinal health memory layer we built in response.",
+    path: "/why-vyana",
+    ogType: "article",
+  });
   const [progress, setProgress] = useState(0);
   const [activeChapter, setActiveChapter] = useState("ch-1");
   const articleRef = useRef<HTMLDivElement>(null);

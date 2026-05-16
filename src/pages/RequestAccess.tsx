@@ -16,6 +16,7 @@ import {
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(200),
