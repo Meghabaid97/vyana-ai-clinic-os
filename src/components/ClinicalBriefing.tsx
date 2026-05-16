@@ -223,7 +223,36 @@ const ClinicalBriefing = ({ consultations, patientHealthId }: ClinicalBriefingPr
         </div>
       )}
 
-      {/* Recent Changes */}
+      {/* Drug Interaction Flags */}
+      {briefing.drug_interactions && briefing.drug_interactions.interactions.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider flex items-center gap-1 text-destructive">
+            <ShieldAlert className="h-3 w-3" /> Drug Interaction Flags
+            {briefing.drug_interactions.overallRisk && (
+              <Badge variant="outline" className={`ml-1 text-[10px] ${severityStyle(briefing.drug_interactions.overallRisk)}`}>
+                {briefing.drug_interactions.overallRisk} risk
+              </Badge>
+            )}
+          </p>
+          {briefing.drug_interactions.interactions.map((it, i) => (
+            <div key={i} className={`rounded-lg p-3 border ${severityStyle(it.severity)}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-sm font-semibold">{it.drugs.join(" + ")}</p>
+                <Badge variant="outline" className={`text-[10px] ${severityStyle(it.severity)}`}>{it.severity}</Badge>
+              </div>
+              <p className="text-xs text-foreground/80">{it.description}</p>
+              {it.recommendation && (
+                <p className="text-xs mt-1 text-muted-foreground"><span className="font-medium">Action:</span> {it.recommendation}</p>
+              )}
+            </div>
+          ))}
+          {briefing.drug_interactions.safetyNotes?.map((n, i) => (
+            <p key={`sn-${i}`} className="text-xs text-muted-foreground italic">• {n}</p>
+          ))}
+        </div>
+      )}
+
+
       {briefing.recent_changes.length > 0 && (
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Recent Changes</p>
