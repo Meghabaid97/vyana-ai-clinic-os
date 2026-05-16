@@ -92,6 +92,24 @@ const ClinicalBriefing = ({ consultations, patientHealthId }: ClinicalBriefingPr
       });
       if (error) throw error;
       setBriefing(data);
+
+      // Cross-check current medications for drug-to-drug interactions
+      const meds = (data?.current_medications ?? [])
+        .filter((m: any) => m.status === "active" || m.status === "recently_started")
+        .map((m: any) => extractDrugName(m.name))
+        .filter(Boolean);
+      if (meds.length >= 2) {
+        try {
+          const { data: dx } = await supabase.functions.invoke("check-drug-interactions", {
+            body: { medications: meds },
+          });
+          if (dx && Array.isArray(dx.interactions) && dx.interactions.length > 0) {
+            setBriefing((prev) => prev ? { ...prev, drug_interactions: dx } : prev);
+          }
+        } catch (e) {
+          console.warn("Drug interaction check failed:", e);
+        }
+      }
     } catch (err: any) {
       console.error("Briefing error:", err);
       toast({ title: "Error", description: "Failed to generate clinical briefing", variant: "destructive" });
