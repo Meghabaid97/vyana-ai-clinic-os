@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
-import skeletalMeshHuman from "@/assets/skeletal-mesh-human.png";
+import skeletalMeshHuman from "@/assets/skeletal-mesh-human-optimized.webp";
 
 // Preload the mesh image as soon as this module is imported
 if (typeof window !== "undefined") {
   const preload = new Image();
+  preload.decoding = "sync";
+  preload.loading = "eager";
   preload.src = skeletalMeshHuman;
 }
 
@@ -38,6 +40,7 @@ const SkeletalAnalysisOverlay = ({
 }: Props) => {
   const [stepIdx, setStepIdx] = useState(0);
   const [done, setDone] = useState(false);
+  const [imageReady, setImageReady] = useState(false);
 
   // Drive progress while analyzing. When analyzing ends, snap to "done".
   useEffect(() => {
@@ -71,7 +74,7 @@ const SkeletalAnalysisOverlay = ({
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
-        className="max-w-md p-0 overflow-hidden border-primary/20 bg-background"
+        className="w-[calc(100vw-2rem)] max-w-[440px] p-0 overflow-hidden border-primary/20 bg-background"
       >
 
         {/* Header */}
@@ -90,7 +93,7 @@ const SkeletalAnalysisOverlay = ({
         </div>
 
         {/* Skeletal mesh stage */}
-        <div className="relative mx-5 mt-3 rounded-xl bg-gradient-to-b from-primary/5 via-background to-primary/5 border border-border overflow-hidden h-[320px] flex items-center justify-center">
+        <div className="relative mx-5 mt-3 rounded-xl bg-gradient-to-b from-primary/5 via-background to-primary/5 border border-border overflow-hidden h-[min(48vh,320px)] min-h-[280px] flex items-center justify-center">
           {/* Scan beam */}
           {!done && (
             <div
@@ -119,11 +122,13 @@ const SkeletalAnalysisOverlay = ({
           <img
             src={skeletalMeshHuman}
             alt="Skeletal mesh body scan"
-            decoding="async"
+            loading="eager"
+            decoding="sync"
             fetchPriority="high"
-            width={512}
-            height={896}
-            className="relative z-[5] h-full w-auto max-w-full object-contain select-none pointer-events-none"
+            width={520}
+            height={520}
+            onLoad={() => setImageReady(true)}
+            className={`relative z-[5] h-full w-auto max-w-full object-contain object-center select-none pointer-events-none transition-opacity duration-150 ${imageReady ? "opacity-100" : "opacity-0"}`}
             style={{
               filter: "drop-shadow(0 0 14px hsl(var(--primary)/0.45))",
             }}
