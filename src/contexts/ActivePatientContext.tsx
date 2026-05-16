@@ -43,31 +43,34 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
     }
 
     // a) Patients I own (self + dependents)
-    const ownedReq = supabase
+    const { data: owned, error: e1 } = await supabase
       .from("patients")
       .select("id, name, relationship, avatar_emoji, is_primary, date_of_birth, pincode, city")
       .eq("user_id", session.user.id)
       .order("is_primary", { ascending: false })
       .order("created_at", { ascending: true });
+    if (e1) console.error("[ActivePatient] owned load error", e1);
 
     // b) Patients an adult family member has granted me access to
-    const grantedReq = supabase
+    const { data: grants, error: e2 } = await supabase
       .from("patient_access_grants")
-      .select("patient_id, permission, patients!inner(id, name, relationship, avatar_emoji, is_primary, date_of_birth, pincode, city)")
+      .select("patient_id, permission")
       .eq("grantee_user_id", session.user.id)
       .is("revoked_at", null);
+    if (e2) console.error("[ActivePatient] grants load error", e2);
 
-    const [{ data: owned, error: e1 }, { data: granted, error: e2 }] = await Promise.all([ownedReq, grantedReq]);
-    if (e1) console.error("[ActivePatient] owned load error", e1);
-    if (e2) console.error("[ActivePatient] granted load error", e2);
+    const grantedIds = (grants || []).map((g) => (g as { patient_id: string }).patient_id);
+    let grantedRows: HouseholdPatient[] = [];
+    if (grantedIds.length > 0) {
+      const { data: granted, error: e3 } = await supabase
+        .from("patients")
+        .select("id, name, relationship, avatar_emoji, is_primary, date_of_birth, pincode, city")
+        .in("id", grantedIds);
+      if (e3) console.error("[ActivePatient] granted patients load error", e3);
+      grantedRows = (granted || []).map((p) => ({ ...(p as Omit<HouseholdPatient, "access">), access: "granted" as const }));
+    }
 
-    const ownedRows: HouseholdPatient[] = (owned || []).map((p) => ({ ...(p as Omit<HouseholdPatient, "access">), access: "owned" }));
-    const grantedRows: HouseholdPatient[] = (granted || [])
-      .map((g) => {
-        const p = (g as { patients: Omit<HouseholdPatient, "access"> }).patients;
-        return p ? { ...p, access: "granted" as const } : null;
-      })
-      .filter(Boolean) as HouseholdPatient[];
+    const ownedRows: HouseholdPatient[] = (owned || []).map((p) => ({ ...(p as Omit<HouseholdPatient, "access">), access: "owned" as const }));
 
     // Avoid duplicates (shouldn't happen but defensive)
     const map = new Map<string, HouseholdPatient>();
