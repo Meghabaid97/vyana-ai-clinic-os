@@ -686,8 +686,6 @@ const HealthTrends = () => {
       {/* Lead: What changed since last visit (the killer feature) */}
       <DashboardChangesCard patientId={patientId} />
 
-      {/* Body silhouette heatmap — tap a zone to see every related log */}
-      <BodyHeatmap patientId={patientId} />
 
 
       {/* Preview insight card, shown until user has 2+ records */}
