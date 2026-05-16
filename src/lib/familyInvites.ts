@@ -36,8 +36,13 @@ export type ActiveGrant = {
 };
 
 export function inviteLink(token: string): string {
-  // Use a relative origin so it works in dev, prod, and native (we then deep-link via universal links).
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  // Always use the customer-facing production domain so recipients never see a Lovable URL.
+  // Falls back to current origin only if we're already on vyana.care (e.g. native webview).
+  const PROD_ORIGIN = "https://vyana.care";
+  const origin =
+    typeof window !== "undefined" && window.location.hostname.endsWith("vyana.care")
+      ? window.location.origin
+      : PROD_ORIGIN;
   return `${origin}/app/accept-invite/${token}`;
 }
 
