@@ -113,10 +113,11 @@ const SkeletalAnalysisOverlay = ({
           <img
             src={skeletalMeshHuman}
             alt="Skeletal mesh body scan"
-            loading="lazy"
+            decoding="async"
+            fetchPriority="high"
             width={512}
             height={896}
-            className="absolute inset-0 m-auto h-[92%] w-auto object-contain select-none pointer-events-none"
+            className="relative z-[5] h-full w-auto max-w-full object-contain select-none pointer-events-none"
             style={{
               filter: "drop-shadow(0 0 14px hsl(var(--primary)/0.45))",
             }}
