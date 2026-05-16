@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Mic, Check, NotebookPen, Pill, ArrowRight, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import SymptomLogDialog from "@/components/journal/SymptomLogDialog";
 
 interface Props {
   patientId: string | null;
@@ -24,6 +25,7 @@ const DashboardMoodPill = ({ patientId, patientName }: Props) => {
   const { toast } = useToast();
   const [loggedToday, setLoggedToday] = useState<Mood | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
+  const [voiceOpen, setVoiceOpen] = useState(false);
 
   // On patient switch, check localStorage for today's mood for THIS patient.
   useEffect(() => {
