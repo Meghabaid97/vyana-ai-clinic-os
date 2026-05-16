@@ -173,6 +173,7 @@ const AppShellInner = () => {
 
           {/* RIGHT — compact icon cluster (iOS 24pt standard) */}
           <div className="flex items-center gap-0.5 shrink-0">
+            <HouseholdSwitcher variant="mobile" />
             <button
               onClick={() => setTourOpen(true)}
               aria-label="Take the tour"
@@ -200,6 +201,7 @@ const AppShellInner = () => {
           <div className="flex-1" />
 
           <div className="flex items-center gap-2 shrink-0">
+            <HouseholdSwitcher variant="desktop" />
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
             <LanguageSelector />
             <button
