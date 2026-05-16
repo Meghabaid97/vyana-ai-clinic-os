@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { ArrowRight, Upload, UserCog, X, UserCircle2 } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
