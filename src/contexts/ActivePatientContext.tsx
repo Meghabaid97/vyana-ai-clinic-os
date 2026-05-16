@@ -1,5 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export type HouseholdPatient = {
   id: string;
@@ -88,6 +89,15 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
+  // Track IDs we've already seen so we can toast when a brand-new shared
+  // profile appears (e.g. invitee just accepted while inviter was offline).
+  const knownIdsRef = useRef<Set<string>>(new Set());
+  const firstLoadRef = useRef(true);
+
+  const loadAndNotify = useCallback(async () => {
+    await load();
+  }, [load]);
+
   useEffect(() => {
     void load();
 
@@ -107,16 +117,13 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
 
       realtimeChannel = supabase
         .channel(`household:${uid}`)
-        // New / revoked grants where I am the grantee → new shared profile shows up
         .on("postgres_changes", {
           event: "*", schema: "public", table: "patient_access_grants",
           filter: `grantee_user_id=eq.${uid}`,
         }, scheduleReload)
-        // Any update to a patient row I can see (own or granted) — name, pincode, dob, etc.
         .on("postgres_changes", {
           event: "UPDATE", schema: "public", table: "patients",
         }, scheduleReload)
-        // Inviter side: my outgoing invite flipped to accepted/declined/revoked
         .on("postgres_changes", {
           event: "UPDATE", schema: "public", table: "family_invites",
           filter: `inviter_user_id=eq.${uid}`,
@@ -124,6 +131,16 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
         .subscribe();
     };
     void setupRealtime();
+
+    // Refetch whenever the tab comes back into focus — catches the case where
+    // the invitee accepted while the inviter's app was backgrounded and the
+    // realtime event was missed entirely.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    const onFocus = () => { void load(); };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onFocus);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN") {
@@ -134,14 +151,40 @@ export function ActivePatientProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem(STORAGE_KEY);
         setActiveId(null);
         setPatients([]);
+        knownIdsRef.current = new Set();
+        firstLoadRef.current = true;
         if (realtimeChannel) { void supabase.removeChannel(realtimeChannel); realtimeChannel = null; }
       }
     });
     return () => {
       subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onFocus);
       if (realtimeChannel) void supabase.removeChannel(realtimeChannel);
     };
   }, [load]);
+
+  // Toast when a brand-new shared profile shows up after the initial load.
+  useEffect(() => {
+    if (firstLoadRef.current) {
+      if (!loading) {
+        patients.forEach((p) => knownIdsRef.current.add(p.id));
+        firstLoadRef.current = false;
+      }
+      return;
+    }
+    const newcomers = patients.filter(
+      (p) => p.access === "granted" && !knownIdsRef.current.has(p.id)
+    );
+    newcomers.forEach((p) => {
+      toast.success(`${p.name} joined your family`, {
+        description: "You can now switch to their profile from the header.",
+      });
+      knownIdsRef.current.add(p.id);
+    });
+    // Also track newly owned (e.g. dependent added)
+    patients.forEach((p) => knownIdsRef.current.add(p.id));
+  }, [patients, loading]);
 
   const setActiveById = useCallback((id: string) => {
     setActiveId(id);
