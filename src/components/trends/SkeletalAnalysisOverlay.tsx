@@ -84,7 +84,7 @@ const SkeletalAnalysisOverlay = ({
         </div>
 
         {/* Skeletal mesh stage */}
-        <div className="relative mx-5 mt-3 rounded-xl bg-gradient-to-b from-primary/5 via-background to-primary/5 border border-border overflow-hidden h-[280px]">
+        <div className="relative mx-5 mt-3 rounded-xl bg-gradient-to-b from-primary/5 via-background to-primary/5 border border-border overflow-hidden h-[320px] flex items-center justify-center">
           {/* Scan beam */}
           {!done && (
             <div
