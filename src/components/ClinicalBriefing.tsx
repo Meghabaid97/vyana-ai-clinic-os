@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, TrendingDown,
-  Minus, Pill, FileText, ChevronDown, ChevronUp, Activity,
+  Minus, Pill, FileText, ChevronDown, ChevronUp, Activity, ShieldAlert,
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
