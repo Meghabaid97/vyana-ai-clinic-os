@@ -296,8 +296,7 @@ const PrescriptionInterpreter = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
-      const { data: patient } = await supabase
-        .from("patients").select("id").eq("user_id", session.user.id).maybeSingle();
+      const patient = await fetchActivePatient<{ id: string }>("id");
       if (!patient) throw new Error("Patient profile not found");
 
       const reminders = Array.from(selectedMeds).map(i => {
