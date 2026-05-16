@@ -113,7 +113,7 @@ const DashboardMoodPill = ({ patientId, patientName }: Props) => {
                 <NotebookPen className="h-3.5 w-3.5 text-primary" /> Log symptom
               </button>
               <button
-                onClick={() => navigate("/app/journal?action=voice")}
+                onClick={() => setVoiceOpen(true)}
                 className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-background py-2 text-[11.5px] font-medium text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors"
               >
                 <Mic className="h-3.5 w-3.5 text-primary" /> Voice note
@@ -128,7 +128,7 @@ const DashboardMoodPill = ({ patientId, patientName }: Props) => {
           </div>
         ) : (
           <button
-            onClick={() => navigate("/app/journal")}
+            onClick={() => setVoiceOpen(true)}
             className="w-full flex items-center justify-center gap-2 border-t border-border bg-muted/30 py-2.5 text-[12px] font-medium text-foreground/80 hover:bg-muted/60 transition-colors"
           >
             <Mic className="h-3.5 w-3.5 text-primary" />
@@ -137,6 +137,13 @@ const DashboardMoodPill = ({ patientId, patientName }: Props) => {
           </button>
         )}
       </div>
+
+      <SymptomLogDialog
+        open={voiceOpen}
+        onClose={() => setVoiceOpen(false)}
+        patientId={patientId}
+        autoStartVoice
+      />
     </section>
   );
 };
