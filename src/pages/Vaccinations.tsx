@@ -44,17 +44,19 @@ const Vaccinations = () => {
 
   useEffect(() => {
     const loadAge = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      const { data } = await supabase.from("patients").select("age, date_of_birth").eq("user_id", session.user.id).maybeSingle();
+      const data = await fetchActivePatient<{ age: number | null; date_of_birth: string | null }>(
+        "age, date_of_birth"
+      );
       if (data?.age) setPatientAge(data.age);
       else if (data?.date_of_birth) {
         const birth = new Date(data.date_of_birth);
         const age = Math.floor((Date.now() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
         setPatientAge(age);
-      }
+      } else setPatientAge(null);
     };
-    loadAge();
+    void loadAge();
+    const off = onActivePatientChange(() => { setPatientAge(null); void loadAge(); });
+    return () => off();
   }, []);
 
   const relevantVaccines = patientAge
