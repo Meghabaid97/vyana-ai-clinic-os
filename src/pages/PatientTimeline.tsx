@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import {
   Activity, FileText, Pill, Stethoscope, TrendingUp,
   Calendar, Loader2, ChevronDown, ChevronUp,
