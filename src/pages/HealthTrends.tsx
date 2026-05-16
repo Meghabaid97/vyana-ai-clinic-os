@@ -17,7 +17,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ClinicalRiskDashboard from "@/components/ClinicalRiskDashboard";
 import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
-import BodyHeatmap from "@/components/dashboard/BodyHeatmap";
+import SkeletalAnalysisOverlay from "@/components/trends/SkeletalAnalysisOverlay";
 import PageHero from "@/components/PageHero";
 import { TrendsSkeleton } from "@/components/ui/page-skeletons";
 import { useLanguage } from "@/lib/i18n";
@@ -499,11 +499,14 @@ const HealthTrends = () => {
     }
   };
 
+  const [analysisOverlayOpen, setAnalysisOverlayOpen] = useState(false);
+
   const runAnalysis = async () => {
     if (!records.length) return;
     const target = pickLatestVitalsBearingRecord(records, vitalHistory);
     if (!target) return;
     autoProcessedRecordRef.current = null;
+    setAnalysisOverlayOpen(true);
     await autoAnalyzeLatestRecord(target);
   };
 
@@ -686,8 +689,6 @@ const HealthTrends = () => {
       {/* Lead: What changed since last visit (the killer feature) */}
       <DashboardChangesCard patientId={patientId} />
 
-      {/* Body silhouette heatmap — tap a zone to see every related log */}
-      <BodyHeatmap patientId={patientId} />
 
 
       {/* Preview insight card, shown until user has 2+ records */}
@@ -1020,6 +1021,14 @@ const HealthTrends = () => {
         </section>
       ))}
 
+      <SkeletalAnalysisOverlay
+        open={analysisOverlayOpen}
+        isAnalyzing={isAnalyzing}
+        onClose={() => setAnalysisOverlayOpen(false)}
+        recordsCount={records.length}
+        snapshotsCount={vitalHistory.length}
+        sourceFileName={sourceFileName}
+      />
     </div>
   );
 };
