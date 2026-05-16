@@ -136,6 +136,48 @@ export type Database = {
           },
         ]
       }
+      consent_log: {
+        Row: {
+          consent_type: string
+          context: Json
+          created_at: string
+          granted: boolean
+          granted_at: string
+          id: string
+          ip_address: string | null
+          policy_version: string
+          user_agent: string | null
+          user_id: string
+          withdrawn_at: string | null
+        }
+        Insert: {
+          consent_type: string
+          context?: Json
+          created_at?: string
+          granted?: boolean
+          granted_at?: string
+          id?: string
+          ip_address?: string | null
+          policy_version?: string
+          user_agent?: string | null
+          user_id: string
+          withdrawn_at?: string | null
+        }
+        Update: {
+          consent_type?: string
+          context?: Json
+          created_at?: string
+          granted?: boolean
+          granted_at?: string
+          id?: string
+          ip_address?: string | null
+          policy_version?: string
+          user_agent?: string | null
+          user_id?: string
+          withdrawn_at?: string | null
+        }
+        Relationships: []
+      }
       consultations: {
         Row: {
           audio_transcription: string
@@ -172,6 +214,81 @@ export type Database = {
           patient_name?: string
           patient_national_health_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      data_deletion_requests: {
+        Row: {
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          reason: string | null
+          requested_at: string
+          scheduled_for: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          reason?: string | null
+          requested_at?: string
+          scheduled_for?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          reason?: string | null
+          requested_at?: string
+          scheduled_for?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_export_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          export_file_path: string | null
+          id: string
+          ip_address: string | null
+          requested_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          export_file_path?: string | null
+          id?: string
+          ip_address?: string | null
+          requested_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          export_file_path?: string | null
+          id?: string
+          ip_address?: string | null
+          requested_at?: string
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }

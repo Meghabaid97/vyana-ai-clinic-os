@@ -9,8 +9,13 @@ import { useLanguage } from "@/lib/i18n";
 import {
   Loader2, User, Phone, Shield, Save, ChevronRight, LogOut,
   FileText, Heart, Calendar, HelpCircle, BookOpen, Star,
-  Lock, MapPin, Share2, KeyRound,
+  Lock, MapPin, Share2, KeyRound, Download, Trash2,
 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface PatientProfileData {
   id: string;
@@ -208,6 +213,58 @@ const PatientProfileEdit = () => {
     } finally {
       setIsPasswordSaving(false);
     }
+  };
+
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDownloadData = async () => {
+    setIsExporting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not signed in");
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/export-my-data`,
+        { method: "POST", headers: { Authorization: `Bearer ${session.access_token}` } },
+      );
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vyana-my-data-${Date.now()}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast({ title: "Download started", description: "Your data export is being downloaded." });
+    } catch (e: any) {
+      toast({ title: "Export failed", description: "Please try again later.", variant: "destructive" });
+    } finally { setIsExporting(false); }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not signed in");
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/request-account-deletion`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "request" }),
+        },
+      );
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || "Request failed");
+      toast({
+        title: "Deletion scheduled",
+        description: json.status === "already_pending"
+          ? "Your account is already scheduled for deletion."
+          : "Your account will be permanently deleted in 30 days. You can cancel from this screen.",
+      });
+    } catch (e: any) {
+      toast({ title: "Could not schedule deletion", description: "Please try again later.", variant: "destructive" });
+    } finally { setIsDeleting(false); }
   };
 
   if (isLoading) {
@@ -436,6 +493,58 @@ const PatientProfileEdit = () => {
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
         ))}
+      </section>
+
+      {/* Privacy & Data Rights (DPDPA 2023) */}
+      <section className="px-5 pt-6">
+        <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">Your data rights</p>
+        <button
+          onClick={handleDownloadData}
+          disabled={isExporting}
+          className="w-full flex items-center justify-between py-3.5 border-b border-border disabled:opacity-60"
+        >
+          <div className="flex items-center gap-3">
+            {isExporting ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" /> : <Download className="h-5 w-5 text-muted-foreground" />}
+            <div className="text-left">
+              <p className="text-[15px] font-medium text-foreground">Download my data</p>
+              <p className="text-xs text-muted-foreground">A complete copy of everything Vyana stores about you</p>
+            </div>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="w-full flex items-center justify-between py-3.5 border-b border-border">
+              <div className="flex items-center gap-3">
+                <Trash2 className="h-5 w-5 text-destructive" />
+                <div className="text-left">
+                  <p className="text-[15px] font-medium text-destructive">Delete my account</p>
+                  <p className="text-xs text-muted-foreground">Permanent erasure of all your records after a 30 day grace period</p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete your Vyana account?</AlertDialogTitle>
+              <AlertDialogDescription>
+                We will schedule permanent deletion of your account and every health record, vital, medication, symptom log, and shared link tied to it. You have 30 days to change your mind before erasure is final. This cannot be undone after that.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Keep my account</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? "Scheduling..." : "Yes, schedule deletion"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </section>
 
       {/* Sign Out */}

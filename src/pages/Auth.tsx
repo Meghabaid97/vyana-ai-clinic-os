@@ -580,6 +580,14 @@ const Auth = () => {
         }
         if (data.session && data.user) {
           await handleAuthenticatedUser(data.user.id, data.user.user_metadata);
+          // DPDPA 2023 — record consent grant on signup
+          try {
+            await supabase.from("consent_log").insert([
+              { user_id: data.user.id, consent_type: "data_processing", policy_version: "v1.0", granted: true, user_agent: navigator.userAgent, context: { source: "signup" } },
+              { user_id: data.user.id, consent_type: "privacy_policy", policy_version: "v1.0", granted: true, user_agent: navigator.userAgent, context: { source: "signup" } },
+              { user_id: data.user.id, consent_type: "terms_of_service", policy_version: "v1.0", granted: true, user_agent: navigator.userAgent, context: { source: "signup" } },
+            ]);
+          } catch (e) { console.warn("consent_log write failed", e); }
         }
         toast({
           title: "Account created!",
