@@ -44,6 +44,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const LayoutQA = lazy(() => import("./pages/LayoutQA"));
 const SymptomJournal = lazy(() => import("./pages/SymptomJournal"));
+const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 
 const queryClient = new QueryClient();
 
