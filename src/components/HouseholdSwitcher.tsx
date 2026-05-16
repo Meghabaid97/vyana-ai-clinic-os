@@ -26,8 +26,19 @@ export default function HouseholdSwitcher({ variant = "mobile" }: Props) {
     if (!removeTarget) return;
     setRemoving(true);
     try {
-      const { error } = await supabase.rpc("remove_family_member", { _patient_id: removeTarget.id });
-      if (error) throw error;
+      if (removeTarget.access === "granted") {
+        const { error } = await (supabase as any).rpc("remove_family_member", { _patient_id: removeTarget.id });
+        if (error) throw error;
+      } else {
+        // Owned dependent — revoke any grants I gave to others, then nothing else (patients table has no DELETE policy)
+        const { error } = await supabase
+          .from("patient_access_grants")
+          .update({ revoked_at: new Date().toISOString() })
+          .eq("patient_id", removeTarget.id)
+          .is("revoked_at", null);
+        if (error) throw error;
+        toast.info("Access revoked. Contact support to fully delete this profile.");
+      }
       toast.success(`${removeTarget.name} removed`);
       setRemoveTarget(null);
       await refresh();
