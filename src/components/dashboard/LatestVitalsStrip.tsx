@@ -199,7 +199,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
     });
     const watch = tiles.find((t) => vitalStatus(t.latest, t.def.range) === "watch");
     if (flagged) {
-      return { mood: "worth a closer look", emoji: flagged.def.emoji, detail: `${flagged.def.label.toLowerCase()} is off-band` };
+      return { mood: "need a check-in", emoji: flagged.def.emoji, detail: `${flagged.def.label.toLowerCase()} is off-band` };
     }
     if (watch) {
       return { mood: "mostly good", emoji: "👀", detail: `keep an eye on ${watch.def.label.toLowerCase()}` };
