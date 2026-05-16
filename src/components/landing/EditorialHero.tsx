@@ -140,6 +140,10 @@ const EditorialHero = () => {
                   alt=""
                   width={1280}
                   height={1280}
+                  loading="eager"
+                  decoding="async"
+                  // @ts-expect-error fetchpriority is a valid HTML attribute
+                  fetchpriority="high"
                   draggable={false}
                   className="hero-constellation-img w-[46vw] max-w-[760px] opacity-90 mix-blend-multiply select-none"
                 />
