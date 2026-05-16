@@ -196,13 +196,6 @@ const AppShell = () => {
           {/* RIGHT — compact icon cluster (iOS 24pt standard) */}
           <div className="flex items-center gap-0.5 shrink-0">
             <button
-              onClick={() => { setAskInitial(""); setAskOpen(true); }}
-              aria-label="Ask Vyana"
-              className="h-9 w-9 rounded-full active:bg-muted flex items-center justify-center text-primary transition-colors"
-            >
-              <Sparkles className="h-[20px] w-[20px]" />
-            </button>
-            <button
               onClick={() => setTourOpen(true)}
               aria-label="Take the tour"
               className="h-9 w-9 rounded-full active:bg-muted flex items-center justify-center text-muted-foreground transition-colors"
