@@ -283,8 +283,18 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
               <p className="text-[12px] text-foreground/90 mt-1 break-all leading-snug">{createdLink}</p>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={copyLink}><Copy className="h-4 w-4 mr-1.5" /> Copy</Button>
-              <Button onClick={shareWhatsApp}><Mail className="h-4 w-4 mr-1.5" /> WhatsApp</Button>
+              <Button onClick={shareWhatsApp} className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
+                <MessageCircle className="h-4 w-4 mr-1.5" /> WhatsApp
+              </Button>
+              <Button variant="outline" onClick={shareSMS}>
+                <Phone className="h-4 w-4 mr-1.5" /> SMS
+              </Button>
+              <Button variant="outline" onClick={shareEmail}>
+                <Mail className="h-4 w-4 mr-1.5" /> Email
+              </Button>
+              <Button variant="outline" onClick={copyLink}>
+                <Copy className="h-4 w-4 mr-1.5" /> Copy link
+              </Button>
             </div>
             <Button variant="ghost" className="w-full" onClick={() => onOpenChange(false)}>Done</Button>
           </div>
