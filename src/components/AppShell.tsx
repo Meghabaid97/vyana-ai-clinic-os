@@ -59,8 +59,6 @@ const AppShell = () => {
   const subRouteTitles = buildSubRouteTitles(t);
   const [patientName, setPatientName] = useState("Patient");
   const [location_, setLocation_] = useState<{ pincode: string | null; city: string | null }>({ pincode: null, city: null });
-  const [askOpen, setAskOpen] = useState(false);
-  const [askInitial, setAskInitial] = useState("");
   const [tourOpen, setTourOpen] = useState(false);
 
   // Auto-launch the spotlight tour once per device on first visit to /app.
