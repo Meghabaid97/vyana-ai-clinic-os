@@ -124,10 +124,6 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
     if (!createdLink) return;
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText())}`, "_blank");
   };
-  const shareSMS = () => {
-    if (!createdLink) return;
-    window.location.href = `sms:?&body=${encodeURIComponent(shareText())}`;
-  };
   const shareEmail = () => {
     if (!createdLink) return;
     const subject = encodeURIComponent("Join my Vyana family");
