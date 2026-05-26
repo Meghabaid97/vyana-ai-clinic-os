@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Rx Ground Truth",
+  "type": "object",
+  "required": ["id", "image", "language", "quality", "medications"],
+  "properties": {
+    "id": { "type": "string", "description": "Sample id, matches folder name" },
+    "image": { "type": "string", "description": "Image filename, e.g. image.jpg" },
+    "language": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["English", "Hindi", "Tamil", "Telugu", "Bengali", "Other"] }
+    },
+    "quality": {
+      "type": "string",
+      "enum": ["clear", "creased", "poor_light", "blurry"]
+    },
+    "handwriting": {
+      "type": "string",
+      "enum": ["handwritten", "mixed", "printed"]
+    },
+    "doctor_name": { "type": ["string", "null"] },
+    "patient_name": { "type": ["string", "null"] },
+    "diagnosis": { "type": ["string", "null"] },
+    "medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "frequency"],
+        "properties": {
+          "name": { "type": "string", "description": "Generic name preferred. Use lowercase." },
+          "name_aliases": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Accepted alternates incl. brand names, e.g. ['crocin','tylenol'] for paracetamol"
+          },
+          "dosage": { "type": ["string", "null"], "description": "e.g. 500mg, 10ml" },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "once_daily",
+              "twice_daily",
+              "thrice_daily",
+              "four_times_daily",
+              "as_needed",
+              "at_bedtime",
+              "weekly",
+              "unknown"
+            ]
+          },
+          "duration": { "type": ["string", "null"] },
+          "notes": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}
