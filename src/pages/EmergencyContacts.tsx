@@ -226,7 +226,7 @@ const EmergencyContacts = () => {
               {t("ec.profileDesc")}
             </p>
             <div className="flex flex-col gap-2">
-              <Button onClick={() => navigate("/app/profile/edit")} className="w-full">{t("ec.completeProfile")}</Button>
+              <Button onClick={() => navigate("/app/profile")} className="w-full">{t("ec.completeProfile")}</Button>
               <Button variant="outline" onClick={() => navigate("/app")} className="w-full">{t("ec.backHome")}</Button>
             </div>
           </CardContent>
