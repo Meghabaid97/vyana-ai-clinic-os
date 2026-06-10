@@ -53,7 +53,25 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { patientHealthId, consultations, healthRecordSummaries, vitalHistory, medicationReminders, symptomLogs } = await req.json();
+    const { patientHealthId, consultations, healthRecordSummaries, vitalHistory, medicationReminders, symptomLogs, patientId } = await req.json();
+
+    // Server-side ownership check: refuse to build a briefing for a patient the
+    // caller does not own or have a non-revoked grant on. Prevents leaking AI-
+    // generated insight about arbitrary PHI submitted in the request body.
+    if (!patientId || typeof patientId !== 'string') {
+      return new Response(JSON.stringify({ error: 'patientId is required' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const { data: canAccess } = await supabaseClient.rpc('user_can_access_patient', {
+      _user_id: user.id, _patient_id: patientId,
+    });
+    if (!canAccess) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
 
     // Build patient context
     const consultationContext = (consultations || []).map((c: any, i: number) => {
