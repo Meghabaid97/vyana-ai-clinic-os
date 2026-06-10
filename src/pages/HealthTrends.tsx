@@ -440,7 +440,7 @@ const HealthTrends = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const patient = await fetchActivePatient<{ name: string; age: number | null }>("name, age");
+      const patient = await fetchActivePatient<{ id: string; name: string; age: number | null }>("id, name, age");
 
       const safeLatestRecord = await refreshLatestRecordSummary(latestRecord);
       const localVitals = {
