@@ -63,14 +63,18 @@ serve(async (req) => {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
-    const { data: canAccess } = await supabaseClient.rpc('user_can_access_patient', {
-      _user_id: user.id, _patient_id: patientId,
-    });
-    if (!canAccess) {
+    // Caller must own the patient, hold a non-revoked family grant, or be a
+    // doctor with explicit consent / a booked appointment.
+    const [{ data: userAccess }, { data: doctorAccess }] = await Promise.all([
+      supabaseClient.rpc('user_can_access_patient', { _user_id: user.id, _patient_id: patientId }),
+      supabaseClient.rpc('doctor_can_access_patient', { _doctor_user: user.id, _patient_id: patientId }),
+    ]);
+    if (!userAccess && !doctorAccess) {
       return new Response(JSON.stringify({ error: 'Forbidden' }), {
         status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+
 
 
     // Build patient context
