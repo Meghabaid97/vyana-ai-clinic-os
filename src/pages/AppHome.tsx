@@ -29,7 +29,16 @@ interface PatientProfile {
 }
 
 const PROFILE_BANNER_DISMISSED_KEY = "vyana-profile-banner-dismissed";
-const REQUIRED_PROFILE_PROMPT_SEEN_KEY = "vyana-required-profile-prompt-seen";
+const REQUIRED_PROFILE_PROMPT_DISMISSED_PREFIX = "vyana-required-profile-prompt-dismissed";
+
+const hasDismissedRequiredProfilePrompt = (userId: string) =>
+  typeof window !== "undefined" &&
+  localStorage.getItem(`${REQUIRED_PROFILE_PROMPT_DISMISSED_PREFIX}:${userId}`) === "1";
+
+const dismissRequiredProfilePrompt = (userId?: string | null) => {
+  if (typeof window === "undefined" || !userId) return;
+  localStorage.setItem(`${REQUIRED_PROFILE_PROMPT_DISMISSED_PREFIX}:${userId}`, "1");
+};
 
 const normalizePhone = (value: string) => {
   const trimmed = value.trim();
@@ -45,6 +54,7 @@ const AppHome = () => {
   const [recordCount, setRecordCount] = useState(0);
   const [recordDates, setRecordDates] = useState<string[]>([]);
   const [consultationCount, setConsultationCount] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState<boolean>(() =>
     typeof window !== "undefined" && localStorage.getItem(PROFILE_BANNER_DISMISSED_KEY) === "1"
   );
@@ -75,14 +85,15 @@ const AppHome = () => {
   const loadData = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
+    setCurrentUserId(session.user.id);
     const p = await fetchActivePatient<PatientProfile>("*");
 
     // No patient row yet → still prompt for required fields so we can create it.
-    const promptAlreadySeen = typeof window !== "undefined" && sessionStorage.getItem(REQUIRED_PROFILE_PROMPT_SEEN_KEY) === "1";
+    const promptAlreadyDismissed = hasDismissedRequiredProfilePrompt(session.user.id);
     if (!p) {
       setReqName("");
       setReqPhone("");
-      if (!promptAlreadySeen) setRequiredOpen(true);
+      if (!promptAlreadyDismissed) setRequiredOpen(true);
       return;
     }
     setProfile(p);
@@ -92,7 +103,7 @@ const AppHome = () => {
     if (missingRequired) {
       setReqName(p.name || "");
       setReqPhone(p.phone || "");
-      if (!promptAlreadySeen) setRequiredOpen(true);
+      if (!promptAlreadyDismissed) setRequiredOpen(true);
     }
 
     const { data: r } = await supabase
@@ -165,7 +176,7 @@ const AppHome = () => {
       return;
     }
     setProfile(savedProfile);
-    sessionStorage.setItem(REQUIRED_PROFILE_PROMPT_SEEN_KEY, "1");
+    dismissRequiredProfilePrompt(session.user.id);
     setRequiredOpen(false);
     await refreshPatients();
     toast({ title: "Profile saved", description: "You can add more details anytime." });
@@ -185,7 +196,7 @@ const AppHome = () => {
   };
 
   const handleRequiredOpenChange = (open: boolean) => {
-    if (!open) sessionStorage.setItem(REQUIRED_PROFILE_PROMPT_SEEN_KEY, "1");
+    if (!open) dismissRequiredProfilePrompt(currentUserId);
     setRequiredOpen(open);
   };
 
