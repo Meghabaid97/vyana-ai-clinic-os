@@ -54,7 +54,25 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const body = await req.json();
-    const { records, patientName, patientAge } = body;
+    const { records, patientName, patientAge, patientId } = body;
+
+    // Server-side ownership check: caller must own (or have a non-revoked grant on)
+    // the patient they're asking us to analyze. Prevents authenticated users from
+    // submitting another patient's data for AI insight generation.
+    if (!patientId || typeof patientId !== 'string') {
+      return new Response(JSON.stringify({ error: 'patientId is required' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const { data: canAccess } = await supabaseClient.rpc('user_can_access_patient', {
+      _user_id: user.id, _patient_id: patientId,
+    });
+    if (!canAccess) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
 
     let healthContext = "";
     if (records && records.length > 0) {
