@@ -27,10 +27,13 @@ serve(async (req) => {
     );
 
     // 1. Try doctor share link (shared_record_links) first — these expire after 24h
+    //    and are single-use: we reject already-consumed links and atomically
+    //    mark them used after a successful lookup.
     const { data: shareLink } = await adminClient
       .from("shared_record_links")
-      .select("id, patient_id, expires_at, recipient_name")
+      .select("id, patient_id, expires_at, recipient_name, is_used")
       .eq("token", access_token)
+      .eq("is_used", false)
       .maybeSingle();
 
     let patientId: string | null = null;
@@ -47,11 +50,27 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      // Atomically claim the single-use link. If the update affects 0 rows,
+      // another caller already consumed it in a race — reject.
+      const { data: claimed, error: claimErr } = await adminClient
+        .from("shared_record_links")
+        .update({ is_used: true })
+        .eq("id", shareLink.id)
+        .eq("is_used", false)
+        .select("id")
+        .maybeSingle();
+      if (claimErr || !claimed) {
+        return new Response(JSON.stringify({ error: "This share link has already been used. Ask the patient to send a fresh link." }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       patientId = shareLink.patient_id;
       viewerName = shareLink.recipient_name || "Doctor";
       viewerRelationship = "Doctor";
       shareLinkId = shareLink.id;
     } else {
+
       // 2. Fall back to emergency contact token
       const { data: contact, error: contactError } = await adminClient
         .from("emergency_contacts")
