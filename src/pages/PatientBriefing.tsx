@@ -117,6 +117,7 @@ const PatientBriefing = () => {
 
       const { data, error } = await supabase.functions.invoke("clinical-briefing", {
         body: {
+          patientId: patient.id,
           patientHealthId: patient.national_health_id,
           consultations: consultationsRes.data || [],
           healthRecordSummaries: recordsRes.data || [],
@@ -125,6 +126,7 @@ const PatientBriefing = () => {
           symptomLogs: symptomsRes.data || [],
         },
       });
+
 
       if (error) throw error;
       setBriefing(data);

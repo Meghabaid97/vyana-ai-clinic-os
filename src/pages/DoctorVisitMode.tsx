@@ -169,6 +169,7 @@ const DoctorVisitMode = () => {
 
       const { data, error } = await supabase.functions.invoke("clinical-briefing", {
         body: {
+          patientId: patient.id,
           patientHealthId: patient.national_health_id,
           consultations: consRes.data || [],
           healthRecordSummaries: recRes.data || [],
@@ -177,6 +178,7 @@ const DoctorVisitMode = () => {
           symptomLogs: sympRes.data || [],
         },
       });
+
       if (error) throw error;
       setBriefing(data);
 

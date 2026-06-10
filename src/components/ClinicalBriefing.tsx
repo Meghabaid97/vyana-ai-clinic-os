@@ -20,6 +20,8 @@ interface ClinicalBriefingProps {
     patient_age: number;
   }>;
   patientHealthId: string;
+  patientId: string;
+
 }
 
 interface DrugInteraction {
@@ -69,7 +71,7 @@ const concernColor = (level: string) => {
   return "bg-green-500/10 text-green-700 border-green-500/20";
 };
 
-const ClinicalBriefing = ({ consultations, patientHealthId }: ClinicalBriefingProps) => {
+const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: ClinicalBriefingProps) => {
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [soapOpen, setSoapOpen] = useState(false);
@@ -82,6 +84,7 @@ const ClinicalBriefing = ({ consultations, patientHealthId }: ClinicalBriefingPr
     try {
       const { data, error } = await supabase.functions.invoke("clinical-briefing", {
         body: {
+          patientId,
           patientHealthId,
           consultations: consultations.map(c => ({
             fhir_data: c.fhir_data,
@@ -92,6 +95,7 @@ const ClinicalBriefing = ({ consultations, patientHealthId }: ClinicalBriefingPr
       });
       if (error) throw error;
       setBriefing(data);
+
 
       // Cross-check current medications for drug-to-drug interactions
       const meds = (data?.current_medications ?? [])

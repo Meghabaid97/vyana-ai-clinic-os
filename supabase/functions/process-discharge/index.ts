@@ -7,6 +7,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Cap base64 payload size to prevent single-request resource exhaustion
+// (10 MB of base64 ~= 7.5 MB raw, which covers any realistic discharge PDF).
+const MAX_FILE_CONTENT_CHARS = 10 * 1024 * 1024;
+
+async function checkRateLimit(userId: string, functionName: string, maxPerHour = 20) {
+  const adminClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+  const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+  const { data } = await adminClient
+    .from('api_usage').select('id')
+    .eq('user_id', userId).eq('function_name', functionName)
+    .gte('created_at', oneHourAgo);
+  if (data && data.length >= maxPerHour) throw new Error('RATE_LIMITED');
+  await adminClient.from('api_usage').insert({ user_id: userId, function_name: functionName });
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
@@ -23,6 +41,17 @@ serve(async (req) => {
       });
     }
 
+    try {
+      await checkRateLimit(user.id, 'process-discharge', 20);
+    } catch (e) {
+      if (e instanceof Error && e.message === 'RATE_LIMITED') {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
+          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      throw e;
+    }
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
 
@@ -32,6 +61,12 @@ serve(async (req) => {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+    if (typeof fileContent === 'string' && fileContent.length > MAX_FILE_CONTENT_CHARS) {
+      return new Response(JSON.stringify({ error: 'File too large. Maximum size is ~7.5 MB.' }), {
+        status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
 
     const systemPrompt = `You are a healthcare document extraction assistant specializing in discharge summaries.
 

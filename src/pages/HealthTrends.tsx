@@ -440,7 +440,7 @@ const HealthTrends = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const patient = await fetchActivePatient<{ name: string; age: number | null }>("name, age");
+      const patient = await fetchActivePatient<{ id: string; name: string; age: number | null }>("id, name, age");
 
       const safeLatestRecord = await refreshLatestRecordSummary(latestRecord);
       const localVitals = {
@@ -461,6 +461,7 @@ const HealthTrends = () => {
 
       const { data, error } = await supabase.functions.invoke("analyze-health-risks", {
         body: {
+          patientId: patient?.id,
           records: [{
             file_name: safeLatestRecord.file_name,
             ai_summary: safeLatestRecord.ai_summary,
@@ -469,6 +470,7 @@ const HealthTrends = () => {
           patientAge: patient?.age,
         },
       });
+
 
       if (error && !localAnalysis) throw error;
       const nextAnalysis = data as AnalysisResult;
@@ -521,12 +523,14 @@ const HealthTrends = () => {
 
       const { data, error } = await supabase.functions.invoke("analyze-trends", {
         body: {
+          patientId: patient?.id,
           vitalHistory,
           medicationReminders: meds || [],
           patientName: patient?.name,
           patientAge: patient?.age,
         },
       });
+
       if (error) throw error;
       setTrendAnalysis(data);
     } catch (err: any) {
