@@ -288,7 +288,7 @@ const AppHome = () => {
                 {t("home.h1.l2")}
               </span>
             </h1>
-            <p className="mt-1.5 sm:mt-2 lg:mt-2 max-w-[34ch] md:max-w-[42ch] lg:max-w-[28ch] text-[12.5px] sm:text-[13px] lg:text-[13px] text-muted-foreground leading-snug">
+            <p className="mt-1.5 sm:mt-2 lg:mt-2 max-w-none sm:max-w-[34ch] md:max-w-[42ch] lg:max-w-[28ch] text-[12.5px] sm:text-[13px] lg:text-[13px] text-muted-foreground leading-snug">
               {t("home.subtitle")}
             </p>
           </div>
