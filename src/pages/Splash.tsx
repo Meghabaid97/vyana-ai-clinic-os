@@ -42,9 +42,7 @@ const Splash = () => {
             V<span className="text-primary">yana</span>
             </h1>
             <p className="mt-5 text-[0.95rem] font-semibold leading-tight text-foreground sm:text-xl">
-              Your health story.
-              <br />
-              <span className="text-primary">Always with you.</span>
+              Your health story. <span className="text-primary">Always with you.</span>
             </p>
           </div>
         </div>
