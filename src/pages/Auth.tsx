@@ -776,7 +776,7 @@ const Auth = () => {
           )}
 
           {/* Gated-beta banner — shown until the user has a server-validated invite. */}
-          {!tokenValid && (
+          {!tokenValid && !isNativeApp && (
             <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
               <div className="flex items-start gap-2">
                 <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
