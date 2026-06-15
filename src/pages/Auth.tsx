@@ -663,7 +663,7 @@ const Auth = () => {
       // could be stale (token consumed in another tab, expired since page
       // load, etc.). The same edge function is also called again after
       // OAuth callback inside ensureAccountSetup as a final defense.
-      if (isSignUp) {
+      if (isSignUp && !Capacitor.isNativePlatform()) {
         const storedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
         if (!storedToken) {
           toast({
