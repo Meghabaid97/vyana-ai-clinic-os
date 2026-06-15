@@ -26,7 +26,7 @@ export default function FamilyViralityCard({ recordCount }: Props) {
   if (patients.length > 1) return null;
 
   return (
-    <section className="px-4 sm:px-5 pb-4">
+    <section className="px-4 sm:px-6 lg:px-0 pb-4">
       <button
         type="button"
         onClick={() => setOpen(true)}
