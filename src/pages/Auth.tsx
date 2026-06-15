@@ -282,8 +282,13 @@ const Auth = () => {
     }
     const isExistingAccount = hasExistingRole || hasExistingPatient;
 
-    if (!isExistingAccount) {
-      // New account — require a server-validated invite token in this session.
+    // Native (iOS/Android) builds bypass the invite-token gate: the beta-access
+    // invite links were only distributed via the web, so requiring one inside
+    // the native app would lock every TestFlight / Play tester out of sign-up.
+    const isNativeApp = Capacitor.isNativePlatform();
+
+    if (!isExistingAccount && !isNativeApp) {
+      // New account on the web — require a server-validated invite token.
       const validatedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
       const inviteOk = validatedToken
         ? await serverValidateInviteToken(validatedToken)
@@ -312,6 +317,7 @@ const Auth = () => {
       }
       sessionStorage.removeItem(VALIDATED_INVITE_KEY);
     }
+
     // ─────────────────────────────────────────────────────────────────────
 
     if (roles.length === 0 && resolvedRole && resolvedRole !== "admin") {
