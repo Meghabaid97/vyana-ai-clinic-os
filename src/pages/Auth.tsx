@@ -736,9 +736,12 @@ const Auth = () => {
     }
   };
 
-  // Block signup view entirely without valid invite token
-  const allowSignup = tokenValid;
+  // Block signup view entirely without valid invite token (web only).
+  // Native (iOS/Android) builds skip the gate since invites were web-only.
+  const isNativeApp = Capacitor.isNativePlatform();
+  const allowSignup = tokenValid || isNativeApp;
   const effectiveIsSignUp = isSignUp && allowSignup;
+
 
   if (!tokenChecked) {
     return (
