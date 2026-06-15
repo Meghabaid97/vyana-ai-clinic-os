@@ -282,8 +282,13 @@ const Auth = () => {
     }
     const isExistingAccount = hasExistingRole || hasExistingPatient;
 
-    if (!isExistingAccount) {
-      // New account — require a server-validated invite token in this session.
+    // Native (iOS/Android) builds bypass the invite-token gate: the beta-access
+    // invite links were only distributed via the web, so requiring one inside
+    // the native app would lock every TestFlight / Play tester out of sign-up.
+    const isNativeApp = Capacitor.isNativePlatform();
+
+    if (!isExistingAccount && !isNativeApp) {
+      // New account on the web — require a server-validated invite token.
       const validatedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
       const inviteOk = validatedToken
         ? await serverValidateInviteToken(validatedToken)
@@ -312,6 +317,7 @@ const Auth = () => {
       }
       sessionStorage.removeItem(VALIDATED_INVITE_KEY);
     }
+
     // ─────────────────────────────────────────────────────────────────────
 
     if (roles.length === 0 && resolvedRole && resolvedRole !== "admin") {
@@ -657,7 +663,7 @@ const Auth = () => {
       // could be stale (token consumed in another tab, expired since page
       // load, etc.). The same edge function is also called again after
       // OAuth callback inside ensureAccountSetup as a final defense.
-      if (isSignUp) {
+      if (isSignUp && !Capacitor.isNativePlatform()) {
         const storedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
         if (!storedToken) {
           toast({
@@ -730,9 +736,12 @@ const Auth = () => {
     }
   };
 
-  // Block signup view entirely without valid invite token
-  const allowSignup = tokenValid;
+  // Block signup view entirely without valid invite token (web only).
+  // Native (iOS/Android) builds skip the gate since invites were web-only.
+  const isNativeApp = Capacitor.isNativePlatform();
+  const allowSignup = tokenValid || isNativeApp;
   const effectiveIsSignUp = isSignUp && allowSignup;
+
 
   if (!tokenChecked) {
     return (
@@ -767,7 +776,7 @@ const Auth = () => {
           )}
 
           {/* Gated-beta banner — shown until the user has a server-validated invite. */}
-          {!tokenValid && (
+          {!tokenValid && !isNativeApp && (
             <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
               <div className="flex items-start gap-2">
                 <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
