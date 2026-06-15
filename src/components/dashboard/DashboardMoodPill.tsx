@@ -108,7 +108,7 @@ const DashboardMoodPill = ({ patientId, patientName }: Props) => {
           </div>
         )}
 
-        <div className="border-t border-border bg-muted/20 px-4 sm:px-5 py-3 grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+        <div className="border-t border-border bg-muted/20 px-4 sm:px-5 py-3 grid grid-cols-3 gap-1.5">
           <button
             onClick={() => setSymptomOpen(true)}
             className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-background py-2 text-[11.5px] font-medium text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors"
