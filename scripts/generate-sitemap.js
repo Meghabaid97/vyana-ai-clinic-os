@@ -4,14 +4,8 @@ import { resolve } from "path";
 
 const BASE_URL = "https://vyanacare.lovable.app";
 
-interface SitemapEntry {
-  path: string;
-  changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
-  priority?: string;
-}
-
 // Public, indexable routes only. Auth/protected/admin routes excluded.
-const entries: SitemapEntry[] = [
+const entries = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/why-vyana", changefreq: "monthly", priority: "0.8" },
   { path: "/request-access", changefreq: "monthly", priority: "0.7" },
