@@ -154,7 +154,7 @@ const AppShellInner = () => {
   };
 
   return (
-    <div className="aurora-warm-soft h-[100svh] lg:min-h-screen lg:h-auto w-full max-w-[100vw] overflow-hidden lg:overflow-x-hidden bg-background flex flex-col">
+    <div className="aurora-warm-soft h-[100svh] lg:min-h-screen lg:h-auto w-full max-w-[100vw] overflow-hidden lg:overflow-x-hidden lg:overflow-y-visible bg-background flex flex-col">
 
       {/* ============ MOBILE TOP BAR (hidden on lg+) — iOS-native proportions ============ */}
       <header className="lg:hidden bg-background/85 border-b border-border/60 sticky top-0 z-50 safe-area-top backdrop-blur-xl">
@@ -283,7 +283,7 @@ const AppShellInner = () => {
 
       {/* ============ CONTENT ============ */}
       {/* Mobile: full-bleed scroll. Desktop: centered max-width container */}
-      <main className="flex-1 min-h-0 w-full max-w-full overflow-x-hidden overflow-y-auto pb-[calc(54px+env(safe-area-inset-bottom)+8px)] lg:pb-10 [-webkit-overflow-scrolling:touch] [overscroll-behavior-y:contain]">
+      <main className="flex-1 min-h-0 w-full max-w-full overflow-x-hidden overflow-y-auto lg:overflow-y-visible lg:min-h-0 pb-[calc(54px+env(safe-area-inset-bottom)+8px)] lg:pb-10 [-webkit-overflow-scrolling:touch] [overscroll-behavior-y:contain]">
         <PullToRefresh>
           <div className="w-full max-w-full lg:max-w-[1400px] lg:mx-auto lg:px-6 lg:py-6">
             <Outlet />
