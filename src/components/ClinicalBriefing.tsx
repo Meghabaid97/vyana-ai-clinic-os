@@ -117,7 +117,7 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
         } catch { /* ignore */ }
         const status = ctx?.status ?? ctx?.response?.status;
         if (status === 402 || bodyJson?.error === "PLAN_LIMIT_REACHED") {
-          setShowPaywall(true);
+          setPaywallOpen(true);
           await ent.refresh();
           return;
         }
