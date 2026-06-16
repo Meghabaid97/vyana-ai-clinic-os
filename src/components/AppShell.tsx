@@ -215,6 +215,13 @@ const AppShellInner = () => {
           <div className="flex-1" />
 
           <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => vtNavigate("/app/upgrade")}
+              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:opacity-90 transition-opacity"
+            >
+              <Sparkles className="h-4 w-4" />
+              Upgrade to Pro
+            </button>
             <HouseholdSwitcher variant="desktop" />
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
             <LanguageSelector />
