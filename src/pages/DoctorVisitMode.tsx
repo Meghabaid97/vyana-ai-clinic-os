@@ -92,6 +92,9 @@ const DoctorVisitMode = () => {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
   const [interactionsLoading, setInteractionsLoading] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const ent = useEntitlements();
+  const outOfBriefings = !ent.is_pro && (ent.briefings_remaining ?? 0) <= 0;
 
   const createShareLink = async (): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
