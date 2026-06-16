@@ -11,6 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useToast } from "@/hooks/use-toast";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { PaywallSheet } from "@/components/paywall/PaywallSheet";
+import { logEvent } from "@/lib/analytics";
 
 interface ClinicalBriefingProps {
   consultations: Array<{
@@ -90,6 +91,7 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
     }
     // Gate: free users get 1 briefing lifetime
     if (!ent.is_pro && (ent.briefings_remaining ?? 0) <= 0) {
+      void logEvent("paywall_triggered", { reason: "briefing", surface: "inline" }, patientId);
       setPaywallOpen(true);
       return;
     }
@@ -124,6 +126,7 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
         throw error;
       }
       setBriefing(data);
+      void logEvent("briefing_generated", { surface: "inline" }, patientId);
 
       // Usage is incremented server-side; just refresh local entitlements.
       await ent.refresh();

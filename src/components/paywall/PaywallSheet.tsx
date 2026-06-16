@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { PlanCard } from "./PlanCard";
 import { type RazorpaySuccess } from "@/lib/razorpay";
 import { type BillingCycle } from "@/lib/plans";
+import { logEvent } from "@/lib/analytics";
 
 export type PaywallReason = "briefing" | "family" | "docs" | "feature";
 
@@ -39,6 +40,11 @@ const COPY: Record<PaywallReason, { title: string; body: string }> = {
 export function PaywallSheet({ open, onOpenChange, reason, familyOnly, preview, onSuccess }: Props) {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const copy = COPY[reason];
+
+  useEffect(() => {
+    if (open) void logEvent("paywall_viewed", { reason, familyOnly: !!familyOnly });
+  }, [open, reason, familyOnly]);
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

@@ -484,6 +484,8 @@ const Auth = () => {
               { user_id: data.user.id, consent_type: "terms_of_service", policy_version: "v1.0", granted: true, user_agent: navigator.userAgent, context: { source: "signup" } },
             ]);
           } catch (e) { console.warn("consent_log write failed", e); }
+          const { logEvent } = await import("@/lib/analytics");
+          void logEvent("signup_completed", { method: "email", role: signupDraft.role });
         }
         toast({
           title: "Account created!",

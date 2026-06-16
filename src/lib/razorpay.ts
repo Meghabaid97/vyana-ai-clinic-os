@@ -90,6 +90,8 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
     throw new Error(orderErr ? await getFunctionErrorMessage(orderErr) : "Could not create order");
   }
 
+  const { logEvent } = await import("@/lib/analytics");
+
   return new Promise<RazorpaySuccess>((resolve, reject) => {
     const rzp = new window.Razorpay({
       key: orderData.key_id,
@@ -101,28 +103,32 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
       prefill: opts.prefill ?? { email: session.user.email ?? undefined },
       notes: { plan: opts.plan, cycle: opts.cycle },
       theme: { color: opts.themeColor ?? "#0F172A" },
-      modal: { ondismiss: () => reject(new Error("Payment cancelled")) },
+      modal: { ondismiss: () => {
+        void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, reason: "dismissed" });
+        reject(new Error("Payment cancelled"));
+      } },
       handler: async (response: any) => {
         const { data: verifyData, error: verifyErr } = await supabase.functions.invoke(
           "razorpay-verify-payment",
           { body: response },
         );
         if (verifyErr || !verifyData?.verified) {
+          void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, reason: "verify_failed" });
           reject(new Error(verifyErr?.message ?? "Signature verification failed"));
           return;
         }
         if (verifyData?.activated === false) {
-          // Test-mode payments are explicitly NOT activated. Surface clearly to the user.
           const msg = verifyData?.test_mode
             ? "Test-mode payments don't unlock Pro. Use live Razorpay keys to upgrade real accounts."
             : (verifyData?.warning ?? "Payment verified but Pro was not activated.");
+          void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, reason: verifyData?.test_mode ? "test_mode" : "not_activated" });
           reject(new Error(msg));
           return;
         }
-        // Broadcast: any component using useEntitlements will refetch immediately.
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("vyana:entitlements:refresh"));
         }
+        void logEvent("payment_succeeded", { plan: opts.plan, cycle: opts.cycle, amount: orderData.amount });
         resolve({
           ...response,
           verified: true,
@@ -133,8 +139,10 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
       },
     });
     rzp.on("payment.failed", (resp: any) => {
+      void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, reason: resp?.error?.description ?? "unknown" });
       reject(new Error(getPaymentFailureMessage(resp?.error?.description)));
     });
+    void logEvent("checkout_opened", { plan: opts.plan, cycle: opts.cycle, amount: orderData.amount });
     rzp.open();
   });
 }
