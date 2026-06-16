@@ -190,8 +190,25 @@ const DoctorVisitMode = () => {
         },
       });
 
-      if (error) throw error;
+      // Server-side plan gate: surface the paywall if function refused with 402.
+      if (error) {
+        const ctx: any = (error as any)?.context;
+        let bodyJson: any = null;
+        try {
+          if (ctx?.body && typeof ctx.body === "string") bodyJson = JSON.parse(ctx.body);
+          else if (typeof ctx?.json === "function") bodyJson = await ctx.json();
+        } catch { /* ignore parse errors */ }
+        const status = ctx?.status ?? ctx?.response?.status;
+        if (status === 402 || bodyJson?.error === "PLAN_LIMIT_REACHED") {
+          setPaywallOpen(true);
+          ent.refresh();
+          return;
+        }
+        throw error;
+      }
       setBriefing(data);
+      // Refresh entitlements so the remaining-briefings counter updates after a successful generation.
+      ent.refresh();
 
       // Drug-drug interaction check on current/active meds
       try {
