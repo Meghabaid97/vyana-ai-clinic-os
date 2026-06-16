@@ -17,6 +17,9 @@ import { Change, computeChangesSinceLastVisit, SAMPLE_CHANGES } from "@/lib/chan
 import PageHero from "@/components/PageHero";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
 import { buildEmergencyAccessUrl } from "@/lib/share-url";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { PaywallSheet } from "@/components/paywall/PaywallSheet";
+import { Lock } from "lucide-react";
 
 interface DrugInteraction {
   drugs: string[];
@@ -89,6 +92,9 @@ const DoctorVisitMode = () => {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [symptomFreshness, setSymptomFreshness] = useState<FreshnessSummary | null>(null);
   const [interactionsLoading, setInteractionsLoading] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const ent = useEntitlements();
+  const outOfBriefings = !ent.is_pro && (ent.briefings_remaining ?? 0) <= 0;
 
   const createShareLink = async (): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -138,6 +144,11 @@ const DoctorVisitMode = () => {
   };
 
   const generate = async () => {
+    // Client-side gate: open paywall instead of calling the function when out.
+    if (outOfBriefings) {
+      setPaywallOpen(true);
+      return;
+    }
     setLoading(true);
     setIsDemo(false);
     try {
@@ -179,8 +190,25 @@ const DoctorVisitMode = () => {
         },
       });
 
-      if (error) throw error;
+      // Server-side plan gate: surface the paywall if function refused with 402.
+      if (error) {
+        const ctx: any = (error as any)?.context;
+        let bodyJson: any = null;
+        try {
+          if (ctx?.body && typeof ctx.body === "string") bodyJson = JSON.parse(ctx.body);
+          else if (typeof ctx?.json === "function") bodyJson = await ctx.json();
+        } catch { /* ignore parse errors */ }
+        const status = ctx?.status ?? ctx?.response?.status;
+        if (status === 402 || bodyJson?.error === "PLAN_LIMIT_REACHED") {
+          setPaywallOpen(true);
+          ent.refresh();
+          return;
+        }
+        throw error;
+      }
       setBriefing(data);
+      // Refresh entitlements so the remaining-briefings counter updates after a successful generation.
+      ent.refresh();
 
       // Drug-drug interaction check on current/active meds
       try {
@@ -366,8 +394,16 @@ const DoctorVisitMode = () => {
 
             <Button onClick={generate} disabled={loading} size="lg" className="mt-5 w-full gap-2">
               {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Building your brief...</>
+                       : outOfBriefings ? <><Lock className="h-4 w-4" /> Unlock briefings · Upgrade to Pro</>
                        : <><Sparkles className="h-4 w-4" /> Generate my visit brief</>}
             </Button>
+            {!ent.is_pro && (
+              <p className="mt-2 text-[11.5px] text-center text-muted-foreground">
+                {outOfBriefings
+                  ? "You've used your free briefing. Pro unlocks unlimited."
+                  : `Free plan: ${ent.briefings_remaining ?? 0} briefing left (lifetime).`}
+              </p>
+            )}
             <button
               onClick={loadDemo}
               className="mt-3 w-full inline-flex items-center justify-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
@@ -736,6 +772,13 @@ const DoctorVisitMode = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <PaywallSheet
+        open={paywallOpen}
+        onOpenChange={setPaywallOpen}
+        reason="briefing"
+        onSuccess={() => { setPaywallOpen(false); ent.refresh(); }}
+      />
     </div>
   );
 };

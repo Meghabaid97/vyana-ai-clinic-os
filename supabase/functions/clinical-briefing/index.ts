@@ -50,6 +50,26 @@ serve(async (req) => {
       throw e;
     }
 
+    // Plan gate: enforce briefing entitlements server-side so no client path can bypass.
+    const { data: entRes, error: entErr } = await supabaseClient.rpc('get_entitlements');
+    if (entErr) {
+      console.error('get_entitlements failed:', entErr);
+      return new Response(JSON.stringify({ error: 'Could not verify subscription' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const ent = (entRes ?? {}) as Record<string, unknown>;
+    const isPro = ent.is_pro === true;
+    const remaining = typeof ent.briefings_remaining === 'number' ? ent.briefings_remaining : 0;
+    if (!isPro && remaining <= 0) {
+      return new Response(JSON.stringify({
+        error: 'PLAN_LIMIT_REACHED',
+        message: "You've used your free briefing. Upgrade to Vyana Pro for unlimited briefings.",
+        reason: 'briefing',
+      }), { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -344,9 +364,18 @@ ${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` 
 
     briefing.disclaimer = "AI-generated briefing based on available records. Verify all findings clinically.";
 
+    // Count this briefing against the user's lifetime usage. Free tier sees this
+    // bite into briefings_remaining; Pro users are unaffected by the limit but
+    // we still record usage for analytics.
+    if (!isPro) {
+      const { error: incErr } = await supabaseClient.rpc('increment_briefing_usage');
+      if (incErr) console.error('increment_briefing_usage failed:', incErr);
+    }
+
     return new Response(JSON.stringify(briefing), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (error) {
     console.error("Error in clinical-briefing:", error);
     return new Response(

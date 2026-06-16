@@ -107,12 +107,25 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
           })),
         },
       });
-      if (error) throw error;
+      if (error) {
+        // Server-side plan gate: open the paywall if the function refused with 402.
+        const ctx: any = (error as any)?.context;
+        let bodyJson: any = null;
+        try {
+          if (ctx?.body && typeof ctx.body === "string") bodyJson = JSON.parse(ctx.body);
+          else if (typeof ctx?.json === "function") bodyJson = await ctx.json();
+        } catch { /* ignore */ }
+        const status = ctx?.status ?? ctx?.response?.status;
+        if (status === 402 || bodyJson?.error === "PLAN_LIMIT_REACHED") {
+          setPaywallOpen(true);
+          await ent.refresh();
+          return;
+        }
+        throw error;
+      }
       setBriefing(data);
 
-      // Bump usage counter — must succeed so the gate fires next time
-      const { error: rpcErr } = await supabase.rpc("increment_briefing_usage");
-      if (rpcErr) console.error("increment_briefing_usage failed:", rpcErr);
+      // Usage is incremented server-side; just refresh local entitlements.
       await ent.refresh();
 
       // Cross-check current medications for drug-to-drug interactions
