@@ -459,10 +459,8 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        // Mark invite token as used (best effort)
-        if (inviteToken) {
-          await supabase.rpc("consume_invite_token", { _token: inviteToken });
-        }
+        // Beta gating removed — no invite token to consume.
+
         if (data.session && data.user) {
           await handleAuthenticatedUser(data.user.id, data.user.user_metadata);
           // DPDPA 2023 — record consent grant on signup
