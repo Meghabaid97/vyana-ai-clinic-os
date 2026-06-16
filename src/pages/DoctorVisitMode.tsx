@@ -394,8 +394,16 @@ const DoctorVisitMode = () => {
 
             <Button onClick={generate} disabled={loading} size="lg" className="mt-5 w-full gap-2">
               {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Building your brief...</>
+                       : outOfBriefings ? <><Lock className="h-4 w-4" /> Unlock briefings · Upgrade to Pro</>
                        : <><Sparkles className="h-4 w-4" /> Generate my visit brief</>}
             </Button>
+            {!ent.is_pro && (
+              <p className="mt-2 text-[11.5px] text-center text-muted-foreground">
+                {outOfBriefings
+                  ? "You've used your free briefing. Pro unlocks unlimited."
+                  : `Free plan: ${ent.briefings_remaining ?? 0} briefing left (lifetime).`}
+              </p>
+            )}
             <button
               onClick={loadDemo}
               className="mt-3 w-full inline-flex items-center justify-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
