@@ -1127,6 +1127,8 @@ export type Database = {
       subscriptions: {
         Row: {
           billing_cycle: string | null
+          cancel_at_period_end: boolean
+          canceled_at: string | null
           created_at: string
           current_period_end: string | null
           plan: string
@@ -1139,6 +1141,8 @@ export type Database = {
         }
         Insert: {
           billing_cycle?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
           created_at?: string
           current_period_end?: string | null
           plan?: string
@@ -1151,6 +1155,8 @@ export type Database = {
         }
         Update: {
           billing_cycle?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
           created_at?: string
           current_period_end?: string | null
           plan?: string
@@ -1373,6 +1379,7 @@ export type Database = {
     }
     Functions: {
       accept_family_invite: { Args: { _token: string }; Returns: string }
+      cancel_subscription: { Args: never; Returns: Json }
       cleanup_expired_support_tickets: { Args: never; Returns: undefined }
       consume_invite_token: { Args: { _token: string }; Returns: boolean }
       current_user_email: { Args: never; Returns: string }
@@ -1455,6 +1462,7 @@ export type Database = {
         Args: { _patient_id: string }
         Returns: undefined
       }
+      resume_subscription: { Args: never; Returns: Json }
       user_can_access_patient: {
         Args: { _patient_id: string; _user_id: string }
         Returns: boolean
