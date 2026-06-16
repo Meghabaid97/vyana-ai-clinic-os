@@ -216,16 +216,16 @@ const AdminMetrics = () => {
       setFamilyOccupancy("0 paid family plans");
     }
 
-    // Vitals breadth
+    // Vitals breadth — vitals stored as JSONB keys per row
     const { data: vitals } = await supabase
       .from("vital_history")
-      .select("patient_id, vital_type")
+      .select("patient_id, vitals")
       .limit(5000);
     if (vitals?.length) {
       const byPatient = new Map<string, Set<string>>();
-      vitals.forEach((v: { patient_id: string; vital_type: string }) => {
+      (vitals as { patient_id: string; vitals: Record<string, unknown> }[]).forEach((v) => {
         if (!byPatient.has(v.patient_id)) byPatient.set(v.patient_id, new Set());
-        byPatient.get(v.patient_id)!.add(v.vital_type);
+        Object.keys(v.vitals ?? {}).forEach((k) => byPatient.get(v.patient_id)!.add(k));
       });
       const avg =
         [...byPatient.values()].reduce((s, set) => s + set.size, 0) /
