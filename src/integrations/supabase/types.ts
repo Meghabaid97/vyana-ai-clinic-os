@@ -65,23 +65,62 @@ export type Database = {
         }
         Relationships: []
       }
-      api_usage: {
+      analytics_events: {
         Row: {
           created_at: string
-          function_name: string
+          event_name: string
           id: string
-          user_id: string
+          patient_id: string | null
+          properties: Json
+          session_id: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
-          function_name: string
+          event_name: string
           id?: string
-          user_id: string
+          patient_id?: string | null
+          properties?: Json
+          session_id?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
+          event_name?: string
+          id?: string
+          patient_id?: string | null
+          properties?: Json
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      api_usage: {
+        Row: {
+          cost_inr: number | null
+          created_at: string
+          function_name: string
+          id: string
+          latency_ms: number | null
+          tokens: number | null
+          user_id: string
+        }
+        Insert: {
+          cost_inr?: number | null
+          created_at?: string
+          function_name: string
+          id?: string
+          latency_ms?: number | null
+          tokens?: number | null
+          user_id: string
+        }
+        Update: {
+          cost_inr?: number | null
+          created_at?: string
           function_name?: string
           id?: string
+          latency_ms?: number | null
+          tokens?: number | null
           user_id?: string
         }
         Relationships: []
@@ -743,6 +782,7 @@ export type Database = {
           diagnoses_encrypted: string | null
           document_type: string | null
           extracted_vitals: Json
+          extraction_status: string | null
           file_name: string
           file_path: string
           file_size: number
@@ -753,6 +793,7 @@ export type Database = {
           important_findings: Json
           medications: Json
           patient_id: string
+          processed_at: string | null
           radiology_body_part: string | null
           radiology_impression: Json
           radiology_modality: string | null
@@ -775,6 +816,7 @@ export type Database = {
           diagnoses_encrypted?: string | null
           document_type?: string | null
           extracted_vitals?: Json
+          extraction_status?: string | null
           file_name: string
           file_path: string
           file_size: number
@@ -785,6 +827,7 @@ export type Database = {
           important_findings?: Json
           medications?: Json
           patient_id: string
+          processed_at?: string | null
           radiology_body_part?: string | null
           radiology_impression?: Json
           radiology_modality?: string | null
@@ -807,6 +850,7 @@ export type Database = {
           diagnoses_encrypted?: string | null
           document_type?: string | null
           extracted_vitals?: Json
+          extraction_status?: string | null
           file_name?: string
           file_path?: string
           file_size?: number
@@ -817,6 +861,7 @@ export type Database = {
           important_findings?: Json
           medications?: Json
           patient_id?: string
+          processed_at?: string | null
           radiology_body_part?: string | null
           radiology_impression?: Json
           radiology_modality?: string | null
@@ -1031,6 +1076,7 @@ export type Database = {
           phone: string | null
           pincode: string | null
           relationship: string
+          signup_source: string | null
           updated_at: string
           user_id: string
           weight: number | null
@@ -1054,6 +1100,7 @@ export type Database = {
           phone?: string | null
           pincode?: string | null
           relationship?: string
+          signup_source?: string | null
           updated_at?: string
           user_id: string
           weight?: number | null
@@ -1077,6 +1124,7 @@ export type Database = {
           phone?: string | null
           pincode?: string | null
           relationship?: string
+          signup_source?: string | null
           updated_at?: string
           user_id?: string
           weight?: number | null
