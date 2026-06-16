@@ -54,6 +54,14 @@ export interface RazorpaySuccess {
   current_period_end?: string;
 }
 
+function getPaymentFailureMessage(description?: string) {
+  const message = description ?? "Payment failed";
+  if (/international cards are not supported/i.test(message)) {
+    return "Razorpay rejected this card. In Test Mode, use domestic test card 5104 0155 5555 5558, any future expiry, CVV 123, OTP 1234. Or use UPI success@razorpay.";
+  }
+  return message;
+}
+
 export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<RazorpaySuccess> {
   await loadRazorpayScript();
 
@@ -99,7 +107,7 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
       },
     });
     rzp.on("payment.failed", (resp: any) => {
-      reject(new Error(resp?.error?.description ?? "Payment failed"));
+      reject(new Error(getPaymentFailureMessage(resp?.error?.description)));
     });
     rzp.open();
   });
