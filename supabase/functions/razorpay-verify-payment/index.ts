@@ -96,6 +96,17 @@ Deno.serve(async (req) => {
     }
     const safeCycle = cycle === 'yearly' ? 'yearly' : 'monthly';
 
+    // GUARDRAIL: Refuse to activate Pro from test-mode payments unless explicitly allowed.
+    if (IS_TEST_KEY && !ALLOW_TEST_PAYMENTS) {
+      console.warn('[razorpay-verify-payment] Test-mode payment refused activation', { userId, paymentId, orderId });
+      return new Response(JSON.stringify({
+        verified: true,
+        activated: false,
+        test_mode: true,
+        warning: 'Test-mode payment verified but Pro not activated. Switch to live Razorpay keys (or set ALLOW_TEST_PAYMENTS=true) to enable test activations.',
+      }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const periodEnd = addInterval(safeCycle).toISOString();
 
