@@ -329,8 +329,9 @@ const Auth = () => {
         variant: "destructive",
       });
       if (isGated) {
-        navigate("/request-access", { replace: true });
+        navigate("/auth", { replace: true });
       }
+
     }
   }, [ensureAccountSetup, redirectBasedOnRole, toast, navigate]);
 
