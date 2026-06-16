@@ -38,7 +38,7 @@ const AccessPending = () => {
 
         <div className="mt-6 flex flex-col gap-2.5">
           <Button
-            onClick={() => navigate("/request-access")}
+            onClick={() => navigate("/auth?signup=1")}
             className="w-full h-11 rounded-xl"
           >
             Request access

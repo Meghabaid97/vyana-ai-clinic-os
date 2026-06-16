@@ -27,7 +27,7 @@ const ClosingCTA = () => {
             <Button
               variant="premium"
               className="vt-cta-pill group h-12 px-7 text-[15px] rounded-full"
-              onClick={() => navigate("/request-access")}
+              onClick={() => navigate("/auth?signup=1")}
             >
               {t("cta.button")}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
