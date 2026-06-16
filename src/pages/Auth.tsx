@@ -133,33 +133,10 @@ const Auth = () => {
   // edge function. On success, persist the token to sessionStorage so the
   // post-OAuth callback can re-verify and consume it.
   useEffect(() => {
-    let active = true;
-    const validate = async () => {
-      if (!inviteToken) {
-        setTokenChecked(true);
-        return;
-      }
-      const result = await serverValidateInviteToken(inviteToken);
-      if (!active) return;
-      if (result.valid) {
-        setTokenValid(true);
-        setIsSignUp(true);
-        sessionStorage.setItem(VALIDATED_INVITE_KEY, inviteToken);
-        if (result.email) setEmail(result.email);
-        if (result.name) setName(result.name);
-      } else {
-        sessionStorage.removeItem(VALIDATED_INVITE_KEY);
-        toast({
-          title: "Invite link invalid or expired",
-          description: "Please request a new one.",
-          variant: "destructive",
-        });
-      }
-      setTokenChecked(true);
-    };
-    void validate();
-    return () => { active = false; };
-  }, [inviteToken, toast]);
+    if (searchParams.get("signup") === "1") setIsSignUp(true);
+    setTokenChecked(true);
+  }, [searchParams]);
+
 
   // Validate a manually-pasted invite link/token. Accepts either the bare
   // UUID or the full /auth?token=... URL.
