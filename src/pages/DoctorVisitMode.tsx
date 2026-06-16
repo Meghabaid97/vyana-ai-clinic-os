@@ -772,6 +772,13 @@ const DoctorVisitMode = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <PaywallSheet
+        open={paywallOpen}
+        onOpenChange={setPaywallOpen}
+        reason="briefing"
+        onSuccess={() => { setPaywallOpen(false); ent.refresh(); }}
+      />
     </div>
   );
 };
