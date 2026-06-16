@@ -265,60 +265,8 @@ const Auth = () => {
         : roles[0] ?? null;
     const resolvedRole = (primaryRole ?? fallbackRole ?? "patient") as UserRole | "admin" | null;
 
-    // ── Gated-beta gate ──────────────────────────────────────────────────
-    // Block sign-ins for accounts that aren't already in the database
-    // UNLESS the user presented a server-validated invite token.
-    // "Already in the database" = has at least one user_roles row OR an
-    // existing patients row.
-    const hasExistingRole = roles.length > 0;
-    let hasExistingPatient = false;
-    if (!hasExistingRole) {
-      const { data: existingPatientRow } = await supabase
-        .from("patients")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
-      hasExistingPatient = !!existingPatientRow;
-    }
-    const isExistingAccount = hasExistingRole || hasExistingPatient;
+    // Beta gating removed — all signups are open.
 
-    // Native (iOS/Android) builds bypass the invite-token gate: the beta-access
-    // invite links were only distributed via the web, so requiring one inside
-    // the native app would lock every TestFlight / Play tester out of sign-up.
-    const isNativeApp = Capacitor.isNativePlatform();
-
-    if (!isExistingAccount && !isNativeApp) {
-      // New account on the web — require a server-validated invite token.
-      const validatedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
-      const inviteOk = validatedToken
-        ? await serverValidateInviteToken(validatedToken)
-        : { valid: false as const };
-
-      if (!inviteOk.valid) {
-        // Sign them out so we don't leave a half-provisioned account.
-        await supabase.auth.signOut();
-        sessionStorage.removeItem(VALIDATED_INVITE_KEY);
-        const err = new Error(
-          "Vyana is in gated beta. Sign-up requires a valid invite link.",
-        );
-        (err as any).__gatedBeta = true;
-        throw err;
-      }
-
-      // Token confirmed valid — consume it now (single-use) so it can't be
-      // reused for another account.
-      try {
-        await (supabase as any).rpc("consume_invite_token", {
-          _token: validatedToken,
-        });
-      } catch {
-        // Non-fatal: account creation continues even if consume fails;
-        // expiration still protects.
-      }
-      sessionStorage.removeItem(VALIDATED_INVITE_KEY);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────
 
     if (roles.length === 0 && resolvedRole && resolvedRole !== "admin") {
       const { error: insertRoleError } = await supabase
