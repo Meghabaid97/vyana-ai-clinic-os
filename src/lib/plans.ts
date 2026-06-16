@@ -13,9 +13,10 @@ export const PLAN_PRICES: Record<Exclude<PlanId, "free">, PlanPricing> = {
 };
 
 export const FREE_LIMITS = {
-  briefingsPerMonth: 1,
-  docsTotal: 5,
-  familyMembers: 2,
+  briefingsLifetime: 1,
+  docsLifetime: 5,
+  familyMembers: 1,
+  freeVitalsCount: 3,
 };
 
 export const PLAN_META: Record<Exclude<PlanId, "free">, {

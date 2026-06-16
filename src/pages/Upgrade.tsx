@@ -6,9 +6,10 @@ import { useEntitlements } from "@/hooks/useEntitlements";
 import { type BillingCycle, FREE_LIMITS } from "@/lib/plans";
 
 const COMPARE: { label: string; free: string; individual: string; family: string }[] = [
-  { label: "Briefings per month", free: `${FREE_LIMITS.briefingsPerMonth}`, individual: "Unlimited", family: "Unlimited" },
-  { label: "Document uploads", free: `${FREE_LIMITS.docsTotal} total`, individual: "Unlimited", family: "Unlimited" },
-  { label: "Family members", free: `${FREE_LIMITS.familyMembers}`, individual: "1", family: "Up to 6" },
+  { label: "Briefings", free: `${FREE_LIMITS.briefingsLifetime} (lifetime)`, individual: "Unlimited", family: "Unlimited" },
+  { label: "Document uploads", free: `${FREE_LIMITS.docsLifetime} (lifetime)`, individual: "Unlimited", family: "Unlimited" },
+  { label: "Family members", free: `${FREE_LIMITS.familyMembers} (you)`, individual: "1", family: "Up to 6" },
+  { label: "Health vitals tracked", free: `${FREE_LIMITS.freeVitalsCount} of 33`, individual: "All 33", family: "All 33" },
   { label: "Drug interaction checks", free: "—", individual: "✓", family: "✓" },
   { label: "Clinical intelligence", free: "—", individual: "✓", family: "✓" },
   { label: "Claim assistant", free: "—", individual: "✓", family: "✓" },
