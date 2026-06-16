@@ -56,7 +56,39 @@ export function useEntitlements() {
   useEffect(() => {
     void refresh();
     const { data: sub } = supabase.auth.onAuthStateChange(() => { void refresh(); });
-    return () => sub.subscription.unsubscribe();
+
+    // Cross-component sync: any code can trigger a refetch by dispatching this event.
+    const onRefresh = () => { void refresh(); };
+    const onFocus = () => { void refresh(); };
+    if (typeof window !== "undefined") {
+      window.addEventListener("vyana:entitlements:refresh", onRefresh);
+      window.addEventListener("focus", onFocus);
+    }
+
+    // Realtime: when the user's subscription row changes (activation, expiry, cancel),
+    // every mounted hook instance refreshes — so the Pro badge updates everywhere instantly.
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    supabase.auth.getUser().then(({ data }) => {
+      const uid = data.user?.id;
+      if (!uid) return;
+      channel = supabase
+        .channel(`entitlements:${uid}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${uid}` },
+          () => { void refresh(); },
+        )
+        .subscribe();
+    });
+
+    return () => {
+      sub.subscription.unsubscribe();
+      if (typeof window !== "undefined") {
+        window.removeEventListener("vyana:entitlements:refresh", onRefresh);
+        window.removeEventListener("focus", onFocus);
+      }
+      if (channel) supabase.removeChannel(channel);
+    };
   }, [refresh]);
 
   return { ...data, loading, refresh };
