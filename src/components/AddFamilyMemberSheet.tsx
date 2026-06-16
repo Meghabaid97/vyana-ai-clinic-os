@@ -20,6 +20,8 @@ import {
   revokeGrant,
   type FamilyInviteRow,
 } from "@/lib/familyInvites";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 
 const RELATIONSHIPS = [
   { value: "Spouse",  emoji: "💑" },
@@ -38,6 +40,8 @@ type Mode = "invite" | "dependent" | "manage";
 
 export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   const { refresh, setActiveById } = useActivePatient();
+  const ent = useEntitlements();
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("invite");
 
   // Shared
@@ -96,6 +100,11 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   // ---------- INVITE ----------
   const handleSendInvite = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ent.is_pro && ent.family_remaining <= 0) {
+      onOpenChange(false);
+      setTimeout(() => setPaywallOpen(true), 50);
+      return;
+    }
     if (!name.trim()) return toast.error("Please enter their name");
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       return toast.error("Please enter a valid email");
@@ -155,6 +164,11 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   // ---------- DEPENDENT ----------
   const handleAddDependent = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ent.is_pro && ent.family_remaining <= 0) {
+      onOpenChange(false);
+      setTimeout(() => setPaywallOpen(true), 50);
+      return;
+    }
     if (!name.trim()) return toast.error("Please enter their name");
     if (abha && abha.replace(/\s/g, "").length !== 14) return toast.error("ABHA Health ID must be 14 digits");
     setSubmitting(true);
