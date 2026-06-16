@@ -53,10 +53,10 @@ const Splash = () => {
         >
           <div className="mx-auto w-full max-w-xs text-center">
             <Button
-              onClick={() => navigate("/request-access")}
+              onClick={() => navigate("/auth?signup=1")}
               className="h-11 w-full rounded-full px-5 text-lg font-medium group"
             >
-              Get early access
+              Create your account
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
 
@@ -67,6 +67,7 @@ const Splash = () => {
             >
               I already have an account
             </Button>
+
 
             <p className="pt-8 text-center text-[0.8rem] leading-relaxed text-muted-foreground">
               Every patient deserves a doctor who knows their story.
