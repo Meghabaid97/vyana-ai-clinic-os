@@ -77,6 +77,7 @@ const AcceptInvite = () => {
     try {
       await acceptInvite(token);
       await refresh();
+      void (await import("@/lib/analytics")).logEvent("invite_accepted", { token_present: true });
       toast.success("Family access linked. You can now share records.");
       navigate("/app");
     } catch (e) {

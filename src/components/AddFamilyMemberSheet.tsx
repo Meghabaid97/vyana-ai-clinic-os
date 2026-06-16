@@ -13,6 +13,7 @@ import { useActivePatient } from "@/contexts/ActivePatientContext";
 import QRCode from "qrcode";
 import {
   createFamilyInvite,
+
   inviteLink,
   listMySentInvites,
   revokeInvite,
@@ -121,6 +122,7 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
       });
       const link = inviteLink(token);
       setCreatedLink(link);
+      void (await import("@/lib/analytics")).logEvent("invite_sent", { relationship, has_message: !!message.trim() });
       toast.success("Invite created. Share the link with them.");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Could not create invite";
@@ -192,6 +194,7 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
       if (error) throw error;
       await refresh();
       if (data?.id) setActiveById(data.id);
+      void (await import("@/lib/analytics")).logEvent("family_member_added", { relationship, has_abha: !!abha }, data?.id);
       toast.success(`${name.split(" ")[0]} added as a dependent`);
       onOpenChange(false);
     } catch (err) {

@@ -19,6 +19,7 @@ import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WIN
 import { buildEmergencyAccessUrl } from "@/lib/share-url";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { PaywallSheet } from "@/components/paywall/PaywallSheet";
+import { logEvent } from "@/lib/analytics";
 import { Lock } from "lucide-react";
 
 interface DrugInteraction {
@@ -146,6 +147,7 @@ const DoctorVisitMode = () => {
   const generate = async () => {
     // Client-side gate: open paywall instead of calling the function when out.
     if (outOfBriefings) {
+      void logEvent("paywall_triggered", { reason: "briefing", surface: "doctor_visit_mode" });
       setPaywallOpen(true);
       return;
     }
@@ -207,6 +209,7 @@ const DoctorVisitMode = () => {
         throw error;
       }
       setBriefing(data);
+      void logEvent("briefing_generated", { surface: "doctor_visit_mode" });
       // Refresh entitlements so the remaining-briefings counter updates after a successful generation.
       ent.refresh();
 
