@@ -16,7 +16,7 @@ import LanguageSelector from "@/components/LanguageSelector";
 import { t, useLanguage } from "@/lib/i18n";
 
 type UserRole = "patient";
-type AuthMode = "password" | "otp";
+type AuthMode = "password" | "emailOtp" | "phoneOtp";
 
 type PendingSignupDraft = {
   role?: UserRole;
@@ -84,6 +84,19 @@ const calculateAge = (dateOfBirth?: string | null) => {
 
   return Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 };
+
+const normalizePhoneForAuth = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const digits = trimmed.replace(/\D/g, "");
+  if (!digits) return "";
+  if (trimmed.startsWith("+")) return `+${digits.slice(0, 15)}`;
+  if (digits.length === 10) return `+91${digits}`;
+  if (digits.startsWith("91") && digits.length === 12) return `+${digits}`;
+  return `+${digits.slice(0, 15)}`;
+};
+
+const isValidPhoneForAuth = (value: string) => /^\+[1-9]\d{9,14}$/.test(value);
 
 const Auth = () => {
   const [email, setEmail] = useState("");
