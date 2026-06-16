@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { startRazorpayCheckout, type RazorpayCheckoutOptions, type RazorpaySuccess } from "@/lib/razorpay";
+import { startPlanCheckout, type PlanCheckoutOptions, type RazorpaySuccess } from "@/lib/razorpay";
 
 interface Props extends Omit<ButtonProps, "onClick" | "onError"> {
-  /** Checkout config (amount in paise). */
-  options: RazorpayCheckoutOptions;
+  /** Plan checkout config (plan + billing cycle). */
+  options: PlanCheckoutOptions;
   /** Called after successful, signature-verified payment. */
   onSuccess?: (payment: RazorpaySuccess) => void;
   /** Called on cancel or failure. */
@@ -14,12 +14,7 @@ interface Props extends Omit<ButtonProps, "onClick" | "onError"> {
 }
 
 export function RazorpayCheckoutButton({
-  options,
-  onSuccess,
-  onError,
-  children = "Pay now",
-  disabled,
-  ...buttonProps
+  options, onSuccess, onError, children = "Upgrade", disabled, ...buttonProps
 }: Props) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -27,7 +22,7 @@ export function RazorpayCheckoutButton({
   const handleClick = async () => {
     setLoading(true);
     try {
-      const result = await startRazorpayCheckout(options);
+      const result = await startPlanCheckout(options);
       onSuccess?.(result);
       toast({ title: "Payment successful", description: result.razorpay_payment_id });
     } catch (err) {

@@ -20,6 +20,8 @@ import {
   revokeGrant,
   type FamilyInviteRow,
 } from "@/lib/familyInvites";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 
 const RELATIONSHIPS = [
   { value: "Spouse",  emoji: "💑" },
@@ -38,6 +40,8 @@ type Mode = "invite" | "dependent" | "manage";
 
 export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   const { refresh, setActiveById } = useActivePatient();
+  const ent = useEntitlements();
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("invite");
 
   // Shared
@@ -96,6 +100,11 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   // ---------- INVITE ----------
   const handleSendInvite = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ent.is_pro && ent.family_remaining <= 0) {
+      onOpenChange(false);
+      setTimeout(() => setPaywallOpen(true), 50);
+      return;
+    }
     if (!name.trim()) return toast.error("Please enter their name");
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       return toast.error("Please enter a valid email");
@@ -155,6 +164,11 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   // ---------- DEPENDENT ----------
   const handleAddDependent = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ent.is_pro && ent.family_remaining <= 0) {
+      onOpenChange(false);
+      setTimeout(() => setPaywallOpen(true), 50);
+      return;
+    }
     if (!name.trim()) return toast.error("Please enter their name");
     if (abha && abha.replace(/\s/g, "").length !== 14) return toast.error("ABHA Health ID must be 14 digits");
     setSubmitting(true);
@@ -224,8 +238,10 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   );
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[90svh] overflow-y-auto p-5 rounded-2xl">
+
         <DialogHeader className="text-left space-y-1">
           <DialogTitle>Family access</DialogTitle>
           <DialogDescription className="text-[12.5px]">
@@ -447,5 +463,14 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
         </DialogContent>
       </Dialog>
     </Dialog>
+    <PaywallSheet
+      open={paywallOpen}
+      onOpenChange={setPaywallOpen}
+      reason="family"
+      familyOnly
+      onSuccess={() => ent.refresh()}
+    />
+    </>
   );
 }
+

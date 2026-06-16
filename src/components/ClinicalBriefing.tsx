@@ -5,10 +5,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Sparkles, AlertTriangle, TrendingUp, TrendingDown,
-  Minus, Pill, FileText, ChevronDown, ChevronUp, Activity, ShieldAlert,
+  Minus, Pill, FileText, ChevronDown, ChevronUp, Activity, ShieldAlert, Lock,
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 
 interface ClinicalBriefingProps {
   consultations: Array<{
@@ -76,9 +78,16 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
   const [isLoading, setIsLoading] = useState(false);
   const [soapOpen, setSoapOpen] = useState(false);
   const [correlationsOpen, setCorrelationsOpen] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const { toast } = useToast();
+  const ent = useEntitlements();
 
   const generateBriefing = async () => {
+    // Gate: free users get 1 briefing/month
+    if (!ent.is_pro && (ent.briefings_remaining ?? 0) <= 0) {
+      setPaywallOpen(true);
+      return;
+    }
     setIsLoading(true);
     setBriefing(null);
     try {
@@ -96,6 +105,8 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
       if (error) throw error;
       setBriefing(data);
 
+      // Bump usage counter (best-effort)
+      void supabase.rpc("increment_briefing_usage").then(() => ent.refresh());
 
       // Cross-check current medications for drug-to-drug interactions
       const meds = (data?.current_medications ?? [])
@@ -122,22 +133,38 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
     }
   };
 
+  const outOfBriefings = !ent.is_pro && (ent.briefings_remaining ?? 0) <= 0;
+
   if (!briefing && !isLoading) {
     return (
+      <>
       <Card className="p-5 border-primary/20 bg-primary/5">
         <div className="flex items-center gap-3 mb-3">
           <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Sparkles className="h-5 w-5 text-primary" />
+            {outOfBriefings ? <Lock className="h-5 w-5 text-primary" /> : <Sparkles className="h-5 w-5 text-primary" />}
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h3 className="text-sm font-bold text-foreground">30-Second Clinical Briefing</h3>
-            <p className="text-xs text-muted-foreground">AI-generated patient summary with SOAP notes, trends & red flags</p>
+            <p className="text-xs text-muted-foreground">
+              {outOfBriefings
+                ? "Free includes 1 briefing per month. Upgrade for unlimited."
+                : !ent.is_pro
+                  ? `Free: ${ent.briefings_remaining ?? 0} briefing left this month`
+                  : "AI-generated patient summary with SOAP notes, trends & red flags"}
+            </p>
           </div>
         </div>
         <Button onClick={generateBriefing} className="w-full gap-2" size="sm">
-          <Sparkles className="h-4 w-4" /> Generate Briefing
+          {outOfBriefings ? <><Lock className="h-4 w-4" /> Unlock briefing · ₹99/mo</> : <><Sparkles className="h-4 w-4" /> Generate Briefing</>}
         </Button>
       </Card>
+      <PaywallSheet
+        open={paywallOpen}
+        onOpenChange={setPaywallOpen}
+        reason="briefing"
+        onSuccess={() => ent.refresh()}
+      />
+      </>
     );
   }
 
