@@ -607,32 +607,7 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
-      // Gated-beta gate (sign-up only): server-validate the invite token
-      // RIGHT NOW. Don't trust client-side `tokenValid` state alone — it
-      // could be stale (token consumed in another tab, expired since page
-      // load, etc.). The same edge function is also called again after
-      // OAuth callback inside ensureAccountSetup as a final defense.
-      if (isSignUp && !Capacitor.isNativePlatform()) {
-        const storedToken = sessionStorage.getItem(VALIDATED_INVITE_KEY);
-        if (!storedToken) {
-          toast({
-            title: "Invite required",
-            description: "Vyana is in gated beta. Paste your invite link below to sign up with Google.",
-            variant: "destructive",
-          });
-          return;
-        }
-        const check = await serverValidateInviteToken(storedToken);
-        if (!check.valid) {
-          sessionStorage.removeItem(VALIDATED_INVITE_KEY);
-          setTokenValid(false);
-          toast({
-            title: "Invite link invalid or expired",
-            description: "Please request a new invite to continue.",
-            variant: "destructive",
-          });
-          return;
-        }
+      if (isSignUp) {
         setStoredSignupDraft(buildSignupDraft());
       }
 
@@ -656,8 +631,6 @@ const Auth = () => {
         return;
       }
 
-      // Web: direct Supabase OAuth flow — works on any host (Vercel, custom
-      // domain, lovable.app) because the round-trip stays on supabase.co.
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -674,22 +647,19 @@ const Auth = () => {
       navigate("/app", { replace: true });
     } catch (error: any) {
       const message = error?.message || "Could not start Google sign-in.";
-      const isProxy404 = /404|not[_ ]?found|oauth\/initiate/i.test(message);
       toast({
-        title: isProxy404 ? "Google sign-in unavailable" : "Authentication Error",
-        description: isProxy404
-          ? "Vyana is in gated beta. Please use email or your invite link to sign in."
-          : message,
+        title: "Authentication Error",
+        description: message,
         variant: "destructive",
       });
     }
   };
 
-  // Block signup view entirely without valid invite token (web only).
-  // Native (iOS/Android) builds skip the gate since invites were web-only.
   const isNativeApp = Capacitor.isNativePlatform();
-  const allowSignup = tokenValid || isNativeApp;
-  const effectiveIsSignUp = isSignUp && allowSignup;
+  const allowSignup = true;
+  const effectiveIsSignUp = isSignUp;
+
+
 
 
   if (!tokenChecked) {
