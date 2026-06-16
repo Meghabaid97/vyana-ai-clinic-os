@@ -1124,6 +1124,45 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          billing_cycle: string | null
+          created_at: string
+          current_period_end: string | null
+          plan: string
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_signature: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_cycle?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          plan?: string
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_cycle?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          plan?: string
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           category: string
@@ -1238,6 +1277,30 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_counters: {
+        Row: {
+          briefings_generated: number
+          created_at: string
+          period_month: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          briefings_generated?: number
+          created_at?: string
+          period_month: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          briefings_generated?: number
+          created_at?: string
+          period_month?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -1343,6 +1406,7 @@ export type Database = {
           token_used_at: string
         }[]
       }
+      get_entitlements: { Args: never; Returns: Json }
       get_family_invite_by_token: {
         Args: { _token: string }
         Returns: {
@@ -1364,6 +1428,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_briefing_usage: { Args: never; Returns: number }
       is_patient_owner: {
         Args: { _patient_id: string; _user_id: string }
         Returns: boolean
