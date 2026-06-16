@@ -10,7 +10,7 @@ import { useLanguage } from "@/lib/i18n";
 import {
   Loader2, User, Phone, Shield, Save, ChevronRight, LogOut,
   FileText, Heart, Calendar, HelpCircle, BookOpen, Star,
-  Lock, MapPin, Share2, KeyRound, Download, Trash2,
+  Lock, MapPin, Share2, KeyRound, Download, Trash2, Sparkles,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
