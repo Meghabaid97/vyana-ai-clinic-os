@@ -28,6 +28,9 @@ import {
 } from "@/lib/healthRecordsPipeline";
 import { mapDocCategoryToRecord } from "@/lib/recordCategories";
 import { useLanguage } from "@/lib/i18n";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { PaywallSheet } from "@/components/paywall/PaywallSheet";
+import { Sparkles, Lock } from "lucide-react";
 
 // ─── Types ───
 
