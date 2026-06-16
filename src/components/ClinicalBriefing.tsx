@@ -105,8 +105,10 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
       if (error) throw error;
       setBriefing(data);
 
-      // Bump usage counter (best-effort)
-      void supabase.rpc("increment_briefing_usage").then(() => ent.refresh());
+      // Bump usage counter — must succeed so the gate fires next time
+      const { error: rpcErr } = await supabase.rpc("increment_briefing_usage");
+      if (rpcErr) console.error("increment_briefing_usage failed:", rpcErr);
+      await ent.refresh();
 
       // Cross-check current medications for drug-to-drug interactions
       const meds = (data?.current_medications ?? [])
