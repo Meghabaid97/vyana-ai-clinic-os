@@ -181,6 +181,14 @@ const AppShellInner = () => {
           <div className="flex items-center gap-0.5 shrink-0">
             <HouseholdSwitcher variant="mobile" />
             <button
+              onClick={() => vtNavigate("/app/upgrade")}
+              aria-label="Upgrade to Pro"
+              className="inline-flex items-center gap-1 h-8 px-2.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold active:bg-primary/20 transition-colors"
+            >
+              <Sparkles className="h-[14px] w-[14px]" />
+              Pro
+            </button>
+            <button
               onClick={() => setTourOpen(true)}
               aria-label="Take the tour"
               className="h-9 w-9 rounded-full active:bg-muted flex items-center justify-center text-muted-foreground transition-colors"
