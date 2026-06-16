@@ -16,7 +16,7 @@ import LanguageSelector from "@/components/LanguageSelector";
 import { t, useLanguage } from "@/lib/i18n";
 
 type UserRole = "patient";
-type AuthMode = "password" | "otp";
+type AuthMode = "password" | "emailOtp" | "phoneOtp";
 
 type PendingSignupDraft = {
   role?: UserRole;
@@ -84,6 +84,19 @@ const calculateAge = (dateOfBirth?: string | null) => {
 
   return Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 };
+
+const normalizePhoneForAuth = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const digits = trimmed.replace(/\D/g, "");
+  if (!digits) return "";
+  if (trimmed.startsWith("+")) return `+${digits.slice(0, 15)}`;
+  if (digits.length === 10) return `+91${digits}`;
+  if (digits.startsWith("91") && digits.length === 12) return `+${digits}`;
+  return `+${digits.slice(0, 15)}`;
+};
+
+const isValidPhoneForAuth = (value: string) => /^\+[1-9]\d{9,14}$/.test(value);
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -502,6 +515,22 @@ const Auth = () => {
     }
     setLoading(true);
     try {
+      if (authMode === "phoneOtp") {
+        const normalizedPhone = normalizePhoneForAuth(phone);
+        if (!isValidPhoneForAuth(normalizedPhone)) {
+          setPhoneError("Enter a valid mobile number with country code");
+          toast({ title: "Invalid mobile number", description: "Use a 10-digit Indian mobile number or include the country code.", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+        setPhoneError("");
+        const { error } = await supabase.auth.signInWithOtp({ phone: normalizedPhone });
+        if (error) { recordAttempt(); throw error; }
+        setOtpSent(true);
+        toast({ title: t("auth.otpSent"), description: "Check your phone for the code" });
+        return;
+      }
+
       if (!email || !validateEmail(email)) {
         toast({ title: "Invalid Email", description: "Enter a valid email", variant: "destructive" });
         setLoading(false);
@@ -520,7 +549,10 @@ const Auth = () => {
     if (!otpValue || otpValue.length < 6) return;
     setLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({ email, token: otpValue, type: "email" });
+      const normalizedPhone = normalizePhoneForAuth(phone);
+      const { error } = authMode === "phoneOtp"
+        ? await supabase.auth.verifyOtp({ phone: normalizedPhone, token: otpValue, type: "sms" })
+        : await supabase.auth.verifyOtp({ email, token: otpValue, type: "email" });
       if (error) { recordAttempt(); throw error; }
       setAttempts(0);
       sessionStorage.removeItem("auth-attempts");
@@ -627,15 +659,19 @@ const Auth = () => {
 
           {/* Auth Mode Toggle (login only) */}
           {!isSignUp && (
-            <Tabs value={authMode} onValueChange={(v) => { setAuthMode(v as AuthMode); setOtpSent(false); setOtpValue(""); }} className="mb-6">
-              <TabsList className="grid w-full grid-cols-2">
+            <Tabs value={authMode} onValueChange={(v) => { setAuthMode(v as AuthMode); setOtpSent(false); setOtpValue(""); setPhoneError(""); }} className="mb-6">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="password" className="flex items-center gap-2">
                   <Lock className="h-4 w-4" />
                   {t("auth.password")}
                 </TabsTrigger>
-                <TabsTrigger value="otp" className="flex items-center gap-2">
+                <TabsTrigger value="emailOtp" className="flex items-center gap-2">
                   <KeyRound className="h-4 w-4" />
-                  OTP
+                  Email
+                </TabsTrigger>
+                <TabsTrigger value="phoneOtp" className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  Phone
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -753,15 +789,36 @@ const Auth = () => {
           )}
 
           {/* OTP AUTH (email only) */}
-          {!isSignUp && authMode === "otp" && (
+          {!isSignUp && authMode !== "password" && (
             <div className="space-y-4 mb-6">
               {!otpSent ? (
                 <>
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2"><Mail className="w-4 h-4" />{t("auth.email")}</Label>
-                    <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-background/50" />
-                    <p className="text-xs text-muted-foreground">We'll send a 6-digit code to your email.</p>
-                  </div>
+                  {authMode === "phoneOtp" ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="login-phone" className="flex items-center gap-2"><Phone className="w-4 h-4" />Mobile number</Label>
+                      <Input
+                        id="login-phone"
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        placeholder="98765 43210"
+                        value={phone}
+                        onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }}
+                        className={`bg-background/50 ${phoneError ? "border-destructive" : ""}`}
+                      />
+                      {phoneError ? (
+                        <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{phoneError}</p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">We'll send a 6-digit code to this mobile number.</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><Mail className="w-4 h-4" />{t("auth.email")}</Label>
+                      <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-background/50" />
+                      <p className="text-xs text-muted-foreground">We'll send a 6-digit code to your email.</p>
+                    </div>
+                  )}
                   <Button onClick={handleSendOtp} variant="gradient" className="w-full" disabled={loading || isLockedOut}>
                     {loading ? t("common.loading") : t("auth.sendOtp")}
                   </Button>

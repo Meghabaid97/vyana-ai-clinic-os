@@ -3,6 +3,7 @@ import { Check, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { startPlanCheckout, type RazorpaySuccess } from "@/lib/razorpay";
 import {
   PLAN_META, PLAN_PRICES, formatINR, yearlyMonthlyEquivalent, yearlySavingsPct,
@@ -26,7 +27,20 @@ export function PlanCard({ plan, cycle, recommended, compact, onSuccess }: Props
   const handleBuy = async () => {
     setLoading(true);
     try {
-      const res = await startPlanCheckout({ plan, cycle });
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: patient } = user
+        ? await supabase.from("patients").select("name, phone").eq("user_id", user.id).eq("is_primary", true).maybeSingle()
+        : { data: null } as any;
+
+      const res = await startPlanCheckout({
+        plan,
+        cycle,
+        prefill: {
+          name: patient?.name ?? user?.user_metadata?.name ?? undefined,
+          email: user?.email ?? undefined,
+          contact: patient?.phone?.replace(/\D/g, "") ?? user?.phone?.replace(/\D/g, "") ?? undefined,
+        },
+      });
       toast({ title: "You're in 🎉", description: `${meta.name} plan active.` });
       onSuccess?.(res);
     } catch (err) {
