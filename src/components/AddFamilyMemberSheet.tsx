@@ -238,8 +238,10 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
   );
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[90svh] overflow-y-auto p-5 rounded-2xl">
+
         <DialogHeader className="text-left space-y-1">
           <DialogTitle>Family access</DialogTitle>
           <DialogDescription className="text-[12.5px]">
@@ -461,5 +463,14 @@ export default function AddFamilyMemberSheet({ open, onOpenChange }: Props) {
         </DialogContent>
       </Dialog>
     </Dialog>
+    <PaywallSheet
+      open={paywallOpen}
+      onOpenChange={setPaywallOpen}
+      reason="family"
+      familyOnly
+      onSuccess={() => ent.refresh()}
+    />
+    </>
   );
 }
+
