@@ -877,33 +877,23 @@ const Auth = () => {
             Google
           </Button>
           <p className="mt-2 text-[11px] text-muted-foreground text-center leading-relaxed">
-            {tokenValid
+            {isSignUp
               ? "You'll be redirected to Google to finish creating your account."
-              : isSignUp
-                ? "Google sign-up needs a verified invite link (paste it above)."
-                : "Sign in only — Google sign-up is gated to invited members."}
+              : "Sign in with your Google account."}
           </p>
 
-          {/* Toggle: only show if user has valid invite (signup) or is currently signing up */}
-          {(tokenValid || !isSignUp) && (
-            <div className="mt-6 text-center">
-              {isSignUp ? (
-                <button type="button" onClick={() => { setIsSignUp(false); setAuthMode("password"); setOtpSent(false); }} className="text-sm text-primary hover:underline">
-                  {t("auth.hasAccount")}
-                </button>
-              ) : (
-                tokenValid ? (
-                  <button type="button" onClick={() => { setIsSignUp(true); }} className="text-sm text-primary hover:underline">
-                    {t("auth.noAccount")}
-                  </button>
-                ) : (
-                  <Link to="/request-access" className="text-sm text-primary hover:underline">
-                    Don't have an account? Request access →
-                  </Link>
-                )
-              )}
-            </div>
-          )}
+          <div className="mt-6 text-center">
+            {isSignUp ? (
+              <button type="button" onClick={() => { setIsSignUp(false); setAuthMode("password"); setOtpSent(false); }} className="text-sm text-primary hover:underline">
+                {t("auth.hasAccount")}
+              </button>
+            ) : (
+              <button type="button" onClick={() => { setIsSignUp(true); }} className="text-sm text-primary hover:underline">
+                {t("auth.noAccount")}
+              </button>
+            )}
+          </div>
+
         </div>
 
         <div className="mt-6 text-center">
