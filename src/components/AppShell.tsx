@@ -9,6 +9,7 @@ import PullToRefresh from "@/components/PullToRefresh";
 import { useLanguage } from "@/lib/i18n";
 import { ActivePatientProvider, useActivePatient } from "@/contexts/ActivePatientContext";
 import HouseholdSwitcher from "@/components/HouseholdSwitcher";
+import { useEntitlements } from "@/hooks/useEntitlements";
 
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
 const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSelector"));
@@ -62,6 +63,7 @@ const AppShellInner = () => {
   const { activePatient, refresh: refreshActivePatient } = useActivePatient();
   const patientName = activePatient?.name ?? "Patient";
   const location_ = { pincode: activePatient?.pincode ?? null, city: activePatient?.city ?? null };
+  const { is_pro } = useEntitlements();
   const [tourOpen, setTourOpen] = useState(false);
 
   // Auto-launch the spotlight tour once per device on first visit to /app.
@@ -182,8 +184,13 @@ const AppShellInner = () => {
             <HouseholdSwitcher variant="mobile" />
             <button
               onClick={() => vtNavigate("/app/upgrade")}
-              aria-label="Upgrade to Pro"
-              className="inline-flex items-center gap-1 h-8 px-2.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold active:bg-primary/20 transition-colors"
+              aria-label={is_pro ? "Pro plan active" : "Upgrade to Pro"}
+              className={cn(
+                "inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-[12px] font-semibold transition-colors",
+                is_pro
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 active:bg-emerald-500/20"
+                  : "bg-primary/10 text-primary active:bg-primary/20"
+              )}
             >
               <Sparkles className="h-[14px] w-[14px]" />
               Pro
@@ -220,10 +227,15 @@ const AppShellInner = () => {
             <LanguageSelector />
             <button
               onClick={() => vtNavigate("/app/upgrade")}
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:opacity-90 transition-opacity"
+              className={cn(
+                "inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[13px] font-semibold transition-opacity",
+                is_pro
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                  : "bg-primary text-primary-foreground hover:opacity-90"
+              )}
             >
               <Sparkles className="h-4 w-4" />
-              Upgrade to Pro
+              {is_pro ? "Pro" : "Upgrade to Pro"}
             </button>
             <button
               onClick={() => setTourOpen(true)}
