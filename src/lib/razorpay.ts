@@ -54,6 +54,20 @@ export interface RazorpaySuccess {
   current_period_end?: string;
 }
 
+async function getFunctionErrorMessage(error: any) {
+  const fallback = error?.message ?? "Could not create order";
+  try {
+    const details = await error?.context?.json?.();
+    const message = details?.error ?? fallback;
+    if (/authentication failed/i.test(message)) {
+      return "Razorpay keys are mismatched or invalid. Update RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET with the matching Test keys, then try again.";
+    }
+    return message;
+  } catch {
+    return fallback;
+  }
+}
+
 function getPaymentFailureMessage(description?: string) {
   const message = description ?? "Payment failed";
   if (/international cards are not supported/i.test(message)) {
@@ -73,7 +87,7 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
     { body: { plan: opts.plan, cycle: opts.cycle, user_id: session.user.id } },
   );
   if (orderErr || !orderData?.order_id) {
-    throw new Error(orderErr?.message ?? "Could not create order");
+    throw new Error(orderErr ? await getFunctionErrorMessage(orderErr) : "Could not create order");
   }
 
   return new Promise<RazorpaySuccess>((resolve, reject) => {
