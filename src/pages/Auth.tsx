@@ -515,6 +515,22 @@ const Auth = () => {
     }
     setLoading(true);
     try {
+      if (authMode === "phoneOtp") {
+        const normalizedPhone = normalizePhoneForAuth(phone);
+        if (!isValidPhoneForAuth(normalizedPhone)) {
+          setPhoneError("Enter a valid mobile number with country code");
+          toast({ title: "Invalid mobile number", description: "Use a 10-digit Indian mobile number or include the country code.", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+        setPhoneError("");
+        const { error } = await supabase.auth.signInWithOtp({ phone: normalizedPhone });
+        if (error) { recordAttempt(); throw error; }
+        setOtpSent(true);
+        toast({ title: t("auth.otpSent"), description: "Check your phone for the code" });
+        return;
+      }
+
       if (!email || !validateEmail(email)) {
         toast({ title: "Invalid Email", description: "Enter a valid email", variant: "destructive" });
         setLoading(false);
@@ -533,7 +549,10 @@ const Auth = () => {
     if (!otpValue || otpValue.length < 6) return;
     setLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({ email, token: otpValue, type: "email" });
+      const normalizedPhone = normalizePhoneForAuth(phone);
+      const { error } = authMode === "phoneOtp"
+        ? await supabase.auth.verifyOtp({ phone: normalizedPhone, token: otpValue, type: "sms" })
+        : await supabase.auth.verifyOtp({ email, token: otpValue, type: "email" });
       if (error) { recordAttempt(); throw error; }
       setAttempts(0);
       sessionStorage.removeItem("auth-attempts");
@@ -640,15 +659,19 @@ const Auth = () => {
 
           {/* Auth Mode Toggle (login only) */}
           {!isSignUp && (
-            <Tabs value={authMode} onValueChange={(v) => { setAuthMode(v as AuthMode); setOtpSent(false); setOtpValue(""); }} className="mb-6">
-              <TabsList className="grid w-full grid-cols-2">
+            <Tabs value={authMode} onValueChange={(v) => { setAuthMode(v as AuthMode); setOtpSent(false); setOtpValue(""); setPhoneError(""); }} className="mb-6">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="password" className="flex items-center gap-2">
                   <Lock className="h-4 w-4" />
                   {t("auth.password")}
                 </TabsTrigger>
-                <TabsTrigger value="otp" className="flex items-center gap-2">
+                <TabsTrigger value="emailOtp" className="flex items-center gap-2">
                   <KeyRound className="h-4 w-4" />
-                  OTP
+                  Email OTP
+                </TabsTrigger>
+                <TabsTrigger value="phoneOtp" className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  Phone OTP
                 </TabsTrigger>
               </TabsList>
             </Tabs>
