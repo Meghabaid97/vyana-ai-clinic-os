@@ -364,9 +364,18 @@ ${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` 
 
     briefing.disclaimer = "AI-generated briefing based on available records. Verify all findings clinically.";
 
+    // Count this briefing against the user's lifetime usage. Free tier sees this
+    // bite into briefings_remaining; Pro users are unaffected by the limit but
+    // we still record usage for analytics.
+    if (!isPro) {
+      const { error: incErr } = await supabaseClient.rpc('increment_briefing_usage');
+      if (incErr) console.error('increment_briefing_usage failed:', incErr);
+    }
+
     return new Response(JSON.stringify(briefing), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (error) {
     console.error("Error in clinical-briefing:", error);
     return new Response(
