@@ -184,8 +184,13 @@ const AppShellInner = () => {
             <HouseholdSwitcher variant="mobile" />
             <button
               onClick={() => vtNavigate("/app/upgrade")}
-              aria-label="Upgrade to Pro"
-              className="inline-flex items-center gap-1 h-8 px-2.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold active:bg-primary/20 transition-colors"
+              aria-label={is_pro ? "Pro plan active" : "Upgrade to Pro"}
+              className={cn(
+                "inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-[12px] font-semibold transition-colors",
+                is_pro
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 active:bg-emerald-500/20"
+                  : "bg-primary/10 text-primary active:bg-primary/20"
+              )}
             >
               <Sparkles className="h-[14px] w-[14px]" />
               Pro
