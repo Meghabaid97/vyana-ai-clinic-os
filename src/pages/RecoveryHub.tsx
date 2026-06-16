@@ -144,6 +144,8 @@ const ClaimAssistant = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [savedRecordIds, setSavedRecordIds] = useState<Set<string>>(new Set());
   const [remindersCreated, setRemindersCreated] = useState(0);
+  const ent = useEntitlements();
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
   const [insurance, setInsurance] = useState<InsuranceDetails>({
     insuranceCompany: "", policyNumber: "", claimType: "",
