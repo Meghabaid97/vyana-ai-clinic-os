@@ -144,6 +144,11 @@ const DoctorVisitMode = () => {
   };
 
   const generate = async () => {
+    // Client-side gate: open paywall instead of calling the function when out.
+    if (outOfBriefings) {
+      setPaywallOpen(true);
+      return;
+    }
     setLoading(true);
     setIsDemo(false);
     try {
