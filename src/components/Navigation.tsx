@@ -35,6 +35,7 @@ const Navigation = () => {
             <button onClick={() => navigate("/why-vyana")} className="hover:text-foreground transition-colors">{t("nav.story")}</button>
             <button onClick={() => scrollTo("research")} className="hover:text-foreground transition-colors">{t("nav.research")}</button>
             <button onClick={() => scrollTo("how")} className="hover:text-foreground transition-colors">{t("nav.how")}</button>
+            <button onClick={() => navigate("/app/upgrade")} className="hover:text-foreground transition-colors">Pricing</button>
             <a href="mailto:mbaid@wharton.upenn.edu" className="hover:text-foreground transition-colors">{t("nav.contact")}</a>
           </div>
 
