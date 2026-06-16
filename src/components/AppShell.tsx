@@ -63,6 +63,7 @@ const AppShellInner = () => {
   const { activePatient, refresh: refreshActivePatient } = useActivePatient();
   const patientName = activePatient?.name ?? "Patient";
   const location_ = { pincode: activePatient?.pincode ?? null, city: activePatient?.city ?? null };
+  const { is_pro } = useEntitlements();
   const [tourOpen, setTourOpen] = useState(false);
 
   // Auto-launch the spotlight tour once per device on first visit to /app.
