@@ -667,11 +667,11 @@ const Auth = () => {
                 </TabsTrigger>
                 <TabsTrigger value="emailOtp" className="flex items-center gap-2">
                   <KeyRound className="h-4 w-4" />
-                  Email OTP
+                  Email
                 </TabsTrigger>
                 <TabsTrigger value="phoneOtp" className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
-                  Phone OTP
+                  Phone
                 </TabsTrigger>
               </TabsList>
             </Tabs>
