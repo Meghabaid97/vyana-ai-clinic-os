@@ -8,9 +8,9 @@ Vyana is a consumer health app (patients only). It turns scattered prescriptions
 
 - [Home](/): Vyana's mission, wedge, and trust pillars.
 - [Why Vyana](/why-vyana): The founder story and why a longitudinal health memory matters in India.
-- [Request access](/request-access): Join the gated beta waitlist.
+- [Create account](/auth?signup=1): Open sign-up — create your Vyana account.
 - [Legal](/legal): Privacy policy, terms, and DPDPA 2023 compliance.
 
 ## Optional
 
-- [Sign in](/auth): Existing-account sign-in (gated beta — invite required for new sign-ups).
+- [Sign in](/auth): Sign in or create your Vyana account.

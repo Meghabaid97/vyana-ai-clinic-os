@@ -307,7 +307,7 @@ const translations: Record<Language, Record<string, string>> = {
     "cta.title.l1": "Every family deserves",
     "cta.title.l2": "a doctor who knows their story.",
     "cta.sub": "Try Vyana now. Whether you're managing chronic conditions, caring for elderly parents, or just tired of repeating your history in every new clinic.",
-    "cta.button": "Get early access",
+    "cta.button": "Create your account",
     "cta.linkedin": "LinkedIn",
     "cta.footer.copyright": "© 2025 Vyana. Every patient deserves a doctor who knows their story.",
 

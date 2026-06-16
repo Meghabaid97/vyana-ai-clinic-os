@@ -48,7 +48,7 @@ const EditorialHero = () => {
     setCtaState("loading");
     setTimeout(() => {
       setCtaState("success");
-      setTimeout(() => navigate("/request-access"), 450);
+      setTimeout(() => navigate("/auth?signup=1"), 450);
     }, 350);
   };
 
@@ -115,7 +115,7 @@ const EditorialHero = () => {
                   className="vt-cta-pill h-11 px-6 text-[15px] rounded-full min-w-[180px]"
                   idleIcon={<ArrowRight className="h-4 w-4" />}
                 >
-                  Get early access
+                  Create your account
                 </StatefulButton>
                 <Button
                   variant="ghost"

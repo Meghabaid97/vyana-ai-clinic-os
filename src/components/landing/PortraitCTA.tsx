@@ -73,10 +73,10 @@ const PortraitCTA = () => {
             type="button"
             variant="premium"
             disabled={submitting}
-            onClick={() => navigate("/request-access")}
+            onClick={() => navigate("/auth?signup=1")}
             className="vt-cta-pill group w-full h-12 mt-2 rounded-lg text-[15px]"
           >
-            Get early access
+            Create your account
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
         </form>
