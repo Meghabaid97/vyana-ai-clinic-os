@@ -342,10 +342,23 @@ ${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` 
 
     const data = await response.json();
     let briefing;
+    let briefingValid = false;
     try {
       const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
       if (toolCall?.function?.arguments) {
         briefing = JSON.parse(toolCall.function.arguments);
+        // Validate the AI actually returned a usable SOAP-shaped payload before
+        // it counts against the user's free-tier quota.
+        briefingValid = !!(
+          briefing &&
+          briefing.patient_overview &&
+          typeof briefing.patient_overview.summary === "string" &&
+          briefing.patient_overview.summary.trim().length > 0 &&
+          briefing.soap_note &&
+          typeof briefing.soap_note.subjective === "string" &&
+          briefing.soap_note.subjective.trim().length > 0 &&
+          briefing.soap_note.subjective.trim().toUpperCase() !== "N/A"
+        );
       } else {
         throw new Error("No tool call response");
       }
@@ -360,13 +373,24 @@ ${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` 
         medication_correlations: [],
         recent_symptoms: [],
       };
+      briefingValid = false;
     }
 
     briefing.disclaimer = "AI-generated briefing based on available records. Verify all findings clinically.";
 
-    // Count this briefing against the user's lifetime usage. Free tier sees this
-    // bite into briefings_remaining; Pro users are unaffected by the limit but
-    // we still record usage for analytics.
+    // If the AI did not return a usable briefing, do NOT charge it against the
+    // user's free-tier quota. Surface a clear failure so the client can retry.
+    if (!briefingValid) {
+      console.warn('[clinical-briefing] invalid briefing payload, skipping usage increment');
+      return new Response(
+        JSON.stringify({ error: "BRIEFING_GENERATION_FAILED", message: "Couldn't generate a complete briefing from your records. Please try again." }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Only after we've confirmed a successful, complete briefing do we count it
+    // against the user's lifetime usage. Pro users are unaffected by the limit
+    // but we still record usage for analytics.
     if (!isPro) {
       const { error: incErr } = await supabaseClient.rpc('increment_briefing_usage');
       if (incErr) console.error('increment_briefing_usage failed:', incErr);
@@ -375,6 +399,7 @@ ${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` 
     return new Response(JSON.stringify(briefing), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
 
   } catch (error) {
     console.error("Error in clinical-briefing:", error);
