@@ -83,7 +83,12 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
   const ent = useEntitlements();
 
   const generateBriefing = async () => {
-    // Gate: free users get 1 briefing/month
+    // Wait for entitlements to load before allowing generation
+    if (ent.loading) {
+      toast({ title: "Checking your plan...", description: "One sec." });
+      return;
+    }
+    // Gate: free users get 1 briefing lifetime
     if (!ent.is_pro && (ent.briefings_remaining ?? 0) <= 0) {
       setPaywallOpen(true);
       return;
