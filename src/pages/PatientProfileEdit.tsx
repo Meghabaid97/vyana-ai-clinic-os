@@ -10,7 +10,7 @@ import { useLanguage } from "@/lib/i18n";
 import {
   Loader2, User, Phone, Shield, Save, ChevronRight, LogOut,
   FileText, Heart, Calendar, HelpCircle, BookOpen, Star,
-  Lock, MapPin, Share2, KeyRound, Download, Trash2,
+  Lock, MapPin, Share2, KeyRound, Download, Trash2, Sparkles,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -279,6 +279,7 @@ const PatientProfileEdit = () => {
 
   const menuItems = [
     { icon: KeyRound, label: t("prof.menu.account"), desc: t("prof.menu.accountDesc"), path: null as string | null, onClick: () => setAccountMode(!accountMode) },
+    { icon: Sparkles, label: "Subscription", desc: "Manage your plan, renewal and cancellation", path: "/app/upgrade" as string | null, onClick: undefined as undefined | (() => void) },
     { icon: Shield, label: t("prof.menu.emergency"), desc: t("prof.menu.emergencyDesc"), path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
     { icon: Lock, label: t("prof.menu.privacy"), desc: t("prof.menu.privacyDesc"), path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
   ];
