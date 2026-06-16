@@ -17,6 +17,9 @@ import { Change, computeChangesSinceLastVisit, SAMPLE_CHANGES } from "@/lib/chan
 import PageHero from "@/components/PageHero";
 import { summarizeFreshness, symptomWindowStartIso, formatFreshDate, SYMPTOM_WINDOW_DAYS, type FreshnessSummary } from "@/lib/symptomFreshness";
 import { buildEmergencyAccessUrl } from "@/lib/share-url";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { PaywallSheet } from "@/components/paywall/PaywallSheet";
+import { Lock } from "lucide-react";
 
 interface DrugInteraction {
   drugs: string[];
