@@ -111,6 +111,18 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
           reject(new Error(verifyErr?.message ?? "Signature verification failed"));
           return;
         }
+        if (verifyData?.activated === false) {
+          // Test-mode payments are explicitly NOT activated. Surface clearly to the user.
+          const msg = verifyData?.test_mode
+            ? "Test-mode payments don't unlock Pro. Use live Razorpay keys to upgrade real accounts."
+            : (verifyData?.warning ?? "Payment verified but Pro was not activated.");
+          reject(new Error(msg));
+          return;
+        }
+        // Broadcast: any component using useEntitlements will refetch immediately.
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("vyana:entitlements:refresh"));
+        }
         resolve({
           ...response,
           verified: true,
