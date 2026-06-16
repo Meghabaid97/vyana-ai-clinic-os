@@ -20,12 +20,15 @@ export default function Upgrade() {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const ent = useEntitlements();
 
+  useEffect(() => {
+    const prev = document.title;
+    document.title = "Upgrade Vyana · Protect your family's health story";
+    return () => { document.title = prev; };
+  }, []);
+
   return (
     <div className="min-h-[calc(100svh-4rem)] pb-24">
-      <Helmet>
-        <title>Upgrade Vyana · Protect your family's health story</title>
-        <meta name="description" content="Upgrade to Vyana Pro or Family. Unlimited briefings, drug interaction checks, clinical intelligence, and up to 6 family members." />
-      </Helmet>
+
 
       <div className="px-5 pt-6 pb-4 text-center">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold mb-3">
