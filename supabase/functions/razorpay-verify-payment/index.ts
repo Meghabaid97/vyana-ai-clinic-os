@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(JSON.stringify({
-      verified: true, plan, cycle: safeCycle, current_period_end: periodEnd,
+      verified: true, activated: true, plan, cycle: safeCycle, current_period_end: periodEnd,
     }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (err) {
     console.error('verify-payment error', err);
