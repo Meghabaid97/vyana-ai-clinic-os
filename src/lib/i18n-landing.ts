@@ -206,7 +206,7 @@ const landingTranslations: Record<Language, Record<string, string>> = {
     "team.advisorNote": "Clinical advisors from Indian tertiary hospitals contributing to our risk engine and briefing protocols.",
 
     // Legacy keys still used elsewhere
-    "landing.getAccess": "Get Early Access",
+    "landing.getAccess": "Create your account",
   },
 
   hi: {
