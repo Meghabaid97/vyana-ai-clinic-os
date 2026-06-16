@@ -188,7 +188,7 @@ const AppShellInner = () => {
               className={cn(
                 "inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-[12px] font-semibold transition-colors",
                 is_pro
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 active:bg-emerald-500/20"
+                  ? "bg-primary/10 text-primary active:bg-primary/20"
                   : "bg-primary/10 text-primary active:bg-primary/20"
               )}
             >
@@ -230,7 +230,7 @@ const AppShellInner = () => {
               className={cn(
                 "inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[13px] font-semibold transition-opacity",
                 is_pro
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                  ? "bg-primary/10 text-primary hover:bg-primary/20"
                   : "bg-primary text-primary-foreground hover:opacity-90"
               )}
             >
