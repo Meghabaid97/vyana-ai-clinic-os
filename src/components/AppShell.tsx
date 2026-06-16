@@ -9,6 +9,7 @@ import PullToRefresh from "@/components/PullToRefresh";
 import { useLanguage } from "@/lib/i18n";
 import { ActivePatientProvider, useActivePatient } from "@/contexts/ActivePatientContext";
 import HouseholdSwitcher from "@/components/HouseholdSwitcher";
+import { useEntitlements } from "@/hooks/useEntitlements";
 
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
 const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSelector"));
