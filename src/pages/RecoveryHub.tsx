@@ -501,6 +501,77 @@ const ClaimAssistant = () => {
   const missingItems = getMissingItems();
 
   // ═══════════════════════════════════════
+  // PRO GATE — Claim Assistant is Pro-only
+  // ═══════════════════════════════════════
+  if (!ent.loading && !ent.is_pro) {
+    return (
+      <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h1 className="text-lg font-bold text-foreground">Claim Assistant</h1>
+        </div>
+
+        <section className="rounded-2xl border border-border bg-gradient-to-br from-primary/5 via-background to-background p-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+              <Lock className="h-5 w-5 text-primary" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-semibold text-foreground">A Pro feature</h2>
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  <Sparkles className="h-3 w-3" /> PRO
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The Claim Assistant turns your discharge summary and hospital bills into a
+                ready-to-file insurance claim packet, with an AI assistant that answers
+                questions about your coverage and next steps.
+              </p>
+            </div>
+          </div>
+
+          <ul className="space-y-2 pl-1">
+            {[
+              "AI extracts diagnoses, procedures, ICD codes and billing line items",
+              "Generates a clean claim PDF for your insurer or TPA",
+              "Auto-files documents into your health records",
+              "Chat assistant trained on your discharge paperwork",
+            ].map((line) => (
+              <li key={line} className="flex items-start gap-2 text-sm text-foreground">
+                <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+
+          <Button
+            onClick={() => setPaywallOpen(true)}
+            className="w-full h-11 rounded-xl text-sm font-semibold"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Unlock with Vyana Pro
+          </Button>
+          <p className="text-[11px] text-muted-foreground text-center">
+            Starts at ₹99/month. Cancel anytime.
+          </p>
+        </section>
+
+        <PaywallSheet
+          open={paywallOpen}
+          onOpenChange={setPaywallOpen}
+          reason="feature"
+          onSuccess={() => { setPaywallOpen(false); ent.refresh?.(); }}
+        />
+      </div>
+    );
+  }
+
+
+
+  // ═══════════════════════════════════════
   // STEP 1: UPLOAD DOCUMENTS
   // ═══════════════════════════════════════
 
