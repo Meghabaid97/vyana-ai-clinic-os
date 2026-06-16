@@ -789,15 +789,36 @@ const Auth = () => {
           )}
 
           {/* OTP AUTH (email only) */}
-          {!isSignUp && authMode === "otp" && (
+          {!isSignUp && authMode !== "password" && (
             <div className="space-y-4 mb-6">
               {!otpSent ? (
                 <>
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2"><Mail className="w-4 h-4" />{t("auth.email")}</Label>
-                    <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-background/50" />
-                    <p className="text-xs text-muted-foreground">We'll send a 6-digit code to your email.</p>
-                  </div>
+                  {authMode === "phoneOtp" ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="login-phone" className="flex items-center gap-2"><Phone className="w-4 h-4" />Mobile number</Label>
+                      <Input
+                        id="login-phone"
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        placeholder="98765 43210"
+                        value={phone}
+                        onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }}
+                        className={`bg-background/50 ${phoneError ? "border-destructive" : ""}`}
+                      />
+                      {phoneError ? (
+                        <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{phoneError}</p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">We'll send a 6-digit code to this mobile number.</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><Mail className="w-4 h-4" />{t("auth.email")}</Label>
+                      <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-background/50" />
+                      <p className="text-xs text-muted-foreground">We'll send a 6-digit code to your email.</p>
+                    </div>
+                  )}
                   <Button onClick={handleSendOtp} variant="gradient" className="w-full" disabled={loading || isLockedOut}>
                     {loading ? t("common.loading") : t("auth.sendOtp")}
                   </Button>
