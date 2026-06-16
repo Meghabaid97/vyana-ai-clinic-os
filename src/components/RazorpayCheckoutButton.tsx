@@ -3,7 +3,7 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { startRazorpayCheckout, type RazorpayCheckoutOptions, type RazorpaySuccess } from "@/lib/razorpay";
 
-interface Props extends Omit<ButtonProps, "onClick"> {
+interface Props extends Omit<ButtonProps, "onClick" | "onError"> {
   /** Checkout config (amount in paise). */
   options: RazorpayCheckoutOptions;
   /** Called after successful, signature-verified payment. */
