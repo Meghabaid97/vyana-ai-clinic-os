@@ -1,7 +1,7 @@
-// Razorpay Standard Checkout helper.
-// Loads checkout.js on demand, creates an order via edge function, opens the modal,
-// and verifies the signature server-side before resolving success.
+// Razorpay Standard Checkout helper for Vyana plans.
+// The amount is derived server-side from { plan, cycle } so the client cannot tamper with pricing.
 import { supabase } from "@/integrations/supabase/client";
+import type { BillingCycle } from "@/lib/plans";
 
 const CHECKOUT_SRC = "https://checkout.razorpay.com/v1/checkout.js";
 
@@ -37,14 +37,9 @@ export function loadRazorpayScript(): Promise<void> {
   return scriptPromise;
 }
 
-export interface RazorpayCheckoutOptions {
-  /** Amount in paise (>= 100). */
-  amount: number;
-  currency?: string;
-  receipt?: string;
-  notes?: Record<string, string>;
-  name?: string;
-  description?: string;
+export interface PlanCheckoutOptions {
+  plan: "individual" | "family";
+  cycle: BillingCycle;
   prefill?: { name?: string; email?: string; contact?: string };
   themeColor?: string;
 }
@@ -54,23 +49,20 @@ export interface RazorpaySuccess {
   razorpay_order_id: string;
   razorpay_signature: string;
   verified: true;
+  plan: "individual" | "family";
+  cycle: BillingCycle;
+  current_period_end?: string;
 }
 
-export async function startRazorpayCheckout(
-  opts: RazorpayCheckoutOptions,
-): Promise<RazorpaySuccess> {
+export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<RazorpaySuccess> {
   await loadRazorpayScript();
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error("Please sign in to upgrade");
 
   const { data: orderData, error: orderErr } = await supabase.functions.invoke(
     "razorpay-create-order",
-    {
-      body: {
-        amount: opts.amount,
-        currency: opts.currency ?? "INR",
-        receipt: opts.receipt,
-        notes: opts.notes,
-      },
-    },
+    { body: { plan: opts.plan, cycle: opts.cycle, user_id: session.user.id } },
   );
   if (orderErr || !orderData?.order_id) {
     throw new Error(orderErr?.message ?? "Could not create order");
@@ -82,19 +74,13 @@ export async function startRazorpayCheckout(
       order_id: orderData.order_id,
       amount: orderData.amount,
       currency: orderData.currency,
-      name: opts.name ?? "Vyana",
-      description: opts.description,
-      prefill: opts.prefill,
-      notes: opts.notes,
+      name: "Vyana",
+      description: `${opts.plan === "family" ? "Family" : "Individual"} plan · ${opts.cycle}`,
+      prefill: opts.prefill ?? { email: session.user.email ?? undefined },
+      notes: { plan: opts.plan, cycle: opts.cycle },
       theme: { color: opts.themeColor ?? "#0F172A" },
-      modal: {
-        ondismiss: () => reject(new Error("Payment cancelled")),
-      },
-      handler: async (response: {
-        razorpay_payment_id: string;
-        razorpay_order_id: string;
-        razorpay_signature: string;
-      }) => {
+      modal: { ondismiss: () => reject(new Error("Payment cancelled")) },
+      handler: async (response: any) => {
         const { data: verifyData, error: verifyErr } = await supabase.functions.invoke(
           "razorpay-verify-payment",
           { body: response },
@@ -103,14 +89,18 @@ export async function startRazorpayCheckout(
           reject(new Error(verifyErr?.message ?? "Signature verification failed"));
           return;
         }
-        resolve({ ...response, verified: true });
+        resolve({
+          ...response,
+          verified: true,
+          plan: opts.plan,
+          cycle: opts.cycle,
+          current_period_end: verifyData.current_period_end,
+        });
       },
     });
-
     rzp.on("payment.failed", (resp: any) => {
       reject(new Error(resp?.error?.description ?? "Payment failed"));
     });
-
     rzp.open();
   });
 }
