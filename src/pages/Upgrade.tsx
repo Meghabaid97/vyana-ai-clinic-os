@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 import { Check, ShieldCheck, Sparkles } from "lucide-react";
 import { PlanCard } from "@/components/paywall/PlanCard";
 import { useEntitlements } from "@/hooks/useEntitlements";
