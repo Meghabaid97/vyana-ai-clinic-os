@@ -227,10 +227,15 @@ const AppShellInner = () => {
             <LanguageSelector />
             <button
               onClick={() => vtNavigate("/app/upgrade")}
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:opacity-90 transition-opacity"
+              className={cn(
+                "inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[13px] font-semibold transition-opacity",
+                is_pro
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                  : "bg-primary text-primary-foreground hover:opacity-90"
+              )}
             >
               <Sparkles className="h-4 w-4" />
-              Upgrade to Pro
+              {is_pro ? "Pro" : "Upgrade to Pro"}
             </button>
             <button
               onClick={() => setTourOpen(true)}
