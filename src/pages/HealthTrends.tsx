@@ -21,6 +21,8 @@ import DashboardChangesCard from "@/components/dashboard/DashboardChangesCard";
 import PageHero from "@/components/PageHero";
 import { TrendsSkeleton } from "@/components/ui/page-skeletons";
 import { useLanguage } from "@/lib/i18n";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { TrendsTeaser } from "@/components/paywall/TrendsTeaser";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
@@ -207,6 +209,7 @@ const HealthTrends = () => {
   const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const entitlements = useEntitlements();
 
   useEffect(() => {
     void loadTrends();
@@ -679,6 +682,16 @@ const HealthTrends = () => {
     return <TrendsSkeleton />;
   }
 
+  // Free users see a teaser: 3 vital sparklines from real data + locked premium rows + paywall CTA
+  if (!entitlements.loading && !entitlements.is_pro) {
+    return (
+      <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
+        <PageHero icon={TrendingUp} title={t("trends.title")} subtitle={t("trends.subtitle")} />
+        <TrendsTeaser vitalHistory={vitalHistory} />
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
       <PageHero
@@ -686,6 +699,7 @@ const HealthTrends = () => {
         title={t("trends.title")}
         subtitle={t("trends.subtitle")}
       />
+
 
       {/* Lead: What changed since last visit (the killer feature) */}
       <DashboardChangesCard patientId={patientId} />
