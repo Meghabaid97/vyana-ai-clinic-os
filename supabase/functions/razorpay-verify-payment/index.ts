@@ -7,6 +7,9 @@ const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID');
 const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+// Guardrail: test-mode payments must NEVER grant Pro entitlements unless explicitly allowed.
+const ALLOW_TEST_PAYMENTS = (Deno.env.get('ALLOW_TEST_PAYMENTS') ?? '').toLowerCase() === 'true';
+const IS_TEST_KEY = !!RAZORPAY_KEY_ID && RAZORPAY_KEY_ID.startsWith('rzp_test_');
 
 function toHex(buf: ArrayBuffer): string {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
