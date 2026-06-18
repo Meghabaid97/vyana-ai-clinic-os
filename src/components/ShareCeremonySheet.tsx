@@ -70,12 +70,15 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
     setStage("creating");
     const raw = await onCreate(recipientName.trim());
     // Normalise legacy `string | null` and new tagged result into one shape
-    const result: CreateShareResult =
-      raw == null
-        ? { ok: false, kind: "error" }
-        : typeof raw === "string"
-        ? { ok: true, url: raw }
-        : raw;
+    let result: CreateShareResult;
+    if (raw == null) {
+      result = { ok: false, kind: "error" };
+    } else if (typeof raw === "string") {
+      result = { ok: true, url: raw };
+    } else {
+      result = raw;
+    }
+
 
     if (!result.ok) {
       if (result.kind === "no-records") {
