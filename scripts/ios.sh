@@ -80,6 +80,22 @@ verify_app_icon() {
   c_green "AppIcon verified."
 }
 
+# Capacitor's `cap add ios` regenerates ios/App/App/Info.plist from its default
+# template, wiping our custom NS*UsageDescription / Face ID / encryption keys.
+# We keep the canonical copy at ios-template/Info.plist and restore it after
+# every regeneration. Edit ios-template/Info.plist (NOT ios/App/App/Info.plist)
+# — anything in ios/App/App/Info.plist will be lost on the next prod/fix run.
+restore_info_plist() {
+  local src="ios-template/Info.plist"
+  local dst="ios/App/App/Info.plist"
+  if [[ -f "$src" && -d "ios/App/App" ]]; then
+    cp "$src" "$dst"
+    c_green "Restored Info.plist from ios-template/ (usage descriptions intact)."
+  else
+    c_yellow "ios-template/Info.plist missing — Info.plist NOT restored. iOS will prompt-crash on camera/mic/photos."
+  fi
+}
+
 case "$MODE" in
   dev)
     require_root
