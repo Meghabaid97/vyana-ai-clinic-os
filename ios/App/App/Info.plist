@@ -4,6 +4,10 @@
 <dict>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Vyana uses the microphone for voice notes in your health journal.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Vyana uses Face ID to securely unlock your health records.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Vyana saves shared health documents to your photos when you choose to download them.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
