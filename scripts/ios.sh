@@ -151,8 +151,10 @@ case "$MODE" in
     npm install
     npm run build
     npx cap add ios
+    restore_info_plist
     generate_app_icon
     npx cap sync ios
+    restore_info_plist
     verify_app_icon
     c_green "Done. Opening Xcode — do File → Packages → Reset Package Caches once."
     npx cap open ios
