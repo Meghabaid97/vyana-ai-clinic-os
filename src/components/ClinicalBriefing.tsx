@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 import { logEvent } from "@/lib/analytics";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 interface ClinicalBriefingProps {
   consultations: Array<{
