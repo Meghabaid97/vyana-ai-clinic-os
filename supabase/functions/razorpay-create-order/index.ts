@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
 
     const amount = PRICE_TABLE[plan][cycle];
     const receipt = `vy_${plan}_${cycle}_${crypto.randomUUID().slice(0, 12)}`;
-    const notes: Record<string, string> = { plan, cycle };
+    const notes: Record<string, string> = { plan, cycle, one_time: 'true' };
     if (userId) notes.user_id = userId;
 
     const auth = btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`);

@@ -242,3 +242,26 @@ export async function cancelActiveSubscription(): Promise<void> {
     window.dispatchEvent(new CustomEvent("vyana:entitlements:refresh"));
   }
 }
+
+// Switch the user's active recurring subscription to a different plan/cycle.
+// Razorpay schedules the change at the next cycle by default (no surprise mid-cycle charges).
+export async function switchActivePlan(opts: {
+  plan: "individual" | "family";
+  cycle: BillingCycle;
+  scheduleChangeAt?: "now" | "cycle_end";
+}): Promise<{ scheduled_at: string; next_plan: string; next_cycle: string }> {
+  const { data, error } = await supabase.functions.invoke("razorpay-update-subscription", {
+    body: {
+      plan: opts.plan,
+      cycle: opts.cycle,
+      schedule_change_at: opts.scheduleChangeAt ?? "cycle_end",
+    },
+  });
+  if (error || (data as any)?.error) {
+    throw new Error((data as any)?.error ?? error?.message ?? "Could not switch plan");
+  }
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("vyana:entitlements:refresh"));
+  }
+  return data as any;
+}

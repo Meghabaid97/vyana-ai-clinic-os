@@ -8,6 +8,40 @@ import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const WEBHOOK_SECRET = Deno.env.get('RAZORPAY_WEBHOOK_SECRET');
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+function planLabel(plan: string, cycle: string) {
+  const name = plan === 'family' ? 'Vyana Family' : 'Vyana Individual';
+  return `${name} · ${cycle === 'yearly' ? 'yearly' : 'monthly'}`;
+}
+
+async function userEmailAndName(admin: ReturnType<typeof createClient>, userId: string) {
+  const { data: u } = await admin.auth.admin.getUserById(userId);
+  const email = u?.user?.email ?? null;
+  const { data: p } = await admin
+    .from('patients')
+    .select('name')
+    .eq('user_id', userId)
+    .eq('is_primary', true)
+    .maybeSingle();
+  return { email, name: p?.name ?? u?.user?.user_metadata?.name ?? null };
+}
+
+async function sendEmail(templateName: string, recipient: string, data: Record<string, unknown>) {
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/send-transactional-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${SERVICE_ROLE}`,
+      },
+      body: JSON.stringify({ templateName, recipientEmail: recipient, templateData: data }),
+    });
+  } catch (e) {
+    console.error('email send failed', templateName, e);
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -31,21 +65,18 @@ Deno.serve(async (req) => {
     const payload = JSON.parse(raw);
     const event = String(payload?.event ?? '');
     const sub = payload?.payload?.subscription?.entity;
+    const paymentEntity = payload?.payload?.payment?.entity;
     if (!sub?.id) {
       return new Response(JSON.stringify({ ok: true, skipped: 'no_subscription_entity' }), {
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const admin = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    );
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-    // Find local subscription by razorpay id
     const { data: existing } = await admin
       .from('subscriptions')
-      .select('user_id, plan, billing_cycle')
+      .select('user_id, plan, billing_cycle, status')
       .eq('razorpay_subscription_id', sub.id)
       .maybeSingle();
 
@@ -69,10 +100,12 @@ Deno.serve(async (req) => {
       updated_at: new Date().toISOString(),
     };
 
+    let sendPastDue = false;
+    let sendReceipt = false;
+
     switch (event) {
       case 'subscription.authenticated':
       case 'subscription.activated':
-      case 'subscription.charged':
         patch.plan = planName;
         patch.status = 'active';
         patch.billing_cycle = cycle;
@@ -80,21 +113,30 @@ Deno.serve(async (req) => {
         patch.cancel_at_period_end = false;
         patch.canceled_at = null;
         break;
+      case 'subscription.charged':
+        patch.plan = planName;
+        patch.status = 'active';
+        patch.billing_cycle = cycle;
+        if (periodEnd) patch.current_period_end = periodEnd;
+        patch.cancel_at_period_end = false;
+        patch.canceled_at = null;
+        sendReceipt = true;
+        break;
       case 'subscription.halted':
       case 'subscription.paused':
         patch.status = 'past_due';
+        // Only send dunning email if we're transitioning into past_due
+        if (existing.status !== 'past_due') sendPastDue = true;
         break;
       case 'subscription.cancelled':
         patch.cancel_at_period_end = true;
         patch.canceled_at = new Date().toISOString();
-        // Keep plan active until period_end; expiry sweeper will downgrade.
         break;
       case 'subscription.completed':
         patch.status = 'expired';
         patch.plan = 'free';
         break;
       default:
-        // Acknowledge unknown events so Razorpay doesn't retry forever.
         return new Response(JSON.stringify({ ok: true, ignored: event }), {
           headers: { 'Content-Type': 'application/json' },
         });
@@ -107,6 +149,34 @@ Deno.serve(async (req) => {
     if (error) {
       console.error('subscription update failed', error);
       return new Response('db error', { status: 500 });
+    }
+
+    // Side-effect emails (fire-and-forget; never block webhook ack)
+    if (sendPastDue || sendReceipt) {
+      const { email, name } = await userEmailAndName(admin, existing.user_id);
+      if (email) {
+        if (sendPastDue) {
+          const reason = paymentEntity?.error_description ?? null;
+          await sendEmail('payment-past-due', email, {
+            name, planLabel: planLabel(planName, cycle), reason,
+          });
+        }
+        if (sendReceipt) {
+          const amount = paymentEntity?.amount ?? null;
+          const paymentId = paymentEntity?.id ?? null;
+          await sendEmail('payment-receipt', email, {
+            name,
+            planLabel: planLabel(planName, cycle),
+            amountInr: amount != null ? `₹${(amount / 100).toLocaleString('en-IN')}` : undefined,
+            paymentId,
+            receiptDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+            nextRenewalDate: periodEnd
+              ? new Date(periodEnd).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+              : undefined,
+            mode: 'autopay',
+          });
+        }
+      }
     }
 
     return new Response(JSON.stringify({ ok: true, event }), {
