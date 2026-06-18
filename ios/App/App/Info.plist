@@ -11,7 +11,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string></string>
 	<key>NSCameraUsageDescription</key>
-	<string>Vyana uses the camera so you can capture prescriptions and health documents.</string>
+	<string>Vyana uses the camera to capture prescriptions and health documents you choose to upload.</string>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>CAPACITOR_DEBUG</key>
