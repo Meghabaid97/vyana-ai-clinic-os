@@ -611,34 +611,24 @@ const Auth = () => {
       const isNativeApp = Capacitor.isNativePlatform();
 
       if (isNativeApp) {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: NATIVE_OAUTH_REDIRECT,
-            skipBrowserRedirect: true,
-            queryParams: { prompt: "select_account" },
-          },
+        await NativeBrowser.open({
+          url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT, { prompt: "select_account" }),
+          presentationStyle: "fullscreen",
         });
-
-        if (error) throw error;
-        if (!data?.url) throw new Error("Could not start Google sign-in");
-
-        await NativeBrowser.open({ url: data.url, presentationStyle: "popover" });
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: WEB_OAUTH_REDIRECT,
-          queryParams: { prompt: "select_account" },
-        },
+      if (isMobileOrTabletBrowser()) {
+        window.location.assign(buildCustomerOAuthUrl("google", WEB_OAUTH_REDIRECT, { prompt: "select_account" }));
+        return;
+      }
+
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: WEB_OAUTH_REDIRECT,
+        extraParams: { prompt: "select_account" },
       });
-      if (error) throw error;
-      if (data?.url) {
-        window.location.assign(data.url);
-        return;
-      }
+      if (result.error) throw result.error;
+      if (result.redirected) return;
 
       navigate("/app", { replace: true });
     } catch (error: any) {
@@ -658,6 +648,20 @@ const Auth = () => {
       }
       const isNativeApp = Capacitor.isNativePlatform();
       const redirectUri = isNativeApp ? NATIVE_OAUTH_REDIRECT : `${window.location.origin}/app`;
+
+      if (isNativeApp) {
+        await NativeBrowser.open({
+          url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT),
+          presentationStyle: "fullscreen",
+        });
+        return;
+      }
+
+      if (isMobileOrTabletBrowser()) {
+        window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT));
+        return;
+      }
+
       const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: redirectUri });
       if (result.error) throw result.error;
       if (result.redirected) return;
