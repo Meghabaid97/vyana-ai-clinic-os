@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { Link as RouterLink } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Clock, Check, MessageCircle, Copy, Loader2, QrCode, Mail, Link2, ArrowLeft,
+  Clock, Check, MessageCircle, Copy, Loader2, QrCode, Mail, Link2, ArrowLeft, FileText, Upload,
 } from "lucide-react";
 
-type Stage = "form" | "creating" | "ready" | "qr";
+type Stage = "form" | "creating" | "ready" | "qr" | "empty";
+
+export type CreateShareResult =
+  | { ok: true; url: string }
+  | { ok: false; kind: "no-records" | "error"; message?: string };
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Async creator. Should return the share URL once persisted. */
-  onCreate: (recipientName: string) => Promise<string | null>;
+  /**
+   * Async creator. Return `{ ok: true, url }` once persisted, or an `{ ok: false, kind }`
+   * result so the sheet can render a friendly empty / error state. A legacy `string | null`
+   * return is still accepted for backwards compatibility.
+   */
+  onCreate: (recipientName: string) => Promise<CreateShareResult | string | null>;
   /** Called once the link is created successfully. */
   onComplete?: () => void;
 }
