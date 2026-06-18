@@ -237,6 +237,12 @@ const MedicationReminders = () => {
         </p>
       </section>
 
+      <section className="px-5 pb-4">
+        <MedicalDisclaimer />
+      </section>
+
+
+
       {/* From prescriptions */}
       {extracted.length > 0 && (
         <section className="px-5 pb-5">
