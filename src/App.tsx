@@ -22,6 +22,8 @@ const RequestAccess = lazy(() => import("./pages/RequestAccess"));
 const AccessPending = lazy(() => import("./pages/AccessPending"));
 const AdminWaitlist = lazy(() => import("./pages/AdminWaitlist"));
 const AdminMetrics = lazy(() => import("./pages/AdminMetrics"));
+const AdminPayments = lazy(() => import("./pages/AdminPayments"));
+const Billing = lazy(() => import("./pages/Billing"));
 const ShareReceive = lazy(() => import("./pages/ShareReceive"));
 const HealthTrends = lazy(() => import("./pages/HealthTrends"));
 
@@ -84,6 +86,7 @@ const App = () => (
             <Route path="/access-pending" element={<AccessPending />} />
             <Route path="/admin/waitlist" element={<AdminWaitlist />} />
             <Route path="/admin/metrics" element={<AdminMetrics />} />
+            <Route path="/admin/payments" element={<AdminPayments />} />
             <Route path="/why-vyana" element={<WhyVyana />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />
@@ -111,6 +114,7 @@ const App = () => (
               <Route path="share-receive" element={<ShareReceive />} />
               <Route path="accept-invite/:token" element={<AcceptInvite />} />
               <Route path="upgrade" element={<Upgrade />} />
+              <Route path="billing" element={<Billing />} />
             </Route>
 
             {/* Patient standalone pages */}
