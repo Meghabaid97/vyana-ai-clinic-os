@@ -17,26 +17,98 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [recoveryReady, setRecoveryReady] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
-  // Supabase parses the recovery token from the URL hash automatically and
-  // emits a PASSWORD_RECOVERY event. We also accept an existing session so
-  // users coming from the email link can set a new password.
+  // Recovery links can arrive in several shapes depending on flow type:
+  //   ?token_hash=...&type=recovery        (verifyOtp — works across devices)
+  //   ?code=...                            (PKCE — needs same browser)
+  //   #access_token=...&type=recovery      (implicit, legacy)
+  //   ?error=...&error_code=otp_expired    (failure from Supabase verify)
+  // Handle all of them, and surface meaningful errors.
   useEffect(() => {
     let active = true;
+    const markReady = () => {
+      if (!active) return;
+      setRecoveryReady(true);
+      setChecking(false);
+    };
+    const markFailed = (msg: string) => {
+      if (!active) return;
+      setLinkError(msg);
+      setRecoveryReady(false);
+      setChecking(false);
+    };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!active) return;
       if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
-        setRecoveryReady(true);
-        setChecking(false);
+        markReady();
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!active) return;
-      if (session) setRecoveryReady(true);
-      setChecking(false);
-    });
+    (async () => {
+      try {
+        const url = new URL(window.location.href);
+        const search = url.searchParams;
+        const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
+
+        // Error returned by Supabase verify (expired/invalid link)
+        const errCode = search.get("error_code") || hash.get("error_code");
+        const errDesc = search.get("error_description") || hash.get("error_description");
+        if (errCode || errDesc) {
+          markFailed(
+            errCode === "otp_expired"
+              ? "This reset link has expired. Please request a new one."
+              : (errDesc || "This reset link is invalid. Please request a new one.").replace(/\+/g, " ")
+          );
+          return;
+        }
+
+        // Preferred: token_hash + type=recovery (works across devices)
+        const tokenHash = search.get("token_hash") || hash.get("token_hash");
+        const type = (search.get("type") || hash.get("type") || "").toLowerCase();
+        if (tokenHash && (type === "recovery" || type === "")) {
+          const { error } = await supabase.auth.verifyOtp({
+            type: "recovery",
+            token_hash: tokenHash,
+          });
+          if (error) {
+            markFailed(error.message || "This reset link is invalid or has expired.");
+            return;
+          }
+          // Clean URL so refresh doesn't re-verify
+          window.history.replaceState({}, "", url.pathname);
+          markReady();
+          return;
+        }
+
+        // PKCE: ?code=...
+        const code = search.get("code");
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) {
+            markFailed(
+              "This reset link can only be opened in the same browser where you requested it. Please request a new link and open it on this device."
+            );
+            return;
+          }
+          window.history.replaceState({}, "", url.pathname);
+          markReady();
+          return;
+        }
+
+        // Implicit/legacy or already-signed-in recovery session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          markReady();
+          return;
+        }
+
+        markFailed("This reset link is invalid or has expired. Please request a new one.");
+      } catch (e: any) {
+        markFailed(e?.message ?? "Couldn't verify the reset link.");
+      }
+    })();
 
     return () => {
       active = false;
