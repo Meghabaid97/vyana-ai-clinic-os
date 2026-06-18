@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, ReactNode } from "react";
+import { useEffect, useRef, useState, ReactNode, useCallback } from "react";
 import { Loader2, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,57 +16,81 @@ const MAX = 110;   // px max visual pull
 /**
  * iOS-style pull-to-refresh for the mobile app shell.
  * Only activates when the scroll container is at the top.
+ *
+ * Perf-critical: listeners are attached ONCE per mount and read state via refs.
+ * (Previously `pull` was in the effect deps, so every touchmove re-attached
+ * the listeners, which destroyed scroll FPS on iOS.)
  */
 const PullToRefresh = ({ children, onRefresh, disabled }: Props) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const startY = useRef<number | null>(null);
   const pulling = useRef(false);
-  const [pull, setPull] = useState(0);
+  const pullRef = useRef(0);
+  const refreshingRef = useRef(false);
+  const disabledRef = useRef(!!disabled);
+  const onRefreshRef = useRef(onRefresh);
+  const [pull, setPullState] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  const doRefresh = async () => {
+  // Keep refs in sync without re-running the listener effect.
+  useEffect(() => { disabledRef.current = !!disabled; }, [disabled]);
+  useEffect(() => { onRefreshRef.current = onRefresh; }, [onRefresh]);
+  useEffect(() => { refreshingRef.current = refreshing; }, [refreshing]);
+
+  const setPull = useCallback((v: number) => {
+    pullRef.current = v;
+    setPullState(v);
+  }, []);
+
+  const doRefresh = useCallback(async () => {
+    refreshingRef.current = true;
     setRefreshing(true);
     try {
-      if (onRefresh) {
-        await onRefresh();
+      if (onRefreshRef.current) {
+        await onRefreshRef.current();
       } else {
-        // Default: re-trigger the current route by soft reload
         window.location.reload();
         return;
       }
     } finally {
+      refreshingRef.current = false;
       setRefreshing(false);
       setPull(0);
     }
-  };
+  }, [setPull]);
 
   useEffect(() => {
-    if (disabled) return;
     const el = containerRef.current?.parentElement; // scroll container is <main>
     if (!el) return;
 
     const onTouchStart = (e: TouchEvent) => {
-      if (refreshing) return;
+      if (disabledRef.current || refreshingRef.current) return;
       if (el.scrollTop > 0) { startY.current = null; return; }
       startY.current = e.touches[0].clientY;
       pulling.current = false;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (refreshing || startY.current === null) return;
+      if (disabledRef.current || refreshingRef.current) return;
+      if (startY.current === null) return;
       const delta = e.touches[0].clientY - startY.current;
-      if (delta <= 0) { setPull(0); return; }
-      if (el.scrollTop > 0) { setPull(0); return; }
+      if (delta <= 0) {
+        if (pullRef.current !== 0) setPull(0);
+        return;
+      }
+      if (el.scrollTop > 0) {
+        if (pullRef.current !== 0) setPull(0);
+        return;
+      }
       pulling.current = true;
-      // resistance curve
       const eased = Math.min(MAX, Math.pow(delta, 0.85));
       setPull(eased);
       if (e.cancelable) e.preventDefault();
     };
     const onTouchEnd = () => {
-      if (refreshing) return;
-      if (pulling.current && pull >= TRIGGER) {
+      if (refreshingRef.current) return;
+      if (pulling.current && pullRef.current >= TRIGGER) {
         void doRefresh();
-      } else {
+      } else if (pullRef.current !== 0) {
         setPull(0);
       }
       startY.current = null;
@@ -83,15 +107,13 @@ const PullToRefresh = ({ children, onRefresh, disabled }: Props) => {
       el.removeEventListener("touchend", onTouchEnd);
       el.removeEventListener("touchcancel", onTouchEnd);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disabled, refreshing, pull]);
+  }, [doRefresh, setPull]);
 
   const ready = pull >= TRIGGER;
   const visible = pull > 4 || refreshing;
 
   return (
     <div ref={containerRef} className="relative">
-      {/* Indicator */}
       <div
         aria-hidden={!visible}
         className={cn(
@@ -117,11 +139,11 @@ const PullToRefresh = ({ children, onRefresh, disabled }: Props) => {
         </div>
       </div>
 
-      {/* Content shifts down with pull */}
       <div
         style={{
           transform: `translateY(${refreshing ? 28 : pull * 0.5}px)`,
           transition: refreshing || pull === 0 ? "transform 200ms ease" : "none",
+          willChange: pull > 0 || refreshing ? "transform" : undefined,
         }}
       >
         {children}
