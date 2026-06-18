@@ -178,6 +178,45 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
           </div>
         )}
 
+        {/* ============ EMPTY (no records yet) ============ */}
+        {stage === "empty" && (
+          <div className="px-6 pb-2">
+            <SheetHeader className="text-left space-y-1.5">
+              <SheetTitle className="text-[20px] font-bold tracking-[-0.01em]">
+                Nothing to share yet
+              </SheetTitle>
+              <SheetDescription className="text-[13px] text-muted-foreground leading-relaxed">
+                Your record is empty, so a share link wouldn't show your doctor anything useful.
+                Add at least one report or prescription first.
+              </SheetDescription>
+            </SheetHeader>
+
+            <div className="mt-5 rounded-xl border border-border bg-muted/40 p-5 flex flex-col items-center text-center">
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+                <FileText className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-[13px] font-semibold text-foreground">No reports on file</p>
+              <p className="text-[12px] text-muted-foreground mt-1 leading-relaxed">
+                Upload a lab report, prescription, or discharge summary and we'll be ready to share
+                it in seconds.
+              </p>
+            </div>
+
+            <div className="mt-6 flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+                Not now
+              </Button>
+              <Button asChild className="flex-1" onClick={() => onOpenChange(false)}>
+                <RouterLink to="/app/records">
+                  <Upload className="h-4 w-4 mr-2" /> Add a record
+                </RouterLink>
+              </Button>
+            </div>
+          </div>
+        )}
+
+
+
         {/* ============ READY ============ */}
         {stage === "ready" && shareUrl && (
           <div className="px-6">
