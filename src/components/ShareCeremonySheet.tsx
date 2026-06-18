@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { Link as RouterLink } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Clock, Check, MessageCircle, Copy, Loader2, QrCode, Mail, Link2, ArrowLeft,
+  Clock, Check, MessageCircle, Copy, Loader2, QrCode, Mail, Link2, ArrowLeft, FileText, Upload,
 } from "lucide-react";
 
-type Stage = "form" | "creating" | "ready" | "qr";
+type Stage = "form" | "creating" | "ready" | "qr" | "empty";
+
+export type CreateShareResult =
+  | { ok: true; url: string }
+  | { ok: false; kind: "no-records" | "error"; message?: string };
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Async creator. Should return the share URL once persisted. */
-  onCreate: (recipientName: string) => Promise<string | null>;
+  /**
+   * Async creator. Return `{ ok: true, url }` once persisted, or an `{ ok: false, kind }`
+   * result so the sheet can render a friendly empty / error state. A legacy `string | null`
+   * return is still accepted for backwards compatibility.
+   */
+  onCreate: (recipientName: string) => Promise<CreateShareResult | string | null>;
   /** Called once the link is created successfully. */
   onComplete?: () => void;
 }
@@ -59,15 +68,30 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
   const createLink = async () => {
     setError(null);
     setStage("creating");
-    const url = await onCreate(recipientName.trim());
-    if (!url) {
-      setError("Could not create your share link. Please try again.");
+    const raw = await onCreate(recipientName.trim());
+    // Normalise legacy `string | null` and new tagged result into one shape
+    let result: CreateShareResult;
+    if (raw == null) {
+      result = { ok: false, kind: "error" };
+    } else if (typeof raw === "string") {
+      result = { ok: true, url: raw };
+    } else {
+      result = raw;
+    }
+
+
+    if (result.ok === false) {
+      if (result.kind === "no-records") {
+        setStage("empty");
+        return;
+      }
+      setError(result.message ?? "Could not create your share link. Please try again.");
       setStage("form");
       return;
     }
-    setShareUrl(url);
+    setShareUrl(result.url);
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(result.url);
       setCopied(true);
     } catch {
       setCopied(false);
@@ -75,6 +99,7 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
     setStage("ready");
     onComplete?.();
   };
+
 
   const shareMessage = (url: string) =>
     `Here are my health records (secure link, valid 24 hours): ${url}`;
@@ -152,6 +177,45 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
             <p className="text-[13px] text-muted-foreground">Creating your secure link…</p>
           </div>
         )}
+
+        {/* ============ EMPTY (no records yet) ============ */}
+        {stage === "empty" && (
+          <div className="px-6 pb-2">
+            <SheetHeader className="text-left space-y-1.5">
+              <SheetTitle className="text-[20px] font-bold tracking-[-0.01em]">
+                Nothing to share yet
+              </SheetTitle>
+              <SheetDescription className="text-[13px] text-muted-foreground leading-relaxed">
+                Your record is empty, so a share link wouldn't show your doctor anything useful.
+                Add at least one report or prescription first.
+              </SheetDescription>
+            </SheetHeader>
+
+            <div className="mt-5 rounded-xl border border-border bg-muted/40 p-5 flex flex-col items-center text-center">
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+                <FileText className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-[13px] font-semibold text-foreground">No reports on file</p>
+              <p className="text-[12px] text-muted-foreground mt-1 leading-relaxed">
+                Upload a lab report, prescription, or discharge summary and we'll be ready to share
+                it in seconds.
+              </p>
+            </div>
+
+            <div className="mt-6 flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+                Not now
+              </Button>
+              <Button asChild className="flex-1" onClick={() => onOpenChange(false)}>
+                <RouterLink to="/app/records">
+                  <Upload className="h-4 w-4 mr-2" /> Add a record
+                </RouterLink>
+              </Button>
+            </div>
+          </div>
+        )}
+
+
 
         {/* ============ READY ============ */}
         {stage === "ready" && shareUrl && (

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
-import ShareCeremonySheet from "@/components/ShareCeremonySheet";
+import ShareCeremonySheet, { type CreateShareResult } from "@/components/ShareCeremonySheet";
 import { buildEmergencyAccessUrl } from "@/lib/share-url";
 
 interface ShareLink {
@@ -53,20 +53,34 @@ const ShareRecords = () => {
     setLoading(false);
   };
 
-  const createLink = async (recipientName: string): Promise<string | null> => {
-    if (!patientId) return null;
+  const createLink = async (recipientName: string): Promise<CreateShareResult> => {
+    if (!patientId) return { ok: false, kind: "error", message: t("share.error") };
+
+    // Preflight: don't mint a link if there's nothing on file to share
+    const { count, error: countError } = await supabase
+      .from("health_records")
+      .select("id", { count: "exact", head: true })
+      .eq("patient_id", patientId);
+
+    if (countError) {
+      return { ok: false, kind: "error", message: countError.message };
+    }
+    if ((count ?? 0) === 0) {
+      return { ok: false, kind: "no-records" };
+    }
+
     const { data, error } = await supabase.from("shared_record_links").insert({
       patient_id: patientId,
       recipient_name: recipientName || null,
     }).select().single() as { data: ShareLink | null; error: any };
 
     if (error) {
-      toast({ title: t("share.error"), description: error.message, variant: "destructive" });
-      return null;
+      return { ok: false, kind: "error", message: error.message };
     }
-    if (!data) return null;
-    return buildEmergencyAccessUrl(data.token);
+    if (!data) return { ok: false, kind: "error" };
+    return { ok: true, url: buildEmergencyAccessUrl(data.token) };
   };
+
 
   const copyLink = async (token: string) => {
     await navigator.clipboard.writeText(buildEmergencyAccessUrl(token));
