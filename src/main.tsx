@@ -3,6 +3,7 @@ import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import App from "./App.tsx";
 import { supabase } from "@/integrations/supabase/client";
+import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 import "@fontsource/instrument-serif/400.css";
 import "@fontsource/instrument-serif/400-italic.css";
 import "./index.css";
@@ -25,8 +26,7 @@ const isOAuthCallbackUrl = (url: string) => {
 
 const closeInAppBrowser = async () => {
   try {
-    const { Browser } = await import("@capacitor/browser");
-    await Browser.close();
+    await NativeBrowser.close();
   } catch {
     // Browser plugin not available — ignore.
   }
