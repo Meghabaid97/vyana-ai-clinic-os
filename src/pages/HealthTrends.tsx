@@ -680,6 +680,32 @@ const HealthTrends = () => {
     return <TrendsSkeleton />;
   }
 
+  // Zero-record short-circuit — avoid rendering every analysis section (and the
+  // DashboardChangesCard fetch) when there's nothing to analyze yet.
+  if (!isAnalyzing && records.length === 0 && vitalHistory.length === 0) {
+    return (
+      <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
+        <PageHero icon={TrendingUp} title={t("trends.title")} subtitle={t("trends.subtitle")} />
+        <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-6 text-center">
+          <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+            <Sparkles className="h-5 w-5 text-primary" />
+          </div>
+          <h2 className="text-base font-semibold text-foreground">No trends yet</h2>
+          <p className="text-[13px] text-muted-foreground mt-1.5 max-w-sm mx-auto">
+            Upload a lab report or discharge summary and we'll start tracking your vitals over time.
+          </p>
+          <button
+            onClick={() => navigate("/app/records?upload=1")}
+            className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground text-[13px] font-semibold px-4 py-2.5 hover:bg-primary/90 transition-colors active:scale-[0.98]"
+          >
+            <Upload className="h-4 w-4" />
+            Upload your first report
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Free users see a teaser: 3 vital sparklines from real data + locked premium rows + paywall CTA
   if (!entitlements.loading && !entitlements.is_pro) {
     return (
@@ -689,6 +715,7 @@ const HealthTrends = () => {
       </div>
     );
   }
+
 
   return (
     <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
