@@ -80,7 +80,7 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
     }
 
 
-    if (!result.ok) {
+    if (result.ok === false) {
       if (result.kind === "no-records") {
         setStage("empty");
         return;
