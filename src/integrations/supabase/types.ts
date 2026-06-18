@@ -1180,9 +1180,12 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           plan: string
+          razorpay_customer_id: string | null
           razorpay_order_id: string | null
           razorpay_payment_id: string | null
+          razorpay_plan_id: string | null
           razorpay_signature: string | null
+          razorpay_subscription_id: string | null
           status: string
           updated_at: string
           user_id: string
@@ -1194,9 +1197,12 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           plan?: string
+          razorpay_customer_id?: string | null
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
+          razorpay_plan_id?: string | null
           razorpay_signature?: string | null
+          razorpay_subscription_id?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -1208,9 +1214,12 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           plan?: string
+          razorpay_customer_id?: string | null
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
+          razorpay_plan_id?: string | null
           razorpay_signature?: string | null
+          razorpay_subscription_id?: string | null
           status?: string
           updated_at?: string
           user_id?: string
