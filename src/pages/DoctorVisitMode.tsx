@@ -183,6 +183,22 @@ const DoctorVisitMode = () => {
 
       setSymptomFreshness(summarizeFreshness((sympRes.data as any) || []));
 
+      // Graceful empty-state: if the account has no records at all, don't burn
+      // an AI call (and don't surface a scary error). Guide the user instead.
+      const hasAnyData =
+        ((consRes.data as any[])?.length ?? 0) > 0 ||
+        ((recRes.data as any[])?.length ?? 0) > 0 ||
+        ((vitRes.data as any[])?.length ?? 0) > 0 ||
+        ((medRes.data as any[])?.length ?? 0) > 0 ||
+        ((sympRes.data as any[])?.length ?? 0) > 0;
+      if (!hasAnyData) {
+        toast({
+          title: "Nothing to brief yet",
+          description: "Add a health record, medication, or journal entry first — or preview with sample data.",
+        });
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("clinical-briefing", {
         body: {
           patientId: patient.id,
@@ -209,8 +225,29 @@ const DoctorVisitMode = () => {
           ent.refresh();
           return;
         }
+        // Function ran but couldn't build a usable briefing from sparse data.
+        if (status === 502 || bodyJson?.error === "BRIEFING_GENERATION_FAILED") {
+          toast({
+            title: "Not enough data yet",
+            description: "We couldn't build a complete briefing from your current records. Try adding a recent report or preview with sample data.",
+          });
+          return;
+        }
+        if (status === 429) {
+          toast({ title: "Too many requests", description: "Please wait a moment and try again." });
+          return;
+        }
         throw error;
       }
+
+      if (!data || typeof data !== "object" || !(data as any).patient_overview) {
+        toast({
+          title: "Briefing unavailable",
+          description: "We couldn't build a briefing right now. Please try again shortly.",
+        });
+        return;
+      }
+
       setBriefing(data);
       void logEvent("briefing_generated", { surface: "doctor_visit_mode" });
       // Refresh entitlements so the remaining-briefings counter updates after a successful generation.
@@ -247,11 +284,15 @@ const DoctorVisitMode = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       console.error("Visit generate error:", err);
-      toast({ title: "Could not generate", description: "Try again in a moment.", variant: "destructive" });
+      toast({
+        title: "Couldn't generate brief",
+        description: "Something went wrong. Please check your connection and try again.",
+      });
     } finally {
       setLoading(false);
     }
   };
+
 
   const briefingToText = (): string => {
     if (!briefing) return "";
