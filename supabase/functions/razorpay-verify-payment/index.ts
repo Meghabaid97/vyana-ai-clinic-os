@@ -129,6 +129,40 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Fire-and-forget receipt email so the user has a record of the one-time charge.
+    try {
+      const { data: u } = await admin.auth.admin.getUserById(userId);
+      const email = u?.user?.email ?? null;
+      if (email) {
+        const { data: p } = await admin
+          .from('patients').select('name')
+          .eq('user_id', userId).eq('is_primary', true).maybeSingle();
+        const name = p?.name ?? u?.user?.user_metadata?.name ?? null;
+        const planName = plan === 'family' ? 'Vyana Family' : 'Vyana Individual';
+        const cycleLabel = safeCycle === 'yearly' ? 'yearly' : 'monthly';
+        const amount = orderData?.amount ?? null;
+        await fetch(`${SUPABASE_URL}/functions/v1/send-transactional-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` },
+          body: JSON.stringify({
+            templateName: 'payment-receipt',
+            recipientEmail: email,
+            templateData: {
+              name,
+              planLabel: `${planName} · ${cycleLabel}`,
+              amountInr: amount != null ? `₹${(amount / 100).toLocaleString('en-IN')}` : undefined,
+              paymentId,
+              receiptDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+              nextRenewalDate: new Date(periodEnd).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+              mode: 'one_time',
+            },
+          }),
+        });
+      }
+    } catch (e) {
+      console.warn('receipt email failed (non-fatal)', e);
+    }
+
     return new Response(JSON.stringify({
       verified: true, activated: true, plan, cycle: safeCycle, current_period_end: periodEnd,
     }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
