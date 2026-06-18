@@ -383,6 +383,10 @@ const DoctorVisitMode = () => {
         }
       />
 
+      <MedicalDisclaimer />
+
+
+
 
       {/* HERO CTA when no brief */}
       {!briefing && (
