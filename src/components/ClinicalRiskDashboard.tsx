@@ -197,9 +197,9 @@ const ClinicalRiskDashboard = ({ vitals, vitalHistory, medications, age }: Clini
         </div>
       )}
 
-      <p className="text-[9px] text-muted-foreground mt-4 italic">
-        ⚕️ These indicators use standard reference ranges (ACC/AHA, ADA, KDIGO, ATA). They are for informational purposes only, not medical advice. Your doctor makes all clinical decisions.
-      </p>
+      <div className="mt-4">
+        <MedicalDisclaimer />
+      </div>
     </section>
   );
 };
