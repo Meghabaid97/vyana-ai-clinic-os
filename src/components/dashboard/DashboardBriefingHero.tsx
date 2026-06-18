@@ -92,7 +92,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
             <button
               onClick={() => navigate("/app/share")}
               style={stage(460)}
-              className="group/btn flex items-center gap-2 rounded-xl border border-border bg-card/70 backdrop-blur-sm px-3 py-2 lg:py-2.5 text-left hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 transition-all duration-200 min-w-0"
+              className="group/btn flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 lg:py-2.5 text-left hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 transition-all duration-200 min-w-0"
             >
               <Share2 className="h-4 w-4 text-primary shrink-0 group-hover/btn:scale-110 transition-transform" />
               <span className="text-[12px] lg:text-[13px] font-medium text-foreground truncate">Share with doctor</span>
@@ -100,7 +100,7 @@ const DashboardBriefingHero = ({ hasRecords }: Props) => {
             <button
               onClick={() => navigate("/app/emergency-contacts")}
               style={stage(540)}
-              className="group/btn flex items-center gap-2 rounded-xl border border-border bg-card/70 backdrop-blur-sm px-3 py-2 lg:py-2.5 text-left hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 transition-all duration-200 min-w-0"
+              className="group/btn flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 lg:py-2.5 text-left hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 transition-all duration-200 min-w-0"
             >
               <Shield className="h-4 w-4 text-primary shrink-0 group-hover/btn:scale-110 transition-transform" />
               <span className="text-[12px] lg:text-[13px] font-medium text-foreground truncate">Emergency access</span>
