@@ -410,42 +410,86 @@ const PatientProfileEdit = () => {
             <User className="h-5 w-5 text-muted-foreground" />
             <div className="text-left">
               <p className="text-[15px] font-medium text-foreground">{t("prof.edit.title")}</p>
-              <p className="text-xs text-muted-foreground">{t("prof.edit.desc")}</p>
+              <p className="text-xs text-muted-foreground">
+                {isProfileIncomplete ? "Add your name and date of birth to personalise your briefings" : t("prof.edit.desc")}
+              </p>
             </div>
           </div>
-          <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${editMode ? "rotate-90" : ""}`} />
+          <div className="flex items-center gap-2">
+            {isProfileIncomplete && (
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                Incomplete
+              </span>
+            )}
+            <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${editMode ? "rotate-90" : ""}`} />
+          </div>
         </button>
 
         {editMode && (
-          <form onSubmit={handleSubmit} className="py-4 space-y-4 animate-fade-in">
+          <form onSubmit={handleSubmit} className="py-5 space-y-4 animate-fade-in">
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-xs text-muted-foreground">{t("prof.field.name")}</Label>
-              <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+              <Label htmlFor="name" className="text-xs font-medium text-muted-foreground">{t("prof.field.name")}</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="e.g. Priya Sharma"
+                required
+                className="h-11 text-[15px]"
+              />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="dob" className="text-xs text-muted-foreground">Date of birth</Label>
-                <Input id="dob" type="date" max={new Date().toISOString().split("T")[0]} value={formData.date_of_birth} onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })} />
-                {formData.date_of_birth && calculateAgeFromDob(formData.date_of_birth) !== null && (
-                  <p className="text-[10px] text-muted-foreground">Age: {calculateAgeFromDob(formData.date_of_birth)} years</p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="phone" className="text-xs text-muted-foreground">{t("prof.field.phone")}</Label>
-                <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+91 98765 43210" />
-              </div>
-            </div>
+
             <div className="space-y-1.5">
-              <Label htmlFor="health_id" className="text-xs text-muted-foreground">{t("prof.field.abha")}</Label>
-              <Input id="health_id" value={formData.national_health_id} onChange={(e) => setFormData({ ...formData, national_health_id: e.target.value.replace(/\D/g, '').slice(0, 14) })} placeholder={t("prof.field.abhaPh")} className="font-mono" />
+              <Label htmlFor="dob" className="text-xs font-medium text-muted-foreground">Date of birth</Label>
+              <Input
+                id="dob"
+                type="date"
+                max={new Date().toISOString().split("T")[0]}
+                value={formData.date_of_birth}
+                onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                className="h-11 text-[15px] w-full block appearance-none"
+              />
+              {formData.date_of_birth && calculateAgeFromDob(formData.date_of_birth) !== null && (
+                <p className="text-[11px] text-muted-foreground">Age: {calculateAgeFromDob(formData.date_of_birth)} years</p>
+              )}
             </div>
-            <Button type="submit" disabled={isSaving} className="w-full">
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-              {t("prof.btn.save")}
-            </Button>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">{t("prof.field.phone")}</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+91 98765 43210"
+                className="h-11 text-[15px]"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="health_id" className="text-xs font-medium text-muted-foreground">{t("prof.field.abha")}</Label>
+              <Input
+                id="health_id"
+                value={formData.national_health_id}
+                onChange={(e) => setFormData({ ...formData, national_health_id: e.target.value.replace(/\D/g, '').slice(0, 14) })}
+                placeholder={t("prof.field.abhaPh")}
+                className="h-11 text-[15px] font-mono tracking-wide"
+              />
+              <p className="text-[11px] text-muted-foreground">Optional. 14 digit ABHA Health ID, no spaces.</p>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <Button type="button" variant="outline" onClick={() => setEditMode(false)} className="flex-1 h-11">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSaving} className="flex-1 h-11">
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                {t("prof.btn.save")}
+              </Button>
+            </div>
           </form>
         )}
       </section>
+
 
       {/* Menu Items, Nykaa style */}
       <section className="px-5 pt-2">
