@@ -702,7 +702,20 @@ const Auth = () => {
                         We'll ask for your phone, ABHA ID, and other details inside the app, takes 30 seconds.
                       </p>
 
+                      <div className="rounded-lg border border-border bg-muted/30 p-3 flex items-start gap-2">
+                        <Checkbox
+                          id="age-confirm"
+                          checked={ageConfirmed}
+                          onCheckedChange={(checked) => setAgeConfirmed(checked === true)}
+                          className="mt-0.5"
+                        />
+                        <label htmlFor="age-confirm" className="text-xs text-foreground leading-tight cursor-pointer">
+                          I confirm I am <span className="font-semibold">13 years or older</span>. If you are managing records for a child, you will add them as a family member after signup.
+                        </label>
+                      </div>
+
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+
                         <div className="flex items-start gap-2">
                           <FileCheck className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                           <div>
