@@ -702,8 +702,12 @@ const HealthTrends = () => {
       />
 
 
+      <MedicalDisclaimer />
+
       {/* Lead: What changed since last visit (the killer feature) */}
       <DashboardChangesCard patientId={patientId} />
+
+
 
 
 
