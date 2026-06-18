@@ -13,6 +13,7 @@ import { useEntitlements } from "@/hooks/useEntitlements";
 import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 import { logEvent } from "@/lib/analytics";
 import MedicalDisclaimer from "@/components/MedicalDisclaimer";
+import MedicalAckDialog, { useMedicalAck } from "@/components/MedicalAckDialog";
 
 interface ClinicalBriefingProps {
   consultations: Array<{
