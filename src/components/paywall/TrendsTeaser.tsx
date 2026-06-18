@@ -57,26 +57,24 @@ const LOCKED_VITALS: { key: string; label: string; group: string }[] = [
 ];
 
 function Sparkline({ values }: { values: number[] }) {
-  if (values.length === 0) {
-    return <div className="h-12 flex items-center justify-center text-[11px] text-muted-foreground">No data yet</div>;
-  }
+  if (values.length < 2) return null;
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
   const w = 200;
-  const h = 48;
+  const h = 36;
   const pts = values.map((v, i) => {
     const x = (i / Math.max(values.length - 1, 1)) * w;
-    const y = h - ((v - min) / range) * h;
+    const y = h - ((v - min) / range) * (h - 4) - 2;
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   });
   const path = `M ${pts.join(" L ")}`;
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-12">
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-9 mt-2">
       <path d={path} fill="none" stroke="hsl(var(--primary))" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
       {values.map((v, i) => {
         const x = (i / Math.max(values.length - 1, 1)) * w;
-        const y = h - ((v - min) / range) * h;
+        const y = h - ((v - min) / range) * (h - 4) - 2;
         return <circle key={i} cx={x} cy={y} r={2.5} fill="hsl(var(--primary))" />;
       })}
     </svg>
@@ -127,27 +125,34 @@ export function TrendsTeaser({ vitalHistory }: Props) {
             const latest = v.values.at(-1)?.value;
             const first = v.values[0]?.value;
             const delta = latest != null && first != null ? latest - first : null;
+            const count = v.values.length;
             return (
-              <div key={v.key} className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <p className="text-[13px] font-semibold text-foreground">{v.label}</p>
-                    <p className="text-[10.5px] text-muted-foreground">
-                      {v.values.length === 0
+              <div key={v.key} className="rounded-xl border border-border bg-card p-3.5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-semibold text-foreground truncate">{v.label}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      {count === 0
                         ? "Upload a report to see this trend"
-                        : `${v.values.length} reading${v.values.length === 1 ? "" : "s"}`}
+                        : count === 1
+                          ? "1 reading · upload another to see the trend"
+                          : `${count} readings`}
+                      {delta != null && count > 1 && (
+                        <span className={`ml-1.5 font-medium ${delta > 0 ? "text-amber-700" : delta < 0 ? "text-sage-700" : "text-muted-foreground"}`}>
+                          {delta > 0 ? "+" : ""}{delta.toFixed(1)} since first
+                        </span>
+                      )}
                     </p>
                   </div>
-                  {latest != null && (
-                    <div className="text-right">
-                      <p className="text-base font-bold leading-none">{latest.toFixed(1)}</p>
-                      <p className="text-[10px] text-muted-foreground">{v.unit}</p>
-                      {delta != null && v.values.length > 1 && (
-                        <p className={`text-[10px] mt-0.5 ${delta > 0 ? "text-amber-700" : delta < 0 ? "text-sage-700" : "text-muted-foreground"}`}>
-                          {delta > 0 ? "+" : ""}{delta.toFixed(1)} since first
-                        </p>
-                      )}
+                  {latest != null ? (
+                    <div className="text-right shrink-0">
+                      <p className="text-lg font-bold leading-none text-foreground">{latest.toFixed(1)}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{v.unit}</p>
                     </div>
+                  ) : (
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 shrink-0">
+                      No data
+                    </span>
                   )}
                 </div>
                 <Sparkline values={v.values.map((x) => x.value)} />
