@@ -24,6 +24,10 @@ serve(async (req) => {
       });
     }
 
+    // Pro-only: insurance / claim AI assistant.
+    const planGate = await requirePlan(supabaseClient, { feature: "pro", featureLabel: "Claim assistant" });
+    if (planGate) return planGate;
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
 
