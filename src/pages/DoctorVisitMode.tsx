@@ -397,7 +397,7 @@ const DoctorVisitMode = () => {
               One scrollable sheet your doctor can read in under a minute. Conditions, what changed, medications, ready to share.
             </p>
 
-            <Button onClick={generate} disabled={loading} size="lg" className="mt-5 w-full gap-2">
+            <Button onClick={() => medAck.run(generate)} disabled={loading} size="lg" className="mt-5 w-full gap-2">
               {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Building your brief...</>
                        : outOfBriefings ? <><Lock className="h-4 w-4" /> Unlock briefings · Upgrade to Pro</>
                        : <><Sparkles className="h-4 w-4" /> Generate my visit brief</>}
