@@ -355,7 +355,21 @@ const SymptomLogDialog = ({ open, onClose, patientId, onLogged, autoStartVoice }
                   <Camera className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">{t("journal.dlg.field.photoAdd")}</span>
                   <input
-                    type="file" accept="image/*" capture="environment" className="hidden"
+                    type="file" accept="image/*" className="hidden"
+                    onClick={async (e) => {
+                      try {
+                        const { pickImage, isNativeApp } = await import("@/lib/nativeImagePicker");
+                        if (isNativeApp()) {
+                          e.preventDefault();
+                          const picked = await pickImage("prompt");
+                          if (picked && picked.file.size <= 8 * 1024 * 1024) setPhotoFile(picked.file);
+                          else if (picked) toast({ title: t("journal.dlg.field.photoLarge"), description: t("journal.dlg.field.photoMax"), variant: "destructive" });
+                        }
+                      } catch (err: any) {
+                        e.preventDefault();
+                        toast({ title: "Camera unavailable", description: err?.message ?? "Could not open camera.", variant: "destructive" });
+                      }
+                    }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f && f.size <= 8 * 1024 * 1024) setPhotoFile(f);
