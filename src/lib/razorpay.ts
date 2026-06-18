@@ -126,10 +126,11 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("vyana:entitlements:refresh"));
         }
-        void logEvent(activated ? "payment_succeeded" : "payment_pending", {
+        void logEvent(activated ? "payment_succeeded" : "checkout_opened", {
           plan: opts.plan,
           cycle: opts.cycle,
           subscription_id: subData.subscription_id,
+          activated,
         });
         resolve({
           razorpay_payment_id: response.razorpay_payment_id,
