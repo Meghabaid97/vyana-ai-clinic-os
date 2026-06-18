@@ -155,6 +155,83 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
   });
 }
 
+// One-time payment (no mandate). Uses order_id flow + signature verification.
+export async function startOneTimeCheckout(opts: PlanCheckoutOptions): Promise<RazorpaySuccess> {
+  await loadRazorpayScript();
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error("Please sign in to upgrade");
+
+  const { data: orderData, error: orderErr } = await supabase.functions.invoke(
+    "razorpay-create-order",
+    { body: { plan: opts.plan, cycle: opts.cycle, user_id: session.user.id } },
+  );
+  if (orderErr || !orderData?.order_id) {
+    throw new Error(orderErr ? await getFunctionErrorMessage(orderErr) : "Could not create order");
+  }
+
+  const { logEvent } = await import("@/lib/analytics");
+
+  return new Promise<RazorpaySuccess>((resolve, reject) => {
+    const rzp = new window.Razorpay({
+      key: orderData.key_id,
+      order_id: orderData.order_id,
+      amount: orderData.amount,
+      currency: orderData.currency ?? "INR",
+      name: "Vyana",
+      description: `${opts.plan === "family" ? "Family" : "Individual"} plan · ${opts.cycle} · One-time`,
+      prefill: opts.prefill ?? { email: session.user.email ?? undefined },
+      notes: { plan: opts.plan, cycle: opts.cycle, one_time: "true" },
+      theme: { color: opts.themeColor ?? "#0F172A" },
+      modal: {
+        ondismiss: () => {
+          void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, mode: "one_time", reason: "dismissed" });
+          reject(new Error("Payment cancelled"));
+        },
+      },
+      handler: async (response: any) => {
+        const { data: verifyData, error: verifyErr } = await supabase.functions.invoke(
+          "razorpay-verify-payment",
+          {
+            body: {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            },
+          },
+        );
+        if (verifyErr || !(verifyData as any)?.verified) {
+          void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, mode: "one_time", reason: "verify_failed" });
+          reject(new Error(verifyErr ? await getFunctionErrorMessage(verifyErr) : "Payment could not be verified"));
+          return;
+        }
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("vyana:entitlements:refresh"));
+        }
+        void logEvent("payment_succeeded", {
+          plan: opts.plan, cycle: opts.cycle, mode: "one_time",
+          order_id: response.razorpay_order_id,
+        });
+        resolve({
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature,
+          verified: true,
+          plan: opts.plan,
+          cycle: opts.cycle,
+          current_period_end: (verifyData as any)?.current_period_end,
+        });
+      },
+    });
+    rzp.on("payment.failed", (resp: any) => {
+      void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, mode: "one_time", reason: resp?.error?.description ?? "unknown" });
+      reject(new Error(getPaymentFailureMessage(resp?.error?.description)));
+    });
+    void logEvent("checkout_opened", { plan: opts.plan, cycle: opts.cycle, mode: "one_time", order_id: orderData.order_id });
+    rzp.open();
+  });
+}
+
 // Cancel the active subscription on Razorpay at the end of the current billing cycle.
 export async function cancelActiveSubscription(): Promise<void> {
   const { data, error } = await supabase.functions.invoke("razorpay-cancel-subscription");
