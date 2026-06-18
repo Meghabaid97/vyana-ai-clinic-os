@@ -21,6 +21,7 @@ import { useEntitlements } from "@/hooks/useEntitlements";
 import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 import { logEvent } from "@/lib/analytics";
 import MedicalAckDialog, { useMedicalAck } from "@/components/MedicalAckDialog";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 import { Lock } from "lucide-react";
 
 interface DrugInteraction {
