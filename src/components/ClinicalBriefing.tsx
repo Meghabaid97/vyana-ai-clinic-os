@@ -13,6 +13,7 @@ import { useEntitlements } from "@/hooks/useEntitlements";
 import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 import { logEvent } from "@/lib/analytics";
 import MedicalDisclaimer from "@/components/MedicalDisclaimer";
+import MedicalAckDialog, { useMedicalAck } from "@/components/MedicalAckDialog";
 
 interface ClinicalBriefingProps {
   consultations: Array<{
@@ -83,6 +84,7 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
   const [paywallOpen, setPaywallOpen] = useState(false);
   const { toast } = useToast();
   const ent = useEntitlements();
+  const medAck = useMedicalAck();
 
   const generateBriefing = async () => {
     // Wait for entitlements to load before allowing generation
@@ -178,10 +180,11 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
             </p>
           </div>
         </div>
-        <Button onClick={generateBriefing} className="w-full gap-2" size="sm">
+        <Button onClick={() => medAck.run(generateBriefing)} className="w-full gap-2" size="sm">
           {outOfBriefings ? <><Lock className="h-4 w-4" /> Unlock briefing · ₹99/mo</> : <><Sparkles className="h-4 w-4" /> Generate Briefing</>}
         </Button>
       </Card>
+      <MedicalAckDialog state={medAck} />
       <PaywallSheet
         open={paywallOpen}
         onOpenChange={setPaywallOpen}
@@ -209,10 +212,11 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
         <h3 className="text-sm font-bold flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" /> Clinical Briefing
         </h3>
-        <Button variant="ghost" size="sm" onClick={generateBriefing} className="text-xs gap-1">
+        <Button variant="ghost" size="sm" onClick={() => medAck.run(generateBriefing)} className="text-xs gap-1">
           <Activity className="h-3 w-3" /> Refresh
         </Button>
       </div>
+      <MedicalAckDialog state={medAck} />
 
       <MedicalDisclaimer />
 

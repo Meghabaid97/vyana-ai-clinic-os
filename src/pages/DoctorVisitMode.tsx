@@ -20,6 +20,7 @@ import { buildEmergencyAccessUrl } from "@/lib/share-url";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 import { logEvent } from "@/lib/analytics";
+import MedicalAckDialog, { useMedicalAck } from "@/components/MedicalAckDialog";
 import { Lock } from "lucide-react";
 
 interface DrugInteraction {
@@ -95,6 +96,7 @@ const DoctorVisitMode = () => {
   const [interactionsLoading, setInteractionsLoading] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const ent = useEntitlements();
+  const medAck = useMedicalAck();
   const outOfBriefings = !ent.is_pro && (ent.briefings_remaining ?? 0) <= 0;
 
   const createShareLink = async (): Promise<string | null> => {
@@ -395,7 +397,7 @@ const DoctorVisitMode = () => {
               One scrollable sheet your doctor can read in under a minute. Conditions, what changed, medications, ready to share.
             </p>
 
-            <Button onClick={generate} disabled={loading} size="lg" className="mt-5 w-full gap-2">
+            <Button onClick={() => medAck.run(generate)} disabled={loading} size="lg" className="mt-5 w-full gap-2">
               {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Building your brief...</>
                        : outOfBriefings ? <><Lock className="h-4 w-4" /> Unlock briefings · Upgrade to Pro</>
                        : <><Sparkles className="h-4 w-4" /> Generate my visit brief</>}
@@ -782,6 +784,7 @@ const DoctorVisitMode = () => {
         reason="briefing"
         onSuccess={() => { setPaywallOpen(false); ent.refresh(); }}
       />
+      <MedicalAckDialog state={medAck} />
     </div>
   );
 };
