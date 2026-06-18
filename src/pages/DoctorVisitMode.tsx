@@ -96,6 +96,7 @@ const DoctorVisitMode = () => {
   const [interactionsLoading, setInteractionsLoading] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const ent = useEntitlements();
+  const medAck = useMedicalAck();
   const outOfBriefings = !ent.is_pro && (ent.briefings_remaining ?? 0) <= 0;
 
   const createShareLink = async (): Promise<string | null> => {
