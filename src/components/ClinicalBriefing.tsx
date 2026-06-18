@@ -212,10 +212,11 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
         <h3 className="text-sm font-bold flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" /> Clinical Briefing
         </h3>
-        <Button variant="ghost" size="sm" onClick={generateBriefing} className="text-xs gap-1">
+        <Button variant="ghost" size="sm" onClick={() => medAck.run(generateBriefing)} className="text-xs gap-1">
           <Activity className="h-3 w-3" /> Refresh
         </Button>
       </div>
+      <MedicalAckDialog state={medAck} />
 
       <MedicalDisclaimer />
 
