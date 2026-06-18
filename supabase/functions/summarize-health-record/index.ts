@@ -51,6 +51,10 @@ serve(async (req) => {
       throw e;
     }
 
+    // Quota gate: free users get a limited number of document summaries; Pro is unlimited.
+    const planGate = await requirePlan(supabaseClient, { feature: "docs", featureLabel: "document uploads" });
+    if (planGate) return planGate;
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
 
