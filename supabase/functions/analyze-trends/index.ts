@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { withGuardrails } from "../_shared/guardrails.ts";
+import { requirePlan } from "../_shared/plan-gate.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,6 +50,10 @@ serve(async (req) => {
       }
       throw e;
     }
+
+    // Pro-only: AI trend analysis requires an active Vyana Pro plan.
+    const planGate = await requirePlan(supabaseClient, { feature: "pro", featureLabel: "Health Trends analysis" });
+    if (planGate) return planGate;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
