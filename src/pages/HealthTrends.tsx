@@ -269,15 +269,32 @@ const HealthTrends = () => {
       setPatientAge(patient.age ?? null);
       setPatientId(patient.id);
 
-      const { data: r } = await supabase
-        .from("health_records")
-        .select("id, file_name, file_path, file_type, category, ai_summary, uploaded_at, updated_at, radiology_study_date, extracted_vitals, ai_confidence")
-        .eq("patient_id", patient.id)
-        .order("uploaded_at", { ascending: false });
+      // Fire all reads in parallel — the empty-state path previously waited for
+      // four serial round-trips even when the patient had no records at all.
+      const [recordsRes, vhRes, medsRes, consultRes] = await Promise.all([
+        supabase
+          .from("health_records")
+          .select("id, file_name, file_path, file_type, category, ai_summary, uploaded_at, updated_at, radiology_study_date, extracted_vitals, ai_confidence")
+          .eq("patient_id", patient.id)
+          .order("uploaded_at", { ascending: false }),
+        supabase
+          .from("vital_history")
+          .select("*")
+          .eq("patient_id", patient.id)
+          .order("recorded_at", { ascending: true }),
+        supabase
+          .from("medication_reminders")
+          .select("medication_name, dosage, frequency, is_active")
+          .eq("patient_id", patient.id),
+        patient.national_health_id
+          ? supabase
+              .from("consultations")
+              .select("id", { count: "exact", head: true })
+              .eq("patient_national_health_id", patient.national_health_id)
+          : Promise.resolve({ count: 0 } as any),
+      ]);
 
-      // Sort by clinical report date when available so the "latest" record reflects
-      // the most recent report, not the most recently uploaded file.
-      const sorted = ((r || []) as HealthRecord[]).slice().sort((a, b) => {
+      const sorted = ((recordsRes.data || []) as HealthRecord[]).slice().sort((a, b) => {
         const aDate = a.radiology_study_date
           ? new Date(`${a.radiology_study_date}T12:00:00Z`).getTime()
           : recordClinicalTime(a);
@@ -288,34 +305,14 @@ const HealthTrends = () => {
       });
 
       setRecords(sorted);
-
-      // Load vital history for longitudinal view
-      const { data: vh } = await supabase
-        .from("vital_history")
-        .select("*")
-        .eq("patient_id", patient.id)
-        .order("recorded_at", { ascending: true }) as { data: VitalHistoryEntry[] | null };
-
-      setVitalHistory(vh || []);
-
-      // Load medications for risk engine
-      const { data: meds } = await supabase
-        .from("medication_reminders")
-        .select("medication_name, dosage, frequency, is_active")
-        .eq("patient_id", patient.id);
-      setMedications((meds || []) as any);
-
-      if (patient.national_health_id) {
-        const { data: c } = await supabase
-          .from("consultations")
-          .select("id")
-          .eq("patient_national_health_id", patient.national_health_id);
-        setConsultationCount(c?.length || 0);
-      }
+      setVitalHistory(((vhRes.data || []) as VitalHistoryEntry[]));
+      setMedications((medsRes.data || []) as any);
+      setConsultationCount((consultRes as any)?.count ?? ((consultRes as any)?.data?.length ?? 0));
     } finally {
       setInitialLoading(false);
     }
   };
+
 
   const toDataUrl = async (signedUrl: string) => {
     const response = await fetch(signedUrl);
