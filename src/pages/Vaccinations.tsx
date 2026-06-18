@@ -89,6 +89,12 @@ const Vaccinations = () => {
         </p>
       </section>
 
+      <section className="px-5 pb-4">
+        <MedicalDisclaimer />
+      </section>
+
+
+
       {/* Age-based nudges */}
       {patientAge && relevantScreenings && (
         <section className="px-5 pb-6">
