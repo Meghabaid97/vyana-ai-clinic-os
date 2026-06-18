@@ -11,6 +11,7 @@ import {
   type RiskScore,
   type MedicationEffect,
 } from "@/lib/clinicalRiskEngine";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 type VitalsMap = Record<string, number | null>;
 
