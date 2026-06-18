@@ -68,15 +68,27 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
   const createLink = async () => {
     setError(null);
     setStage("creating");
-    const url = await onCreate(recipientName.trim());
-    if (!url) {
-      setError("Could not create your share link. Please try again.");
+    const raw = await onCreate(recipientName.trim());
+    // Normalise legacy `string | null` and new tagged result into one shape
+    const result: CreateShareResult =
+      raw == null
+        ? { ok: false, kind: "error" }
+        : typeof raw === "string"
+        ? { ok: true, url: raw }
+        : raw;
+
+    if (!result.ok) {
+      if (result.kind === "no-records") {
+        setStage("empty");
+        return;
+      }
+      setError(result.message ?? "Could not create your share link. Please try again.");
       setStage("form");
       return;
     }
-    setShareUrl(url);
+    setShareUrl(result.url);
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(result.url);
       setCopied(true);
     } catch {
       setCopied(false);
@@ -84,6 +96,7 @@ const ShareCeremonySheet = ({ open, onOpenChange, onCreate, onComplete }: Props)
     setStage("ready");
     onComplete?.();
   };
+
 
   const shareMessage = (url: string) =>
     `Here are my health records (secure link, valid 24 hours): ${url}`;
