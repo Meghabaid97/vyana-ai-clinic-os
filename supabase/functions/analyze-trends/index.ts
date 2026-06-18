@@ -51,6 +51,10 @@ serve(async (req) => {
       throw e;
     }
 
+    // Pro-only: AI trend analysis requires an active Vyana Pro plan.
+    const planGate = await requirePlan(supabaseClient, { feature: "pro", featureLabel: "Health Trends analysis" });
+    if (planGate) return planGate;
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
