@@ -15,6 +15,7 @@ import { validatePassword, validateEmail, validateHealthId } from "@/lib/validat
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import LanguageSelector from "@/components/LanguageSelector";
 import { t, useLanguage } from "@/lib/i18n";
+import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 
 type UserRole = "patient";
 type AuthMode = "password" | "emailOtp" | "phoneOtp";
@@ -579,7 +580,6 @@ const Auth = () => {
       const isNativeApp = Capacitor.isNativePlatform();
 
       if (isNativeApp) {
-        const { Browser } = await import("@capacitor/browser");
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
@@ -592,7 +592,7 @@ const Auth = () => {
         if (error) throw error;
         if (!data?.url) throw new Error("Could not start Google sign-in");
 
-        await Browser.open({ url: data.url, presentationStyle: "popover" });
+        await NativeBrowser.open({ url: data.url, presentationStyle: "popover" });
         return;
       }
 

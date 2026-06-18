@@ -1,4 +1,5 @@
 import { Capacitor } from "@capacitor/core";
+import { NativeCamera, NativeCameraResultType, NativeCameraSource } from "@/lib/nativeCapacitorPlugins";
 
 /**
  * Pick an image, preferring the native Capacitor Camera plugin on iOS/Android.
@@ -28,15 +29,13 @@ const dataUrlToFile = (dataUrl: string, name: string, mime: string): File => {
 export async function pickImage(source: PickSource = "prompt"): Promise<PickedImage | null> {
   if (Capacitor.isNativePlatform()) {
     try {
-      const { Camera, CameraResultType, CameraSource } = await import("@capacitor/camera");
-
       // Ensure permissions are explicitly requested before opening the camera UI.
       try {
-        const perm = await Camera.checkPermissions();
+        const perm = await NativeCamera.checkPermissions();
         const needsCamera = source !== "gallery" && perm.camera !== "granted";
         const needsPhotos = source !== "camera" && perm.photos !== "granted" && perm.photos !== "limited";
         if (needsCamera || needsPhotos) {
-          await Camera.requestPermissions({
+          await NativeCamera.requestPermissions({
             permissions: [
               ...(needsCamera ? (["camera"] as const) : []),
               ...(needsPhotos ? (["photos"] as const) : []),
@@ -47,16 +46,16 @@ export async function pickImage(source: PickSource = "prompt"): Promise<PickedIm
         // Older plugin versions may not support checkPermissions; ignore.
       }
 
-      const photo = await Camera.getPhoto({
+      const photo = await NativeCamera.getPhoto({
         quality: 80,
         allowEditing: false,
-        resultType: CameraResultType.DataUrl,
+        resultType: NativeCameraResultType.DataUrl,
         source:
           source === "camera"
-            ? CameraSource.Camera
+            ? NativeCameraSource.Camera
             : source === "gallery"
-            ? CameraSource.Photos
-            : CameraSource.Prompt,
+            ? NativeCameraSource.Photos
+            : NativeCameraSource.Prompt,
         promptLabelHeader: "Add prescription",
         promptLabelPhoto: "Choose from library",
         promptLabelPicture: "Take photo",
