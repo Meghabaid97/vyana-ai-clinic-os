@@ -83,7 +83,9 @@ const PatientProfileEdit = () => {
               lastVisit: consultations[0]?.created_at || null,
             });
           }
-        }
+        // Auto-open edit form on first load if essentials are missing.
+        if (!patientData.name || !patientData.date_of_birth) setEditMode(true);
+      }
       }
     } catch (error: any) {
       console.error("Error loading profile:", error);
