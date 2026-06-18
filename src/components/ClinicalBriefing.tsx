@@ -98,6 +98,14 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
       setPaywallOpen(true);
       return;
     }
+    // Graceful empty-state: nothing to brief from. Don't burn an AI call.
+    if (!consultations || consultations.length === 0) {
+      toast({
+        title: "Nothing to brief yet",
+        description: "Add a consultation or health record first, then try again.",
+      });
+      return;
+    }
     setIsLoading(true);
     setBriefing(null);
     try {
@@ -126,7 +134,25 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
           await ent.refresh();
           return;
         }
+        if (status === 502 || bodyJson?.error === "BRIEFING_GENERATION_FAILED") {
+          toast({
+            title: "Not enough data yet",
+            description: "We couldn't build a complete briefing from your current records. Add a recent report and try again.",
+          });
+          return;
+        }
+        if (status === 429) {
+          toast({ title: "Too many requests", description: "Please wait a moment and try again." });
+          return;
+        }
         throw error;
+      }
+      if (!data || typeof data !== "object" || !(data as any).patient_overview) {
+        toast({
+          title: "Briefing unavailable",
+          description: "We couldn't build a briefing right now. Please try again shortly.",
+        });
+        return;
       }
       setBriefing(data);
       void logEvent("briefing_generated", { surface: "inline" }, patientId);
@@ -153,11 +179,15 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
       }
     } catch (err: any) {
       console.error("Briefing error:", err);
-      toast({ title: "Error", description: "Failed to generate clinical briefing", variant: "destructive" });
+      toast({
+        title: "Couldn't generate briefing",
+        description: "Something went wrong. Please check your connection and try again.",
+      });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const outOfBriefings = !ent.is_pro && (ent.briefings_remaining ?? 0) <= 0;
 
