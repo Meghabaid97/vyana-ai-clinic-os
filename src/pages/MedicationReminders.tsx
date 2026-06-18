@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 interface Reminder {
   id: string;
@@ -235,6 +236,12 @@ const MedicationReminders = () => {
           {t("med.subtitle")}
         </p>
       </section>
+
+      <section className="px-5 pb-4">
+        <MedicalDisclaimer />
+      </section>
+
+
 
       {/* From prescriptions */}
       {extracted.length > 0 && (

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { saveToHealthRecords } from "@/lib/healthRecordsPipeline";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 interface ExtractedMedication {
   name: string;
@@ -348,6 +349,12 @@ const PrescriptionInterpreter = () => {
           Photograph or write a prescription, AI interprets it across English, Hindi, Tamil, Telugu & Bengali.
         </p>
       </section>
+
+      <section className="px-5 pb-4">
+        <MedicalDisclaimer />
+      </section>
+
+
 
       {/* Input Methods */}
       {!imagePreview && !result && (

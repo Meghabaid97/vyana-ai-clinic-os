@@ -4,6 +4,7 @@ import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { Shield, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Syringe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/lib/i18n";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 interface VaccineInfo {
   name: string;
@@ -87,6 +88,12 @@ const Vaccinations = () => {
             : t("vac.subtitle.generic")}
         </p>
       </section>
+
+      <section className="px-5 pb-4">
+        <MedicalDisclaimer />
+      </section>
+
+
 
       {/* Age-based nudges */}
       {patientAge && relevantScreenings && (
