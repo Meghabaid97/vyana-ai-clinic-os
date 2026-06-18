@@ -82,59 +82,62 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error("Please sign in to upgrade");
 
-  const { data: orderData, error: orderErr } = await supabase.functions.invoke(
-    "razorpay-create-order",
-    { body: { plan: opts.plan, cycle: opts.cycle, user_id: session.user.id } },
+  // Create a Razorpay Subscription (recurring) — this triggers UPI AutoPay mandate UI.
+  const { data: subData, error: subErr } = await supabase.functions.invoke(
+    "razorpay-create-subscription",
+    { body: { plan: opts.plan, cycle: opts.cycle } },
   );
-  if (orderErr || !orderData?.order_id) {
-    throw new Error(orderErr ? await getFunctionErrorMessage(orderErr) : "Could not create order");
+  if (subErr || !subData?.subscription_id) {
+    throw new Error(subErr ? await getFunctionErrorMessage(subErr) : "Could not start subscription");
   }
 
   const { logEvent } = await import("@/lib/analytics");
 
   return new Promise<RazorpaySuccess>((resolve, reject) => {
     const rzp = new window.Razorpay({
-      key: orderData.key_id,
-      order_id: orderData.order_id,
-      amount: orderData.amount,
-      currency: orderData.currency,
+      key: subData.key_id,
+      subscription_id: subData.subscription_id,
       name: "Vyana",
-      description: `${opts.plan === "family" ? "Family" : "Individual"} plan · ${opts.cycle}`,
+      description: `${opts.plan === "family" ? "Family" : "Individual"} plan · ${opts.cycle} · UPI AutoPay`,
       prefill: opts.prefill ?? { email: session.user.email ?? undefined },
       notes: { plan: opts.plan, cycle: opts.cycle },
       theme: { color: opts.themeColor ?? "#0F172A" },
-      modal: { ondismiss: () => {
-        void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, reason: "dismissed" });
-        reject(new Error("Payment cancelled"));
-      } },
+      modal: {
+        ondismiss: () => {
+          void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, reason: "dismissed" });
+          reject(new Error("Payment cancelled"));
+        },
+      },
       handler: async (response: any) => {
-        const { data: verifyData, error: verifyErr } = await supabase.functions.invoke(
-          "razorpay-verify-payment",
-          { body: response },
-        );
-        if (verifyErr || !verifyData?.verified) {
-          void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, reason: "verify_failed" });
-          reject(new Error(verifyErr?.message ?? "Signature verification failed"));
-          return;
-        }
-        if (verifyData?.activated === false) {
-          const msg = verifyData?.test_mode
-            ? "Test-mode payments don't unlock Pro. Use live Razorpay keys to upgrade real accounts."
-            : (verifyData?.warning ?? "Payment verified but Pro was not activated.");
-          void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, reason: verifyData?.test_mode ? "test_mode" : "not_activated" });
-          reject(new Error(msg));
-          return;
+        // For subscriptions, activation happens via webhook (subscription.authenticated / activated / charged).
+        // Poll briefly so the UI reflects the new entitlements right away.
+        const start = Date.now();
+        const POLL_MS = 1500;
+        const TIMEOUT_MS = 20_000;
+        let activated = false;
+        while (Date.now() - start < TIMEOUT_MS) {
+          const { data: ent } = await supabase.rpc("get_entitlements");
+          if ((ent as any)?.is_pro) {
+            activated = true;
+            break;
+          }
+          await new Promise((r) => setTimeout(r, POLL_MS));
         }
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("vyana:entitlements:refresh"));
         }
-        void logEvent("payment_succeeded", { plan: opts.plan, cycle: opts.cycle, amount: orderData.amount });
+        void logEvent(activated ? "payment_succeeded" : "payment_pending", {
+          plan: opts.plan,
+          cycle: opts.cycle,
+          subscription_id: subData.subscription_id,
+        });
         resolve({
-          ...response,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_subscription_id ?? subData.subscription_id,
+          razorpay_signature: response.razorpay_signature,
           verified: true,
           plan: opts.plan,
           cycle: opts.cycle,
-          current_period_end: verifyData.current_period_end,
         });
       },
     });
@@ -142,7 +145,22 @@ export async function startPlanCheckout(opts: PlanCheckoutOptions): Promise<Razo
       void logEvent("payment_failed", { plan: opts.plan, cycle: opts.cycle, reason: resp?.error?.description ?? "unknown" });
       reject(new Error(getPaymentFailureMessage(resp?.error?.description)));
     });
-    void logEvent("checkout_opened", { plan: opts.plan, cycle: opts.cycle, amount: orderData.amount });
+    void logEvent("checkout_opened", {
+      plan: opts.plan,
+      cycle: opts.cycle,
+      subscription_id: subData.subscription_id,
+    });
     rzp.open();
   });
+}
+
+// Cancel the active subscription on Razorpay at the end of the current billing cycle.
+export async function cancelActiveSubscription(): Promise<void> {
+  const { data, error } = await supabase.functions.invoke("razorpay-cancel-subscription");
+  if (error || (data as any)?.error) {
+    throw new Error((data as any)?.error ?? error?.message ?? "Could not cancel subscription");
+  }
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("vyana:entitlements:refresh"));
+  }
 }
