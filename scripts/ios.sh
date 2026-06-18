@@ -80,6 +80,22 @@ verify_app_icon() {
   c_green "AppIcon verified."
 }
 
+# Capacitor's `cap add ios` regenerates ios/App/App/Info.plist from its default
+# template, wiping our custom NS*UsageDescription / Face ID / encryption keys.
+# We keep the canonical copy at ios-template/Info.plist and restore it after
+# every regeneration. Edit ios-template/Info.plist (NOT ios/App/App/Info.plist)
+# — anything in ios/App/App/Info.plist will be lost on the next prod/fix run.
+restore_info_plist() {
+  local src="ios-template/Info.plist"
+  local dst="ios/App/App/Info.plist"
+  if [[ -f "$src" && -d "ios/App/App" ]]; then
+    cp "$src" "$dst"
+    c_green "Restored Info.plist from ios-template/ (usage descriptions intact)."
+  else
+    c_yellow "ios-template/Info.plist missing — Info.plist NOT restored. iOS will prompt-crash on camera/mic/photos."
+  fi
+}
+
 case "$MODE" in
   dev)
     require_root
@@ -89,6 +105,7 @@ case "$MODE" in
     generate_app_icon
     c_blue "Syncing Capacitor (dev: hot-reload from Lovable)..."
     npx cap sync ios
+    restore_info_plist
     verify_app_icon
     c_green "Opening Xcode. Hit Run (⌘R) — the simulator will load the live preview."
     npx cap open ios
@@ -103,8 +120,10 @@ case "$MODE" in
     c_blue "Re-creating ios/ in prod mode..."
     rm -rf ios
     CAP_MODE=prod npx cap add ios
+    restore_info_plist
     generate_app_icon
     CAP_MODE=prod npx cap sync ios
+    restore_info_plist
     verify_app_icon
     c_green "Opening Xcode. Build for a real device or Archive for TestFlight."
     CAP_MODE=prod npx cap open ios
@@ -118,6 +137,7 @@ case "$MODE" in
     generate_app_icon
     c_blue "Syncing iOS plugins..."
     npx cap sync ios
+    restore_info_plist
     verify_app_icon
     c_green "Done. Reopen Xcode if it was already open so it picks up new plugins."
     ;;
@@ -131,8 +151,10 @@ case "$MODE" in
     npm install
     npm run build
     npx cap add ios
+    restore_info_plist
     generate_app_icon
     npx cap sync ios
+    restore_info_plist
     verify_app_icon
     c_green "Done. Opening Xcode — do File → Packages → Reset Package Caches once."
     npx cap open ios
