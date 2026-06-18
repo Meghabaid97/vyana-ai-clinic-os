@@ -124,12 +124,109 @@ function ManageSubscription({ ent, onChanged }: { ent: ReturnType<typeof useEnti
             </AlertDialog>
           )}
         </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <SwitchPlanDialog ent={ent} onChanged={onChanged} />
+          <Button variant="ghost" size="sm" onClick={() => (window.location.href = "/app/billing")}>
+            <ReceiptText className="h-3.5 w-3.5 mr-1.5" /> Billing history
+          </Button>
+        </div>
       </div>
 
       <p className="text-[11.5px] text-muted-foreground mt-3 text-center">
-        Need to switch plans or change billing cycle? Cancel first, then choose a new plan once it ends.
+        Plan switches via Razorpay take effect at the next renewal so you're never charged twice.
       </p>
     </div>
+  );
+}
+
+function SwitchPlanDialog({ ent, onChanged }: { ent: ReturnType<typeof useEntitlements>; onChanged: () => void }) {
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const currentPlan = ent.plan === "family" ? "family" : "individual";
+  const currentCycle = ((ent as any).billing_cycle as BillingCycle | undefined) ?? "monthly";
+  const [plan, setPlan] = useState<"individual" | "family">(currentPlan);
+  const [cycle, setCycle] = useState<BillingCycle>(currentCycle);
+
+  const noChange = plan === currentPlan && cycle === currentCycle;
+
+  const submit = async () => {
+    setBusy(true);
+    try {
+      await switchActivePlan({ plan, cycle, scheduleChangeAt: "cycle_end" });
+      toast({
+        title: "Plan switch scheduled",
+        description: `You'll move to ${PLAN_META[plan].name} · ${cycle} at your next renewal.`,
+      });
+      setOpen(false);
+      onChanged();
+    } catch (e: any) {
+      toast({ title: "Couldn't switch plan", description: e?.message ?? "Try again.", variant: "destructive" });
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Repeat className="h-3.5 w-3.5 mr-1.5" /> Switch plan
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Switch plan or cycle</DialogTitle>
+          <DialogDescription>
+            Change takes effect at your next renewal date. No mid-cycle charges.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3">
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Plan</p>
+            <div className="grid grid-cols-2 gap-2">
+              {(["individual", "family"] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPlan(p)}
+                  className={`p-3 rounded-lg border text-left text-[13px] ${plan === p ? "border-primary bg-primary/5" : "border-border"}`}
+                >
+                  <div className="font-semibold">{PLAN_META[p].name}</div>
+                  <div className="text-[11px] text-muted-foreground">{PLAN_META[p].tagline}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Cycle</p>
+            <div className="grid grid-cols-2 gap-2">
+              {(["monthly", "yearly"] as const).map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCycle(c)}
+                  className={`p-3 rounded-lg border text-left text-[13px] ${cycle === c ? "border-primary bg-primary/5" : "border-border"}`}
+                >
+                  <div className="font-semibold capitalize">{c}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {formatINR(PLAN_PRICES[plan][c])}/{c === "yearly" ? "yr" : "mo"}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>Cancel</Button>
+          <Button onClick={submit} disabled={busy || noChange}>
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Schedule switch"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
