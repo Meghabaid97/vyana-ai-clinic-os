@@ -160,7 +160,7 @@ const AppShellInner = () => {
     <div className="aurora-warm-soft h-[100svh] lg:min-h-screen lg:h-auto w-full max-w-[100vw] overflow-hidden lg:overflow-visible bg-background flex flex-col">
 
       {/* ============ MOBILE TOP BAR (hidden on lg+) — iOS-native proportions ============ */}
-      <header className="lg:hidden bg-background/85 border-b border-border/60 sticky top-0 z-50 safe-area-top backdrop-blur-xl">
+      <header className="lg:hidden bg-background border-b border-border/60 sticky top-0 z-50 safe-area-top">
         <div className="px-3 h-11 flex items-center justify-between gap-1.5">
           {/* LEFT — back on sub-routes, page title on tab roots */}
           <div className="flex items-center min-w-0 flex-1">
