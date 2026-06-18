@@ -15,9 +15,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  build: {
-    rollupOptions: {
-      external: ["@capacitor/camera", "@capacitor/browser"],
-    },
+  optimizeDeps: {
+    exclude: ["@capacitor/camera", "@capacitor/browser"],
   },
 }));
