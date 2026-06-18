@@ -20,6 +20,7 @@ import { buildEmergencyAccessUrl } from "@/lib/share-url";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 import { logEvent } from "@/lib/analytics";
+import MedicalAckDialog, { useMedicalAck } from "@/components/MedicalAckDialog";
 import { Lock } from "lucide-react";
 
 interface DrugInteraction {
