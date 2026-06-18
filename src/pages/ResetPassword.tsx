@@ -165,7 +165,7 @@ const ResetPassword = () => {
         ) : !recoveryReady ? (
           <div className="space-y-4">
             <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-200">
-              This reset link is invalid or has expired. Please request a new one from the sign-in page.
+              {linkError ?? "This reset link is invalid or has expired. Please request a new one from the sign-in page."}
             </div>
             <Button className="w-full" onClick={() => navigate("/auth", { replace: true })}>
               Back to sign in
