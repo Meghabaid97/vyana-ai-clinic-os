@@ -443,6 +443,10 @@ const Auth = () => {
       const pv = validatePassword(password);
       if (!pv.isValid) { setPasswordErrors(pv.errors); toast({ title: "Weak Password", description: "Please meet all password requirements", variant: "destructive" }); return; }
       if (userRole === "patient") {
+        if (!ageConfirmed) {
+          toast({ title: "Age confirmation required", description: "You must be 13 or older to use Vyana.", variant: "destructive" });
+          return;
+        }
         if (!consentGiven) {
           toast({ title: "Consent Required", description: "You must accept the data consent agreement to proceed.", variant: "destructive" });
           return;
