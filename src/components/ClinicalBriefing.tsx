@@ -180,10 +180,11 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
             </p>
           </div>
         </div>
-        <Button onClick={generateBriefing} className="w-full gap-2" size="sm">
+        <Button onClick={() => medAck.run(generateBriefing)} className="w-full gap-2" size="sm">
           {outOfBriefings ? <><Lock className="h-4 w-4" /> Unlock briefing · ₹99/mo</> : <><Sparkles className="h-4 w-4" /> Generate Briefing</>}
         </Button>
       </Card>
+      <MedicalAckDialog state={medAck} />
       <PaywallSheet
         open={paywallOpen}
         onOpenChange={setPaywallOpen}
