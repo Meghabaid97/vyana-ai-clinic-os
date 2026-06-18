@@ -1,18 +1,23 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
-import { Check, ShieldCheck, Sparkles, Loader2, RotateCcw, XCircle } from "lucide-react";
+import { Check, ShieldCheck, Sparkles, Loader2, RotateCcw, XCircle, Repeat, ReceiptText } from "lucide-react";
 import { PlanCard } from "@/components/paywall/PlanCard";
 import { NativeUpgradeNotice } from "@/components/paywall/NativeUpgradeNotice";
 import { useEntitlements } from "@/hooks/useEntitlements";
-import { type BillingCycle, FREE_LIMITS, PLAN_META } from "@/lib/plans";
+import { type BillingCycle, FREE_LIMITS, PLAN_META, PLAN_PRICES, formatINR } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { switchActivePlan } from "@/lib/razorpay";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
 
 const COMPARE: { label: string; free: string; individual: string; family: string }[] = [
   { label: "Briefings", free: `${FREE_LIMITS.briefingsLifetime} (lifetime)`, individual: "Unlimited", family: "Unlimited" },
