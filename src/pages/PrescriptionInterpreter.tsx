@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { saveToHealthRecords } from "@/lib/healthRecordsPipeline";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 interface ExtractedMedication {
   name: string;
