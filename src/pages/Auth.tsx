@@ -113,6 +113,7 @@ const Auth = () => {
   const [locating, setLocating] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
   const [skipAbha, setSkipAbha] = useState(false);
   const [phoneError, setPhoneError] = useState("");
