@@ -160,7 +160,7 @@ const AppShellInner = () => {
     <div className="aurora-warm-soft h-[100svh] lg:min-h-screen lg:h-auto w-full max-w-[100vw] overflow-hidden lg:overflow-visible bg-background flex flex-col">
 
       {/* ============ MOBILE TOP BAR (hidden on lg+) — iOS-native proportions ============ */}
-      <header className="lg:hidden bg-background/85 border-b border-border/60 sticky top-0 z-50 safe-area-top backdrop-blur-xl">
+      <header className="lg:hidden bg-background border-b border-border/60 sticky top-0 z-50 safe-area-top">
         <div className="px-3 h-11 flex items-center justify-between gap-1.5">
           {/* LEFT — back on sub-routes, page title on tab roots */}
           <div className="flex items-center min-w-0 flex-1">
@@ -321,7 +321,7 @@ const AppShellInner = () => {
       </main>
 
       {/* ============ MOBILE BOTTOM TAB BAR (hidden on lg+) — iOS-native 6-tab ============ */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/90 border-t border-border/60 z-50 safe-area-bottom backdrop-blur-xl">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border/60 z-50 safe-area-bottom">
         <div className="grid grid-cols-6 items-stretch h-[54px] w-full max-w-full overflow-hidden">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;

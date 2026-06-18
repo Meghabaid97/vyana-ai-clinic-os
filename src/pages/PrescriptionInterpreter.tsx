@@ -153,6 +153,27 @@ const PrescriptionInterpreter = () => {
     reader.readAsDataURL(file);
   };
 
+  // Native-first picker. On iOS/Android uses @capacitor/camera (Info.plist-driven
+  // permission prompt). On web falls back to the hidden <input type="file"> chooser.
+  const openImagePicker = async () => {
+    try {
+      const { pickImage, isNativeApp } = await import("@/lib/nativeImagePicker");
+      if (isNativeApp()) {
+        const picked = await pickImage("prompt");
+        if (picked) {
+          setImageFile(picked.file);
+          setImagePreview(picked.dataUrl);
+          setResult(null);
+        }
+        return;
+      }
+    } catch (err: any) {
+      toast({ title: "Camera unavailable", description: err?.message ?? "Could not open camera.", variant: "destructive" });
+      return;
+    }
+    fileInputRef.current?.click();
+  };
+
   // Canvas drawing
   const initCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -363,13 +384,12 @@ const PrescriptionInterpreter = () => {
             ref={fileInputRef}
             type="file"
             accept="image/*"
-            capture="environment"
             className="hidden"
             onChange={handleFileSelect}
           />
 
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={openImagePicker}
             className="w-full rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-8 flex flex-col items-center gap-3 hover:border-primary/50 transition-colors"
           >
             <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">

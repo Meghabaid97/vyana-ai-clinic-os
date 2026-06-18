@@ -16,7 +16,7 @@ const BackHeader = ({ title, to, rightSlot }: BackHeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border safe-area-top">
+    <header className="sticky top-0 z-40 bg-background border-b border-border safe-area-top">
       <div className="px-4 sm:px-5 h-12 sm:h-14 flex items-center gap-2">
         <button
           onClick={handleBack}
