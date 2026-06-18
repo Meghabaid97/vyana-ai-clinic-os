@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
-import ShareCeremonySheet from "@/components/ShareCeremonySheet";
+import ShareCeremonySheet, { type CreateShareResult } from "@/components/ShareCeremonySheet";
 import { buildEmergencyAccessUrl } from "@/lib/share-url";
 
 interface ShareLink {
