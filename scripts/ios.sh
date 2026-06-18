@@ -120,8 +120,10 @@ case "$MODE" in
     c_blue "Re-creating ios/ in prod mode..."
     rm -rf ios
     CAP_MODE=prod npx cap add ios
+    restore_info_plist
     generate_app_icon
     CAP_MODE=prod npx cap sync ios
+    restore_info_plist
     verify_app_icon
     c_green "Opening Xcode. Build for a real device or Archive for TestFlight."
     CAP_MODE=prod npx cap open ios
