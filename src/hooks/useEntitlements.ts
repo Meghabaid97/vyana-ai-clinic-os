@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { PlanId } from "@/lib/plans";
 
@@ -36,60 +36,109 @@ const DEFAULT: Entitlements = {
   family_remaining: 2,
 };
 
-export function useEntitlements() {
-  const [data, setData] = useState<Entitlements>(DEFAULT);
-  const [loading, setLoading] = useState(true);
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Singleton store
+ * ────────────────────────────────────────────────────────────────────────────
+ * Previously every component that called useEntitlements() fired its OWN
+ * RPC, auth listener, and realtime channel. On the home screen that meant
+ * 8+ identical /rest/v1/rpc/get_entitlements calls per render. Now we hold
+ * a single shared snapshot, dedupe in-flight fetches, and fan out updates
+ * to every subscribed hook instance.
+ * ────────────────────────────────────────────────────────────────────────── */
 
-  const refresh = useCallback(async () => {
+let snapshot: Entitlements = DEFAULT;
+let loading = true;
+let listeners = new Set<() => void>();
+let inFlight: Promise<void> | null = null;
+let initialized = false;
+const STALE_MS = 30_000;
+let lastFetchedAt = 0;
+
+function notify() {
+  listeners.forEach((l) => l());
+}
+
+function setSnapshot(next: Entitlements) {
+  snapshot = next;
+  notify();
+}
+
+function setLoading(v: boolean) {
+  if (loading !== v) {
+    loading = v;
+    notify();
+  }
+}
+
+async function fetchOnce(): Promise<void> {
+  if (inFlight) return inFlight;
+  inFlight = (async () => {
     setLoading(true);
     try {
       const { data: res, error } = await supabase.rpc("get_entitlements");
       if (error) throw error;
-      if (res) setData({ ...DEFAULT, ...(res as any) });
+      if (res) setSnapshot({ ...DEFAULT, ...(res as any) });
+      lastFetchedAt = Date.now();
     } catch (e) {
       console.warn("[useEntitlements] failed", e);
     } finally {
       setLoading(false);
+      inFlight = null;
     }
-  }, []);
+  })();
+  return inFlight;
+}
+
+function refreshShared(force = false) {
+  if (!force && Date.now() - lastFetchedAt < STALE_MS && !loading) return Promise.resolve();
+  return fetchOnce();
+}
+
+function initOnce() {
+  if (initialized) return;
+  initialized = true;
+
+  void fetchOnce();
+
+  supabase.auth.onAuthStateChange(() => { void fetchOnce(); });
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("vyana:entitlements:refresh", () => { void fetchOnce(); });
+    window.addEventListener("focus", () => { void refreshShared(); });
+  }
+
+  // Single realtime subscription, attached when we know the user.
+  supabase.auth.getUser().then(({ data }) => {
+    const uid = data.user?.id;
+    if (!uid) return;
+    supabase
+      .channel(`entitlements:${uid}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${uid}` },
+        () => { void fetchOnce(); },
+      )
+      .subscribe();
+  });
+}
+
+export function useEntitlements() {
+  initOnce();
+  const [, force] = useState(0);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    void refresh();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => { void refresh(); });
-
-    // Cross-component sync: any code can trigger a refetch by dispatching this event.
-    const onRefresh = () => { void refresh(); };
-    const onFocus = () => { void refresh(); };
-    if (typeof window !== "undefined") {
-      window.addEventListener("vyana:entitlements:refresh", onRefresh);
-      window.addEventListener("focus", onFocus);
-    }
-
-    // Realtime: when the user's subscription row changes (activation, expiry, cancel),
-    // every mounted hook instance refreshes — so the Pro badge updates everywhere instantly.
-    let channel: ReturnType<typeof supabase.channel> | null = null;
-    supabase.auth.getUser().then(({ data }) => {
-      const uid = data.user?.id;
-      if (!uid) return;
-      channel = supabase
-        .channel(`entitlements:${uid}`)
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${uid}` },
-          () => { void refresh(); },
-        )
-        .subscribe();
-    });
-
-    return () => {
-      sub.subscription.unsubscribe();
-      if (typeof window !== "undefined") {
-        window.removeEventListener("vyana:entitlements:refresh", onRefresh);
-        window.removeEventListener("focus", onFocus);
-      }
-      if (channel) supabase.removeChannel(channel);
+    mountedRef.current = true;
+    const listener = () => {
+      if (mountedRef.current) force((n) => n + 1);
     };
-  }, [refresh]);
+    listeners.add(listener);
+    return () => {
+      mountedRef.current = false;
+      listeners.delete(listener);
+    };
+  }, []);
 
-  return { ...data, loading, refresh };
+  const refresh = useCallback(() => refreshShared(true), []);
+  return { ...snapshot, loading, refresh };
 }
