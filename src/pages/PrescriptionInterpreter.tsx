@@ -350,6 +350,12 @@ const PrescriptionInterpreter = () => {
         </p>
       </section>
 
+      <section className="px-5 pb-4">
+        <MedicalDisclaimer />
+      </section>
+
+
+
       {/* Input Methods */}
       {!imagePreview && !result && (
         <section className="px-5 pb-6 space-y-3">
