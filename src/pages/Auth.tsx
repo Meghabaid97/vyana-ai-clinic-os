@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight, FileCheck, MapPin, Loader2 } from "lucide-react";
+import { Mail, Lock, Chrome, User, Shield, AlertCircle, CheckCircle2, Phone, KeyRound, Calendar, Weight, FileCheck, MapPin, Loader2, Apple } from "lucide-react";
+import { lovable } from "@/integrations/lovable";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { validatePassword, validateEmail, validateHealthId } from "@/lib/validation";
@@ -619,6 +620,26 @@ const Auth = () => {
     }
   };
 
+  const handleAppleAuth = async () => {
+    try {
+      if (isSignUp) {
+        setStoredSignupDraft(buildSignupDraft());
+      }
+      const isNativeApp = Capacitor.isNativePlatform();
+      const redirectUri = isNativeApp ? NATIVE_OAUTH_REDIRECT : `${window.location.origin}/app`;
+      const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: redirectUri });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      navigate("/app", { replace: true });
+    } catch (error: any) {
+      toast({
+        title: "Authentication Error",
+        description: error?.message || "Could not start Apple sign-in.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const isNativeApp = Capacitor.isNativePlatform();
   const allowSignup = true;
   const effectiveIsSignUp = isSignUp;
@@ -874,14 +895,18 @@ const Auth = () => {
             <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">{t("auth.orContinue")}</span></div>
           </div>
 
-          <Button type="button" variant="outline" className="w-full" onClick={handleGoogleAuth}>
-            <Chrome className="w-5 h-5 mr-2" />
-            Google
-          </Button>
+          <div className="space-y-2">
+            <Button type="button" variant="outline" className="w-full" onClick={handleGoogleAuth}>
+              <Chrome className="w-5 h-5 mr-2" />
+              Continue with Google
+            </Button>
+            <Button type="button" variant="outline" className="w-full" onClick={handleAppleAuth}>
+              <Apple className="w-5 h-5 mr-2" />
+              Continue with Apple
+            </Button>
+          </div>
           <p className="mt-2 text-[11px] text-muted-foreground text-center leading-relaxed">
-            {isSignUp
-              ? "You'll be redirected to Google to finish creating your account."
-              : "Sign in with your Google account."}
+            Sign in with Apple keeps your email private. We only receive your name and a relay address.
           </p>
 
           <div className="mt-6 text-center">
