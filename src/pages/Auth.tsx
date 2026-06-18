@@ -19,6 +19,7 @@ import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 
 type UserRole = "patient";
 type AuthMode = "password" | "emailOtp" | "phoneOtp";
+type SocialProvider = "google" | "apple";
 
 type PendingSignupDraft = {
   role?: UserRole;
@@ -40,6 +41,36 @@ const VALIDATED_INVITE_KEY = "vyana-validated-invite-token";
 const CUSTOMER_APP_ORIGIN = "https://www.vyana.care";
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/app`;
 const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
+
+const isMobileOrTabletBrowser = () => {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  return /iPhone|iPad|iPod|Android/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+};
+
+const createOAuthState = () => {
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  }
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+};
+
+const buildCustomerOAuthUrl = (
+  provider: SocialProvider,
+  redirectUri: string,
+  extraParams: Record<string, string> = {},
+) => {
+  const url = new URL("/~oauth/initiate", CUSTOMER_APP_ORIGIN);
+  const state = createOAuthState();
+  sessionStorage.setItem("vyana-oauth-state", state);
+  Object.entries(extraParams).forEach(([key, value]) => url.searchParams.set(key, value));
+  url.searchParams.set("provider", provider);
+  url.searchParams.set("redirect_uri", redirectUri);
+  url.searchParams.set("state", state);
+  return url.toString();
+};
 
 type ServerInviteValidation =
   | { valid: true; email?: string | null; name?: string | null }
