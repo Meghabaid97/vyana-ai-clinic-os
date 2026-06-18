@@ -23,6 +23,7 @@ import { TrendsSkeleton } from "@/components/ui/page-skeletons";
 import { useLanguage } from "@/lib/i18n";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { TrendsTeaser } from "@/components/paywall/TrendsTeaser";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 type VitalKey = string;
 type VitalsMap = Record<VitalKey, number | null>;
@@ -701,8 +702,12 @@ const HealthTrends = () => {
       />
 
 
+      <MedicalDisclaimer />
+
       {/* Lead: What changed since last visit (the killer feature) */}
       <DashboardChangesCard patientId={patientId} />
+
+
 
 
 

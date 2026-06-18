@@ -113,6 +113,7 @@ const Auth = () => {
   const [locating, setLocating] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
   const [skipAbha, setSkipAbha] = useState(false);
   const [phoneError, setPhoneError] = useState("");
@@ -442,6 +443,10 @@ const Auth = () => {
       const pv = validatePassword(password);
       if (!pv.isValid) { setPasswordErrors(pv.errors); toast({ title: "Weak Password", description: "Please meet all password requirements", variant: "destructive" }); return; }
       if (userRole === "patient") {
+        if (!ageConfirmed) {
+          toast({ title: "Age confirmation required", description: "You must be 13 or older to use Vyana.", variant: "destructive" });
+          return;
+        }
         if (!consentGiven) {
           toast({ title: "Consent Required", description: "You must accept the data consent agreement to proceed.", variant: "destructive" });
           return;
@@ -697,7 +702,20 @@ const Auth = () => {
                         We'll ask for your phone, ABHA ID, and other details inside the app, takes 30 seconds.
                       </p>
 
+                      <div className="rounded-lg border border-border bg-muted/30 p-3 flex items-start gap-2">
+                        <Checkbox
+                          id="age-confirm"
+                          checked={ageConfirmed}
+                          onCheckedChange={(checked) => setAgeConfirmed(checked === true)}
+                          className="mt-0.5"
+                        />
+                        <label htmlFor="age-confirm" className="text-xs text-foreground leading-tight cursor-pointer">
+                          I confirm I am <span className="font-semibold">13 years or older</span>. If you are managing records for a child, you will add them as a family member after signup.
+                        </label>
+                      </div>
+
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+
                         <div className="flex items-start gap-2">
                           <FileCheck className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                           <div>

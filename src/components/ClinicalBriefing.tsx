@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { PaywallSheet } from "@/components/paywall/PaywallSheet";
 import { logEvent } from "@/lib/analytics";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 interface ClinicalBriefingProps {
   consultations: Array<{
@@ -213,7 +214,10 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
         </Button>
       </div>
 
+      <MedicalDisclaimer />
+
       {/* Patient Overview */}
+
       <div className="rounded-lg bg-muted/50 p-3">
         <p className="text-sm text-foreground">{briefing.patient_overview.summary}</p>
         {briefing.patient_overview.key_conditions.length > 0 && (
