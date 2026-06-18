@@ -896,6 +896,22 @@ const Auth = () => {
             )}
           </div>
 
+          {/* Compliance footer — covers Google sign-in path and meets App Store / Play Store requirements */}
+          <div className="mt-6 pt-4 border-t border-border/50 space-y-2">
+            <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
+              By continuing you agree to our{" "}
+              <Link to="/legal" target="_blank" className="text-primary hover:underline">Terms of Service</Link>{" "}
+              and{" "}
+              <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
+              You confirm you are <span className="font-semibold">13 years or older</span>.
+            </p>
+            <p className="text-[11px] text-muted-foreground text-center leading-relaxed italic">
+              Vyana is a clinical decision support tool, not a diagnosis engine. AI insights are informational and must be confirmed with a qualified doctor.
+            </p>
+          </div>
+
+
+
         </div>
 
         <div className="mt-6 text-center">
