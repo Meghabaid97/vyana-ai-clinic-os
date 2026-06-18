@@ -19,6 +19,7 @@ import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 
 type UserRole = "patient";
 type AuthMode = "password" | "emailOtp" | "phoneOtp";
+type SocialProvider = "google" | "apple";
 
 type PendingSignupDraft = {
   role?: UserRole;
@@ -40,6 +41,36 @@ const VALIDATED_INVITE_KEY = "vyana-validated-invite-token";
 const CUSTOMER_APP_ORIGIN = "https://www.vyana.care";
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/app`;
 const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
+
+const isMobileOrTabletBrowser = () => {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  return /iPhone|iPad|iPod|Android/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+};
+
+const createOAuthState = () => {
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  }
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+};
+
+const buildCustomerOAuthUrl = (
+  provider: SocialProvider,
+  redirectUri: string,
+  extraParams: Record<string, string> = {},
+) => {
+  const url = new URL("/~oauth/initiate", CUSTOMER_APP_ORIGIN);
+  const state = createOAuthState();
+  sessionStorage.setItem("vyana-oauth-state", state);
+  Object.entries(extraParams).forEach(([key, value]) => url.searchParams.set(key, value));
+  url.searchParams.set("provider", provider);
+  url.searchParams.set("redirect_uri", redirectUri);
+  url.searchParams.set("state", state);
+  return url.toString();
+};
 
 type ServerInviteValidation =
   | { valid: true; email?: string | null; name?: string | null }
@@ -580,34 +611,24 @@ const Auth = () => {
       const isNativeApp = Capacitor.isNativePlatform();
 
       if (isNativeApp) {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: NATIVE_OAUTH_REDIRECT,
-            skipBrowserRedirect: true,
-            queryParams: { prompt: "select_account" },
-          },
+        await NativeBrowser.open({
+          url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT, { prompt: "select_account" }),
+          presentationStyle: "fullscreen",
         });
-
-        if (error) throw error;
-        if (!data?.url) throw new Error("Could not start Google sign-in");
-
-        await NativeBrowser.open({ url: data.url, presentationStyle: "popover" });
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: WEB_OAUTH_REDIRECT,
-          queryParams: { prompt: "select_account" },
-        },
+      if (isMobileOrTabletBrowser()) {
+        window.location.assign(buildCustomerOAuthUrl("google", WEB_OAUTH_REDIRECT, { prompt: "select_account" }));
+        return;
+      }
+
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: WEB_OAUTH_REDIRECT,
+        extraParams: { prompt: "select_account" },
       });
-      if (error) throw error;
-      if (data?.url) {
-        window.location.assign(data.url);
-        return;
-      }
+      if (result.error) throw result.error;
+      if (result.redirected) return;
 
       navigate("/app", { replace: true });
     } catch (error: any) {
@@ -627,6 +648,20 @@ const Auth = () => {
       }
       const isNativeApp = Capacitor.isNativePlatform();
       const redirectUri = isNativeApp ? NATIVE_OAUTH_REDIRECT : `${window.location.origin}/app`;
+
+      if (isNativeApp) {
+        await NativeBrowser.open({
+          url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT),
+          presentationStyle: "fullscreen",
+        });
+        return;
+      }
+
+      if (isMobileOrTabletBrowser()) {
+        window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT));
+        return;
+      }
+
       const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: redirectUri });
       if (result.error) throw result.error;
       if (result.redirected) return;

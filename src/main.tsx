@@ -43,6 +43,13 @@ const handleOAuthCallback = async (url: string) => {
     const accessToken = hashParams.get("access_token") ?? queryParams.get("access_token");
     const refreshToken = hashParams.get("refresh_token") ?? queryParams.get("refresh_token");
     const authCode = queryParams.get("code") ?? hashParams.get("code");
+    const returnedState = hashParams.get("state") ?? queryParams.get("state");
+    const expectedState = sessionStorage.getItem("vyana-oauth-state");
+
+    if (expectedState && returnedState && returnedState !== expectedState) {
+      throw new Error("OAuth state mismatch");
+    }
+    sessionStorage.removeItem("vyana-oauth-state");
 
     if (accessToken && refreshToken) {
       await supabase.auth.setSession({
