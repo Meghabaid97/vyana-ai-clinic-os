@@ -802,148 +802,153 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
               <div className="space-y-2.5">
                 {filteredRecords.map((record) => (
                   <Card key={record.id} className="p-3.5 rounded-2xl border-border bg-card shadow-none transition-colors hover:bg-muted/30">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-primary/10">
-                          {record.file_type.startsWith("image/") ? (
-                            <FileImage className="h-5 w-5 text-primary" />
-                          ) : (
-                            <FileText className="h-5 w-5 text-primary" />
-                          )}
+                    {/* Top row: icon + title/meta — actions live on a dedicated row below so the title is never squeezed */}
+                    <div className="flex items-start gap-3">
+                      <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-primary/10">
+                        {record.file_type.startsWith("image/") ? (
+                          <FileImage className="h-5 w-5 text-primary" />
+                        ) : (
+                          <FileText className="h-5 w-5 text-primary" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground truncate">{record.file_name}</h3>
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                          {formatFileSize(record.file_size)} • {formatDate(record.uploaded_at)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {record.category === "radiology_imaging" && (
+                      <div className="mt-2.5 rounded-lg border border-border bg-muted/30 p-2 space-y-1">
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground">
+                          <Camera className="h-3.5 w-3.5 text-primary" /> Radiology Details
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold text-foreground truncate">{record.file_name}</h3>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {formatFileSize(record.file_size)} • {formatDate(record.uploaded_at)}
-                          </p>
-                          {record.category === "radiology_imaging" && (
-                            <div className="mt-2 rounded-lg border border-border bg-muted/30 p-2 space-y-1">
-                              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground">
-                                <Camera className="h-3.5 w-3.5 text-primary" /> Radiology Details
-                              </div>
-                              <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-                                <span>Type: {[record.radiology_modality, record.radiology_body_part].filter(Boolean).join(" ") || record.document_type || "Pending"}</span>
-                                <span>Date: {record.radiology_study_date ? formatDate(record.radiology_study_date) : formatDate(record.uploaded_at)}</span>
-                                {record.radiology_provider && <span className="col-span-2 truncate">Provider: {record.radiology_provider}</span>}
-                                {record.radiology_impression?.[0] && <span className="col-span-2 line-clamp-2">Impression: {record.radiology_impression[0]}</span>}
-                                {record.radiology_recommendations?.[0] && <span className="col-span-2 line-clamp-2">Follow-up: {record.radiology_recommendations[0]}</span>}
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            {record.ai_summary && (
-                              <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0 h-5">
-                                <Sparkles className="h-2.5 w-2.5 mr-1" />
-                                Summary
-                              </Badge>
-                            )}
-                            {record.document_type && (
-                              <Badge variant="outline" className="rounded-full text-[10px] px-2 py-0 h-5">
-                                {record.document_type}
-                              </Badge>
-                            )}
-                            {record.consent_shared_with && record.consent_shared_with.length > 0 && (
-                              <Badge variant="outline" className="rounded-full text-[10px] px-2 py-0 h-5">
-                                <Share2 className="h-2.5 w-2.5 mr-1" />
-                                Shared ({record.consent_shared_with.length})
-                              </Badge>
-                            )}
-                          </div>
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                          <span className="truncate">Type: {[record.radiology_modality, record.radiology_body_part].filter(Boolean).join(" ") || record.document_type || "Pending"}</span>
+                          <span className="truncate">Date: {record.radiology_study_date ? formatDate(record.radiology_study_date) : formatDate(record.uploaded_at)}</span>
+                          {record.radiology_provider && <span className="col-span-2 truncate">Provider: {record.radiology_provider}</span>}
+                          {record.radiology_impression?.[0] && <span className="col-span-2 line-clamp-2">Impression: {record.radiology_impression[0]}</span>}
+                          {record.radiology_recommendations?.[0] && <span className="col-span-2 line-clamp-2">Follow-up: {record.radiology_recommendations[0]}</span>}
                         </div>
                       </div>
+                    )}
 
-                      <div className="flex items-center gap-1 shrink-0">
-                        {record.ai_summary ? (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setViewingSummary(record);
-                              setShowSummaryDialog(true);
-                            }}
-                            className="h-8 w-8 rounded-full"
-                            aria-label="View Vyana summary"
-                            title="View Vyana summary"
-                          >
-                            <Sparkles className="h-4 w-4 text-primary" />
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => summarizeRecord(record)}
-                            disabled={isSummarizing === record.id}
-                            className="h-8 w-8 rounded-full"
-                            aria-label="Ask Vyana for summary"
-                            title="Ask Vyana for summary"
-                          >
-                            {isSummarizing === record.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                            ) : (
-                              <Sparkles className="h-4 w-4 text-primary" />
-                            )}
-                          </Button>
+                    {(record.ai_summary || record.document_type || (record.consent_shared_with && record.consent_shared_with.length > 0)) && (
+                      <div className="flex flex-wrap gap-1.5 mt-2.5">
+                        {record.ai_summary && (
+                          <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0 h-5 max-w-full">
+                            <Sparkles className="h-2.5 w-2.5 mr-1 shrink-0" />
+                            <span className="truncate">Summary</span>
+                          </Badge>
                         )}
+                        {record.document_type && (
+                          <Badge variant="outline" className="rounded-full text-[10px] px-2 py-0 h-5 max-w-[60%]">
+                            <span className="truncate">{record.document_type}</span>
+                          </Badge>
+                        )}
+                        {record.consent_shared_with && record.consent_shared_with.length > 0 && (
+                          <Badge variant="outline" className="rounded-full text-[10px] px-2 py-0 h-5">
+                            <Share2 className="h-2.5 w-2.5 mr-1 shrink-0" />
+                            <span className="truncate">Shared ({record.consent_shared_with.length})</span>
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Action row — separated so 6 icons never crush the title */}
+                    <div className="mt-3 pt-2.5 border-t border-border/60 flex items-center justify-end gap-0.5 -mr-1">
+                      {record.ai_summary ? (
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => openOriginalFile(record)}
-                          disabled={isOpeningFile === record.id}
-                          className="h-8 w-8 rounded-full"
-                          aria-label="View original file"
-                          title="View original file"
+                          onClick={() => {
+                            setViewingSummary(record);
+                            setShowSummaryDialog(true);
+                          }}
+                          className="h-9 w-9 rounded-full"
+                          aria-label="View Vyana summary"
+                          title="View Vyana summary"
                         >
-                          {isOpeningFile === record.id ? (
+                          <Sparkles className="h-4 w-4 text-primary" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => summarizeRecord(record)}
+                          disabled={isSummarizing === record.id}
+                          className="h-9 w-9 rounded-full"
+                          aria-label="Ask Vyana for summary"
+                          title="Ask Vyana for summary"
+                        >
+                          {isSummarizing === record.id ? (
                             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                           ) : (
-                            <Eye className="h-4 w-4 text-muted-foreground" />
+                            <Sparkles className="h-4 w-4 text-primary" />
                           )}
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openNotes(record)}
-                          className="h-8 w-8 rounded-full relative"
-                          aria-label={record.user_notes ? "Edit personal notes" : "Add personal notes"}
-                          title={record.user_notes ? "Edit personal notes" : "Add personal notes"}
-                        >
-                          <StickyNote className={`h-4 w-4 ${record.user_notes ? "text-primary" : "text-muted-foreground"}`} />
-                          {record.user_notes && (
-                            <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-primary" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => startRename(record)}
-                          className="h-8 w-8 rounded-full"
-                          aria-label="Rename"
-                          title="Rename"
-                        >
-                          <Pencil className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openConsentDialog(record)}
-                          className="h-8 w-8 rounded-full"
-                          aria-label="Share"
-                        >
-                          <Share2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => deleteRecord(record)}
-                          className="h-8 w-8 rounded-full hover:bg-destructive/10"
-                          aria-label="Delete"
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openOriginalFile(record)}
+                        disabled={isOpeningFile === record.id}
+                        className="h-9 w-9 rounded-full"
+                        aria-label="View original file"
+                        title="View original file"
+                      >
+                        {isOpeningFile === record.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openNotes(record)}
+                        className="h-9 w-9 rounded-full relative"
+                        aria-label={record.user_notes ? "Edit personal notes" : "Add personal notes"}
+                        title={record.user_notes ? "Edit personal notes" : "Add personal notes"}
+                      >
+                        <StickyNote className={`h-4 w-4 ${record.user_notes ? "text-primary" : "text-muted-foreground"}`} />
+                        {record.user_notes && (
+                          <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => startRename(record)}
+                        className="h-9 w-9 rounded-full"
+                        aria-label="Rename"
+                        title="Rename"
+                      >
+                        <Pencil className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openConsentDialog(record)}
+                        className="h-9 w-9 rounded-full"
+                        aria-label="Share"
+                      >
+                        <Share2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteRecord(record)}
+                        className="h-9 w-9 rounded-full hover:bg-destructive/10"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
                     </div>
                   </Card>
                 ))}
+
               </div>
             )}
           </TabsContent>
