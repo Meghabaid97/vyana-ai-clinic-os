@@ -137,6 +137,7 @@ case "$MODE" in
     generate_app_icon
     c_blue "Syncing iOS plugins..."
     npx cap sync ios
+    restore_info_plist
     verify_app_icon
     c_green "Done. Reopen Xcode if it was already open so it picks up new plugins."
     ;;
