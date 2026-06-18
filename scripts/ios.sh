@@ -102,6 +102,7 @@ case "$MODE" in
     ensure_deps
     ensure_build
     ensure_ios_platform
+    restore_info_plist
     generate_app_icon
     c_blue "Syncing Capacitor (dev: hot-reload from Lovable)..."
     npx cap sync ios
@@ -119,6 +120,7 @@ case "$MODE" in
     c_blue "Re-creating ios/ in prod mode..."
     rm -rf ios
     CAP_MODE=prod npx cap add ios
+    restore_info_plist
     generate_app_icon
     CAP_MODE=prod npx cap sync ios
     verify_app_icon
@@ -131,6 +133,7 @@ case "$MODE" in
     ensure_deps
     ensure_build
     ensure_ios_platform
+    restore_info_plist
     generate_app_icon
     c_blue "Syncing iOS plugins..."
     npx cap sync ios
@@ -147,6 +150,7 @@ case "$MODE" in
     npm install
     npm run build
     npx cap add ios
+    restore_info_plist
     generate_app_icon
     npx cap sync ios
     verify_app_icon
