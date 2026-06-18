@@ -51,6 +51,10 @@ serve(async (req) => {
       throw e;
     }
 
+    // Pro-only: AI prescription / Rx reader.
+    const planGate = await requirePlan(supabaseClient, { feature: "pro", featureLabel: "Prescription reader" });
+    if (planGate) return planGate;
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
