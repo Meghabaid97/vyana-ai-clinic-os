@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 interface Reminder {
   id: string;
