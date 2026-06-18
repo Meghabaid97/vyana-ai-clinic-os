@@ -56,6 +56,22 @@ generate_app_icon() {
     >/dev/null 2>&1 || c_yellow "Icon generation failed (non-fatal). Run manually: npx @capacitor/assets generate --ios"
 }
 
+# Restore our canonical Info.plist (privacy usage descriptions, encryption flag).
+# `npx cap add ios` regenerates Info.plist from Capacitor's default template and
+# wipes NSCameraUsageDescription / NSPhotoLibrary* / NSMicrophoneUsageDescription /
+# NSFaceIDUsageDescription / ITSAppUsesNonExemptEncryption. Without these, iOS
+# crashes on first camera/photo/mic access and TestFlight uploads get flagged for
+# export compliance every time. Keep the source of truth in scripts/ios-info.plist.
+restore_info_plist() {
+  local src="scripts/ios-info.plist"
+  local dst="ios/App/App/Info.plist"
+  if [[ -f "$src" && -f "$dst" ]]; then
+    c_blue "Restoring Info.plist (privacy keys, encryption flag)..."
+    cp "$src" "$dst"
+  else
+    c_yellow "Skipped Info.plist restore ($src or $dst missing)."
+  fi
+
 # Verify the AppIcon set was actually written before we hand off to Xcode.
 # A blank icon almost always means `cap add ios` ran after generate and wiped it,
 # or @capacitor/assets failed silently. Either way, we do NOT want to open Xcode
