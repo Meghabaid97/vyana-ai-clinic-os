@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { Capacitor } from "@capacitor/core";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { PlanCard } from "./PlanCard";
+import { NativeUpgradeNotice } from "./NativeUpgradeNotice";
 import { type RazorpaySuccess } from "@/lib/razorpay";
 import { type BillingCycle } from "@/lib/plans";
 import { logEvent } from "@/lib/analytics";
@@ -40,10 +42,11 @@ const COPY: Record<PaywallReason, { title: string; body: string }> = {
 export function PaywallSheet({ open, onOpenChange, reason, familyOnly, preview, onSuccess }: Props) {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const copy = COPY[reason];
+  const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
-    if (open) void logEvent("paywall_viewed", { reason, familyOnly: !!familyOnly });
-  }, [open, reason, familyOnly]);
+    if (open) void logEvent("paywall_viewed", { reason, familyOnly: !!familyOnly, native: isNative });
+  }, [open, reason, familyOnly, isNative]);
 
 
   return (
@@ -56,36 +59,44 @@ export function PaywallSheet({ open, onOpenChange, reason, familyOnly, preview, 
 
         {preview && <div className="mt-4">{preview}</div>}
 
-        <div className="mt-4 flex items-center gap-1 p-1 rounded-xl bg-muted/50 w-fit mx-auto">
-          {(["monthly", "yearly"] as BillingCycle[]).map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setCycle(c)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                cycle === c ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
-              }`}
-            >
-              {c === "monthly" ? "Monthly" : "Yearly · save more"}
-            </button>
-          ))}
-        </div>
+        {isNative ? (
+          <div className="mt-5 pb-4">
+            <NativeUpgradeNotice />
+          </div>
+        ) : (
+          <>
+            <div className="mt-4 flex items-center gap-1 p-1 rounded-xl bg-muted/50 w-fit mx-auto">
+              {(["monthly", "yearly"] as BillingCycle[]).map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCycle(c)}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                    cycle === c ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                  }`}
+                >
+                  {c === "monthly" ? "Monthly" : "Yearly · save more"}
+                </button>
+              ))}
+            </div>
 
-        <div className="mt-5 space-y-3 pb-4">
-          {!familyOnly && (
-            <PlanCard plan="individual" cycle={cycle} onSuccess={(p) => { onSuccess?.(p); onOpenChange(false); }} />
-          )}
-          <PlanCard
-            plan="family"
-            cycle={cycle}
-            recommended={!familyOnly}
-            onSuccess={(p) => { onSuccess?.(p); onOpenChange(false); }}
-          />
-        </div>
+            <div className="mt-5 space-y-3 pb-4">
+              {!familyOnly && (
+                <PlanCard plan="individual" cycle={cycle} onSuccess={(p) => { onSuccess?.(p); onOpenChange(false); }} />
+              )}
+              <PlanCard
+                plan="family"
+                cycle={cycle}
+                recommended={!familyOnly}
+                onSuccess={(p) => { onSuccess?.(p); onOpenChange(false); }}
+              />
+            </div>
 
-        <p className="text-[10.5px] text-muted-foreground text-center pb-2">
-          Secure payments by Razorpay. Cancel anytime. Pricing in INR, GST inclusive.
-        </p>
+            <p className="text-[10.5px] text-muted-foreground text-center pb-2">
+              Secure payments by Razorpay. Cancel anytime. Pricing in INR, GST inclusive.
+            </p>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );

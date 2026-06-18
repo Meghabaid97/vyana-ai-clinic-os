@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
 import { Check, ShieldCheck, Sparkles, Loader2, RotateCcw, XCircle } from "lucide-react";
 import { PlanCard } from "@/components/paywall/PlanCard";
+import { NativeUpgradeNotice } from "@/components/paywall/NativeUpgradeNotice";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { type BillingCycle, FREE_LIMITS, PLAN_META } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
@@ -129,6 +131,7 @@ function ManageSubscription({ ent, onChanged }: { ent: ReturnType<typeof useEnti
 export default function Upgrade() {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const ent = useEntitlements();
+  const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
     const prev = document.title;
@@ -156,6 +159,22 @@ export default function Upgrade() {
 
       {ent.is_pro ? (
         <ManageSubscription ent={ent} onChanged={ent.refresh} />
+      ) : isNative ? (
+        <div className="px-5 max-w-md mx-auto">
+          <NativeUpgradeNotice />
+
+          <div className="mt-8">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">What Pro unlocks</h2>
+            <div className="rounded-2xl border border-border overflow-hidden">
+              {COMPARE.map((row, i) => (
+                <div key={row.label} className={`flex items-center justify-between text-[12.5px] px-3 py-2.5 ${i % 2 === 0 ? "bg-background" : "bg-muted/20"}`}>
+                  <div className="text-foreground/90">{row.label}</div>
+                  <div className="text-right font-medium">{row.family}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       ) : (
         <>
           <div className="flex items-center justify-center mb-5">
@@ -206,7 +225,9 @@ export default function Upgrade() {
         <div className="rounded-2xl border border-border bg-muted/30 p-4 flex items-start gap-3">
           <ShieldCheck className="h-5 w-5 text-primary mt-0.5 shrink-0" />
           <div className="text-[12.5px] text-muted-foreground">
-            Your records stay yours. Cancel anytime, your data and briefings stay accessible. Payments processed securely by Razorpay. Prices in INR, GST inclusive.
+            {isNative
+              ? "Your records stay yours. Vyana Pro is managed on vyana.care in any browser. Sign in with the same account to unlock Pro on this device."
+              : "Your records stay yours. Cancel anytime, your data and briefings stay accessible. Payments processed securely by Razorpay. Prices in INR, GST inclusive."}
           </div>
         </div>
       </div>
