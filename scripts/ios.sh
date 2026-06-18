@@ -56,22 +56,6 @@ generate_app_icon() {
     >/dev/null 2>&1 || c_yellow "Icon generation failed (non-fatal). Run manually: npx @capacitor/assets generate --ios"
 }
 
-# Restore our canonical Info.plist (privacy usage descriptions, encryption flag).
-# `npx cap add ios` regenerates Info.plist from Capacitor's default template and
-# wipes NSCameraUsageDescription / NSPhotoLibrary* / NSMicrophoneUsageDescription /
-# NSFaceIDUsageDescription / ITSAppUsesNonExemptEncryption. Without these, iOS
-# crashes on first camera/photo/mic access and TestFlight uploads get flagged for
-# export compliance every time. Keep the source of truth in scripts/ios-info.plist.
-restore_info_plist() {
-  local src="scripts/ios-info.plist"
-  local dst="ios/App/App/Info.plist"
-  if [[ -f "$src" && -f "$dst" ]]; then
-    c_blue "Restoring Info.plist (privacy keys, encryption flag)..."
-    cp "$src" "$dst"
-  else
-    c_yellow "Skipped Info.plist restore ($src or $dst missing)."
-  fi
-
 # Verify the AppIcon set was actually written before we hand off to Xcode.
 # A blank icon almost always means `cap add ios` ran after generate and wiped it,
 # or @capacitor/assets failed silently. Either way, we do NOT want to open Xcode
@@ -102,7 +86,6 @@ case "$MODE" in
     ensure_deps
     ensure_build
     ensure_ios_platform
-    restore_info_plist
     generate_app_icon
     c_blue "Syncing Capacitor (dev: hot-reload from Lovable)..."
     npx cap sync ios
@@ -120,7 +103,6 @@ case "$MODE" in
     c_blue "Re-creating ios/ in prod mode..."
     rm -rf ios
     CAP_MODE=prod npx cap add ios
-    restore_info_plist
     generate_app_icon
     CAP_MODE=prod npx cap sync ios
     verify_app_icon
@@ -133,7 +115,6 @@ case "$MODE" in
     ensure_deps
     ensure_build
     ensure_ios_platform
-    restore_info_plist
     generate_app_icon
     c_blue "Syncing iOS plugins..."
     npx cap sync ios
@@ -150,7 +131,6 @@ case "$MODE" in
     npm install
     npm run build
     npx cap add ios
-    restore_info_plist
     generate_app_icon
     npx cap sync ios
     verify_app_icon
