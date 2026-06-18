@@ -43,6 +43,7 @@ const PatientProfileEdit = () => {
   const [formData, setFormData] = useState({ name: "", date_of_birth: "", phone: "", national_health_id: "" });
   const [stats, setStats] = useState({ totalConsultations: 0, totalDoctors: 0, lastVisit: null as string | null });
   const [editMode, setEditMode] = useState(false);
+  const isProfileIncomplete = !formData.name || !formData.date_of_birth;
   const [accountMode, setAccountMode] = useState(false);
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
   const [passwordData, setPasswordData] = useState({ password: "", confirmPassword: "" });
