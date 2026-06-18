@@ -784,6 +784,7 @@ const DoctorVisitMode = () => {
         reason="briefing"
         onSuccess={() => { setPaywallOpen(false); ent.refresh(); }}
       />
+      <MedicalAckDialog state={medAck} />
     </div>
   );
 };
