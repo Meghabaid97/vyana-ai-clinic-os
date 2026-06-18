@@ -84,6 +84,7 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
   const [paywallOpen, setPaywallOpen] = useState(false);
   const { toast } = useToast();
   const ent = useEntitlements();
+  const medAck = useMedicalAck();
 
   const generateBriefing = async () => {
     // Wait for entitlements to load before allowing generation
