@@ -284,11 +284,18 @@ const AdminMetrics = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        <header>
-          <h1 className="text-3xl font-semibold">Vyana metrics</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            North-star numbers. Auto-refreshes on page load.
-          </p>
+        <header className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <h1 className="text-3xl font-semibold">Vyana metrics</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              North-star numbers. Auto-refreshes on page load.
+            </p>
+          </div>
+          <div className="flex gap-2 text-sm">
+            <a href="/admin/observability" className="underline text-primary">Observability →</a>
+            <a href="/admin/payments" className="underline text-primary">Payments →</a>
+            <a href="/admin/waitlist" className="underline text-primary">Waitlist →</a>
+          </div>
         </header>
 
         {/* Totals strip */}

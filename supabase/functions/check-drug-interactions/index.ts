@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { withGuardrails } from "../_shared/guardrails.ts";
 import { requirePlan } from "../_shared/plan-gate.ts";
+import { callLovableAi, logFunctionCall, newRequestId } from "../_shared/observability.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,8 +28,21 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const started = Date.now();
+  const requestId = newRequestId();
+  const fnName = "check-drug-interactions";
+  let userId: string | null = null;
+  let errMsg: string | null = null;
+
+  const finish = (resp: Response) => {
+    void logFunctionCall({
+      functionName: fnName, requestId, userId, method: req.method,
+      statusCode: resp.status, latencyMs: Date.now() - started, error: errMsg,
+    });
+    return resp;
+  };
+
   try {
-    // Auth check
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -36,37 +50,35 @@ serve(async (req) => {
     );
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      errMsg = "Unauthorized";
+      return finish(new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      }));
     }
+    userId = user.id;
 
-    // Rate limit
     try {
-      await checkRateLimit(user.id, 'check-drug-interactions', 50);
+      await checkRateLimit(user.id, fnName, 50);
     } catch (e) {
       if (e instanceof Error && e.message === 'RATE_LIMITED') {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
+        errMsg = "rate_limited";
+        return finish(new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
           status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        }));
       }
       throw e;
     }
 
-    // Pro-only: drug interaction checker.
     const planGate = await requirePlan(supabaseClient, { feature: "pro", featureLabel: "Drug interaction checker" });
-    if (planGate) return planGate;
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    if (planGate) { errMsg = "plan_gate"; return finish(planGate); }
 
     const { medications } = await req.json();
 
     if (!medications || medications.length < 2) {
-      return new Response(
+      return finish(new Response(
         JSON.stringify({ interactions: [], message: "At least 2 medications required" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      ));
     }
 
     const prompt = `You are a pharmacology expert. Analyze potential drug interactions between: ${medications.join(", ")}
@@ -79,26 +91,23 @@ Respond in JSON:
   "disclaimer": "..."
 }`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+    const response = await callLovableAi({
+      functionName: fnName, userId, requestId,
+      model: "google/gemini-2.5-flash",
+      body: {
         messages: [
           { role: "system", content: withGuardrails("You are a pharmacology expert that checks for drug interactions.") },
           { role: "user", content: prompt }
         ],
-      }),
+      },
     });
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        errMsg = "ai_rate_limited";
+        return finish(new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        }));
       }
       throw new Error(`AI gateway error: ${response.status}`);
     }
@@ -120,14 +129,15 @@ Respond in JSON:
       };
     }
 
-    return new Response(JSON.stringify(result), {
+    return finish(new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    }));
   } catch (error) {
     console.error("Error in check-drug-interactions:", error);
-    return new Response(
+    errMsg = error instanceof Error ? error.message : String(error);
+    return finish(new Response(
       JSON.stringify({ error: "An unexpected error occurred." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    ));
   }
 });

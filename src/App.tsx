@@ -23,6 +23,7 @@ const AccessPending = lazy(() => import("./pages/AccessPending"));
 const AdminWaitlist = lazy(() => import("./pages/AdminWaitlist"));
 const AdminMetrics = lazy(() => import("./pages/AdminMetrics"));
 const AdminPayments = lazy(() => import("./pages/AdminPayments"));
+const AdminObservability = lazy(() => import("./pages/AdminObservability"));
 const Billing = lazy(() => import("./pages/Billing"));
 const ShareReceive = lazy(() => import("./pages/ShareReceive"));
 const HealthTrends = lazy(() => import("./pages/HealthTrends"));
@@ -87,6 +88,7 @@ const App = () => (
             <Route path="/admin/waitlist" element={<AdminWaitlist />} />
             <Route path="/admin/metrics" element={<AdminMetrics />} />
             <Route path="/admin/payments" element={<AdminPayments />} />
+            <Route path="/admin/observability" element={<AdminObservability />} />
             <Route path="/why-vyana" element={<WhyVyana />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />

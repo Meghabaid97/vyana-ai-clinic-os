@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { withGuardrails } from "../_shared/guardrails.ts";
+import { callLovableAi, logFunctionCall, newRequestId } from "../_shared/observability.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -307,22 +308,30 @@ ${symptomSummary ? `Frequency: ${symptomSummary}\n\nDetail:\n${symptomContext}` 
       },
     }];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+    const __reqId = newRequestId();
+    const response = await callLovableAi({
+      functionName: "clinical-briefing",
+      userId: user.id,
+      requestId: __reqId,
+      model: "google/gemini-2.5-flash",
+      body: {
         messages: [
           { role: "system", content: withGuardrails(systemPrompt) },
           { role: "user", content: userPrompt },
         ],
         tools,
         tool_choice: { type: "function", function: { name: "generate_clinical_briefing" } },
-      }),
+      },
     });
+    void logFunctionCall({
+      functionName: "clinical-briefing",
+      requestId: __reqId,
+      userId: user.id,
+      method: req.method,
+      statusCode: response.status,
+      latencyMs: 0,
+    });
+
 
     if (!response.ok) {
       if (response.status === 429) {
