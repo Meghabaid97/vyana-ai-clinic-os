@@ -65,6 +65,57 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_logs: {
+        Row: {
+          completion_tokens: number | null
+          cost_inr: number | null
+          created_at: string
+          error: string | null
+          function_name: string
+          id: string
+          latency_ms: number | null
+          model: string
+          prompt_tokens: number | null
+          provider: string | null
+          request_id: string | null
+          status: string | null
+          total_tokens: number | null
+          user_id: string | null
+        }
+        Insert: {
+          completion_tokens?: number | null
+          cost_inr?: number | null
+          created_at?: string
+          error?: string | null
+          function_name: string
+          id?: string
+          latency_ms?: number | null
+          model: string
+          prompt_tokens?: number | null
+          provider?: string | null
+          request_id?: string | null
+          status?: string | null
+          total_tokens?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          completion_tokens?: number | null
+          cost_inr?: number | null
+          created_at?: string
+          error?: string | null
+          function_name?: string
+          id?: string
+          latency_ms?: number | null
+          model?: string
+          prompt_tokens?: number | null
+          provider?: string | null
+          request_id?: string | null
+          status?: string | null
+          total_tokens?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -769,6 +820,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      function_logs: {
+        Row: {
+          created_at: string
+          error: string | null
+          function_name: string
+          id: string
+          latency_ms: number | null
+          metadata: Json | null
+          method: string | null
+          request_id: string | null
+          status_code: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          function_name: string
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          method?: string | null
+          request_id?: string | null
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          function_name?: string
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          method?: string | null
+          request_id?: string | null
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       health_records: {
         Row: {
