@@ -263,7 +263,9 @@ const Auth = () => {
               <Chrome className="h-5 w-5" />
             )}
             <span className="text-sm font-medium">
-              {loadingProvider === "google" ? "Connecting to Google…" : "Continue with Google"}
+              {loadingProvider === "google"
+                ? "Connecting to Google…"
+                : isSignup ? "Sign up with Google" : "Continue with Google"}
             </span>
           </button>
           <button
@@ -272,6 +274,7 @@ const Auth = () => {
             disabled={loadingProvider !== null}
             className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-colors"
           >
+
             {loadingProvider === "apple" ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
