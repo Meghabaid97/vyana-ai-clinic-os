@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const LAST_UPDATED = "13 April 2026";
 const COMPANY = "Vyana Health Technologies";
 const APP_NAME = "Vyana";
-const SUPPORT_EMAIL = "support@vyana.health";
+const SUPPORT_EMAIL = "vyana.care@gmail.com";
 
 export const LegalContent = ({
   defaultSection = "terms",
