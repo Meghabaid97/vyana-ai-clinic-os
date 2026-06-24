@@ -69,7 +69,7 @@ const buildCustomerOAuthUrl = (
   redirectUri: string,
   extraParams: Record<string, string> = {},
 ) => {
-  const url = new URL("/~oauth/initiate", CUSTOMER_APP_ORIGIN);
+  const url = new URL("/~oauth/initiate", OAUTH_BROKER_ORIGIN);
   const state = createOAuthState();
   sessionStorage.setItem("vyana-oauth-state", state);
   Object.entries(extraParams).forEach(([key, value]) => url.searchParams.set(key, value));
