@@ -65,6 +65,22 @@ const safeRedirect = (path: string) => {
   window.location.replace(path);
 };
 
+const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+// Poll supabase.auth.getSession() until it returns a session or we exhaust
+// the budget. This gives the Supabase client time to parse incoming OAuth
+// tokens from storage / URL before we hard-redirect away from /auth.
+const waitForSession = async (timeoutMs = 2500, intervalMs = 150) => {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) return session;
+    await delay(intervalMs);
+  }
+  const { data: { session } } = await supabase.auth.getSession();
+  return session;
+};
+
 const handleOAuthCallback = async (url: string) => {
   // Hard guard: never process the same launch URL twice in a row.
   if (wasUrlAlreadyHandled(url)) return;
@@ -88,27 +104,35 @@ const handleOAuthCallback = async (url: string) => {
     }
     sessionStorage.removeItem("vyana-oauth-state");
 
+    // Give the Supabase client a tick to initialize before we touch it. On a
+    // cold native launch, the deep-link listener fires before the auth client
+    // has finished hydrating from storage; without this buffer setSession /
+    // exchangeCodeForSession can race and silently no-op.
+    await delay(400);
+
     if (accessToken && refreshToken) {
       await supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
       });
-      safeRedirect("/welcome");
+      const session = await waitForSession();
+      if (session) safeRedirect("/welcome");
       return;
     }
 
     if (authCode) {
       const { error } = await supabase.auth.exchangeCodeForSession(authCode);
       if (error) throw error;
-      safeRedirect("/welcome");
+      const session = await waitForSession();
+      if (session) safeRedirect("/welcome");
       return;
     }
 
     // No tokens AND no code in the callback URL (the bare `vyana://oauth-callback/`
     // case from the logs). The session may already have been set by the in-app
-    // browser before it closed — check before redirecting, otherwise just stay
-    // put. Do NOT bounce to /splash, that re-triggers getLaunchUrl → loop.
-    const { data: { session } } = await supabase.auth.getSession();
+    // browser before it closed — wait for it to settle before deciding.
+    // Do NOT bounce to /splash on miss, that re-triggers getLaunchUrl → loop.
+    const session = await waitForSession();
     if (session) {
       safeRedirect("/welcome");
     }
