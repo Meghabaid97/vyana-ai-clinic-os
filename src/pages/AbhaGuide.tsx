@@ -19,7 +19,7 @@ const AbhaGuide = () => {
   usePageMeta({
     title: "ABHA ID: a simple guide to India's digital health account",
     description:
-      "Learn how to create and use your 14-digit ABHA ID under the Ayushman Bharat Digital Mission. Vyana helps you turn your national health account into a longitudinal health story.",
+      "Learn how to create and use your 14-digit ABHA ID. Vyana turns India's digital health account into a portable health story.",
     path: "/abha-guide",
     ogType: "article",
   });

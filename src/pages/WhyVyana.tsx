@@ -21,7 +21,7 @@ const WhyVyana = () => {
   usePageMeta({
     title: "Why Vyana: a letter from the founder",
     description:
-      "A founder's letter on why Vyana exists: the loss in Tirupur 2005, the COVID call, the 75 pages of paperwork, and the longitudinal health memory layer we built in response.",
+      "A founder's letter on why Vyana exists: the loss in Tirupur 2005, the COVID call, and the health memory layer we built in response.",
     path: "/why-vyana",
     ogType: "article",
   });
