@@ -45,16 +45,43 @@ const buildCustomerOAuthUrl = (
   return url.toString();
 };
 
+const LOGIN_TIMEOUT_MS = 12_000;
+
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   useLanguage();
 
+  const [loadingProvider, setLoadingProvider] = useState<SocialProvider | null>(null);
+  const [timeoutError, setTimeoutError] = useState<string | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+
+  const clearLoginTimeout = useCallback(() => {
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  const startLoginTimeout = useCallback((provider: SocialProvider) => {
+    clearLoginTimeout();
+    setTimeoutError(null);
+    setLoadingProvider(provider);
+    timeoutRef.current = window.setTimeout(() => {
+      timeoutRef.current = null;
+      setLoadingProvider(null);
+      setTimeoutError(
+        "Sign-in is taking longer than expected. Please check your connection and try again.",
+      );
+    }, LOGIN_TIMEOUT_MS);
+  }, [clearLoginTimeout]);
+
   const handleAuthenticatedUser = useCallback(() => {
+    clearLoginTimeout();
     // Hard replace to guarantee we leave /auth even if React state is mid-render
     // from an OAuth redirect (web) or in-app browser close (native).
     window.location.replace("/welcome");
-  }, []);
+  }, [clearLoginTimeout]);
 
   useEffect(() => {
     let isMounted = true;
