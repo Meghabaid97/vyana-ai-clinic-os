@@ -148,7 +148,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-[100svh] flex flex-col items-center justify-center bg-background p-4 overflow-y-auto">
       <div className="w-full max-w-md bg-card border border-border rounded-2xl p-8 shadow-lg">
         <div className="flex flex-col items-center text-center mb-6">
           <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
