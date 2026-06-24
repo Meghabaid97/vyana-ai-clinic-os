@@ -16,11 +16,18 @@ function makeChain(data: unknown) {
   const chain: any = {
     select: () => chain,
     eq: () => chain,
+    neq: () => chain,
+    is: () => chain,
+    in: () => chain,
+    not: () => chain,
     order: () => chain,
     update: () => chain,
     insert: () => chain,
+    upsert: () => chain,
+    delete: () => chain,
     limit: () => chain,
     maybeSingle: () => Promise.resolve({ data: null, error: null }),
+    single: () => Promise.resolve({ data: null, error: null }),
     then: (resolve: (v: { data: unknown; error: null }) => void) =>
       resolve({ data, error: null }),
   };
