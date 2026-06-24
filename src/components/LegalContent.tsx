@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const LAST_UPDATED = "13 April 2026";
@@ -5,17 +6,8 @@ const COMPANY = "Vyana Health Technologies";
 const APP_NAME = "Vyana";
 const SUPPORT_EMAIL = "vyana.care@gmail.com";
 
-export const LegalContent = ({
-  defaultSection = "terms",
-}: {
-  defaultSection?: "terms" | "privacy";
-}) => (
-  <Tabs defaultValue={defaultSection}>
-    <TabsList className="grid w-full grid-cols-2 mb-4">
-      <TabsTrigger value="terms">Terms of Service</TabsTrigger>
-      <TabsTrigger value="privacy">Privacy Policy</TabsTrigger>
-    </TabsList>
-
+const LegalSections = () => (
+  <>
     <TabsContent value="terms">
       <article className="prose prose-sm dark:prose-invert max-w-none space-y-4 text-foreground">
         <p className="text-xs text-muted-foreground">Last updated: {LAST_UPDATED}</p>
@@ -267,5 +259,53 @@ export const LegalContent = ({
         </p>
       </article>
     </TabsContent>
-  </Tabs>
+  </>
 );
+
+export const LegalContent = ({
+  defaultSection = "terms",
+  onClose,
+}: {
+  defaultSection?: "terms" | "privacy";
+  onClose?: () => void;
+}) => {
+  if (onClose) {
+    return (
+      <Tabs defaultValue={defaultSection} className="flex flex-col h-full">
+        <h2 className="sr-only">Legal</h2>
+        <div
+          className="flex-1 overflow-y-auto"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-sm">
+            <TabsList className="grid h-10 w-full grid-cols-2">
+              <TabsTrigger value="terms">Terms of Service</TabsTrigger>
+              <TabsTrigger value="privacy">Privacy Policy</TabsTrigger>
+            </TabsList>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close legal"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-foreground opacity-80 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="px-5 py-6">
+            <LegalSections />
+          </div>
+        </div>
+      </Tabs>
+    );
+  }
+
+  return (
+    <Tabs defaultValue={defaultSection}>
+      <TabsList className="grid w-full grid-cols-2 mb-4">
+        <TabsTrigger value="terms">Terms of Service</TabsTrigger>
+        <TabsTrigger value="privacy">Privacy Policy</TabsTrigger>
+      </TabsList>
+      <LegalSections />
+    </Tabs>
+  );
+};
