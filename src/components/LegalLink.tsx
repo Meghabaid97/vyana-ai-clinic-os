@@ -20,13 +20,16 @@ export const LegalLink = ({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
+      <a
+        href={section === "privacy" ? "/legal#privacy" : "/legal"}
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen(true);
+        }}
         className={className ?? "text-primary underline cursor-pointer"}
       >
         {children}
-      </button>
+      </a>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           className="
