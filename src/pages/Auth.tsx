@@ -204,20 +204,18 @@ const Auth = () => {
   const handleGoogleAuth = () => runOAuth("google", async () => {
     const isNativeApp = Capacitor.isNativePlatform();
     if (isNativeApp) {
-      await supabase.auth.signOut().catch(() => {});
       await NativeBrowser.open({
-        url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT, { prompt: "select_account" }),
+        url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT),
         presentationStyle: "fullscreen",
       });
       return;
     }
     if (isMobileOrTabletBrowser()) {
-      window.location.assign(buildCustomerOAuthUrl("google", getWebOAuthRedirect(), { prompt: "select_account" }));
+      window.location.assign(buildCustomerOAuthUrl("google", getWebOAuthRedirect()));
       return;
     }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: getWebOAuthRedirect(),
-      extraParams: { prompt: "select_account" },
     });
     if (result.error) throw result.error;
     if (result.redirected) return;
