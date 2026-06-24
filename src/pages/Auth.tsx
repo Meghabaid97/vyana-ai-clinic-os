@@ -1,13 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Chrome, Apple, X, Loader2, AlertCircle, Check } from "lucide-react";
+import { Chrome, Apple, X, Loader2, AlertCircle, Check, Mail } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 import { useLanguage } from "@/lib/i18n";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 import { validatePassword, validateEmail } from "@/lib/validation";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+
 
 type SocialProvider = "google" | "apple";
 
