@@ -345,13 +345,13 @@ const MedicationReminders = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => toggleActive(r.id, r.is_active)} className="p-1.5">
+                    <button aria-label={r.is_active ? "Pause reminder" : "Activate reminder"} onClick={() => toggleActive(r.id, r.is_active)} className="p-1.5">
                       {r.is_active
                         ? <ToggleRight className="h-6 w-6 text-primary" />
                         : <ToggleLeft className="h-6 w-6 text-muted-foreground" />
                       }
                     </button>
-                    <button onClick={() => deleteReminder(r.id)} className="p-1.5 hover:text-destructive">
+                    <button aria-label="Delete reminder" onClick={() => deleteReminder(r.id)} className="p-1.5 hover:text-destructive">
                       <Trash2 className="h-4 w-4 text-muted-foreground" />
                     </button>
                   </div>
