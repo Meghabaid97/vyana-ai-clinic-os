@@ -37,17 +37,37 @@ export const signOutFully = async () => {
     /* expected when token already revoked */
   }
 
-  // 3. Belt-and-suspenders: nuke any leftover sb-* auth keys.
+  // 3. Belt-and-suspenders: nuke any leftover sb-* auth keys from BOTH
+  //    localStorage and sessionStorage, plus any sb-* cookies. If even one
+  //    cached token survives, the next page mount sees INITIAL_SESSION with
+  //    a valid session and silently bounces the user back into the app.
   try {
-    if (typeof window !== "undefined" && window.localStorage) {
-      const keys: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && (k.startsWith("sb-") || k.includes("supabase.auth."))) {
-          keys.push(k);
+    if (typeof window !== "undefined") {
+      for (const store of [window.localStorage, window.sessionStorage]) {
+        if (!store) continue;
+        const keys: string[] = [];
+        for (let i = 0; i < store.length; i++) {
+          const k = store.key(i);
+          if (k && (k.startsWith("sb-") || k.includes("supabase.auth.") || k.startsWith("vyana-oauth"))) {
+            keys.push(k);
+          }
         }
+        keys.forEach((k) => store.removeItem(k));
       }
-      keys.forEach((k) => localStorage.removeItem(k));
+
+      if (typeof document !== "undefined" && document.cookie) {
+        document.cookie
+          .split(";")
+          .map((c) => c.split("=")[0].trim())
+          .filter((name) => name.startsWith("sb-"))
+          .forEach((name) => {
+            const expire = "; Max-Age=0; path=/";
+            document.cookie = `${name}=${expire}`;
+            document.cookie = `${name}=${expire}; domain=${window.location.hostname}`;
+            const root = window.location.hostname.split(".").slice(-2).join(".");
+            document.cookie = `${name}=${expire}; domain=.${root}`;
+          });
+      }
     }
   } catch {
     /* private mode / storage disabled */

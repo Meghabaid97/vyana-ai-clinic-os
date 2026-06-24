@@ -84,7 +84,13 @@ const buildCustomerOAuthUrl = (
   const url = new URL("/~oauth/initiate", getOAuthBrokerOrigin());
   const state = createOAuthState();
   sessionStorage.setItem("vyana-oauth-state", state);
-  Object.entries(extraParams).forEach(([key, value]) => url.searchParams.set(key, value));
+  // Always force the provider's account picker so we never silently re-auth
+  // with a cached browser session after the user signed out.
+  const merged: Record<string, string> = {
+    ...(provider === "google" ? { prompt: "select_account" } : {}),
+    ...extraParams,
+  };
+  Object.entries(merged).forEach(([key, value]) => url.searchParams.set(key, value));
   url.searchParams.set("provider", provider);
   url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("state", state);
@@ -254,6 +260,7 @@ const Auth = () => {
     }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: getWebOAuthRedirect(),
+      extraParams: { prompt: "select_account" },
     });
     if (result.error) throw result.error;
     if (result.redirected) return;
