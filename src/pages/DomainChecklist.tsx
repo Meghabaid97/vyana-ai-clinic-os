@@ -16,7 +16,7 @@ const HOSTS: { host: string; role: string }[] = [
   { host: "www.vyana.care", role: "Primary (canonical)" },
 ];
 
-const PRIMARY = "https://www.vyana.care";
+const PRIMARY = "https://vyana.care";
 
 const probeHost = async (host: string): Promise<{ reachable: CheckState; oauthProxy: CheckState; notes?: string }> => {
   // Reachability — `no-cors` returns opaque but proves the host responded.
