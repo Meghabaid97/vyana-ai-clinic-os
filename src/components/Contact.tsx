@@ -29,16 +29,16 @@ const Contact = () => {
             <Button
               size="lg"
               className="group h-10 px-6 text-sm rounded-md"
-              onClick={() => (window.location.href = "mailto:mbaid@wharton.upenn.edu")}
+              onClick={() => (window.location.href = "mailto:vyana.care@gmail.com")}
             >
               {tLanding("landing.getAccess")}
               <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </Button>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 text-sm text-muted-foreground">
-              <a href="mailto:mbaid@wharton.upenn.edu" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
+              <a href="mailto:vyana.care@gmail.com" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
                 <Mail className="h-4 w-4" />
-                mbaid@wharton.upenn.edu
+                vyana.care@gmail.com
               </a>
               <span className="hidden sm:inline text-border">·</span>
               <a
