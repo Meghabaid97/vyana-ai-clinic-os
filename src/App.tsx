@@ -12,6 +12,7 @@ import ChunkErrorBoundary from "@/components/ChunkErrorBoundary";
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const OAuthBridge = lazy(() => import("./pages/OAuthBridge"));
 const AppShell = lazy(() => import("./components/AppShell"));
 const AppHome = lazy(() => import("./pages/AppHome"));
 
