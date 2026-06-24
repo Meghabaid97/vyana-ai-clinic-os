@@ -87,6 +87,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/oauth-bridge" element={<OAuthBridge />} />
+            <Route path="/welcome" element={<Welcome />} />
 
             <Route path="/request-access" element={<RequestAccess />} />
             <Route path="/access-pending" element={<AccessPending />} />
