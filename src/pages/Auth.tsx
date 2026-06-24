@@ -260,6 +260,7 @@ const Auth = () => {
     }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: getWebOAuthRedirect(),
+      extraParams: { prompt: "select_account" },
     });
     if (result.error) throw result.error;
     if (result.redirected) return;
