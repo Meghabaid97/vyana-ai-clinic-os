@@ -49,8 +49,15 @@ const LOGIN_TIMEOUT_MS = 180_000;
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   useLanguage();
+
+  const isSignup = useMemo(
+    () => new URLSearchParams(location.search).get("signup") === "1",
+    [location.search],
+  );
+
 
   const [loadingProvider, setLoadingProvider] = useState<SocialProvider | null>(null);
   const [timeoutError, setTimeoutError] = useState<string | null>(null);
