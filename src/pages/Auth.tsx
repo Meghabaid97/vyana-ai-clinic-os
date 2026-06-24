@@ -581,7 +581,78 @@ const Auth = () => {
           <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
         </p>
       </div>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Reset your password</DialogTitle>
+            <DialogDescription>
+              Enter the email tied to your account and we&apos;ll send you a secure reset link.
+            </DialogDescription>
+          </DialogHeader>
+
+          {forgotSent ? (
+            <div className="py-4 text-center space-y-3">
+              <div className="mx-auto w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <Mail className="h-5 w-5" />
+              </div>
+              <p className="text-sm text-foreground font-medium">Reset link sent!</p>
+              <p className="text-xs text-muted-foreground">
+                Please check your email inbox at <span className="font-medium text-foreground">{forgotEmail}</span>.
+              </p>
+              <button
+                type="button"
+                onClick={() => setForgotOpen(false)}
+                className="w-full h-11 mt-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold"
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSendResetLink} className="space-y-4 pt-1">
+              <div>
+                <label htmlFor="forgot-email" className="block text-xs font-medium text-muted-foreground mb-1.5">
+                  Email
+                </label>
+                <input
+                  id="forgot-email"
+                  type="email"
+                  autoComplete="email"
+                  autoFocus
+                  required
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full h-11 px-4 rounded-2xl border border-border bg-background text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                />
+              </div>
+              <DialogFooter className="gap-2 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForgotOpen(false)}
+                  className="h-11 px-4 rounded-full border border-border text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={forgotLoading || !forgotEmail}
+                  className="h-11 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {forgotLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Send reset link
+                </button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+};
+
+export default Auth;
+
   );
 };
 
