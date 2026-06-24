@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, FileCheck, Shield, Calendar, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+import { LegalLink } from "@/components/LegalLink";
 
 const POLICY_VERSION = "v1.0";
 
@@ -186,9 +186,9 @@ const Welcome = () => {
             body={
               <>
                 Read the full{" "}
-                <Link to="/legal" target="_blank" className="text-primary underline">Terms</Link>
+                <LegalLink section="terms">Terms</LegalLink>
                 {" "}and{" "}
-                <Link to="/legal#privacy" target="_blank" className="text-primary underline">Privacy Policy</Link>.
+                <LegalLink section="privacy">Privacy Policy</LegalLink>.
                 Vyana is clinical decision support, not a substitute for medical advice.
               </>
             }

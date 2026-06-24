@@ -8,6 +8,7 @@ import { lovable } from "@/integrations/lovable";
 import { useLanguage } from "@/lib/i18n";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 import { validatePassword, validateEmail } from "@/lib/validation";
+import { LegalLink } from "@/components/LegalLink";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -599,9 +600,9 @@ const Auth = () => {
 
         <p className="pt-4 text-[11px] text-muted-foreground text-center leading-relaxed">
           By continuing you agree to our{" "}
-          <Link to="/legal" target="_blank" className="text-primary hover:underline">Terms</Link>{" "}
+          <LegalLink section="terms" className="text-primary hover:underline">Terms</LegalLink>{" "}
           and{" "}
-          <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
+          <LegalLink section="privacy" className="text-primary hover:underline">Privacy Policy</LegalLink>.
         </p>
       </div>
 
