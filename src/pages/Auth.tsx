@@ -253,16 +253,18 @@ const Auth = () => {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTimeoutError(null);
+    setFormError(null);
 
-    if (!validateEmail(email.trim())) {
-      toast({ title: "Invalid email", description: "Please enter a valid email address.", variant: "destructive" });
+    const trimmedEmail = email.trim();
+    if (!validateEmail(trimmedEmail)) {
+      setFormError("Please enter a valid email address.");
       return;
     }
 
     if (isSignup) {
       const pw = validatePassword(password);
       if (!pw.isValid) {
-        toast({ title: "Weak password", description: pw.errors.join(", "), variant: "destructive" });
+        setFormError(`Password is too weak: ${pw.errors.join(", ")}.`);
         return;
       }
     }
@@ -270,49 +272,110 @@ const Auth = () => {
     setEmailLoading(true);
     try {
       if (isSignup) {
-        const { error } = await supabase.auth.signUp({
-          email: email.trim(),
+        const { data, error } = await supabase.auth.signUp({
+          email: trimmedEmail,
           password,
           options: { emailRedirectTo: `${window.location.origin}/welcome` },
         });
-        if (error) throw error;
-        toast({ title: "Check your email", description: "We sent you a confirmation link to finish creating your account." });
+        if (error) {
+          const msg = error.message?.toLowerCase() ?? "";
+          if (msg.includes("registered") || msg.includes("already")) {
+            setFormError(
+              <>
+                An account with this email already exists. Please{" "}
+                <Link to="/auth" replace className="font-semibold underline underline-offset-2">
+                  log in
+                </Link>{" "}
+                instead.
+              </>,
+            );
+            return;
+          }
+          throw error;
+        }
+        // Supabase returns a user with an empty identities array when the
+        // email is already registered (and confirmations are on). Detect that.
+        if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          setFormError(
+            <>
+              An account with this email already exists. Please{" "}
+              <Link to="/auth" replace className="font-semibold underline underline-offset-2">
+                log in
+              </Link>{" "}
+              instead.
+            </>,
+          );
+          return;
+        }
+        toast({
+          title: "Check your email",
+          description: "We sent you a confirmation link to finish creating your account.",
+        });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
+          email: trimmedEmail,
           password,
         });
-        if (error) throw error;
+        if (error) {
+          const msg = error.message?.toLowerCase() ?? "";
+          if (msg.includes("invalid login") || msg.includes("invalid_credentials") || msg.includes("invalid credentials")) {
+            setFormError(
+              <>
+                Account not found, or the password is incorrect. Please{" "}
+                <Link
+                  to="/auth?signup=1"
+                  replace
+                  className="font-semibold underline underline-offset-2"
+                >
+                  sign up first
+                </Link>
+                .
+              </>,
+            );
+            return;
+          }
+          if (msg.includes("not confirmed") || msg.includes("confirm")) {
+            setFormError("Please confirm your email first. Check your inbox for the confirmation link.");
+            return;
+          }
+          throw error;
+        }
       }
     } catch (err: any) {
-      toast({
-        title: isSignup ? "Sign-up failed" : "Log-in failed",
-        description: err?.message ?? "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      setFormError(err?.message ?? "Something went wrong. Please try again.");
     } finally {
       setEmailLoading(false);
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!validateEmail(email.trim())) {
-      toast({
-        title: "Enter your email",
-        description: "Type your email above first, then tap Forgot password.",
-        variant: "destructive",
-      });
+  const openForgotPassword = () => {
+    setForgotEmail(email.trim());
+    setForgotSent(false);
+    setForgotOpen(true);
+  };
+
+  const handleSendResetLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = forgotEmail.trim();
+    if (!validateEmail(trimmed)) {
+      toast({ title: "Invalid email", description: "Please enter a valid email address.", variant: "destructive" });
       return;
     }
+    setForgotLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast({ title: "Reset link sent", description: "Check your email for the password reset link." });
+      setForgotSent(true);
+      toast({ title: "Reset link sent!", description: "Please check your email inbox." });
     } catch (err: any) {
       toast({ title: "Could not send link", description: err?.message ?? "Try again.", variant: "destructive" });
+    } finally {
+      setForgotLoading(false);
     }
+  };
+
   };
 
   const anyLoading = loadingProvider !== null || emailLoading;
