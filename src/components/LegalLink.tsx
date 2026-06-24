@@ -33,19 +33,18 @@ export const LegalLink = ({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           className="
-            max-w-none w-full h-full p-0 gap-0 overflow-hidden rounded-none border-0
+            flex flex-col max-w-none w-full h-full p-0 gap-0 overflow-y-auto rounded-none border-0
             sm:max-w-2xl sm:h-[85vh] sm:max-h-[85vh] sm:rounded-xl sm:border sm:border-border/60
             inset-0 translate-x-0 translate-y-0
             sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%]
           "
+          style={{ WebkitOverflowScrolling: "touch" }}
         >
-          <div className="flex flex-col h-full">
-            <DialogHeader className="px-4 py-3 border-b border-border shrink-0">
-              <DialogTitle className="text-lg font-bold text-foreground">Legal</DialogTitle>
-            </DialogHeader>
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              <LegalContent defaultSection={section} />
-            </div>
+          <DialogHeader className="sticky top-0 z-10 px-4 py-3 border-b border-border bg-background/95 backdrop-blur-sm">
+            <DialogTitle className="text-lg font-bold text-foreground">Legal</DialogTitle>
+          </DialogHeader>
+          <div className="p-4 sm:p-6">
+            <LegalContent defaultSection={section} />
           </div>
         </DialogContent>
       </Dialog>
