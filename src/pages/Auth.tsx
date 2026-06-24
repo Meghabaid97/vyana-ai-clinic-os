@@ -382,9 +382,16 @@ const Auth = () => {
     }
     setForgotLoading(true);
     try {
+      // Always send users to the public web reset page. Capacitor's
+      // window.location.origin (capacitor://localhost) is not a valid URL,
+      // and the email may be opened on a different device than the requester.
+      const origin = /^https?:/.test(window.location.origin)
+        ? window.location.origin
+        : "https://vyana.care";
       const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${origin}/reset-password`,
       });
+
       if (error) throw error;
       setForgotSent(true);
       toast({ title: "Reset link sent!", description: "Please check your email inbox." });
