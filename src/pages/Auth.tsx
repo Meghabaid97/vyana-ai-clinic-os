@@ -45,7 +45,7 @@ const buildCustomerOAuthUrl = (
   return url.toString();
 };
 
-const LOGIN_TIMEOUT_MS = 12_000;
+const LOGIN_TIMEOUT_MS = 180_000;
 
 const Auth = () => {
   const navigate = useNavigate();
