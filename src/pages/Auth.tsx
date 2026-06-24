@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Chrome, Apple, X, Loader2, AlertCircle } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
@@ -49,8 +49,15 @@ const LOGIN_TIMEOUT_MS = 180_000;
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   useLanguage();
+
+  const isSignup = useMemo(
+    () => new URLSearchParams(location.search).get("signup") === "1",
+    [location.search],
+  );
+
 
   const [loadingProvider, setLoadingProvider] = useState<SocialProvider | null>(null);
   const [timeoutError, setTimeoutError] = useState<string | null>(null);
@@ -212,10 +219,17 @@ const Auth = () => {
           <X className="h-5 w-5" />
         </button>
 
-        <div className="mt-10 mb-10">
-          <h1 className="text-3xl font-semibold text-foreground tracking-tight">Log in</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Sign in to carry your health story into every visit.</p>
+        <div className="mt-10 mb-8">
+          <h1 className="text-3xl font-semibold text-foreground tracking-tight">
+            {isSignup ? "Create your account" : "Welcome back"}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {isSignup
+              ? "Start carrying your health story in seconds."
+              : "Sign in to pick up your health story where you left off."}
+          </p>
         </div>
+
 
         {timeoutError && (
           <div
@@ -249,7 +263,9 @@ const Auth = () => {
               <Chrome className="h-5 w-5" />
             )}
             <span className="text-sm font-medium">
-              {loadingProvider === "google" ? "Connecting to Google…" : "Continue with Google"}
+              {loadingProvider === "google"
+                ? "Connecting to Google…"
+                : isSignup ? "Sign up with Google" : "Continue with Google"}
             </span>
           </button>
           <button
@@ -258,16 +274,37 @@ const Auth = () => {
             disabled={loadingProvider !== null}
             className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-colors"
           >
+
             {loadingProvider === "apple" ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <Apple className="h-5 w-5" />
             )}
             <span className="text-sm font-medium">
-              {loadingProvider === "apple" ? "Connecting to Apple…" : "Continue with Apple"}
+              {loadingProvider === "apple"
+                ? "Connecting to Apple…"
+                : isSignup ? "Sign up with Apple" : "Continue with Apple"}
             </span>
           </button>
         </div>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          {isSignup ? (
+            <>
+              Already have an account?{" "}
+              <Link to="/auth" replace className="font-medium text-primary hover:underline">
+                Log in
+              </Link>
+            </>
+          ) : (
+            <>
+              New to Vyana?{" "}
+              <Link to="/auth?signup=1" replace className="font-medium text-primary hover:underline">
+                Create an account
+              </Link>
+            </>
+          )}
+        </p>
 
         <p className="mt-auto pt-8 text-[11px] text-muted-foreground text-center leading-relaxed">
           By continuing you agree to our{" "}
@@ -275,6 +312,7 @@ const Auth = () => {
           and{" "}
           <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
         </p>
+
       </div>
     </div>
   );
