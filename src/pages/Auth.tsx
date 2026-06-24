@@ -342,7 +342,26 @@ const Auth = () => {
         }
       }
     } catch (err: any) {
-      setFormError(err?.message ?? "Something went wrong. Please try again.");
+      const raw = (err?.message ?? "").toString();
+      const lower = raw.toLowerCase();
+      const isNetwork =
+        err?.name === "TypeError" ||
+        err?.name === "AuthRetryableFetchError" ||
+        lower.includes("load failed") ||
+        lower.includes("failed to fetch") ||
+        lower.includes("networkerror") ||
+        lower.includes("network request failed") ||
+        lower.includes("fetch") ||
+        !navigator.onLine;
+      if (isNetwork) {
+        setFormError(
+          isSignup
+            ? "Couldn't reach the server. Please check your internet connection and try creating your account again."
+            : "Couldn't reach the server. Please check your internet connection and try signing in again.",
+        );
+      } else {
+        setFormError(raw || "Something went wrong. Please try again.");
+      }
     } finally {
       setEmailLoading(false);
     }
