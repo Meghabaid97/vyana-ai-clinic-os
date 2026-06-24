@@ -11,6 +11,7 @@ const entries = [
   { path: "/auth", changefreq: "monthly", priority: "0.5" },
   { path: "/reset-password", changefreq: "yearly", priority: "0.3" },
   { path: "/why-vyana", changefreq: "monthly", priority: "0.8" },
+  { path: "/abha-guide", changefreq: "monthly", priority: "0.8" },
   { path: "/request-access", changefreq: "monthly", priority: "0.7" },
   { path: "/access-pending", changefreq: "yearly", priority: "0.3" },
   { path: "/admin/waitlist", changefreq: "weekly", priority: "0.4" },
