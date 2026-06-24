@@ -17,10 +17,6 @@ type SocialProvider = "google" | "apple";
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 60;
-
-// Native OTP flow via MSG91 (SendOTP + VerifyOTP edge functions).
-// No third-party widget, no popup, no external browser.
-
 const CUSTOMER_APP_ORIGIN = "https://vyana.care";
 const OAUTH_BROKER_ORIGIN = CUSTOMER_APP_ORIGIN;
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/welcome`;
@@ -184,49 +180,34 @@ const Auth = () => {
     setPhoneError("");
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("msg91-send-otp", {
-        body: { phone: normalizedPhone },
-      });
-      if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
+      const { error } = await supabase.auth.signInWithOtp({ phone: normalizedPhone });
+      if (error) { recordAttempt(); throw error; }
       setOtpSent(true);
-      setOtpValue("");
-      toast({ title: "OTP sent", description: `Code sent to ${normalizedPhone}` });
+      toast({ title: t("auth.otpSent"), description: "Check your phone for the code." });
     } catch (e: any) {
-      recordAttempt();
-      toast({ title: "Couldn't send OTP", description: e?.message ?? "Try again in a moment.", variant: "destructive" });
+      toast({ title: "Couldn't send code", description: e?.message ?? "Try again in a moment.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerifyOtp = async () => {
-    if (isLockedOut) return;
-    if (otpValue.length < 6) return;
-    const normalizedPhone = normalizePhoneForAuth(phone);
+    if (!otpValue || otpValue.length < 6) return;
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("msg91-verify-otp", {
-        body: { phone: normalizedPhone, otp: otpValue },
-      });
-      if (error) throw error;
-      const { email, password } = (data ?? {}) as { email?: string; password?: string };
-      if (!email || !password) throw new Error((data as any)?.error ?? "Verification failed");
-      const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInErr) throw signInErr;
+      const normalizedPhone = normalizePhoneForAuth(phone);
+      const { error } = await supabase.auth.verifyOtp({ phone: normalizedPhone, token: otpValue, type: "sms" });
+      if (error) { recordAttempt(); throw error; }
       setAttempts(0);
       sessionStorage.removeItem("auth-attempts");
       sessionStorage.removeItem("auth-lockout");
+      // onAuthStateChange will navigate to /welcome.
     } catch (e: any) {
-      recordAttempt();
-      toast({ title: "Invalid code", description: e?.message ?? "Check the code and try again.", variant: "destructive" });
+      toast({ title: "Verification failed", description: e?.message ?? "Try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
-
-
-
 
   const handleGoogleAuth = async () => {
     try {
