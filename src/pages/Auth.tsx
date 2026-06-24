@@ -77,6 +77,16 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
+  const [formError, setFormError] = useState<ReactNode | null>(null);
+
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
+
+  // Reset inline error when switching between log-in and sign-up
+  useEffect(() => { setFormError(null); }, [isSignup]);
+
 
   const clearLoginTimeout = useCallback(() => {
     if (timeoutRef.current !== null) {
