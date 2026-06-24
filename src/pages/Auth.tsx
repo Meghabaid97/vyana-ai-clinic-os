@@ -17,6 +17,35 @@ type SocialProvider = "google" | "apple";
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 60;
+
+const MSG91_WIDGET_ID = "3666706f4643363138353233";
+const MSG91_TOKEN_AUTH = "532688Tm0nK9E29J6a316d42P1";
+const MSG91_WIDGET_SCRIPT = "https://verify.msg91.com/otp-provider.js";
+
+declare global {
+  interface Window {
+    initSendOTP?: (config: Record<string, unknown>) => void;
+  }
+}
+
+const loadMsg91Widget = () =>
+  new Promise<void>((resolve, reject) => {
+    if (typeof window === "undefined") return reject(new Error("no_window"));
+    if (window.initSendOTP) return resolve();
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${MSG91_WIDGET_SCRIPT}"]`);
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("widget_load_failed")), { once: true });
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = MSG91_WIDGET_SCRIPT;
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("widget_load_failed"));
+    document.head.appendChild(s);
+  });
+
 const CUSTOMER_APP_ORIGIN = "https://vyana.care";
 const OAUTH_BROKER_ORIGIN = CUSTOMER_APP_ORIGIN;
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/welcome`;
