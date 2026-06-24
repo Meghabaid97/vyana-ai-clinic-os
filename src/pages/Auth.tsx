@@ -17,7 +17,6 @@ import {
 type SocialProvider = "google" | "apple";
 
 const CUSTOMER_APP_ORIGIN = "https://vyana.care";
-const OAUTH_BROKER_ORIGIN = CUSTOMER_APP_ORIGIN;
 // Same-origin redirect targets so the Supabase session lands on the origin
 // the user started on (www.vyana.care, vyana.care, preview domains, etc.).
 // Hard-coding to vyana.care caused first-time Google sign-in to hang on
@@ -26,10 +25,46 @@ const getWebOAuthRedirect = () =>
   typeof window !== "undefined" ? `${window.location.origin}/welcome` : `${CUSTOMER_APP_ORIGIN}/welcome`;
 const NATIVE_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/oauth-bridge`;
 
+const AUTH_PRECONNECT_ORIGINS = [
+  "https://accounts.google.com",
+  "https://oauth.lovable.app",
+  "https://www.gstatic.com",
+];
+
 const isMobileOrTabletBrowser = () => {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent;
   return /iPhone|iPad|iPod|Android/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+};
+
+const getOAuthBrokerOrigin = () => {
+  if (typeof window === "undefined") return CUSTOMER_APP_ORIGIN;
+  const { hostname, origin, protocol } = window.location;
+  if (protocol === "https:" && (hostname === "vyana.care" || hostname === "www.vyana.care")) {
+    return origin;
+  }
+  return CUSTOMER_APP_ORIGIN;
+};
+
+const warmOAuthConnections = () => {
+  if (typeof document === "undefined") return;
+
+  AUTH_PRECONNECT_ORIGINS.forEach((origin) => {
+    if (document.querySelector(`link[data-vyana-auth-preconnect="${origin}"]`)) return;
+
+    const dns = document.createElement("link");
+    dns.rel = "dns-prefetch";
+    dns.href = origin;
+    dns.setAttribute("data-vyana-auth-preconnect", origin);
+    document.head.appendChild(dns);
+
+    const preconnect = document.createElement("link");
+    preconnect.rel = "preconnect";
+    preconnect.href = origin;
+    preconnect.crossOrigin = "anonymous";
+    preconnect.setAttribute("data-vyana-auth-preconnect", origin);
+    document.head.appendChild(preconnect);
+  });
 };
 
 const createOAuthState = () => {
@@ -46,7 +81,7 @@ const buildCustomerOAuthUrl = (
   redirectUri: string,
   extraParams: Record<string, string> = {},
 ) => {
-  const url = new URL("/~oauth/initiate", OAUTH_BROKER_ORIGIN);
+  const url = new URL("/~oauth/initiate", getOAuthBrokerOrigin());
   const state = createOAuthState();
   sessionStorage.setItem("vyana-oauth-state", state);
   Object.entries(extraParams).forEach(([key, value]) => url.searchParams.set(key, value));
@@ -92,6 +127,8 @@ const Auth = () => {
 
   // Reset inline error when switching between log-in and sign-up
   useEffect(() => { setFormError(null); }, [isSignup]);
+
+  useEffect(() => { warmOAuthConnections(); }, []);
 
 
   const clearLoginTimeout = useCallback(() => {
