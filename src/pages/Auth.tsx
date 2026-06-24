@@ -211,22 +211,55 @@ const Auth = () => {
           <p className="mt-2 text-sm text-muted-foreground">Sign in to carry your health story into every visit.</p>
         </div>
 
+        {timeoutError && (
+          <div
+            role="alert"
+            className="mb-4 flex items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          >
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <p className="leading-snug">{timeoutError}</p>
+              <button
+                type="button"
+                onClick={dismissTimeoutError}
+                className="mt-1 text-xs font-semibold underline underline-offset-2"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3">
           <button
             type="button"
             onClick={handleGoogleAuth}
-            className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 flex items-center justify-center gap-3 transition-colors"
+            disabled={loadingProvider !== null}
+            className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-colors"
           >
-            <Chrome className="h-5 w-5" />
-            <span className="text-sm font-medium">Continue with Google</span>
+            {loadingProvider === "google" ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Chrome className="h-5 w-5" />
+            )}
+            <span className="text-sm font-medium">
+              {loadingProvider === "google" ? "Connecting to Google…" : "Continue with Google"}
+            </span>
           </button>
           <button
             type="button"
             onClick={handleAppleAuth}
-            className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 flex items-center justify-center gap-3 transition-colors"
+            disabled={loadingProvider !== null}
+            className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-colors"
           >
-            <Apple className="h-5 w-5" />
-            <span className="text-sm font-medium">Continue with Apple</span>
+            {loadingProvider === "apple" ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Apple className="h-5 w-5" />
+            )}
+            <span className="text-sm font-medium">
+              {loadingProvider === "apple" ? "Connecting to Apple…" : "Continue with Apple"}
+            </span>
           </button>
         </div>
 
