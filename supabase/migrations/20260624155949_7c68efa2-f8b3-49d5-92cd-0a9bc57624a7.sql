@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS gated_beta_signup_gate ON auth.users;
