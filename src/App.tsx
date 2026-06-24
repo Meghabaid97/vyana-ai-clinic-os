@@ -18,6 +18,7 @@ const AppHome = lazy(() => import("./pages/AppHome"));
 // Lazy: everything else (loaded on demand → smaller initial bundle, faster start)
 const Splash = lazy(() => import("./pages/Splash"));
 const WhyVyana = lazy(() => import("./pages/WhyVyana"));
+const AbhaGuide = lazy(() => import("./pages/AbhaGuide"));
 const RequestAccess = lazy(() => import("./pages/RequestAccess"));
 const AccessPending = lazy(() => import("./pages/AccessPending"));
 const AdminWaitlist = lazy(() => import("./pages/AdminWaitlist"));
@@ -90,6 +91,7 @@ const App = () => (
             <Route path="/admin/payments" element={<AdminPayments />} />
             <Route path="/admin/observability" element={<AdminObservability />} />
             <Route path="/why-vyana" element={<WhyVyana />} />
+            <Route path="/abha-guide" element={<AbhaGuide />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />
             <Route path="/layout-qa" element={<LayoutQA />} />
