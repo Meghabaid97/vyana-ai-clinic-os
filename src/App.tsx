@@ -85,6 +85,8 @@ const App = () => (
             <Route path="/splash" element={<Splash />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/oauth-bridge" element={<OAuthBridge />} />
+
             <Route path="/request-access" element={<RequestAccess />} />
             <Route path="/access-pending" element={<AccessPending />} />
             <Route path="/admin/waitlist" element={<AdminWaitlist />} />
