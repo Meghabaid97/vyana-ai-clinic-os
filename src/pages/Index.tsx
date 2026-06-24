@@ -27,7 +27,7 @@ const Index = () => {
   usePageMeta({
     title: "Vyana: Your longitudinal health story",
     description:
-      "Vyana is India's longitudinal health memory layer. Carry every prescription, lab report, and discharge summary into every doctor visit, so you never explain your medical history again.",
+      "Vyana is India's longitudinal health memory layer. Carry prescriptions, labs, and summaries into every visit. Never explain your history again.",
     path: "/",
   });
   useEffect(() => {
