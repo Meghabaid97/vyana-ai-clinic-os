@@ -618,6 +618,9 @@ const Auth = () => {
       const isNativeApp = Capacitor.isNativePlatform();
 
       if (isNativeApp) {
+        // Clear any cached session so a cancelled OAuth flow doesn't drop the
+        // user back into a previous account on next app open.
+        await supabase.auth.signOut().catch(() => {});
         await NativeBrowser.open({
           url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT, { prompt: "select_account" }),
           presentationStyle: "fullscreen",
