@@ -219,10 +219,17 @@ const Auth = () => {
           <X className="h-5 w-5" />
         </button>
 
-        <div className="mt-10 mb-10">
-          <h1 className="text-3xl font-semibold text-foreground tracking-tight">Log in</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Sign in to carry your health story into every visit.</p>
+        <div className="mt-10 mb-8">
+          <h1 className="text-3xl font-semibold text-foreground tracking-tight">
+            {isSignup ? "Create your account" : "Welcome back"}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {isSignup
+              ? "Start carrying your health story in seconds."
+              : "Sign in to pick up your health story where you left off."}
+          </p>
         </div>
+
 
         {timeoutError && (
           <div
