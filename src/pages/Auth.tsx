@@ -17,7 +17,12 @@ type SocialProvider = "google" | "apple";
 
 const CUSTOMER_APP_ORIGIN = "https://vyana.care";
 const OAUTH_BROKER_ORIGIN = CUSTOMER_APP_ORIGIN;
-const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/welcome`;
+// Same-origin redirect targets so the Supabase session lands on the origin
+// the user started on (www.vyana.care, vyana.care, preview domains, etc.).
+// Hard-coding to vyana.care caused first-time Google sign-in to hang on
+// www.vyana.care because the session was set on a different origin.
+const getWebOAuthRedirect = () =>
+  typeof window !== "undefined" ? `${window.location.origin}/welcome` : `${CUSTOMER_APP_ORIGIN}/welcome`;
 const NATIVE_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/oauth-bridge`;
 
 const isMobileOrTabletBrowser = () => {
