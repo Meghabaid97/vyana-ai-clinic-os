@@ -298,7 +298,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
                     <span className={`text-[9.5px] sm:text-[10px] font-semibold rounded-full px-1.5 py-0.5 whitespace-nowrap ${tone.chip}`}>
                       {STATUS_COPY[status]}
                     </span>
-                    <span className={`ml-auto flex items-center gap-0.5 text-[10px] font-medium ${dir === "flat" ? "text-muted-foreground" : "text-foreground/70"}`}>
+                    <span className={`ml-auto flex items-center gap-0.5 text-[10px] font-medium ${dir === "flat" ? "text-muted-foreground" : "text-muted-foreground"}`}>
                       <DirIcon className="h-3 w-3" />
                       {delta != null && dir !== "flat" ? Math.abs(delta).toFixed(def.decimals ?? 1) : "·"}
                     </span>
