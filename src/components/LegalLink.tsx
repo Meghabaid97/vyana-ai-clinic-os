@@ -43,7 +43,7 @@ export const LegalLink = ({
             <DialogTitle className="text-lg font-bold text-foreground">Legal</DialogTitle>
           </DialogHeader>
           <div
-            className="flex-1 overflow-y-auto p-4 sm:p-6"
+            className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 overscroll-contain"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             <LegalContent defaultSection={section} />
