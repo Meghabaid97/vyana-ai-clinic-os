@@ -82,7 +82,7 @@ const PortraitCTA = () => {
         </form>
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col items-center gap-1.5">
-          <p className="text-label text-foreground/55">
+          <p className="text-label text-muted-foreground">
             {t("cta.signoff")}
           </p>
           <span
@@ -96,7 +96,7 @@ const PortraitCTA = () => {
           >
             Megha
           </span>
-          <p className="text-label text-foreground/45 mt-1">
+          <p className="text-label text-muted-foreground mt-1">
             {t("cta.role")}
           </p>
         </div>

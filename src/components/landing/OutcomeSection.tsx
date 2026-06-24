@@ -48,7 +48,7 @@ const OutcomeSection = () => {
                 key={i}
                 className={`reveal reveal-delay-${i + 1} ${flips.visible ? "is-visible" : ""} rounded-2xl glass-card p-7`}
               >
-                <p className="text-caption text-foreground/45 line-through">
+                <p className="text-caption text-muted-foreground line-through">
                   {o.stop}
                 </p>
                 <p className="mt-3 font-serif text-[26px] leading-[1.15] text-foreground tracking-[-0.01em]">

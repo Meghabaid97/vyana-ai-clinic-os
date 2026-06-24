@@ -112,7 +112,7 @@ const DemoFilm = () => {
           </div>
         </div>
 
-        <p className="mt-5 text-[13px] text-foreground/55 italic">
+        <p className="mt-5 text-[13px] text-muted-foreground italic">
           Demo plays automatically when in view. Tap to pause, unmute for the founder narration.
         </p>
       </div>
