@@ -224,9 +224,9 @@ const Welcome = () => {
             body={
               <>
                 Read the full{" "}
-                <Link to="/legal" target="_blank" className="text-primary underline">Terms</Link>
+                <LegalLink section="terms">Terms</LegalLink>
                 {" "}and{" "}
-                <Link to="/legal#privacy" target="_blank" className="text-primary underline">Privacy Policy</Link>.
+                <LegalLink section="privacy">Privacy Policy</LegalLink>.
                 Vyana is clinical decision support, not a substitute for medical advice.
               </>
             }
