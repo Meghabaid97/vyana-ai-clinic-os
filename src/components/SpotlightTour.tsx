@@ -299,7 +299,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] animate-fade-in overscroll-none">
+    <div className="fixed inset-0 z-[100] animate-fade-in overscroll-none pointer-events-auto" style={{ pointerEvents: "auto" }}>
       <div className="absolute inset-0 bg-foreground/72" onClick={handleSkip} aria-hidden="true" />
 
       <svg className="absolute inset-0 h-full w-full pointer-events-none" aria-hidden="true">
