@@ -217,16 +217,29 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // For recovery, build a cross-device-safe link straight to /reset-password
+  // using token_hash (works in any browser, no PKCE code verifier needed).
+  // Supabase's default `payload.data.url` runs through /auth/v1/verify and
+  // can fail when the email is opened on a different device than the
+  // requester, or on Capacitor where window.location.origin is not a real URL.
+  let confirmationUrl = payload.data.url
+  if (emailType === 'recovery' && payload.data.token_hash) {
+    confirmationUrl = `https://${ROOT_DOMAIN}/reset-password?token_hash=${encodeURIComponent(
+      payload.data.token_hash
+    )}&type=recovery`
+  }
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
     siteUrl: `https://${ROOT_DOMAIN}`,
     recipient: payload.data.email,
-    confirmationUrl: payload.data.url,
+    confirmationUrl,
     token: payload.data.token,
     email: payload.data.email,
     newEmail: payload.data.new_email,
   }
+
 
   // Render React Email to HTML and plain text
   const html = await renderAsync(React.createElement(EmailTemplate, templateProps))
