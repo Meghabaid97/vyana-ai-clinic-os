@@ -170,22 +170,24 @@ const Auth = () => {
 
   const handleAppleAuth = () => runOAuth("apple", async () => {
     const isNativeApp = Capacitor.isNativePlatform();
-    const appleExtraParams = { response_mode: "form_post", scope: "name email" };
+    // NOTE: do NOT pass response_mode or scope here. The Lovable OAuth broker
+    // already sets response_mode=form_post and scope=openid+email+name itself,
+    // and it rejects requests that try to override response_mode with
+    // "Authorization request is invalid: response_mode is invalid".
     if (isNativeApp) {
       await supabase.auth.signOut().catch(() => {});
       await NativeBrowser.open({
-        url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT, appleExtraParams),
+        url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT),
         presentationStyle: "fullscreen",
       });
       return;
     }
     if (isMobileOrTabletBrowser()) {
-      window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT, appleExtraParams));
+      window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT));
       return;
     }
     const result = await lovable.auth.signInWithOAuth("apple", {
       redirect_uri: WEB_OAUTH_REDIRECT,
-      extraParams: appleExtraParams,
     });
     if (result.error) throw result.error;
     if (result.redirected) return;
