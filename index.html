@@ -13,8 +13,17 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Only the families actually used by the app:
+        - Instrument Serif (headings, --font-heading)
+        - Inter 400/600/700 (body, --font-body; 500 was unused)
+        - Caveat 500 (founder signature in PortraitCTA)
+      Removed (none were referenced anywhere): Homemade Apple, Dancing Script,
+      Sacramento, Allison, JetBrains Mono. Each one was costing 1–2 extra
+      blocking font requests on first paint.
+    -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Homemade+Apple&family=Caveat:wght@500;600&family=Dancing+Script:wght@500;600;700&family=Sacramento&family=Allison&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;600;700&family=Caveat:wght@500&display=swap"
       rel="stylesheet"
     />
     <meta name="theme-color" content="#FF6B6B" />
