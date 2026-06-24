@@ -36,8 +36,9 @@ const OAuthBridge = () => {
 
     const fallback = window.setTimeout(() => {
       // If the deep link didn't open the app, send the user to the web app
-      // with the same OAuth payload so Supabase can complete the session.
-      window.location.replace(`/app${payload}`);
+      // (consent gate first) with the same OAuth payload so Supabase can
+      // complete the session.
+      window.location.replace(`/welcome${payload}`);
     }, 1500);
 
     return () => window.clearTimeout(fallback);
