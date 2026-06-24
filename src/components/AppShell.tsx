@@ -75,10 +75,11 @@ const AppShellInner = () => {
     return () => window.clearTimeout(t);
   }, [location.pathname]);
 
-  // Auth gate + last_app_open_at touch (no patient fetch — provider handles it)
+  // Auth gate + consent gate + last_app_open_at touch (no patient fetch — provider handles it)
   useEffect(() => {
     let cancelled = false;
     let touchedForUser: string | null = null;
+    let consentCheckedForUser: string | null = null;
 
     const touch = (userId: string) => {
       if (touchedForUser === userId) return;
@@ -90,16 +91,45 @@ const AppShellInner = () => {
         .eq("is_primary", true);
     };
 
+    // Hard consent gate: even with a valid session, missing required consents
+    // forces the user back to /welcome. Cannot be bypassed by reopening the app.
+    const enforceConsent = async (userId: string) => {
+      if (consentCheckedForUser === userId) return;
+      consentCheckedForUser = userId;
+      const { data: consents, error } = await supabase
+        .from("consent_log")
+        .select("consent_type")
+        .eq("user_id", userId)
+        .eq("granted", true);
+      if (cancelled) return;
+      if (error) return; // fail-open on network blip; next route check will retry
+      const types = new Set((consents ?? []).map((c) => c.consent_type));
+      const allGranted =
+        types.has("age_18_confirmation") &&
+        types.has("terms_of_service") &&
+        types.has("dpdpa_data_processing");
+      if (!allGranted) {
+        navigate("/welcome", { replace: true });
+      }
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (cancelled) return;
-      if (event === "SIGNED_IN" && session) touch(session.user.id);
-      if (event === "SIGNED_OUT") touchedForUser = null;
+      if (event === "SIGNED_IN" && session) {
+        touch(session.user.id);
+        void enforceConsent(session.user.id);
+      }
+      if (event === "SIGNED_OUT") {
+        touchedForUser = null;
+        consentCheckedForUser = null;
+      }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (cancelled) return;
       if (session) {
         touch(session.user.id);
+        void enforceConsent(session.user.id);
       } else {
         setTimeout(async () => {
           if (cancelled) return;
