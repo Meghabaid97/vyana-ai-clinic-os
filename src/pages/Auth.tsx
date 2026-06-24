@@ -8,6 +8,7 @@ import { lovable } from "@/integrations/lovable";
 import { useLanguage } from "@/lib/i18n";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 import { validatePassword, validateEmail } from "@/lib/validation";
+import { LegalLink } from "@/components/LegalLink";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
