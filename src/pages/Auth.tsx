@@ -17,7 +17,12 @@ type SocialProvider = "google" | "apple";
 
 const CUSTOMER_APP_ORIGIN = "https://vyana.care";
 const OAUTH_BROKER_ORIGIN = CUSTOMER_APP_ORIGIN;
-const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/welcome`;
+// Same-origin redirect targets so the Supabase session lands on the origin
+// the user started on (www.vyana.care, vyana.care, preview domains, etc.).
+// Hard-coding to vyana.care caused first-time Google sign-in to hang on
+// www.vyana.care because the session was set on a different origin.
+const getWebOAuthRedirect = () =>
+  typeof window !== "undefined" ? `${window.location.origin}/welcome` : `${CUSTOMER_APP_ORIGIN}/welcome`;
 const NATIVE_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/oauth-bridge`;
 
 const isMobileOrTabletBrowser = () => {
@@ -199,20 +204,18 @@ const Auth = () => {
   const handleGoogleAuth = () => runOAuth("google", async () => {
     const isNativeApp = Capacitor.isNativePlatform();
     if (isNativeApp) {
-      await supabase.auth.signOut().catch(() => {});
       await NativeBrowser.open({
-        url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT, { prompt: "select_account" }),
+        url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT),
         presentationStyle: "fullscreen",
       });
       return;
     }
     if (isMobileOrTabletBrowser()) {
-      window.location.assign(buildCustomerOAuthUrl("google", WEB_OAUTH_REDIRECT, { prompt: "select_account" }));
+      window.location.assign(buildCustomerOAuthUrl("google", getWebOAuthRedirect()));
       return;
     }
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: WEB_OAUTH_REDIRECT,
-      extraParams: { prompt: "select_account" },
+      redirect_uri: getWebOAuthRedirect(),
     });
     if (result.error) throw result.error;
     if (result.redirected) return;
@@ -232,11 +235,11 @@ const Auth = () => {
       return;
     }
     if (isMobileOrTabletBrowser()) {
-      window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT));
+      window.location.assign(buildCustomerOAuthUrl("apple", getWebOAuthRedirect()));
       return;
     }
     const result = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: WEB_OAUTH_REDIRECT,
+      redirect_uri: getWebOAuthRedirect(),
     });
     if (result.error) throw result.error;
     if (result.redirected) return;
