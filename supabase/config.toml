@@ -47,3 +47,7 @@ project_id = "gnfaxcdapizhfqloiajn"
     verify_jwt = false
   [functions.msg91-verify]
     verify_jwt = false
+  [functions.msg91-send-otp]
+    verify_jwt = false
+  [functions.msg91-verify-otp]
+    verify_jwt = false
