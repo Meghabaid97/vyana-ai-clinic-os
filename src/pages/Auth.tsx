@@ -3,10 +3,11 @@ import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Chrome, Apple, X, Loader2, AlertCircle } from "lucide-react";
+import { Chrome, Apple, X, Loader2, AlertCircle, Check } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 import { useLanguage } from "@/lib/i18n";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
+import { validatePassword, validateEmail } from "@/lib/validation";
 
 type SocialProvider = "google" | "apple";
 
@@ -47,6 +48,13 @@ const buildCustomerOAuthUrl = (
 
 const LOGIN_TIMEOUT_MS = 180_000;
 
+const PASSWORD_RULES: { label: string; test: (pw: string) => boolean }[] = [
+  { label: "At least 8 characters", test: (p) => p.length >= 8 },
+  { label: "One uppercase letter", test: (p) => /[A-Z]/.test(p) },
+  { label: "One number", test: (p) => /[0-9]/.test(p) },
+  { label: "One special character", test: (p) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
+];
+
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,10 +66,13 @@ const Auth = () => {
     [location.search],
   );
 
-
   const [loadingProvider, setLoadingProvider] = useState<SocialProvider | null>(null);
   const [timeoutError, setTimeoutError] = useState<string | null>(null);
   const timeoutRef = useRef<number | null>(null);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
 
   const clearLoginTimeout = useCallback(() => {
     if (timeoutRef.current !== null) {
@@ -85,8 +96,6 @@ const Auth = () => {
 
   const handleAuthenticatedUser = useCallback(() => {
     clearLoginTimeout();
-    // Hard replace to guarantee we leave /auth even if React state is mid-render
-    // from an OAuth redirect (web) or in-app browser close (native).
     window.location.replace("/welcome");
   }, [clearLoginTimeout]);
 
@@ -115,8 +124,6 @@ const Auth = () => {
       }
     }
 
-    // Register the listener FIRST so we never miss the SIGNED_IN event that
-    // fires synchronously when Supabase parses the OAuth tokens from the URL.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
       if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") && session) {
@@ -124,7 +131,6 @@ const Auth = () => {
       }
     });
 
-    // Fallback: if a session already exists on mount, navigate immediately.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) go();
     });
@@ -177,10 +183,6 @@ const Auth = () => {
 
   const handleAppleAuth = () => runOAuth("apple", async () => {
     const isNativeApp = Capacitor.isNativePlatform();
-    // NOTE: do NOT pass response_mode or scope here. The Lovable OAuth broker
-    // already sets response_mode=form_post and scope=openid+email+name itself,
-    // and it rejects requests that try to override response_mode with
-    // "Authorization request is invalid: response_mode is invalid".
     if (isNativeApp) {
       await supabase.auth.signOut().catch(() => {});
       await NativeBrowser.open({
@@ -207,8 +209,75 @@ const Auth = () => {
     setTimeoutError(null);
   };
 
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTimeoutError(null);
+
+    if (!validateEmail(email.trim())) {
+      toast({ title: "Invalid email", description: "Please enter a valid email address.", variant: "destructive" });
+      return;
+    }
+
+    if (isSignup) {
+      const pw = validatePassword(password);
+      if (!pw.isValid) {
+        toast({ title: "Weak password", description: pw.errors.join(", "), variant: "destructive" });
+        return;
+      }
+    }
+
+    setEmailLoading(true);
+    try {
+      if (isSignup) {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/welcome` },
+        });
+        if (error) throw error;
+        toast({ title: "Check your email", description: "We sent you a confirmation link to finish creating your account." });
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (error) throw error;
+      }
+    } catch (err: any) {
+      toast({
+        title: isSignup ? "Sign-up failed" : "Log-in failed",
+        description: err?.message ?? "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!validateEmail(email.trim())) {
+      toast({
+        title: "Enter your email",
+        description: "Type your email above first, then tap Forgot password.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: "Reset link sent", description: "Check your email for the password reset link." });
+    } catch (err: any) {
+      toast({ title: "Could not send link", description: err?.message ?? "Try again.", variant: "destructive" });
+    }
+  };
+
+  const anyLoading = loadingProvider !== null || emailLoading;
+
   return (
-    <div className="min-h-[100svh] flex flex-col bg-background px-6 pt-6 pb-8 sm:py-12 safe-area-top safe-area-bottom">
+    <div className="min-h-[100svh] flex flex-col bg-background px-6 pt-6 pb-8 safe-area-top safe-area-bottom">
       <div className="w-full max-w-sm mx-auto flex-1 flex flex-col">
         <button
           type="button"
@@ -219,100 +288,184 @@ const Auth = () => {
           <X className="h-5 w-5" />
         </button>
 
-        <div className="mt-10 mb-8">
-          <h1 className="text-3xl font-semibold text-foreground tracking-tight">
-            {isSignup ? "Create your account" : "Welcome back"}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {isSignup
-              ? "Start carrying your health story in seconds."
-              : "Sign in to pick up your health story where you left off."}
+        <div className="flex-1 flex flex-col justify-center py-6">
+          <div className="mb-7">
+            <h1 className="text-3xl font-semibold text-foreground tracking-tight">
+              {isSignup ? "Create your account" : "Welcome back"}
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {isSignup
+                ? "Start carrying your health story in seconds."
+                : "Sign in to pick up your health story where you left off."}
+            </p>
+          </div>
+
+          {timeoutError && (
+            <div
+              role="alert"
+              className="mb-4 flex items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+            >
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="leading-snug">{timeoutError}</p>
+                <button
+                  type="button"
+                  onClick={dismissTimeoutError}
+                  className="mt-1 text-xs font-semibold underline underline-offset-2"
+                >
+                  Try again
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={handleGoogleAuth}
+              disabled={anyLoading}
+              className="w-full h-12 px-4 rounded-full border border-border bg-background hover:bg-muted/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-colors"
+            >
+              {loadingProvider === "google" ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Chrome className="h-5 w-5" />
+              )}
+              <span className="text-sm font-medium">
+                {loadingProvider === "google"
+                  ? "Connecting to Google…"
+                  : isSignup ? "Sign up with Google" : "Continue with Google"}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={handleAppleAuth}
+              disabled={anyLoading}
+              className="w-full h-12 px-4 rounded-full border border-border bg-background hover:bg-muted/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-colors"
+            >
+              {loadingProvider === "apple" ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Apple className="h-5 w-5" />
+              )}
+              <span className="text-sm font-medium">
+                {loadingProvider === "apple"
+                  ? "Connecting to Apple…"
+                  : isSignup ? "Sign up with Apple" : "Continue with Apple"}
+              </span>
+            </button>
+          </div>
+
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              OR
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <form onSubmit={handleEmailSubmit} className="space-y-3">
+            <div>
+              <label htmlFor="auth-email" className="block text-xs font-medium text-muted-foreground mb-1.5">
+                {isSignup ? "Email" : "Email or Username"}
+              </label>
+              <input
+                id="auth-email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={anyLoading}
+                placeholder="you@example.com"
+                className="w-full h-12 px-4 rounded-2xl border border-border bg-background text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:opacity-60"
+                required
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="auth-password" className="block text-xs font-medium text-muted-foreground">
+                  Password
+                </label>
+                {!isSignup && (
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-xs font-medium text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+              <input
+                id="auth-password"
+                type="password"
+                autoComplete={isSignup ? "new-password" : "current-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={anyLoading}
+                placeholder={isSignup ? "Create a strong password" : "Enter your password"}
+                className="w-full h-12 px-4 rounded-2xl border border-border bg-background text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:opacity-60"
+                required
+              />
+              {isSignup && (
+                <ul className="mt-2 space-y-1 pl-0.5">
+                  {PASSWORD_RULES.map((rule) => {
+                    const ok = password.length > 0 && rule.test(password);
+                    return (
+                      <li
+                        key={rule.label}
+                        className={`flex items-center gap-1.5 text-[11px] leading-snug transition-colors ${
+                          ok ? "text-emerald-600" : "text-muted-foreground"
+                        }`}
+                      >
+                        <Check className={`h-3 w-3 shrink-0 ${ok ? "opacity-100" : "opacity-40"}`} />
+                        {rule.label}
+                      </li>
+                    );
+                  })}
+                  <li className="text-[11px] leading-snug text-muted-foreground/80 pt-0.5">
+                    Also include a lowercase letter.
+                  </li>
+                </ul>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={anyLoading || !email || !password}
+              className="w-full h-12 rounded-full bg-primary text-primary-foreground text-sm font-semibold shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.5)] hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            >
+              {emailLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isSignup ? "Create account" : "Log in"}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            {isSignup ? (
+              <>
+                Already have an account?{" "}
+                <Link to="/auth" replace className="font-medium text-primary hover:underline">
+                  Log in
+                </Link>
+              </>
+            ) : (
+              <>
+                New to Vyana?{" "}
+                <Link to="/auth?signup=1" replace className="font-medium text-primary hover:underline">
+                  Create an account
+                </Link>
+              </>
+            )}
           </p>
         </div>
 
-
-        {timeoutError && (
-          <div
-            role="alert"
-            className="mb-4 flex items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
-          >
-            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-            <div className="flex-1">
-              <p className="leading-snug">{timeoutError}</p>
-              <button
-                type="button"
-                onClick={dismissTimeoutError}
-                className="mt-1 text-xs font-semibold underline underline-offset-2"
-              >
-                Try again
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={handleGoogleAuth}
-            disabled={loadingProvider !== null}
-            className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-colors"
-          >
-            {loadingProvider === "google" ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Chrome className="h-5 w-5" />
-            )}
-            <span className="text-sm font-medium">
-              {loadingProvider === "google"
-                ? "Connecting to Google…"
-                : isSignup ? "Sign up with Google" : "Continue with Google"}
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={handleAppleAuth}
-            disabled={loadingProvider !== null}
-            className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-colors"
-          >
-
-            {loadingProvider === "apple" ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Apple className="h-5 w-5" />
-            )}
-            <span className="text-sm font-medium">
-              {loadingProvider === "apple"
-                ? "Connecting to Apple…"
-                : isSignup ? "Sign up with Apple" : "Continue with Apple"}
-            </span>
-          </button>
-        </div>
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          {isSignup ? (
-            <>
-              Already have an account?{" "}
-              <Link to="/auth" replace className="font-medium text-primary hover:underline">
-                Log in
-              </Link>
-            </>
-          ) : (
-            <>
-              New to Vyana?{" "}
-              <Link to="/auth?signup=1" replace className="font-medium text-primary hover:underline">
-                Create an account
-              </Link>
-            </>
-          )}
-        </p>
-
-        <p className="mt-auto pt-8 text-[11px] text-muted-foreground text-center leading-relaxed">
+        <p className="pt-4 text-[11px] text-muted-foreground text-center leading-relaxed">
           By continuing you agree to our{" "}
           <Link to="/legal" target="_blank" className="text-primary hover:underline">Terms</Link>{" "}
           and{" "}
           <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
         </p>
-
       </div>
     </div>
   );
