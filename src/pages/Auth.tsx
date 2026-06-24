@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Chrome, Apple, X } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
-import { t, useLanguage } from "@/lib/i18n";
+import { useLanguage } from "@/lib/i18n";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 
 type SocialProvider = "google" | "apple";
