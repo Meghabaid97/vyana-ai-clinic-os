@@ -89,7 +89,7 @@ const PortraitCTA = () => {
             aria-label="Megha, founder"
             className="text-[28px] sm:text-[32px] text-primary leading-none"
             style={{
-              fontFamily: '"Homemade Apple", "Caveat", cursive',
+              fontFamily: '"Caveat", "Brush Script MT", cursive',
               transform: "rotate(-3deg)",
               letterSpacing: "0.02em",
             }}
