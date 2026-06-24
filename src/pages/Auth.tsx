@@ -411,7 +411,7 @@ const Auth = () => {
           <X className="h-5 w-5" />
         </button>
 
-        <div className="flex-1 flex flex-col justify-center py-6">
+        <div className="flex-1 flex flex-col justify-center min-h-min py-6">
           <div className="mb-7">
             <h1 className="text-3xl font-semibold text-foreground tracking-tight">
               {isSignup ? "Create your account" : "Welcome back"}
