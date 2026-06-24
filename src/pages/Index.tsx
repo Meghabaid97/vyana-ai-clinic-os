@@ -4,10 +4,10 @@ import { Capacitor } from "@capacitor/core";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/use-page-meta";
+import EditorialHero from "@/components/landing/EditorialHero";
 
-// Landing sections are heavy and only needed for unauthed visitors.
+// Landing sections below the fold are heavy and only needed for unauthed visitors.
 // Lazy-load so authed users (who get redirected to /app) don't pay for them.
-const EditorialHero = lazy(() => import("@/components/landing/EditorialHero"));
 const ProblemSection = lazy(() => import("@/components/landing/ProblemSection"));
 const QuoteWall = lazy(() => import("@/components/landing/QuoteWall"));
 const WedgeSection = lazy(() => import("@/components/landing/WedgeSectionGrid"));
