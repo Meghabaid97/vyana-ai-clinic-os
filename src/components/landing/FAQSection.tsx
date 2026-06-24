@@ -63,7 +63,7 @@ const FAQSection = () => {
         <p className="mt-12 text-caption text-muted-foreground italic">
           {t("faq.footer.pre")}{" "}
           <a
-            href="mailto:mbaid@wharton.upenn.edu"
+            href="mailto:vyana.care@gmail.com"
             className="text-primary not-italic font-medium hover:underline"
           >
             {t("faq.footer.link")}

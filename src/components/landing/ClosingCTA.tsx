@@ -35,11 +35,11 @@ const ClosingCTA = () => {
 
             <div className="flex items-center gap-5 text-[14px] text-muted-foreground">
               <a
-                href="mailto:mbaid@wharton.upenn.edu"
+                href="mailto:vyana.care@gmail.com"
                 className="flex items-center gap-2 hover:text-foreground transition-colors"
               >
                 <Mail className="h-4 w-4" />
-                mbaid@wharton.upenn.edu
+                vyana.care@gmail.com
               </a>
               <a
                 href="https://www.linkedin.com/in/megha-baid-461912174/"
