@@ -4,8 +4,9 @@ import { Capacitor } from "@capacitor/core";
 import App from "./App.tsx";
 import { supabase } from "@/integrations/supabase/client";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
-import "@fontsource/instrument-serif/400.css";
-import "@fontsource/instrument-serif/400-italic.css";
+// Instrument Serif + Inter are loaded once via <link> in index.html.
+// Don't re-import @fontsource/instrument-serif here — it ships the same
+// font files a second time and blocks first paint.
 import "./index.css";
 
 if (Capacitor.isNativePlatform()) {
