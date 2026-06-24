@@ -46,7 +46,8 @@ describe("SpotlightTour — clickable above background modal", () => {
 
   it("fires onClose when the X (Skip tour) icon is clicked", () => {
     const onClose = renderTour();
-    fireEvent.click(screen.getByRole("button", { name: /skip tour/i }));
+    const skipButtons = screen.getAllByRole("button", { name: /skip tour/i });
+    fireEvent.click(skipButtons[0]);
     expect(onClose).toHaveBeenCalled();
   });
 
