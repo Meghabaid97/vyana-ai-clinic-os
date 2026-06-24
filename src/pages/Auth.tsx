@@ -39,6 +39,13 @@ const LOCKOUT_DURATION = 60; // seconds
 const SIGNUP_DRAFT_KEY = "vyana-signup-draft";
 const VALIDATED_INVITE_KEY = "vyana-validated-invite-token";
 const CUSTOMER_APP_ORIGIN = "https://www.vyana.care";
+// The Lovable OAuth broker proxy (`/~oauth/initiate`) is only installed on
+// hosts that are registered + Active in this Lovable project. The published
+// `.lovable.app` host is always Active, so we use it as the OAuth origin to
+// avoid 404s from custom domains that aren't (yet) wired up at the Lovable
+// edge. Once `vyana.care` shows Active in Project Settings → Domains, this
+// can switch back to `CUSTOMER_APP_ORIGIN`.
+const OAUTH_BROKER_ORIGIN = "https://vyanacare.lovable.app";
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/app`;
 const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
 
@@ -62,7 +69,7 @@ const buildCustomerOAuthUrl = (
   redirectUri: string,
   extraParams: Record<string, string> = {},
 ) => {
-  const url = new URL("/~oauth/initiate", CUSTOMER_APP_ORIGIN);
+  const url = new URL("/~oauth/initiate", OAUTH_BROKER_ORIGIN);
   const state = createOAuthState();
   sessionStorage.setItem("vyana-oauth-state", state);
   Object.entries(extraParams).forEach(([key, value]) => url.searchParams.set(key, value));
@@ -611,6 +618,9 @@ const Auth = () => {
       const isNativeApp = Capacitor.isNativePlatform();
 
       if (isNativeApp) {
+        // Clear any cached session so a cancelled OAuth flow doesn't drop the
+        // user back into a previous account on next app open.
+        await supabase.auth.signOut().catch(() => {});
         await NativeBrowser.open({
           url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT, { prompt: "select_account" }),
           presentationStyle: "fullscreen",
@@ -650,6 +660,7 @@ const Auth = () => {
       const redirectUri = isNativeApp ? NATIVE_OAUTH_REDIRECT : `${window.location.origin}/app`;
 
       if (isNativeApp) {
+        await supabase.auth.signOut().catch(() => {});
         await NativeBrowser.open({
           url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT),
           presentationStyle: "fullscreen",
