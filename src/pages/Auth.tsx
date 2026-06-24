@@ -534,6 +534,16 @@ const Auth = () => {
               )}
             </div>
 
+            {formError && (
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-[13px] text-destructive"
+              >
+                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                <p className="leading-snug flex-1">{formError}</p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={anyLoading || !email || !password}
@@ -543,6 +553,7 @@ const Auth = () => {
               {isSignup ? "Create account" : "Log in"}
             </button>
           </form>
+
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {isSignup ? (
