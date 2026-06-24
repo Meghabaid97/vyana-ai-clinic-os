@@ -324,7 +324,7 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
                   className={`h-2 w-2 rounded-full ${STATUS_TONE[s].bar}`}
                 />
                 <span className="capitalize">{s}</span>
-                <span className="text-muted-foreground/70">· {STATUS_COPY[s]}</span>
+                <span className="text-muted-foreground">· {STATUS_COPY[s]}</span>
               </li>
             ))}
           </ul>

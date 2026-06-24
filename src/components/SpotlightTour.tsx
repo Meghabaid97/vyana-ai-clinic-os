@@ -365,7 +365,7 @@ const SpotlightTour = ({ open, onClose }: Props) => {
         </p>
 
         {targetMissing && step.target && (
-          <p className="mt-2 text-[11px] italic text-muted-foreground/80">
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
             This control is off-screen for this layout. Continue to the next step.
           </p>
         )}
