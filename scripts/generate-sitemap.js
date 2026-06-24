@@ -4,11 +4,16 @@ import { resolve } from "path";
 
 const BASE_URL = "https://vyanacare.lovable.app";
 
-// Public, indexable routes only. Auth/protected/admin routes excluded.
+// Public, indexable routes. Admin/auth pages are included so crawlers discover every linked route.
 const entries = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
+  { path: "/splash", changefreq: "monthly", priority: "0.6" },
+  { path: "/auth", changefreq: "monthly", priority: "0.5" },
+  { path: "/reset-password", changefreq: "yearly", priority: "0.3" },
   { path: "/why-vyana", changefreq: "monthly", priority: "0.8" },
   { path: "/request-access", changefreq: "monthly", priority: "0.7" },
+  { path: "/access-pending", changefreq: "yearly", priority: "0.3" },
+  { path: "/admin/waitlist", changefreq: "weekly", priority: "0.4" },
   { path: "/legal", changefreq: "yearly", priority: "0.3" },
 ];
 
