@@ -493,7 +493,7 @@ const Auth = () => {
                 {!isSignup && (
                   <button
                     type="button"
-                    onClick={handleForgotPassword}
+                    onClick={openForgotPassword}
                     className="text-xs font-medium text-primary hover:underline"
                   >
                     Forgot password?
