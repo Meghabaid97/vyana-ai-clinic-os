@@ -429,6 +429,7 @@ const EmergencyContacts = () => {
                       <Button
                         variant="ghost"
                         size="icon"
+                        aria-label="Delete contact"
                         onClick={() => deleteContact(contact.id)}
                         className="text-destructive hover:text-destructive"
                       >

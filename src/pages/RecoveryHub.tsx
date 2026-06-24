@@ -507,7 +507,7 @@ const ClaimAssistant = () => {
     return (
       <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-8">
         <div className="flex items-center gap-2 mb-4">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h1 className="text-lg font-bold text-foreground">Claim Assistant</h1>
@@ -652,7 +652,7 @@ const ClaimAssistant = () => {
                           </div>
                         )}
                         <span className="text-xs text-foreground flex-1 truncate">{doc.file.name}</span>
-                        <button onClick={() => removeDoc(doc.id)} className="text-muted-foreground hover:text-destructive">
+                        <button aria-label="Remove document" onClick={() => removeDoc(doc.id)} className="text-muted-foreground hover:text-destructive">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
@@ -705,7 +705,7 @@ const ClaimAssistant = () => {
                     {catDocs.map(doc => (
                       <div key={doc.id} className="flex items-center gap-2 rounded-lg bg-muted/50 p-2">
                         <span className="text-xs text-foreground flex-1 truncate">{doc.file.name}</span>
-                        <button onClick={() => removeDoc(doc.id)} className="text-muted-foreground hover:text-destructive">
+                        <button aria-label="Remove document" onClick={() => removeDoc(doc.id)} className="text-muted-foreground hover:text-destructive">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
@@ -854,7 +854,7 @@ const ClaimAssistant = () => {
     return (
       <div className="animate-fade-in px-4 sm:px-5 pt-4 pb-6 space-y-4">
         <div className="flex items-center gap-2">
-          <button onClick={() => setStep("upload")} className="text-muted-foreground hover:text-foreground">
+          <button aria-label="Go back" onClick={() => setStep("upload")} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h1 className="text-lg font-bold text-foreground">{t("rec.ins.heading")}</h1>
@@ -1173,7 +1173,7 @@ const ClaimAssistant = () => {
     <div className="animate-fade-in flex flex-col h-full">
       <div className="px-4 sm:px-5 pt-4 pb-2">
         <div className="flex items-center gap-2 mb-3">
-          <button onClick={() => setStep("review")} className="text-muted-foreground hover:text-foreground">
+          <button aria-label="Go back" onClick={() => setStep("review")} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h1 className="text-lg font-bold text-foreground">{t("rec.chat.heading")}</h1>
@@ -1236,6 +1236,7 @@ const ClaimAssistant = () => {
             onClick={sendChat}
             disabled={!chatInput.trim() || chatLoading}
             size="icon"
+            aria-label="Send message"
             className="h-11 w-11 rounded-xl shrink-0"
           >
             <Send className="h-4 w-4" />

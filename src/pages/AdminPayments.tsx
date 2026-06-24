@@ -113,7 +113,7 @@ export default function AdminPayments() {
   return (
     <div className="min-h-screen pb-24 px-5 pt-4 max-w-5xl mx-auto">
       <div className="flex items-center gap-2 mb-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/admin/metrics")}>
+        <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => navigate("/admin/metrics")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <h1 className="text-xl font-bold">Payments funnel</h1>
