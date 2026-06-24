@@ -170,19 +170,23 @@ const Auth = () => {
 
   const handleAppleAuth = () => runOAuth("apple", async () => {
     const isNativeApp = Capacitor.isNativePlatform();
+    const appleExtraParams = { response_mode: "form_post", scope: "name email" };
     if (isNativeApp) {
       await supabase.auth.signOut().catch(() => {});
       await NativeBrowser.open({
-        url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT),
+        url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT, appleExtraParams),
         presentationStyle: "fullscreen",
       });
       return;
     }
     if (isMobileOrTabletBrowser()) {
-      window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT));
+      window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT, appleExtraParams));
       return;
     }
-    const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: WEB_OAUTH_REDIRECT });
+    const result = await lovable.auth.signInWithOAuth("apple", {
+      redirect_uri: WEB_OAUTH_REDIRECT,
+      extraParams: appleExtraParams,
+    });
     if (result.error) throw result.error;
     if (result.redirected) return;
     navigate("/welcome", { replace: true });
