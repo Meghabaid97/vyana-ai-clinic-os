@@ -376,7 +376,6 @@ const Auth = () => {
     }
   };
 
-  };
 
   const anyLoading = loadingProvider !== null || emailLoading;
 
