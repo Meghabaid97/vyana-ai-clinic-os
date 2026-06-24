@@ -135,12 +135,36 @@ const Auth = () => {
       if (session) go();
     });
 
+    // Safety net: while a sign-in is in flight, poll for a session every
+    // second. Catches cases where SIGNED_IN fires before subscribe or is
+    // swallowed by an iframe/popup boundary, so the spinner can never hang.
+    const poll = window.setInterval(() => {
+      if (!isMounted || navigated) return;
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) go();
+      });
+    }, 1000);
+
+    // Also re-check whenever the tab regains focus (popup closed, redirect back).
+    const onFocus = () => {
+      if (!isMounted || navigated) return;
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) go();
+      });
+    };
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("visibilitychange", onFocus);
+
     return () => {
       isMounted = false;
       subscription.unsubscribe();
+      window.clearInterval(poll);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("visibilitychange", onFocus);
       clearLoginTimeout();
     };
   }, [handleAuthenticatedUser, toast, clearLoginTimeout]);
+
 
   const runOAuth = async (
     provider: SocialProvider,
