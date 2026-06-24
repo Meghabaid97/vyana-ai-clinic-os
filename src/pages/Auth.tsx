@@ -125,58 +125,73 @@ const Auth = () => {
     return () => {
       isMounted = false;
       subscription.unsubscribe();
+      clearLoginTimeout();
     };
-  }, [handleAuthenticatedUser, toast]);
+  }, [handleAuthenticatedUser, toast, clearLoginTimeout]);
 
-  const handleGoogleAuth = async () => {
+  const runOAuth = async (
+    provider: SocialProvider,
+    fn: () => Promise<void>,
+  ) => {
+    startLoginTimeout(provider);
     try {
-      const isNativeApp = Capacitor.isNativePlatform();
-      if (isNativeApp) {
-        await supabase.auth.signOut().catch(() => {});
-        await NativeBrowser.open({
-          url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT, { prompt: "select_account" }),
-          presentationStyle: "fullscreen",
-        });
-        return;
-      }
-      if (isMobileOrTabletBrowser()) {
-        window.location.assign(buildCustomerOAuthUrl("google", WEB_OAUTH_REDIRECT, { prompt: "select_account" }));
-        return;
-      }
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: WEB_OAUTH_REDIRECT,
-        extraParams: { prompt: "select_account" },
-      });
-      if (result.error) throw result.error;
-      if (result.redirected) return;
-      navigate("/welcome", { replace: true });
+      await fn();
     } catch (e: any) {
-      toast({ title: "Sign-in error", description: e?.message ?? "Could not start Google sign-in.", variant: "destructive" });
+      clearLoginTimeout();
+      setLoadingProvider(null);
+      const message = e?.message ?? `Could not start ${provider === "google" ? "Google" : "Apple"} sign-in.`;
+      setTimeoutError(message);
+      toast({ title: "Sign-in error", description: message, variant: "destructive" });
     }
   };
 
-  const handleAppleAuth = async () => {
-    try {
-      const isNativeApp = Capacitor.isNativePlatform();
-      if (isNativeApp) {
-        await supabase.auth.signOut().catch(() => {});
-        await NativeBrowser.open({
-          url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT),
-          presentationStyle: "fullscreen",
-        });
-        return;
-      }
-      if (isMobileOrTabletBrowser()) {
-        window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT));
-        return;
-      }
-      const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: WEB_OAUTH_REDIRECT });
-      if (result.error) throw result.error;
-      if (result.redirected) return;
-      navigate("/welcome", { replace: true });
-    } catch (e: any) {
-      toast({ title: "Sign-in error", description: e?.message ?? "Could not start Apple sign-in.", variant: "destructive" });
+  const handleGoogleAuth = () => runOAuth("google", async () => {
+    const isNativeApp = Capacitor.isNativePlatform();
+    if (isNativeApp) {
+      await supabase.auth.signOut().catch(() => {});
+      await NativeBrowser.open({
+        url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT, { prompt: "select_account" }),
+        presentationStyle: "fullscreen",
+      });
+      return;
     }
+    if (isMobileOrTabletBrowser()) {
+      window.location.assign(buildCustomerOAuthUrl("google", WEB_OAUTH_REDIRECT, { prompt: "select_account" }));
+      return;
+    }
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: WEB_OAUTH_REDIRECT,
+      extraParams: { prompt: "select_account" },
+    });
+    if (result.error) throw result.error;
+    if (result.redirected) return;
+    navigate("/welcome", { replace: true });
+  });
+
+  const handleAppleAuth = () => runOAuth("apple", async () => {
+    const isNativeApp = Capacitor.isNativePlatform();
+    if (isNativeApp) {
+      await supabase.auth.signOut().catch(() => {});
+      await NativeBrowser.open({
+        url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT),
+        presentationStyle: "fullscreen",
+      });
+      return;
+    }
+    if (isMobileOrTabletBrowser()) {
+      window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT));
+      return;
+    }
+    const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: WEB_OAUTH_REDIRECT });
+    if (result.error) throw result.error;
+    if (result.redirected) return;
+    navigate("/welcome", { replace: true });
+  });
+
+  const dismissTimeoutError = () => {
+    clearLoginTimeout();
+    setLoadingProvider(null);
+    setTimeoutError(null);
   };
 
   return (
