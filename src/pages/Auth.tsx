@@ -1,13 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Chrome, Apple, X, Loader2, AlertCircle, Check } from "lucide-react";
+import { Chrome, Apple, X, Loader2, AlertCircle, Check, Mail } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 import { useLanguage } from "@/lib/i18n";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 import { validatePassword, validateEmail } from "@/lib/validation";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+
 
 type SocialProvider = "google" | "apple";
 
@@ -73,6 +77,16 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
+  const [formError, setFormError] = useState<ReactNode | null>(null);
+
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
+
+  // Reset inline error when switching between log-in and sign-up
+  useEffect(() => { setFormError(null); }, [isSignup]);
+
 
   const clearLoginTimeout = useCallback(() => {
     if (timeoutRef.current !== null) {
@@ -239,16 +253,18 @@ const Auth = () => {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTimeoutError(null);
+    setFormError(null);
 
-    if (!validateEmail(email.trim())) {
-      toast({ title: "Invalid email", description: "Please enter a valid email address.", variant: "destructive" });
+    const trimmedEmail = email.trim();
+    if (!validateEmail(trimmedEmail)) {
+      setFormError("Please enter a valid email address.");
       return;
     }
 
     if (isSignup) {
       const pw = validatePassword(password);
       if (!pw.isValid) {
-        toast({ title: "Weak password", description: pw.errors.join(", "), variant: "destructive" });
+        setFormError(`Password is too weak: ${pw.errors.join(", ")}.`);
         return;
       }
     }
@@ -256,50 +272,110 @@ const Auth = () => {
     setEmailLoading(true);
     try {
       if (isSignup) {
-        const { error } = await supabase.auth.signUp({
-          email: email.trim(),
+        const { data, error } = await supabase.auth.signUp({
+          email: trimmedEmail,
           password,
           options: { emailRedirectTo: `${window.location.origin}/welcome` },
         });
-        if (error) throw error;
-        toast({ title: "Check your email", description: "We sent you a confirmation link to finish creating your account." });
+        if (error) {
+          const msg = error.message?.toLowerCase() ?? "";
+          if (msg.includes("registered") || msg.includes("already")) {
+            setFormError(
+              <>
+                An account with this email already exists. Please{" "}
+                <Link to="/auth" replace className="font-semibold underline underline-offset-2">
+                  log in
+                </Link>{" "}
+                instead.
+              </>,
+            );
+            return;
+          }
+          throw error;
+        }
+        // Supabase returns a user with an empty identities array when the
+        // email is already registered (and confirmations are on). Detect that.
+        if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          setFormError(
+            <>
+              An account with this email already exists. Please{" "}
+              <Link to="/auth" replace className="font-semibold underline underline-offset-2">
+                log in
+              </Link>{" "}
+              instead.
+            </>,
+          );
+          return;
+        }
+        toast({
+          title: "Check your email",
+          description: "We sent you a confirmation link to finish creating your account.",
+        });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
+          email: trimmedEmail,
           password,
         });
-        if (error) throw error;
+        if (error) {
+          const msg = error.message?.toLowerCase() ?? "";
+          if (msg.includes("invalid login") || msg.includes("invalid_credentials") || msg.includes("invalid credentials")) {
+            setFormError(
+              <>
+                Account not found, or the password is incorrect. Please{" "}
+                <Link
+                  to="/auth?signup=1"
+                  replace
+                  className="font-semibold underline underline-offset-2"
+                >
+                  sign up first
+                </Link>
+                .
+              </>,
+            );
+            return;
+          }
+          if (msg.includes("not confirmed") || msg.includes("confirm")) {
+            setFormError("Please confirm your email first. Check your inbox for the confirmation link.");
+            return;
+          }
+          throw error;
+        }
       }
     } catch (err: any) {
-      toast({
-        title: isSignup ? "Sign-up failed" : "Log-in failed",
-        description: err?.message ?? "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      setFormError(err?.message ?? "Something went wrong. Please try again.");
     } finally {
       setEmailLoading(false);
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!validateEmail(email.trim())) {
-      toast({
-        title: "Enter your email",
-        description: "Type your email above first, then tap Forgot password.",
-        variant: "destructive",
-      });
+  const openForgotPassword = () => {
+    setForgotEmail(email.trim());
+    setForgotSent(false);
+    setForgotOpen(true);
+  };
+
+  const handleSendResetLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = forgotEmail.trim();
+    if (!validateEmail(trimmed)) {
+      toast({ title: "Invalid email", description: "Please enter a valid email address.", variant: "destructive" });
       return;
     }
+    setForgotLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast({ title: "Reset link sent", description: "Check your email for the password reset link." });
+      setForgotSent(true);
+      toast({ title: "Reset link sent!", description: "Please check your email inbox." });
     } catch (err: any) {
       toast({ title: "Could not send link", description: err?.message ?? "Try again.", variant: "destructive" });
+    } finally {
+      setForgotLoading(false);
     }
   };
+
 
   const anyLoading = loadingProvider !== null || emailLoading;
 
@@ -417,7 +493,7 @@ const Auth = () => {
                 {!isSignup && (
                   <button
                     type="button"
-                    onClick={handleForgotPassword}
+                    onClick={openForgotPassword}
                     className="text-xs font-medium text-primary hover:underline"
                   >
                     Forgot password?
@@ -458,6 +534,16 @@ const Auth = () => {
               )}
             </div>
 
+            {formError && (
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-[13px] text-destructive"
+              >
+                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                <p className="leading-snug flex-1">{formError}</p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={anyLoading || !email || !password}
@@ -467,6 +553,7 @@ const Auth = () => {
               {isSignup ? "Create account" : "Log in"}
             </button>
           </form>
+
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {isSignup ? (
@@ -494,6 +581,72 @@ const Auth = () => {
           <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
         </p>
       </div>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Reset your password</DialogTitle>
+            <DialogDescription>
+              Enter the email tied to your account and we&apos;ll send you a secure reset link.
+            </DialogDescription>
+          </DialogHeader>
+
+          {forgotSent ? (
+            <div className="py-4 text-center space-y-3">
+              <div className="mx-auto w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <Mail className="h-5 w-5" />
+              </div>
+              <p className="text-sm text-foreground font-medium">Reset link sent!</p>
+              <p className="text-xs text-muted-foreground">
+                Please check your email inbox at <span className="font-medium text-foreground">{forgotEmail}</span>.
+              </p>
+              <button
+                type="button"
+                onClick={() => setForgotOpen(false)}
+                className="w-full h-11 mt-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold"
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSendResetLink} className="space-y-4 pt-1">
+              <div>
+                <label htmlFor="forgot-email" className="block text-xs font-medium text-muted-foreground mb-1.5">
+                  Email
+                </label>
+                <input
+                  id="forgot-email"
+                  type="email"
+                  autoComplete="email"
+                  autoFocus
+                  required
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full h-11 px-4 rounded-2xl border border-border bg-background text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                />
+              </div>
+              <DialogFooter className="gap-2 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForgotOpen(false)}
+                  className="h-11 px-4 rounded-full border border-border text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={forgotLoading || !forgotEmail}
+                  className="h-11 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {forgotLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Send reset link
+                </button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
