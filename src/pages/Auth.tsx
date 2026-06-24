@@ -39,6 +39,13 @@ const LOCKOUT_DURATION = 60; // seconds
 const SIGNUP_DRAFT_KEY = "vyana-signup-draft";
 const VALIDATED_INVITE_KEY = "vyana-validated-invite-token";
 const CUSTOMER_APP_ORIGIN = "https://www.vyana.care";
+// The Lovable OAuth broker proxy (`/~oauth/initiate`) is only installed on
+// hosts that are registered + Active in this Lovable project. The published
+// `.lovable.app` host is always Active, so we use it as the OAuth origin to
+// avoid 404s from custom domains that aren't (yet) wired up at the Lovable
+// edge. Once `vyana.care` shows Active in Project Settings → Domains, this
+// can switch back to `CUSTOMER_APP_ORIGIN`.
+const OAUTH_BROKER_ORIGIN = "https://vyanacare.lovable.app";
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/app`;
 const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
 
