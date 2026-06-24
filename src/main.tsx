@@ -62,7 +62,7 @@ const handleOAuthCallback = async (url: string) => {
       if (error) throw error;
     }
 
-    window.location.replace("/app");
+    window.location.replace("/welcome");
   } catch (error) {
     console.error("Failed to handle OAuth callback", error);
     window.location.replace("/splash");
