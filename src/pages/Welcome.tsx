@@ -236,13 +236,15 @@ const ConsentRow = ({
   title: string;
   body: React.ReactNode;
 }) => (
-  <label
-    htmlFor={id}
-    className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 p-4 cursor-pointer hover:bg-muted/30 transition-colors"
-  >
+  <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
     <div className="shrink-0 mt-0.5">{icon}</div>
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-medium text-foreground leading-snug">{title}</p>
+      <label
+        htmlFor={id}
+        className="text-sm font-medium text-foreground leading-snug cursor-pointer block"
+      >
+        {title}
+      </label>
       <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{body}</p>
     </div>
     <Checkbox
@@ -251,7 +253,7 @@ const ConsentRow = ({
       onCheckedChange={(v) => onChange(v === true)}
       className="mt-0.5 shrink-0"
     />
-  </label>
+  </div>
 );
 
 export default Welcome;
