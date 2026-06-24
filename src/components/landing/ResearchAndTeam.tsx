@@ -72,6 +72,8 @@ const ResearchAndTeam = () => {
                   <img
                     src={whartonLogo}
                     alt="Wharton School, University of Pennsylvania"
+                    width={300}
+                    height={80}
                     className="max-h-[88px] w-auto object-contain scale-110"
                     loading="lazy"
                   />
