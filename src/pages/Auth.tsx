@@ -184,52 +184,48 @@ const Auth = () => {
     setPhoneError("");
     setLoading(true);
     try {
-      await loadMsg91Widget();
-      // identifier must be without "+" per MSG91 widget spec
-      const identifier = normalizedPhone.replace(/^\+/, "");
-
-      await new Promise<void>((resolve, reject) => {
-        window.initSendOTP?.({
-          widgetId: MSG91_WIDGET_ID,
-          tokenAuth: MSG91_TOKEN_AUTH,
-          identifier,
-          exposeMethods: false,
-          success: async (data: any) => {
-            try {
-              const accessToken: string = data?.message ?? data?.["access-token"] ?? data;
-              if (!accessToken) throw new Error("No access token from MSG91");
-              const { data: verifyData, error: verifyErr } = await supabase.functions.invoke(
-                "msg91-verify",
-                { body: { accessToken, phone: normalizedPhone } },
-              );
-              if (verifyErr) throw verifyErr;
-              const { email, password } = (verifyData ?? {}) as { email?: string; password?: string };
-              if (!email || !password) throw new Error("Verification response missing credentials");
-              const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
-              if (signInErr) throw signInErr;
-              setAttempts(0);
-              sessionStorage.removeItem("auth-attempts");
-              sessionStorage.removeItem("auth-lockout");
-              resolve();
-            } catch (e) {
-              reject(e);
-            }
-          },
-          failure: (err: any) => {
-            recordAttempt();
-            reject(new Error(err?.message ?? "OTP verification failed"));
-          },
-        });
+      const { data, error } = await supabase.functions.invoke("msg91-send-otp", {
+        body: { phone: normalizedPhone },
       });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setOtpSent(true);
+      setOtpValue("");
+      toast({ title: "OTP sent", description: `Code sent to ${normalizedPhone}` });
     } catch (e: any) {
-      toast({ title: "Couldn't sign in", description: e?.message ?? "Try again in a moment.", variant: "destructive" });
+      recordAttempt();
+      toast({ title: "Couldn't send OTP", description: e?.message ?? "Try again in a moment.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
-  // Legacy verify path kept as no-op (MSG91 widget handles OTP entry in its own modal).
-  const handleVerifyOtp = async () => {};
+  const handleVerifyOtp = async () => {
+    if (isLockedOut) return;
+    if (otpValue.length < 6) return;
+    const normalizedPhone = normalizePhoneForAuth(phone);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("msg91-verify-otp", {
+        body: { phone: normalizedPhone, otp: otpValue },
+      });
+      if (error) throw error;
+      const { email, password } = (data ?? {}) as { email?: string; password?: string };
+      if (!email || !password) throw new Error((data as any)?.error ?? "Verification failed");
+      const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInErr) throw signInErr;
+      setAttempts(0);
+      sessionStorage.removeItem("auth-attempts");
+      sessionStorage.removeItem("auth-lockout");
+    } catch (e: any) {
+      recordAttempt();
+      toast({ title: "Invalid code", description: e?.message ?? "Check the code and try again.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
 
   const handleGoogleAuth = async () => {
