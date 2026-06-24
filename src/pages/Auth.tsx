@@ -175,34 +175,6 @@ const Auth = () => {
           </button>
         </div>
 
-        <div className="relative my-8">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-background px-3 text-muted-foreground">Or log in with</span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center gap-4">
-          <button
-            type="button"
-            onClick={handleAppleAuth}
-            className="h-12 px-6 rounded-full border border-border bg-background hover:bg-muted/40 flex items-center justify-center transition-colors"
-            aria-label="Apple"
-          >
-            <Apple className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={handleGoogleAuth}
-            className="h-12 px-6 rounded-full border border-border bg-background hover:bg-muted/40 flex items-center justify-center transition-colors"
-            aria-label="Google"
-          >
-            <Chrome className="h-5 w-5" />
-          </button>
-        </div>
-
         <p className="mt-auto pt-8 text-[11px] text-muted-foreground text-center leading-relaxed">
           By continuing you agree to our{" "}
           <Link to="/legal" target="_blank" className="text-primary hover:underline">Terms</Link>{" "}
