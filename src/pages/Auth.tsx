@@ -178,7 +178,9 @@ const Auth = () => {
     });
     if (result.error) throw result.error;
     if (result.redirected) return;
-    navigate("/welcome", { replace: true });
+    // Popup flow succeeded — session is set. Force navigation in case
+    // onAuthStateChange already fired before we subscribed or was missed.
+    handleAuthenticatedUser();
   });
 
   const handleAppleAuth = () => runOAuth("apple", async () => {
@@ -200,8 +202,9 @@ const Auth = () => {
     });
     if (result.error) throw result.error;
     if (result.redirected) return;
-    navigate("/welcome", { replace: true });
+    handleAuthenticatedUser();
   });
+
 
   const dismissTimeoutError = () => {
     clearLoginTimeout();
