@@ -48,6 +48,8 @@ const AdminObservability = () => {
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState<Range>("24h");
+  const [scope, setScope] = useState<"all" | "me">("all");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [aiLogs, setAiLogs] = useState<AiLog[]>([]);
   const [fnLogs, setFnLogs] = useState<FunctionLog[]>([]);
 
@@ -68,6 +70,7 @@ const AdminObservability = () => {
         navigate("/", { replace: true });
         return;
       }
+      setCurrentUserId(session.user.id);
       setAuthorized(true);
     };
     init();
@@ -76,25 +79,28 @@ const AdminObservability = () => {
   useEffect(() => {
     if (!authorized) return;
     void load();
-  }, [authorized, range]);
+  }, [authorized, range, scope]);
 
   const load = async () => {
     setLoading(true);
     const since = new Date(Date.now() - rangeToHours[range] * 3600 * 1000).toISOString();
-    const [ai, fn] = await Promise.all([
-      supabase
-        .from("ai_usage_logs")
-        .select("*")
-        .gte("created_at", since)
-        .order("created_at", { ascending: false })
-        .limit(2000),
-      supabase
-        .from("function_logs")
-        .select("*")
-        .gte("created_at", since)
-        .order("created_at", { ascending: false })
-        .limit(2000),
-    ]);
+    let aiQuery = supabase
+      .from("ai_usage_logs")
+      .select("*")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(2000);
+    let fnQuery = supabase
+      .from("function_logs")
+      .select("*")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(2000);
+    if (scope === "me" && currentUserId) {
+      aiQuery = aiQuery.eq("user_id", currentUserId);
+      fnQuery = fnQuery.eq("user_id", currentUserId);
+    }
+    const [ai, fn] = await Promise.all([aiQuery, fnQuery]);
     if (ai.error) toast.error(`AI logs: ${ai.error.message}`);
     if (fn.error) toast.error(`Function logs: ${fn.error.message}`);
     setAiLogs((ai.data ?? []) as AiLog[]);
@@ -164,10 +170,25 @@ const AdminObservability = () => {
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Observability</h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Detailed logs and AI usage costs across all edge functions.
+              {scope === "me"
+                ? "Showing only your account's logs and AI usage."
+                : "Detailed logs and AI usage costs across all accounts."}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 border rounded-md p-0.5">
+              {(["all", "me"] as const).map((s) => (
+                <Button
+                  key={s}
+                  size="sm"
+                  variant={scope === s ? "default" : "ghost"}
+                  onClick={() => setScope(s)}
+                  className="h-7 px-2 text-xs"
+                >
+                  {s === "all" ? "All accounts" : "My account"}
+                </Button>
+              ))}
+            </div>
             {(["24h", "7d", "30d"] as Range[]).map((r) => (
               <Button
                 key={r}
@@ -182,6 +203,7 @@ const AdminObservability = () => {
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
             </Button>
           </div>
+
         </header>
 
         {/* KPIs */}
