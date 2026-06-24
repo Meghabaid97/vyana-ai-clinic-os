@@ -45,3 +45,5 @@ project_id = "gnfaxcdapizhfqloiajn"
     verify_jwt = false
   [functions.detect-insights]
     verify_jwt = false
+  [functions.msg91-verify]
+    verify_jwt = false
