@@ -1,51 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, FileCheck, Shield, Calendar, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
+import { LegalLink } from "@/components/LegalLink";
 
 const POLICY_VERSION = "v1.0";
-const CUSTOMER_APP_ORIGIN = "https://vyana.care";
-
-const openLegal = (section: "terms" | "privacy") => {
-  const hash = section === "privacy" ? "#privacy" : "";
-  const path = `/legal${hash}`;
-  if (Capacitor.isNativePlatform()) {
-    void NativeBrowser.open({
-      url: `${CUSTOMER_APP_ORIGIN}${path}`,
-      presentationStyle: "fullscreen",
-    }).catch(() => {
-      window.open(`${CUSTOMER_APP_ORIGIN}${path}`, "_blank", "noopener,noreferrer");
-    });
-  } else {
-    window.open(path, "_blank", "noopener,noreferrer");
-  }
-};
-
-const LegalLink = ({
-  section,
-  children,
-}: {
-  section: "terms" | "privacy";
-  children: React.ReactNode;
-}) => (
-  <a
-    href={section === "privacy" ? "/legal#privacy" : "/legal"}
-    target="_blank"
-    rel="noopener noreferrer"
-    onClick={(e) => {
-      e.preventDefault();
-      openLegal(section);
-    }}
-    className="text-primary underline cursor-pointer"
-  >
-    {children}
-  </a>
-);
 
 /**
  * Post-auth consent gate.
