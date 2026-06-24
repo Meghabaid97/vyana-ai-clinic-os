@@ -212,11 +212,11 @@ const Auth = () => {
       return;
     }
     if (isMobileOrTabletBrowser()) {
-      window.location.assign(buildCustomerOAuthUrl("google", WEB_OAUTH_REDIRECT, { prompt: "select_account" }));
+      window.location.assign(buildCustomerOAuthUrl("google", getWebOAuthRedirect(), { prompt: "select_account" }));
       return;
     }
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: WEB_OAUTH_REDIRECT,
+      redirect_uri: getWebOAuthRedirect(),
       extraParams: { prompt: "select_account" },
     });
     if (result.error) throw result.error;
@@ -237,11 +237,11 @@ const Auth = () => {
       return;
     }
     if (isMobileOrTabletBrowser()) {
-      window.location.assign(buildCustomerOAuthUrl("apple", WEB_OAUTH_REDIRECT));
+      window.location.assign(buildCustomerOAuthUrl("apple", getWebOAuthRedirect()));
       return;
     }
     const result = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: WEB_OAUTH_REDIRECT,
+      redirect_uri: getWebOAuthRedirect(),
     });
     if (result.error) throw result.error;
     if (result.redirected) return;
