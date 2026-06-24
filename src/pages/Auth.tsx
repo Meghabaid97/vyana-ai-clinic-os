@@ -281,10 +281,30 @@ const Auth = () => {
               <Apple className="h-5 w-5" />
             )}
             <span className="text-sm font-medium">
-              {loadingProvider === "apple" ? "Connecting to Apple…" : "Continue with Apple"}
+              {loadingProvider === "apple"
+                ? "Connecting to Apple…"
+                : isSignup ? "Sign up with Apple" : "Continue with Apple"}
             </span>
           </button>
         </div>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          {isSignup ? (
+            <>
+              Already have an account?{" "}
+              <Link to="/auth" replace className="font-medium text-primary hover:underline">
+                Log in
+              </Link>
+            </>
+          ) : (
+            <>
+              New to Vyana?{" "}
+              <Link to="/auth?signup=1" replace className="font-medium text-primary hover:underline">
+                Create an account
+              </Link>
+            </>
+          )}
+        </p>
 
         <p className="mt-auto pt-8 text-[11px] text-muted-foreground text-center leading-relaxed">
           By continuing you agree to our{" "}
@@ -292,6 +312,7 @@ const Auth = () => {
           and{" "}
           <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
         </p>
+
       </div>
     </div>
   );
