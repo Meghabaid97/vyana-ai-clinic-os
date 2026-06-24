@@ -302,7 +302,7 @@ const AppShellInner = () => {
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Back
               </button>
-              <span className="text-muted-foreground/50 text-xs">/</span>
+              <span className="text-muted-foreground text-xs">/</span>
               <span className="text-xs font-semibold text-foreground">{subTitle || "Page"}</span>
             </div>
           </div>

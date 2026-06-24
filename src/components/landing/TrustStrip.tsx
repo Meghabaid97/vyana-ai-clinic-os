@@ -63,7 +63,7 @@ const TrustStrip = () => {
           ))}
         </div>
 
-        <p className="mt-10 text-caption italic text-muted-foreground/80 max-w-[620px]">
+        <p className="mt-10 text-caption italic text-muted-foreground max-w-[620px]">
           {t("trust.note")}
         </p>
       </div>

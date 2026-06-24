@@ -81,7 +81,7 @@ const ResearchAndTeam = () => {
                     <div className="font-serif text-[15px] text-foreground leading-tight">
                       {t("research.advisors")}
                     </div>
-                    <div className="text-[9px] tracking-[0.25em] uppercase text-foreground/55 mt-1.5">
+                    <div className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground mt-1.5">
                       {t("research.advisors.sub")}
                     </div>
                   </div>
