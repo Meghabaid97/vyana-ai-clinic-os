@@ -1,28 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, AlertCircle, Chrome, Apple, Loader2 } from "lucide-react";
+import { Chrome, Apple } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import LanguageSelector from "@/components/LanguageSelector";
 import { t, useLanguage } from "@/lib/i18n";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 
 type SocialProvider = "google" | "apple";
 
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_DURATION = 60;
 const CUSTOMER_APP_ORIGIN = "https://vyana.care";
 const OAUTH_BROKER_ORIGIN = CUSTOMER_APP_ORIGIN;
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/welcome`;
-// Native: broker only accepts HTTPS redirect URIs registered with the
-// project. The bridge page hands off to the `vyana://oauth-callback/...`
-// deep link, which main.tsx's appUrlOpen listener completes.
 const NATIVE_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/oauth-bridge`;
 
 const isMobileOrTabletBrowser = () => {
@@ -55,74 +46,18 @@ const buildCustomerOAuthUrl = (
   return url.toString();
 };
 
-const normalizePhoneForAuth = (value: string) => {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-  const digits = trimmed.replace(/\D/g, "");
-  if (!digits) return "";
-  if (trimmed.startsWith("+")) return `+${digits.slice(0, 15)}`;
-  if (digits.length === 10) return `+91${digits}`;
-  if (digits.startsWith("91") && digits.length === 12) return `+${digits}`;
-  return `+${digits.slice(0, 15)}`;
-};
-
-const isValidPhoneForAuth = (value: string) => /^\+[1-9]\d{9,14}$/.test(value);
-
 const Auth = () => {
-  const [phone, setPhone] = useState("");
-  const [phoneError, setPhoneError] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpValue, setOtpValue] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [attempts, setAttempts] = useState(0);
-  const [lockoutEnd, setLockoutEnd] = useState<number | null>(null);
-  const [lockoutRemaining, setLockoutRemaining] = useState(0);
-
   const navigate = useNavigate();
   const { toast } = useToast();
   useLanguage();
 
-  // After any successful auth, hand off to /welcome which decides whether
-  // to show the first-time consent flow or send the user straight into /app.
   const handleAuthenticatedUser = useCallback(() => {
     navigate("/welcome", { replace: true });
   }, [navigate]);
 
-  // Restore rate-limit state
-  useEffect(() => {
-    const stored = sessionStorage.getItem("auth-attempts");
-    const storedLockout = sessionStorage.getItem("auth-lockout");
-    if (stored) setAttempts(parseInt(stored, 10));
-    if (storedLockout) {
-      const end = parseInt(storedLockout, 10);
-      if (Date.now() < end) setLockoutEnd(end);
-      else {
-        sessionStorage.removeItem("auth-lockout");
-        sessionStorage.removeItem("auth-attempts");
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!lockoutEnd) { setLockoutRemaining(0); return; }
-    const interval = setInterval(() => {
-      const remaining = Math.ceil((lockoutEnd - Date.now()) / 1000);
-      if (remaining <= 0) {
-        setLockoutEnd(null);
-        setLockoutRemaining(0);
-        setAttempts(0);
-        sessionStorage.removeItem("auth-lockout");
-        sessionStorage.removeItem("auth-attempts");
-        clearInterval(interval);
-      } else setLockoutRemaining(remaining);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [lockoutEnd]);
-
   useEffect(() => {
     let isMounted = true;
 
-    // Surface OAuth-callback errors stamped into the URL hash.
     const hash = window.location.hash || "";
     if (hash.includes("error")) {
       const params = new URLSearchParams(hash.startsWith("#") ? hash.slice(1) : hash);
@@ -153,61 +88,6 @@ const Auth = () => {
       subscription.unsubscribe();
     };
   }, [handleAuthenticatedUser, toast]);
-
-  const recordAttempt = () => {
-    const next = attempts + 1;
-    setAttempts(next);
-    sessionStorage.setItem("auth-attempts", String(next));
-    if (next >= MAX_ATTEMPTS) {
-      const end = Date.now() + LOCKOUT_DURATION * 1000;
-      setLockoutEnd(end);
-      sessionStorage.setItem("auth-lockout", String(end));
-    }
-  };
-
-  const isLockedOut = lockoutEnd !== null && Date.now() < lockoutEnd;
-
-  const handleSendOtp = async () => {
-    if (isLockedOut) {
-      toast({ title: "Locked Out", description: t("auth.tooManyAttempts", { seconds: lockoutRemaining }), variant: "destructive" });
-      return;
-    }
-    const normalizedPhone = normalizePhoneForAuth(phone);
-    if (!isValidPhoneForAuth(normalizedPhone)) {
-      setPhoneError("Enter a valid mobile number with country code");
-      return;
-    }
-    setPhoneError("");
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({ phone: normalizedPhone });
-      if (error) { recordAttempt(); throw error; }
-      setOtpSent(true);
-      toast({ title: t("auth.otpSent"), description: "Check your phone for the code." });
-    } catch (e: any) {
-      toast({ title: "Couldn't send code", description: e?.message ?? "Try again in a moment.", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (!otpValue || otpValue.length < 6) return;
-    setLoading(true);
-    try {
-      const normalizedPhone = normalizePhoneForAuth(phone);
-      const { error } = await supabase.auth.verifyOtp({ phone: normalizedPhone, token: otpValue, type: "sms" });
-      if (error) { recordAttempt(); throw error; }
-      setAttempts(0);
-      sessionStorage.removeItem("auth-attempts");
-      sessionStorage.removeItem("auth-lockout");
-      // onAuthStateChange will navigate to /welcome.
-    } catch (e: any) {
-      toast({ title: "Verification failed", description: e?.message ?? "Try again.", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGoogleAuth = async () => {
     try {
@@ -273,116 +153,24 @@ const Auth = () => {
             <LanguageSelector />
           </div>
 
-          {isLockedOut && (
-            <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 mb-4 flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-destructive shrink-0" />
-              <p className="text-xs text-destructive font-medium">
-                {t("auth.tooManyAttempts", { seconds: lockoutRemaining })}
-              </p>
-            </div>
-          )}
-
-          {!otpSent ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="login-phone" className="flex items-center gap-2 text-sm">
-                  <Phone className="w-4 h-4" />
-                  Mobile number
-                </Label>
-                <Input
-                  id="login-phone"
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="98765 43210"
-                  value={phone}
-                  onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }}
-                  className={`bg-background/50 h-12 text-base ${phoneError ? "border-destructive" : ""}`}
-                />
-                {phoneError ? (
-                  <p className="text-xs text-destructive flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" />{phoneError}
-                  </p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">
-                    We'll text you a 6-digit code. Indian numbers default to +91.
-                  </p>
-                )}
-              </div>
-
-              <Button
-                onClick={handleSendOtp}
-                variant="gradient"
-                className="w-full h-12 text-base"
-                disabled={loading || isLockedOut}
-              >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue"}
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-sm text-center text-muted-foreground">
-                Enter the code we sent to <span className="font-medium text-foreground">{normalizePhoneForAuth(phone)}</span>
-              </p>
-              <div className="flex justify-center">
-                <InputOTP value={otpValue} onChange={setOtpValue} maxLength={6}>
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-              <Button
-                onClick={handleVerifyOtp}
-                variant="gradient"
-                className="w-full h-12"
-                disabled={loading || otpValue.length < 6 || isLockedOut}
-              >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
-              </Button>
-              <button
-                type="button"
-                onClick={() => { setOtpSent(false); setOtpValue(""); }}
-                className="text-xs text-muted-foreground hover:text-foreground w-full text-center"
-              >
-                ← Use a different number
-              </button>
-            </div>
-          )}
-
-          {!otpSent && (
-            <>
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/50" /></div>
-                <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
-                  <span className="bg-card px-3 text-muted-foreground">or continue with</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleGoogleAuth}
-                  aria-label="Continue with Google"
-                  className="h-12 w-12 rounded-full border border-border bg-background hover:bg-muted/40 flex items-center justify-center transition-colors"
-                >
-                  <Chrome className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAppleAuth}
-                  aria-label="Continue with Apple"
-                  className="h-12 w-12 rounded-full border border-border bg-background hover:bg-muted/40 flex items-center justify-center transition-colors"
-                >
-                  <Apple className="h-5 w-5" />
-                </button>
-              </div>
-            </>
-          )}
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={handleGoogleAuth}
+              className="w-full h-12 rounded-xl border border-border bg-background hover:bg-muted/40 flex items-center justify-center gap-3 transition-colors"
+            >
+              <Chrome className="h-5 w-5" />
+              <span className="text-sm font-medium">Continue with Google</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleAppleAuth}
+              className="w-full h-12 rounded-xl border border-border bg-background hover:bg-muted/40 flex items-center justify-center gap-3 transition-colors"
+            >
+              <Apple className="h-5 w-5" />
+              <span className="text-sm font-medium">Continue with Apple</span>
+            </button>
+          </div>
 
           <p className="mt-6 text-[11px] text-muted-foreground text-center leading-relaxed">
             By continuing you agree to our{" "}
