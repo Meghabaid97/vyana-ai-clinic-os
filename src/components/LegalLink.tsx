@@ -1,22 +1,11 @@
-import { Capacitor } from "@capacitor/core";
-import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
-
-const CUSTOMER_APP_ORIGIN = "https://vyana.care";
-
-const openLegal = (section: "terms" | "privacy") => {
-  const hash = section === "privacy" ? "#privacy" : "";
-  const path = `/legal${hash}`;
-  if (Capacitor.isNativePlatform()) {
-    void NativeBrowser.open({
-      url: `${CUSTOMER_APP_ORIGIN}${path}`,
-      presentationStyle: "fullscreen",
-    }).catch(() => {
-      window.open(`${CUSTOMER_APP_ORIGIN}${path}`, "_blank", "noopener,noreferrer");
-    });
-  } else {
-    window.open(path, "_blank", "noopener,noreferrer");
-  }
-};
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { LegalContent } from "@/components/LegalContent";
 
 export const LegalLink = ({
   section,
@@ -26,17 +15,40 @@ export const LegalLink = ({
   section: "terms" | "privacy";
   children: React.ReactNode;
   className?: string;
-}) => (
-  <a
-    href={section === "privacy" ? "/legal#privacy" : "/legal"}
-    target="_blank"
-    rel="noopener noreferrer"
-    onClick={(e) => {
-      e.preventDefault();
-      openLegal(section);
-    }}
-    className={className ?? "text-primary underline cursor-pointer"}
-  >
-    {children}
-  </a>
-);
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <a
+        href={section === "privacy" ? "/legal#privacy" : "/legal"}
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen(true);
+        }}
+        className={className ?? "text-primary underline cursor-pointer"}
+      >
+        {children}
+      </a>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          className="
+            max-w-none w-full h-full p-0 gap-0 overflow-hidden rounded-none border-0
+            sm:max-w-2xl sm:h-[85vh] sm:max-h-[85vh] sm:rounded-xl sm:border sm:border-border/60
+            inset-0 translate-x-0 translate-y-0
+            sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%]
+          "
+        >
+          <div className="flex flex-col h-full">
+            <DialogHeader className="px-4 py-3 border-b border-border shrink-0">
+              <DialogTitle className="text-lg font-bold text-foreground">Legal</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <LegalContent defaultSection={section} />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
