@@ -33,7 +33,43 @@ const closeInAppBrowser = async () => {
   }
 };
 
+// Persist across WebView reloads so the same launch URL is never processed twice.
+// (localStorage survives `window.location.replace`; a module-level flag would not.)
+const HANDLED_URL_KEY = "vyana-oauth-handled-url";
+const HANDLED_AT_KEY = "vyana-oauth-handled-at";
+const HANDLE_DEDUPE_MS = 60_000;
+
+const wasUrlAlreadyHandled = (url: string) => {
+  try {
+    const handledUrl = localStorage.getItem(HANDLED_URL_KEY);
+    const handledAt = Number(localStorage.getItem(HANDLED_AT_KEY) ?? "0");
+    if (handledUrl !== url) return false;
+    return Date.now() - handledAt < HANDLE_DEDUPE_MS;
+  } catch {
+    return false;
+  }
+};
+
+const markUrlHandled = (url: string) => {
+  try {
+    localStorage.setItem(HANDLED_URL_KEY, url);
+    localStorage.setItem(HANDLED_AT_KEY, String(Date.now()));
+  } catch {
+    // Ignore storage errors (private mode, quota).
+  }
+};
+
+const safeRedirect = (path: string) => {
+  // Avoid replace() if we're already there — that would just retrigger reload.
+  if (window.location.pathname === path) return;
+  window.location.replace(path);
+};
+
 const handleOAuthCallback = async (url: string) => {
+  // Hard guard: never process the same launch URL twice in a row.
+  if (wasUrlAlreadyHandled(url)) return;
+  markUrlHandled(url);
+
   try {
     await closeInAppBrowser();
 
@@ -57,15 +93,30 @@ const handleOAuthCallback = async (url: string) => {
         access_token: accessToken,
         refresh_token: refreshToken,
       });
-    } else if (authCode) {
-      const { error } = await supabase.auth.exchangeCodeForSession(authCode);
-      if (error) throw error;
+      safeRedirect("/welcome");
+      return;
     }
 
-    window.location.replace("/welcome");
+    if (authCode) {
+      const { error } = await supabase.auth.exchangeCodeForSession(authCode);
+      if (error) throw error;
+      safeRedirect("/welcome");
+      return;
+    }
+
+    // No tokens AND no code in the callback URL (the bare `vyana://oauth-callback/`
+    // case from the logs). The session may already have been set by the in-app
+    // browser before it closed — check before redirecting, otherwise just stay
+    // put. Do NOT bounce to /splash, that re-triggers getLaunchUrl → loop.
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      safeRedirect("/welcome");
+    }
+    // Else: leave the user on whatever page they're on (typically /auth) and
+    // let them retry. The Auth page already has a timeout + error UI.
   } catch (error) {
     console.error("Failed to handle OAuth callback", error);
-    window.location.replace("/splash");
+    // Don't redirect on failure — that re-enters the loop. Surface via console.
   }
 };
 
