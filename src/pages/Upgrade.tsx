@@ -259,14 +259,14 @@ export default function Upgrade() {
         </p>
       </div>
 
-      {ent.is_pro ? (
-        <ManageSubscription ent={ent} onChanged={ent.refresh} />
-      ) : isNative ? (
+      {isNative ? (
         <div className="px-5 max-w-md mx-auto">
           <NativeUpgradeNotice />
 
           <div className="mt-8">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">What Pro unlocks</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">
+              {ent.is_pro ? "What your Pro plan includes" : "What Pro unlocks"}
+            </h2>
             <div className="rounded-2xl border border-border overflow-hidden">
               {COMPARE.map((row, i) => (
                 <div key={row.label} className={`flex items-center justify-between text-[12.5px] px-3 py-2.5 ${i % 2 === 0 ? "bg-background" : "bg-muted/20"}`}>
@@ -277,6 +277,9 @@ export default function Upgrade() {
             </div>
           </div>
         </div>
+      ) : ent.is_pro ? (
+        <ManageSubscription ent={ent} onChanged={ent.refresh} />
+
       ) : (
         <>
           <div className="flex items-center justify-center mb-5">
