@@ -53,6 +53,7 @@ const StarRating = ({
             onClick={() => handleClick(star)}
             onMouseEnter={() => handleMouseEnter(star)}
             onMouseLeave={handleMouseLeave}
+            aria-label={`Rate ${star} star${star === 1 ? "" : "s"}`}
             className={cn(
               "transition-transform",
               !readonly && "hover:scale-110 cursor-pointer",
