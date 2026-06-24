@@ -51,11 +51,20 @@ const Auth = () => {
   useLanguage();
 
   const handleAuthenticatedUser = useCallback(() => {
-    navigate("/welcome", { replace: true });
-  }, [navigate]);
+    // Hard replace to guarantee we leave /auth even if React state is mid-render
+    // from an OAuth redirect (web) or in-app browser close (native).
+    window.location.replace("/welcome");
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
+    let navigated = false;
+
+    const go = () => {
+      if (!isMounted || navigated) return;
+      navigated = true;
+      handleAuthenticatedUser();
+    };
 
     const hash = window.location.hash || "";
     if (hash.includes("error")) {
@@ -72,14 +81,18 @@ const Auth = () => {
       }
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!isMounted || !session) return;
-      handleAuthenticatedUser();
+    // Register the listener FIRST so we never miss the SIGNED_IN event that
+    // fires synchronously when Supabase parses the OAuth tokens from the URL.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+      if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") && session) {
+        go();
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!isMounted || !session) return;
-      window.setTimeout(handleAuthenticatedUser, 0);
+    // Fallback: if a session already exists on mount, navigate immediately.
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) go();
     });
 
     return () => {
