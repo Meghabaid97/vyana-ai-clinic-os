@@ -55,11 +55,11 @@ export default function Billing() {
   return (
     <div className="min-h-[calc(100svh-4rem)] pb-24">
       <div className="px-5 pt-4 pb-2 flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <h1 className="text-lg font-bold">Billing</h1>
-        <Button variant="ghost" size="icon" className="ml-auto" onClick={load} disabled={loading}>
+        <Button variant="ghost" size="icon" aria-label="Refresh" className="ml-auto" onClick={load} disabled={loading}>
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         </Button>
       </div>

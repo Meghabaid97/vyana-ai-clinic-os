@@ -194,6 +194,7 @@ const EmergencyAccess = () => {
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Go back"
           className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/10 shrink-0"
           onClick={() => navigate("/")}
         >
