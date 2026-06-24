@@ -33,7 +33,7 @@ export const LegalLink = ({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           className="
-            max-w-none w-full h-full p-0 gap-0 overflow-hidden rounded-none border-0
+            flex flex-col max-w-none w-full h-full p-0 gap-0 overflow-hidden rounded-none border-0
             sm:max-w-2xl sm:h-[85vh] sm:max-h-[85vh] sm:rounded-xl sm:border sm:border-border/60
             inset-0 translate-x-0 translate-y-0
             sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%]
