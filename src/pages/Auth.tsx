@@ -46,7 +46,12 @@ const CUSTOMER_APP_ORIGIN = "https://vyana.care";
 // 308-redirects here, avoiding an unnecessary hop.
 const OAUTH_BROKER_ORIGIN = CUSTOMER_APP_ORIGIN;
 const WEB_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/app`;
-const NATIVE_OAUTH_REDIRECT = "vyana://oauth-callback/";
+// The Lovable OAuth broker only allows HTTPS redirect URIs registered to the
+// project — custom URL schemes (vyana://) are rejected with
+// "redirect_uri is not allowed". So for native we send the broker to an
+// HTTPS bridge on our own domain, and that page hands off to the
+// `vyana://oauth-callback/...` deep link which the iOS app intercepts.
+const NATIVE_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/oauth-bridge`;
 
 const isMobileOrTabletBrowser = () => {
   if (typeof navigator === "undefined") return false;
