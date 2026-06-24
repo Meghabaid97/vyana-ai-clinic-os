@@ -170,10 +170,25 @@ const AdminObservability = () => {
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Observability</h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Detailed logs and AI usage costs across all edge functions.
+              {scope === "me"
+                ? "Showing only your account's logs and AI usage."
+                : "Detailed logs and AI usage costs across all accounts."}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 border rounded-md p-0.5">
+              {(["all", "me"] as const).map((s) => (
+                <Button
+                  key={s}
+                  size="sm"
+                  variant={scope === s ? "default" : "ghost"}
+                  onClick={() => setScope(s)}
+                  className="h-7 px-2 text-xs"
+                >
+                  {s === "all" ? "All accounts" : "My account"}
+                </Button>
+              ))}
+            </div>
             {(["24h", "7d", "30d"] as Range[]).map((r) => (
               <Button
                 key={r}
@@ -188,6 +203,7 @@ const AdminObservability = () => {
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
             </Button>
           </div>
+
         </header>
 
         {/* KPIs */}
