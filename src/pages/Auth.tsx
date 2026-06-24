@@ -660,6 +660,7 @@ const Auth = () => {
       const redirectUri = isNativeApp ? NATIVE_OAUTH_REDIRECT : `${window.location.origin}/app`;
 
       if (isNativeApp) {
+        await supabase.auth.signOut().catch(() => {});
         await NativeBrowser.open({
           url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT),
           presentationStyle: "fullscreen",
