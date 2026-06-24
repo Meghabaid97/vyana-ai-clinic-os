@@ -3,10 +3,9 @@ import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Chrome, Apple } from "lucide-react";
+import { Chrome, Apple, X } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
-import LanguageSelector from "@/components/LanguageSelector";
-import { t, useLanguage } from "@/lib/i18n";
+import { useLanguage } from "@/lib/i18n";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
 
 type SocialProvider = "google" | "apple";
@@ -141,50 +140,47 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-[100svh] flex flex-col items-center justify-center bg-background px-4 py-6 sm:py-12 safe-area-top safe-area-bottom">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif text-foreground mb-2">{t("auth.welcome")}</h1>
-          <p className="text-sm text-muted-foreground">Sign in to carry your health story into every visit.</p>
+    <div className="min-h-[100svh] flex flex-col bg-background px-6 pt-6 pb-8 sm:py-12 safe-area-top safe-area-bottom">
+      <div className="w-full max-w-sm mx-auto flex-1 flex flex-col">
+        <button
+          type="button"
+          onClick={() => navigate("/", { replace: true })}
+          className="self-start w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <div className="mt-10 mb-10">
+          <h1 className="text-3xl font-semibold text-foreground tracking-tight">Log in</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Sign in to carry your health story into every visit.</p>
         </div>
 
-        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
-          <div className="flex justify-end mb-4">
-            <LanguageSelector />
-          </div>
-
-          <div className="space-y-3">
-            <button
-              type="button"
-              onClick={handleGoogleAuth}
-              className="w-full h-12 rounded-xl border border-border bg-background hover:bg-muted/40 flex items-center justify-center gap-3 transition-colors"
-            >
-              <Chrome className="h-5 w-5" />
-              <span className="text-sm font-medium">Continue with Google</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleAppleAuth}
-              className="w-full h-12 rounded-xl border border-border bg-background hover:bg-muted/40 flex items-center justify-center gap-3 transition-colors"
-            >
-              <Apple className="h-5 w-5" />
-              <span className="text-sm font-medium">Continue with Apple</span>
-            </button>
-          </div>
-
-          <p className="mt-6 text-[11px] text-muted-foreground text-center leading-relaxed">
-            By continuing you agree to our{" "}
-            <Link to="/legal" target="_blank" className="text-primary hover:underline">Terms</Link>{" "}
-            and{" "}
-            <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
-          </p>
-        </div>
-
-        <div className="mt-6 text-center">
-          <button onClick={() => navigate("/")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            ← Back
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={handleGoogleAuth}
+            className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 flex items-center justify-center gap-3 transition-colors"
+          >
+            <Chrome className="h-5 w-5" />
+            <span className="text-sm font-medium">Continue with Google</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleAppleAuth}
+            className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted/40 flex items-center justify-center gap-3 transition-colors"
+          >
+            <Apple className="h-5 w-5" />
+            <span className="text-sm font-medium">Continue with Apple</span>
           </button>
         </div>
+
+        <p className="mt-auto pt-8 text-[11px] text-muted-foreground text-center leading-relaxed">
+          By continuing you agree to our{" "}
+          <Link to="/legal" target="_blank" className="text-primary hover:underline">Terms</Link>{" "}
+          and{" "}
+          <Link to="/legal#privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
+        </p>
       </div>
     </div>
   );
