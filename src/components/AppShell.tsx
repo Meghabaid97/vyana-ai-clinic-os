@@ -107,7 +107,8 @@ const AppShellInner = () => {
       const allGranted =
         types.has("age_18_confirmation") &&
         types.has("terms_of_service") &&
-        types.has("dpdpa_data_processing");
+        types.has("dpdpa_data_processing") &&
+        types.has("ai_processing");
       if (!allGranted) {
         navigate("/welcome", { replace: true });
       }
