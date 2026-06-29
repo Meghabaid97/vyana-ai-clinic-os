@@ -76,7 +76,8 @@ const Welcome = () => {
       const allGranted =
         types.has("age_18_confirmation") &&
         types.has("terms_of_service") &&
-        types.has("dpdpa_data_processing");
+        types.has("dpdpa_data_processing") &&
+        types.has("ai_processing");
 
       if (allGranted) {
         // Make sure a patient row exists even for users who consented previously.
@@ -89,7 +90,7 @@ const Welcome = () => {
     return () => { mounted = false; };
   }, [navigate, ensurePatientRow]);
 
-  const canSubmit = ageConfirmed && termsAccepted && dpdpaAccepted && !submitting;
+  const canSubmit = ageConfirmed && termsAccepted && dpdpaAccepted && aiAccepted && !submitting;
 
   const handleAccept = async () => {
     if (!userId || !canSubmit) return;
