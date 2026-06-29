@@ -3,13 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, ShieldCheck, ChevronDown } from "lucide-react";
+import { Loader2, FileCheck, Shield, Calendar, Heart, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LegalLink } from "@/components/LegalLink";
-import { cn } from "@/lib/utils";
 
 const POLICY_VERSION = "v1.0";
 
+/**
+ * Post-auth consent gate.
+ *
+ * Every auth flow (phone OTP, Google, Apple) lands here. If the signed-in
+ * user already has a consent_log row of type "terms_of_service" we skip
+ * straight to /app. Otherwise we show the three required consents
+ * (age, ToS+Privacy, DPDPA) and gate /app behind them.
+ */
 const Welcome = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -20,7 +27,6 @@ const Welcome = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [dpdpaAccepted, setDpdpaAccepted] = useState(false);
   const [aiAccepted, setAiAccepted] = useState(false);
-  const [aiExpanded, setAiExpanded] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
   const ensurePatientRow = useCallback(async (uid: string, metadata?: Record<string, any>) => {
@@ -47,6 +53,7 @@ const Welcome = () => {
     });
   }, []);
 
+  // Check session + whether consent has already been given.
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -73,6 +80,7 @@ const Welcome = () => {
         types.has("ai_processing");
 
       if (allGranted) {
+        // Make sure a patient row exists even for users who consented previously.
         await ensurePatientRow(session.user.id, session.user.user_metadata);
         navigate("/app", { replace: true });
         return;
@@ -90,10 +98,38 @@ const Welcome = () => {
     try {
       const ua = typeof navigator !== "undefined" ? navigator.userAgent : null;
       const { error } = await supabase.from("consent_log").insert([
-        { user_id: userId, consent_type: "age_18_confirmation", policy_version: POLICY_VERSION, granted: true, user_agent: ua, context: { source: "welcome" } },
-        { user_id: userId, consent_type: "terms_of_service", policy_version: POLICY_VERSION, granted: true, user_agent: ua, context: { source: "welcome" } },
-        { user_id: userId, consent_type: "privacy_policy", policy_version: POLICY_VERSION, granted: true, user_agent: ua, context: { source: "welcome" } },
-        { user_id: userId, consent_type: "dpdpa_data_processing", policy_version: POLICY_VERSION, granted: true, user_agent: ua, context: { source: "welcome" } },
+        {
+          user_id: userId,
+          consent_type: "age_18_confirmation",
+          policy_version: POLICY_VERSION,
+          granted: true,
+          user_agent: ua,
+          context: { source: "welcome" },
+        },
+        {
+          user_id: userId,
+          consent_type: "terms_of_service",
+          policy_version: POLICY_VERSION,
+          granted: true,
+          user_agent: ua,
+          context: { source: "welcome" },
+        },
+        {
+          user_id: userId,
+          consent_type: "privacy_policy",
+          policy_version: POLICY_VERSION,
+          granted: true,
+          user_agent: ua,
+          context: { source: "welcome" },
+        },
+        {
+          user_id: userId,
+          consent_type: "dpdpa_data_processing",
+          policy_version: POLICY_VERSION,
+          granted: true,
+          user_agent: ua,
+          context: { source: "welcome" },
+        },
         {
           user_id: userId,
           consent_type: "ai_processing",
@@ -141,109 +177,89 @@ const Welcome = () => {
   }
 
   return (
-    <div className="min-h-[100svh] bg-background flex flex-col safe-area-top safe-area-bottom">
-      <div className="w-full max-w-md mx-auto flex-1 flex flex-col px-5 pt-10 pb-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-primary/10 text-primary mx-auto mb-5">
-            <ShieldCheck className="h-6 w-6" strokeWidth={1.75} />
+    <div className="min-h-[100svh] bg-background px-4 py-6 sm:py-12 safe-area-top safe-area-bottom">
+      <div className="w-full max-w-lg mx-auto">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 text-primary mb-3">
+            <Heart className="h-6 w-6" />
           </div>
-          <h1 className="text-3xl font-serif italic text-foreground leading-tight">
-            Your privacy
-          </h1>
-          <p className="text-sm text-muted-foreground mt-3 leading-relaxed px-4">
-            A few consents we need before storing any health information. You can change these any time in Settings.
+          <h1 className="text-2xl sm:text-3xl font-serif text-foreground">A few quick confirmations</h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            We need your consent before we store any health information. Takes 20 seconds.
           </p>
         </div>
 
-        {/* Grouped settings list */}
-        <div className="flex-1">
-          <div className="bg-muted/30 rounded-2xl border border-border overflow-hidden">
-            <ConsentRow
-              id="age-18"
-              checked={ageConfirmed}
-              onChange={setAgeConfirmed}
-              title="Age verification"
-              body="I confirm that I am 18 years or older."
-              isFirst
-            />
-            <ConsentRow
-              id="terms"
-              checked={termsAccepted}
-              onChange={setTermsAccepted}
-              title="Terms & Privacy"
-              body={
-                <>
-                  I accept the{" "}
-                  <LegalLink section="terms">Terms of Service</LegalLink>{" "}and{" "}
-                  <LegalLink section="privacy">Privacy Policy</LegalLink>.
-                </>
-              }
-            />
-            <ConsentRow
-              id="dpdpa"
-              checked={dpdpaAccepted}
-              onChange={setDpdpaAccepted}
-              title="Data processing"
-              body="I consent to processing my health data under India's DPDPA, 2023."
-            />
-            <ConsentRow
-              id="ai-processing"
-              checked={aiAccepted}
-              onChange={setAiAccepted}
-              title="AI processing"
-              body={
-                <>
-                  I consent to my health content (documents, vitals, medications,
-                  symptoms, voice notes) being sent to{" "}
-                  <strong className="text-foreground font-medium">Google Gemini</strong>{" "}and{" "}
-                  <strong className="text-foreground font-medium">OpenAI</strong>{" "}
-                  via the Lovable AI Gateway for AI features. Identifiers like
-                  name, email, and ABHA ID are never sent.{" "}
-                  <button
-                    type="button"
-                    onClick={() => setAiExpanded((v) => !v)}
-                    className="text-primary font-medium inline-flex items-center gap-0.5 hover:underline"
-                  >
-                    {aiExpanded ? "Less" : "Learn more"}
-                    <ChevronDown
-                      className={cn(
-                        "h-3 w-3 transition-transform",
-                        aiExpanded && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {aiExpanded && (
-                    <span className="block mt-2 text-xs text-muted-foreground/90 leading-relaxed">
-                      Providers process this data over encrypted connections
-                      and do not retain it for model training. You can withdraw
-                      this consent any time in Settings — the rest of the app
-                      keeps working. Full details in the{" "}
-                      <LegalLink section="privacy">Privacy Policy</LegalLink>,
-                      Section 7.
-                    </span>
-                  )}
-                </>
-              }
-              isLast
-            />
-          </div>
+        <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
+          <ConsentRow
+            icon={<Calendar className="h-5 w-5 text-primary" />}
+            id="age-18"
+            checked={ageConfirmed}
+            onChange={setAgeConfirmed}
+            title="I am 18 years or older"
+            body="If you're managing records for a child or parent, you'll add them as a family member inside the app."
+          />
 
-          <p className="mt-5 text-center text-[11px] text-muted-foreground/80 px-6 leading-relaxed">
-            Each consent is logged with a timestamp so you can see exactly what you agreed to.
-          </p>
-        </div>
+          <ConsentRow
+            icon={<FileCheck className="h-5 w-5 text-primary" />}
+            id="terms"
+            checked={termsAccepted}
+            onChange={setTermsAccepted}
+            title="I accept the Terms of Service and Privacy Policy"
+            body={
+              <>
+                Read the full{" "}
+                <LegalLink section="terms">Terms</LegalLink>
+                {" "}and{" "}
+                <LegalLink section="privacy">Privacy Policy</LegalLink>.
+                Vyana is clinical decision support, not a substitute for medical advice.
+              </>
+            }
+          />
 
-        {/* CTA */}
-        <div className="pt-6">
+          <ConsentRow
+            icon={<Shield className="h-5 w-5 text-primary" />}
+            id="dpdpa"
+            checked={dpdpaAccepted}
+            onChange={setDpdpaAccepted}
+            title="I consent to processing my health data under India's DPDPA, 2023"
+            body="Your records, prescriptions, lab reports, and AI summaries are stored only to power your health timeline and shareable briefings. You can withdraw this consent or delete your data at any time from Settings."
+          />
+
+          <ConsentRow
+            icon={<Sparkles className="h-5 w-5 text-primary" />}
+            id="ai-processing"
+            checked={aiAccepted}
+            onChange={setAiAccepted}
+            title="I consent to AI processing by Google and OpenAI"
+            body={
+              <>
+                To generate briefings, interpret prescriptions, score risks, and analyze
+                trends, Vyana sends the specific health content you choose to process
+                (uploaded documents, vitals, medications, symptoms, voice notes) to{" "}
+                <strong>Google Gemini</strong> and <strong>OpenAI</strong> via the
+                Lovable AI Gateway, over encrypted connections. Your name, email, phone,
+                ABHA ID, and account identifiers are <strong>never</strong> sent.
+                Providers do not retain the data for training. You can withdraw this any
+                time from Settings — the rest of the app keeps working. Details in the{" "}
+                <LegalLink section="privacy">Privacy Policy</LegalLink>, Section 7.
+              </>
+            }
+          />
+
+
+
           <Button
             onClick={handleAccept}
             variant="gradient"
-            className="w-full h-13 py-3.5 text-base rounded-2xl"
+            className="w-full h-12 text-base mt-2"
             disabled={!canSubmit}
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Agree and continue"}
           </Button>
+
+          <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
+            We log each consent with a timestamp so we can show you exactly what you agreed to.
+          </p>
         </div>
       </div>
     </div>
@@ -251,45 +267,36 @@ const Welcome = () => {
 };
 
 const ConsentRow = ({
+  icon,
   id,
   checked,
   onChange,
   title,
   body,
-  isFirst,
-  isLast,
 }: {
+  icon: React.ReactNode;
   id: string;
   checked: boolean;
   onChange: (v: boolean) => void;
   title: string;
   body: React.ReactNode;
-  isFirst?: boolean;
-  isLast?: boolean;
 }) => (
-  <div
-    className={cn(
-      "flex items-start gap-4 p-4 bg-card/50 transition-colors",
-      !isLast && "border-b border-border/60",
-      checked && "bg-primary/[0.04]"
-    )}
-  >
+  <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
+    <div className="shrink-0 mt-0.5">{icon}</div>
     <div className="flex-1 min-w-0">
       <label
         htmlFor={id}
-        className="text-[15px] font-medium text-foreground leading-snug cursor-pointer block"
+        className="text-sm font-medium text-foreground leading-snug cursor-pointer block"
       >
         {title}
       </label>
-      <div className="text-[13px] text-muted-foreground mt-1 leading-relaxed">
-        {body}
-      </div>
+      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{body}</p>
     </div>
     <Checkbox
       id={id}
       checked={checked}
       onCheckedChange={(v) => onChange(v === true)}
-      className="mt-1 h-5 w-5 shrink-0 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+      className="mt-0.5 shrink-0"
     />
   </div>
 );
