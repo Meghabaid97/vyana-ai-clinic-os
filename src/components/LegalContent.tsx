@@ -193,9 +193,49 @@ const LegalSections = () => (
         </ul>
 
         <h3 className="text-lg font-semibold">7. AI Processing & Third-Party Models</h3>
+        <p>
+          {APP_NAME} uses third-party AI models to generate health summaries, clinical
+          briefings, risk indicators (e.g., ASCVD, eGFR), trend analyses, prescription
+          interpretation, and symptom parsing. We disclose the following so you can make
+          an informed choice before granting consent:
+        </p>
         <ul className="list-disc pl-5 space-y-1">
-          <li>AI-powered features (health summaries, risk scores, prescription interpretation) may use third-party AI models.</li>
-          <li>Data sent to AI models is processed in real-time and is <strong>not retained</strong> by the AI provider for training purposes.</li>
+          <li>
+            <strong>Who receives the data:</strong> Google LLC (Gemini models) and
+            OpenAI, L.L.C. (GPT and Whisper models), accessed through the Lovable AI
+            Gateway operated by Lovable AB (Sweden).
+          </li>
+          <li>
+            <strong>What data is sent:</strong> only the specific health content needed
+            for the feature you invoke — e.g., the text/image of an uploaded
+            prescription or lab report, structured vitals you have entered, medication
+            lists, symptom notes, or voice recordings you explicitly capture. We do{" "}
+            <strong>not</strong> send your name, email, phone number, ABHA ID, address,
+            or account identifiers to the AI providers.
+          </li>
+          <li>
+            <strong>How it is sent:</strong> over TLS 1.2+ encrypted connections to the
+            provider's API endpoints, on a per-request basis, only when you trigger an
+            AI feature (e.g., tap "Generate briefing" or "Interpret prescription").
+          </li>
+          <li>
+            <strong>Retention by the AI provider:</strong> requests are processed in
+            real-time and are <strong>not retained</strong> by Google or OpenAI for
+            model training, under Google's Gemini API Additional Terms and OpenAI's API
+            Data Usage Policy.
+          </li>
+          <li>
+            <strong>Equivalent protection:</strong> these providers are contractually
+            bound to confidentiality, security, and data-protection obligations
+            equivalent to those described in this Privacy Policy (ai.google.dev/terms;
+            openai.com/policies/api-data-usage-policies).
+          </li>
+          <li>
+            <strong>Your control:</strong> AI processing is gated by a separate,
+            explicit on-screen consent at first launch. You can withdraw it any time
+            from Settings; the rest of the app (manual record storage, sharing) will
+            continue to work without AI features.
+          </li>
           <li>AI outputs are clearly labeled as informational and not medical advice.</li>
         </ul>
 
