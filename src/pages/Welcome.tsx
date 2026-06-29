@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, FileCheck, Shield, Calendar, Heart } from "lucide-react";
+import { Loader2, FileCheck, Shield, Calendar, Heart, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LegalLink } from "@/components/LegalLink";
 
@@ -26,6 +26,7 @@ const Welcome = () => {
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [dpdpaAccepted, setDpdpaAccepted] = useState(false);
+  const [aiAccepted, setAiAccepted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
   const ensurePatientRow = useCallback(async (uid: string, metadata?: Record<string, any>) => {
@@ -75,7 +76,8 @@ const Welcome = () => {
       const allGranted =
         types.has("age_18_confirmation") &&
         types.has("terms_of_service") &&
-        types.has("dpdpa_data_processing");
+        types.has("dpdpa_data_processing") &&
+        types.has("ai_processing");
 
       if (allGranted) {
         // Make sure a patient row exists even for users who consented previously.
@@ -88,7 +90,7 @@ const Welcome = () => {
     return () => { mounted = false; };
   }, [navigate, ensurePatientRow]);
 
-  const canSubmit = ageConfirmed && termsAccepted && dpdpaAccepted && !submitting;
+  const canSubmit = ageConfirmed && termsAccepted && dpdpaAccepted && aiAccepted && !submitting;
 
   const handleAccept = async () => {
     if (!userId || !canSubmit) return;
@@ -127,6 +129,26 @@ const Welcome = () => {
           granted: true,
           user_agent: ua,
           context: { source: "welcome" },
+        },
+        {
+          user_id: userId,
+          consent_type: "ai_processing",
+          policy_version: POLICY_VERSION,
+          granted: true,
+          user_agent: ua,
+          context: {
+            source: "welcome",
+            providers: ["Google Gemini", "OpenAI GPT", "OpenAI Whisper"],
+            gateway: "Lovable AI Gateway",
+            data_categories: [
+              "uploaded_health_documents",
+              "structured_vitals",
+              "medications",
+              "symptom_notes",
+              "voice_recordings",
+            ],
+            excludes_identifiers: true,
+          },
         },
       ]);
       if (error) throw error;
@@ -202,6 +224,29 @@ const Welcome = () => {
             title="I consent to processing my health data under India's DPDPA, 2023"
             body="Your records, prescriptions, lab reports, and AI summaries are stored only to power your health timeline and shareable briefings. You can withdraw this consent or delete your data at any time from Settings."
           />
+
+          <ConsentRow
+            icon={<Sparkles className="h-5 w-5 text-primary" />}
+            id="ai-processing"
+            checked={aiAccepted}
+            onChange={setAiAccepted}
+            title="I consent to AI processing by Google and OpenAI"
+            body={
+              <>
+                To generate briefings, interpret prescriptions, score risks, and analyze
+                trends, Vyana sends the specific health content you choose to process
+                (uploaded documents, vitals, medications, symptoms, voice notes) to{" "}
+                <strong>Google Gemini</strong> and <strong>OpenAI</strong> via the
+                Lovable AI Gateway, over encrypted connections. Your name, email, phone,
+                ABHA ID, and account identifiers are <strong>never</strong> sent.
+                Providers do not retain the data for training. You can withdraw this any
+                time from Settings — the rest of the app keeps working. Details in the{" "}
+                <LegalLink section="privacy">Privacy Policy</LegalLink>, Section 7.
+              </>
+            }
+          />
+
+
 
           <Button
             onClick={handleAccept}
