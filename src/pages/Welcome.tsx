@@ -130,6 +130,26 @@ const Welcome = () => {
           user_agent: ua,
           context: { source: "welcome" },
         },
+        {
+          user_id: userId,
+          consent_type: "ai_processing",
+          policy_version: POLICY_VERSION,
+          granted: true,
+          user_agent: ua,
+          context: {
+            source: "welcome",
+            providers: ["Google Gemini", "OpenAI GPT", "OpenAI Whisper"],
+            gateway: "Lovable AI Gateway",
+            data_categories: [
+              "uploaded_health_documents",
+              "structured_vitals",
+              "medications",
+              "symptom_notes",
+              "voice_recordings",
+            ],
+            excludes_identifiers: true,
+          },
+        },
       ]);
       if (error) throw error;
 
