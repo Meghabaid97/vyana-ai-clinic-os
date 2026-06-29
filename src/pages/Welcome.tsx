@@ -26,6 +26,7 @@ const Welcome = () => {
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [dpdpaAccepted, setDpdpaAccepted] = useState(false);
+  const [aiAccepted, setAiAccepted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
   const ensurePatientRow = useCallback(async (uid: string, metadata?: Record<string, any>) => {
