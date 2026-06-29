@@ -225,6 +225,29 @@ const Welcome = () => {
             body="Your records, prescriptions, lab reports, and AI summaries are stored only to power your health timeline and shareable briefings. You can withdraw this consent or delete your data at any time from Settings."
           />
 
+          <ConsentRow
+            icon={<Sparkles className="h-5 w-5 text-primary" />}
+            id="ai-processing"
+            checked={aiAccepted}
+            onChange={setAiAccepted}
+            title="I consent to AI processing by Google and OpenAI"
+            body={
+              <>
+                To generate briefings, interpret prescriptions, score risks, and analyze
+                trends, Vyana sends the specific health content you choose to process
+                (uploaded documents, vitals, medications, symptoms, voice notes) to{" "}
+                <strong>Google Gemini</strong> and <strong>OpenAI</strong> via the
+                Lovable AI Gateway, over encrypted connections. Your name, email, phone,
+                ABHA ID, and account identifiers are <strong>never</strong> sent.
+                Providers do not retain the data for training. You can withdraw this any
+                time from Settings — the rest of the app keeps working. Details in the{" "}
+                <LegalLink section="privacy">Privacy Policy</LegalLink>, Section 7.
+              </>
+            }
+          />
+
+
+
           <Button
             onClick={handleAccept}
             variant="gradient"
