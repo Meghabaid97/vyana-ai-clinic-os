@@ -105,13 +105,6 @@ const PrivacySettings = () => {
 
   return (
     <div className="animate-fade-in px-4 sm:px-6 py-6 max-w-2xl mx-auto">
-      <button
-        onClick={() => navigate(-1)}
-        className="lg:hidden inline-flex items-center gap-1.5 text-sm text-muted-foreground mb-4"
-      >
-        <ArrowLeft className="h-4 w-4" /> Back
-      </button>
-
       <header className="mb-6">
         <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary mb-3">
           <ShieldCheck className="h-5 w-5" />
