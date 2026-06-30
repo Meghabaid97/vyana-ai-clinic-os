@@ -34,7 +34,6 @@ const Welcome = () => {
   const [submitting, setSubmitting] = useState(false);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [aiAccepted, setAiAccepted] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
   const ensurePatientRow = useCallback(async (uid: string, metadata?: Record<string, any>) => {
