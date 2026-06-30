@@ -232,7 +232,7 @@ const Welcome = () => {
                 </button>
               </>
             }
-            body="Click the link to see what health content is sent and which AI providers process it."
+            body="You can withdraw this any time from Settings."
           />
 
           <Button
