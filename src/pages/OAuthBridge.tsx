@@ -23,7 +23,10 @@ const OAuthBridge = () => {
 
     // Build a clean payload preserving whatever the broker returned.
     const payload = `${search}${hash}`;
-    const deepLink = `vyana://oauth-callback/${payload}`;
+    // iOS can drop URL fragments (#access_token=...) when handing a custom
+    // scheme back to the app. Put the broker payload inside a query parameter
+    // so the native app always receives it intact.
+    const deepLink = `vyana://oauth-callback/?payload=${encodeURIComponent(payload)}`;
 
     // Attempt the deep link — on iOS the OS will intercept and hand off to
     // the app. We give it a moment, then fall back to the web app so users

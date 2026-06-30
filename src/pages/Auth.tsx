@@ -24,6 +24,9 @@ const CUSTOMER_APP_ORIGIN = "https://vyana.care";
 const getWebOAuthRedirect = () =>
   typeof window !== "undefined" ? `${window.location.origin}/welcome` : `${CUSTOMER_APP_ORIGIN}/welcome`;
 const NATIVE_OAUTH_REDIRECT = `${CUSTOMER_APP_ORIGIN}/oauth-bridge`;
+const NATIVE_BROWSER_OPEN_KEY = "vyana-native-oauth-browser-open";
+const OAUTH_ERROR_KEY = "vyana-oauth-error";
+const OAUTH_FAILED_EVENT = "vyana-oauth-failed";
 
 const AUTH_PRECONNECT_ORIGINS = [
   "https://accounts.google.com",
@@ -135,6 +138,32 @@ const Auth = () => {
   useEffect(() => { setFormError(null); }, [isSignup]);
 
   useEffect(() => { warmOAuthConnections(); }, []);
+
+  useEffect(() => {
+    const showOAuthFailure = (message: string) => {
+      clearLoginTimeout();
+      setLoadingProvider(null);
+      setTimeoutError(message);
+    };
+
+    try {
+      const storedError = sessionStorage.getItem(OAUTH_ERROR_KEY);
+      if (storedError) {
+        sessionStorage.removeItem(OAUTH_ERROR_KEY);
+        showOAuthFailure(storedError);
+      }
+    } catch {
+      // Ignore storage errors.
+    }
+
+    const onOAuthFailed = (event: Event) => {
+      const detail = (event as CustomEvent<{ message?: string }>).detail;
+      showOAuthFailure(detail?.message ?? "Sign-in could not be completed. Please try again.");
+    };
+
+    window.addEventListener(OAUTH_FAILED_EVENT, onOAuthFailed);
+    return () => window.removeEventListener(OAUTH_FAILED_EVENT, onOAuthFailed);
+  }, [clearLoginTimeout]);
 
 
   const clearLoginTimeout = useCallback(() => {
@@ -248,6 +277,7 @@ const Auth = () => {
   const handleGoogleAuth = () => runOAuth("google", async () => {
     const isNativeApp = Capacitor.isNativePlatform();
     if (isNativeApp) {
+      sessionStorage.setItem(NATIVE_BROWSER_OPEN_KEY, "1");
       await NativeBrowser.open({
         url: buildCustomerOAuthUrl("google", NATIVE_OAUTH_REDIRECT),
         presentationStyle: "fullscreen",
@@ -273,6 +303,7 @@ const Auth = () => {
     const isNativeApp = Capacitor.isNativePlatform();
     if (isNativeApp) {
       await supabase.auth.signOut().catch(() => {});
+      sessionStorage.setItem(NATIVE_BROWSER_OPEN_KEY, "1");
       await NativeBrowser.open({
         url: buildCustomerOAuthUrl("apple", NATIVE_OAUTH_REDIRECT),
         presentationStyle: "fullscreen",
