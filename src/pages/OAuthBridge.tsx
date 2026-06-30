@@ -18,15 +18,20 @@ import { useEffect } from "react";
  */
 const OAuthBridge = () => {
   useEffect(() => {
+    // Prefer the payload captured in index.html BEFORE the Supabase client
+    // had a chance to strip the hash. Fall back to live values if missing
+    // (e.g. someone hot-navigates here from inside the SPA).
+    const captured =
+      (window as unknown as { __VYANA_OAUTH_PAYLOAD__?: string }).__VYANA_OAUTH_PAYLOAD__ ?? "";
     const hash = window.location.hash || "";
     const search = window.location.search || "";
 
-    // Build a clean payload preserving whatever the broker returned.
-    const payload = `${search}${hash}`;
+    const payload = captured || `${search}${hash}`;
     // iOS can drop URL fragments (#access_token=...) when handing a custom
     // scheme back to the app. Put the broker payload inside a query parameter
     // so the native app always receives it intact.
     const deepLink = `vyana://oauth-callback/?payload=${encodeURIComponent(payload)}`;
+
 
     // Attempt the deep link — on iOS the OS will intercept and hand off to
     // the app. We give it a moment, then fall back to the web app so users
