@@ -2,9 +2,12 @@
 // Body: { plan: 'individual'|'family', cycle: 'monthly'|'yearly' }
 // Amount is derived server-side so the client cannot tamper with pricing.
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID');
 const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET');
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 
 // Prices in paise. Keep in sync with src/lib/plans.ts
 const PRICE_TABLE: Record<string, Record<string, number>> = {
@@ -23,6 +26,27 @@ Deno.serve(async (req) => {
       });
     }
 
+    // SECURITY: require a valid Supabase JWT — derive user_id from the
+    // verified token, NEVER from the request body. Prevents anonymous users
+    // creating orders and prevents attributing orders to another user.
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    const { data: claims, error: claimsErr } = await supabase.auth.getClaims(token);
+    if (claimsErr || !claims?.claims?.sub) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const userId = claims.claims.sub as string;
+
     let body: any;
     try {
       body = await req.json();
@@ -35,7 +59,6 @@ Deno.serve(async (req) => {
 
     const plan = String(body?.plan ?? '');
     const cycle = String(body?.cycle ?? '');
-    const userId = typeof body?.user_id === 'string' ? body.user_id : null;
 
     if (!PRICE_TABLE[plan] || !PRICE_TABLE[plan][cycle]) {
       return new Response(
@@ -46,8 +69,7 @@ Deno.serve(async (req) => {
 
     const amount = PRICE_TABLE[plan][cycle];
     const receipt = `vy_${plan}_${cycle}_${crypto.randomUUID().slice(0, 12)}`;
-    const notes: Record<string, string> = { plan, cycle, one_time: 'true' };
-    if (userId) notes.user_id = userId;
+    const notes: Record<string, string> = { plan, cycle, one_time: 'true', user_id: userId };
 
     const auth = btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`);
     const rzpResp = await fetch('https://api.razorpay.com/v1/orders', {
