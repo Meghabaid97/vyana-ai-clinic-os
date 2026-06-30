@@ -238,26 +238,6 @@ const Welcome = () => {
                         ABHA ID, and account identifiers are never sent. Providers do not retain
                         the data for training.
                       </p>
-                      <ul className="space-y-2 text-sm">
-                        <li className="rounded-lg border border-border bg-muted/40 p-3">
-                          <p className="font-medium text-foreground">Google LLC - Gemini</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Document understanding, briefings, risk scoring, trend analysis.
-                          </p>
-                        </li>
-                        <li className="rounded-lg border border-border bg-muted/40 p-3">
-                          <p className="font-medium text-foreground">OpenAI, L.L.C. - GPT</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Prescription interpretation, clinical reasoning, summaries.
-                          </p>
-                        </li>
-                        <li className="rounded-lg border border-border bg-muted/40 p-3">
-                          <p className="font-medium text-foreground">OpenAI, L.L.C. - Whisper</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Voice note transcription (only when you record one).
-                          </p>
-                        </li>
-                      </ul>
                       <p className="text-[11px] text-muted-foreground leading-relaxed mt-3">
                         None of these providers receive your name, email, phone, ABHA ID, or account
                         identifiers, and none retain your data for model training. Details in the{" "}
