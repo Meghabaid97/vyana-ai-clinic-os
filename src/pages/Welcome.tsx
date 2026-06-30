@@ -266,19 +266,19 @@ const Welcome = () => {
           </DialogHeader>
           <ul className="space-y-3 text-sm">
             <li className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="font-medium text-foreground">Google LLC — Gemini</p>
+              <p className="font-medium text-foreground">Google LLC - Gemini</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Document understanding, briefings, risk scoring, trend analysis.
               </p>
             </li>
             <li className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="font-medium text-foreground">OpenAI, L.L.C. — GPT</p>
+              <p className="font-medium text-foreground">OpenAI, L.L.C. - GPT</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Prescription interpretation, clinical reasoning, summaries.
               </p>
             </li>
             <li className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="font-medium text-foreground">OpenAI, L.L.C. — Whisper</p>
+              <p className="font-medium text-foreground">OpenAI, L.L.C. - Whisper</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Voice note transcription (only when you record one).
               </p>
