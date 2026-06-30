@@ -139,6 +139,26 @@ const Auth = () => {
 
   useEffect(() => { warmOAuthConnections(); }, []);
 
+  const clearLoginTimeout = useCallback(() => {
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  const startLoginTimeout = useCallback((provider: SocialProvider) => {
+    clearLoginTimeout();
+    setTimeoutError(null);
+    setLoadingProvider(provider);
+    timeoutRef.current = window.setTimeout(() => {
+      timeoutRef.current = null;
+      setLoadingProvider(null);
+      setTimeoutError(
+        "Sign-in is taking longer than expected. Please check your connection and try again.",
+      );
+    }, LOGIN_TIMEOUT_MS);
+  }, [clearLoginTimeout]);
+
   useEffect(() => {
     const showOAuthFailure = (message: string) => {
       clearLoginTimeout();
@@ -163,27 +183,6 @@ const Auth = () => {
 
     window.addEventListener(OAUTH_FAILED_EVENT, onOAuthFailed);
     return () => window.removeEventListener(OAUTH_FAILED_EVENT, onOAuthFailed);
-  }, [clearLoginTimeout]);
-
-
-  const clearLoginTimeout = useCallback(() => {
-    if (timeoutRef.current !== null) {
-      window.clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  }, []);
-
-  const startLoginTimeout = useCallback((provider: SocialProvider) => {
-    clearLoginTimeout();
-    setTimeoutError(null);
-    setLoadingProvider(provider);
-    timeoutRef.current = window.setTimeout(() => {
-      timeoutRef.current = null;
-      setLoadingProvider(null);
-      setTimeoutError(
-        "Sign-in is taking longer than expected. Please check your connection and try again.",
-      );
-    }, LOGIN_TIMEOUT_MS);
   }, [clearLoginTimeout]);
 
   const handleAuthenticatedUser = useCallback(() => {
