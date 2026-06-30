@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { withGuardrails } from "../_shared/guardrails.ts";
 import { requirePlan } from "../_shared/plan-gate.ts";
+import { aiCacheGet, aiCacheKey, aiCachePut } from "../_shared/ai-cache.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -63,6 +64,26 @@ serve(async (req) => {
 
     console.log('Summarizing health record:', fileName, fileType);
 
+    // Cache lookup — keyed only by content + extraction-affecting inputs,
+    // so re-uploads / regenerations of the same file are free.
+    const cacheKey = await aiCacheKey({
+      fn: 'summarize-health-record',
+      v: 1,
+      fileType,
+      category: category ?? null,
+      radiologyModality: radiologyModality ?? null,
+      radiologyUploadKind: radiologyUploadKind ?? null,
+      userNotes: trimmedNotes,
+      fileContent: fileContent ?? null,
+    });
+    const cached = await aiCacheGet('summarize-health-record', cacheKey);
+    if (cached) {
+      console.log('[ai-cache] HIT summarize-health-record', cacheKey.slice(0, 12));
+      return new Response(JSON.stringify(cached), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-AI-Cache': 'HIT' },
+      });
+    }
+
     const isRadiology = category === 'radiology_imaging' || /\b(x[-\s]?ray|ct|mri|ultrasound|sonography|radiology|imaging|scan)\b/i.test(fileName || '');
 
     const isFilmOnlyRadiology = isRadiology && radiologyUploadKind === 'film_only';
@@ -75,7 +96,7 @@ serve(async (req) => {
         `Confidence: low`,
       ].filter(Boolean).join('\n\n');
 
-      return new Response(JSON.stringify({
+      const filmOnlyPayload = {
         summary: filmOnlySummary,
         documentType: 'Radiology film/photo only',
         importantFindings: [],
@@ -92,8 +113,10 @@ serve(async (req) => {
           recommendations: [],
           provider: null,
         },
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      };
+      await aiCachePut('summarize-health-record', cacheKey, filmOnlyPayload);
+      return new Response(JSON.stringify(filmOnlyPayload), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-AI-Cache': 'MISS' },
       });
     }
 
@@ -249,7 +272,7 @@ ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` 
 
     const summary = sections.join('\n\n');
 
-    return new Response(JSON.stringify({
+    const payload = {
       summary,
       documentType: extracted.documentType || null,
       reportDate: normalizedStudyDate,
@@ -268,8 +291,10 @@ ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` 
         recommendations: extracted.recommendations || [],
         provider: extracted.provider || null,
       },
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    };
+    await aiCachePut('summarize-health-record', cacheKey, payload);
+    return new Response(JSON.stringify(payload), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-AI-Cache': 'MISS' },
     });
   } catch (error: unknown) {
     console.error('Error in summarize-health-record:', error);

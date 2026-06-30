@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { withGuardrails } from "../_shared/guardrails.ts";
 import { requirePlan } from "../_shared/plan-gate.ts";
+import { aiCacheGet, aiCacheKey, aiCachePut } from "../_shared/ai-cache.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -62,6 +63,22 @@ serve(async (req) => {
     if (!imageData) {
       return new Response(JSON.stringify({ error: "No image data provided" }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Cache lookup — same image bytes + sourceType always produce the same
+    // interpretation. Saves repeat Gemini vision calls on retries / reviews.
+    const cacheKey = await aiCacheKey({
+      fn: 'interpret-prescription',
+      v: 1,
+      sourceType: sourceType ?? null,
+      imageData,
+    });
+    const cached = await aiCacheGet('interpret-prescription', cacheKey);
+    if (cached) {
+      console.log('[ai-cache] HIT interpret-prescription', cacheKey.slice(0, 12));
+      return new Response(JSON.stringify(cached), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-AI-Cache': 'HIT' },
       });
     }
 
@@ -220,8 +237,9 @@ Extract all medications with dosage, frequency, duration, and instructions. Hand
 
     result.disclaimer = "AI-interpreted prescription. Always verify with the prescribing doctor before use.";
 
+    await aiCachePut('interpret-prescription', cacheKey, result);
     return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-AI-Cache": "MISS" },
     });
   } catch (error) {
     console.error("Error in interpret-prescription:", error);
