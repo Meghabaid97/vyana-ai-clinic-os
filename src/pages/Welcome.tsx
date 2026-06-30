@@ -214,7 +214,7 @@ const Welcome = () => {
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="ai" className="border-0">
                     <AccordionTrigger className="py-0 text-sm font-medium text-foreground leading-snug hover:no-underline [&>svg]:ml-2">
-                      I consent to AI processing by the services below
+                      I consent to processing by services below
                     </AccordionTrigger>
                     <AccordionContent className="pb-0 pt-3">
                       <p className="text-xs text-muted-foreground leading-relaxed mb-3">
