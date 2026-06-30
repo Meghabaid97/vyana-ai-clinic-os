@@ -66,6 +66,22 @@ serve(async (req) => {
       });
     }
 
+    // Cache lookup — same image bytes + sourceType always produce the same
+    // interpretation. Saves repeat Gemini vision calls on retries / reviews.
+    const cacheKey = await aiCacheKey({
+      fn: 'interpret-prescription',
+      v: 1,
+      sourceType: sourceType ?? null,
+      imageData,
+    });
+    const cached = await aiCacheGet('interpret-prescription', cacheKey);
+    if (cached) {
+      console.log('[ai-cache] HIT interpret-prescription', cacheKey.slice(0, 12));
+      return new Response(JSON.stringify(cached), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-AI-Cache': 'HIT' },
+      });
+    }
+
     const systemPrompt = `You are a clinical OCR specialist trained on Indian medical prescriptions.
 
 You MUST handle:
