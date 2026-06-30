@@ -624,6 +624,12 @@ const PatientProfileEdit = () => {
         ))}
       </section>
 
+      {/* Privacy & Security */}
+      <section className="px-5 pt-6">
+        <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">Privacy & security</p>
+        <AiConsentToggle />
+      </section>
+
       {/* Privacy & Data Rights (DPDPA 2023) */}
       <section className="px-5 pt-6">
         <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">Your data rights</p>
