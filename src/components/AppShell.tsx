@@ -352,9 +352,13 @@ const AppShellInner = () => {
         </PullToRefresh>
       </main>
 
-      {/* ============ MOBILE BOTTOM TAB BAR (hidden on lg+) — iOS-native 6-tab ============ */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border/60 z-50 safe-area-bottom">
-        <div className="grid grid-cols-6 items-stretch h-[54px] w-full max-w-full overflow-hidden">
+      {/* ============ FLOATING DARK DOCK (mobile only) ============ */}
+      <nav
+        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50"
+        style={{ bottom: `calc(env(safe-area-inset-bottom) + 12px)` }}
+        aria-label="Primary"
+      >
+        <div className="flex items-center gap-1 rounded-full bg-[hsl(var(--surface-dark))] text-[hsl(var(--surface-dark-foreground))] px-2 py-2 shadow-[0_12px_32px_-12px_rgba(30,34,53,0.55)] backdrop-blur">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -363,23 +367,26 @@ const AppShellInner = () => {
                 data-tour={`nav-${tab.id}`}
                 onClick={() => vtNavigate(tab.path)}
                 aria-label={tab.label}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex min-w-0 flex-col items-center justify-center gap-[2px] h-full px-0 transition-colors active:bg-muted/40",
-                  isActive ? "text-primary" : "text-muted-foreground"
+                  "relative flex items-center justify-center h-10 rounded-full transition-all",
+                  isActive
+                    ? "bg-white text-[hsl(var(--surface-dark))] px-3.5"
+                    : "w-10 text-white/70 hover:text-white"
                 )}
               >
-                <tab.icon className={cn("h-[19px] w-[19px] shrink-0", isActive ? "stroke-[2.4]" : "stroke-[1.8]")} />
-                <span className={cn(
-                  "block w-full text-center truncate text-[10px] leading-none tracking-tight px-px",
-                  isActive ? "font-semibold" : "font-medium"
-                )}>
-                  {tab.shortLabel}
-                </span>
+                <tab.icon className="h-[18px] w-[18px] shrink-0" strokeWidth={isActive ? 2.4 : 1.8} />
+                {isActive && (
+                  <span className="ml-1.5 text-[12px] font-semibold leading-none tracking-tight">
+                    {tab.shortLabel}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
       </nav>
+
 
       {/* ============ DESKTOP FOOTER ============ */}
       <footer className="hidden lg:block border-t border-border bg-muted/30">
