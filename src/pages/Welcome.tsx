@@ -194,7 +194,7 @@ const Welcome = () => {
           <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 text-primary mb-3">
             <Heart className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif text-foreground">A few quick confirmations</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif text-foreground">AI Features & Privacy Consent</h1>
           <p className="text-sm text-muted-foreground mt-2">
             Two final checks before we store any health information.
           </p>
@@ -210,29 +210,68 @@ const Welcome = () => {
             body="If you're managing records for a child or parent, you'll add them as a family member inside the app."
           />
 
-          <ConsentRow
-            icon={<Sparkles className="h-5 w-5 text-primary" />}
-            id="ai-processing"
-            checked={aiAccepted}
-            onChange={setAiAccepted}
-            title={
-              <>
-                I consent to AI processing by the{" "}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setServicesOpen(true);
-                  }}
-                  className="text-primary underline underline-offset-2 hover:opacity-80"
-                >
-                  services below
-                </button>
-              </>
-            }
-            body="You can withdraw this any time from Settings."
-          />
+          <div className="rounded-xl border border-border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
+            <div className="flex items-start gap-3">
+              <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="ai" className="border-0">
+                    <AccordionTrigger className="py-0 text-sm font-medium text-foreground leading-snug hover:no-underline [&>svg]:ml-2">
+                      I consent to AI processing by the services below
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-0 pt-3">
+                      <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                        To generate briefings, interpret prescriptions, score risks, and analyze
+                        trends, Vyana sends the specific health content you choose to process
+                        (uploaded documents, vitals, medications, symptoms, voice notes) over
+                        encrypted connections via the Lovable AI Gateway. Your name, email, phone,
+                        ABHA ID, and account identifiers are never sent. Providers do not retain
+                        the data for training. You can withdraw this any time from Settings. The rest of
+                        the app keeps working.
+                      </p>
+                      <ul className="space-y-2 text-sm">
+                        <li className="rounded-lg border border-border bg-muted/40 p-3">
+                          <p className="font-medium text-foreground">Google LLC - Gemini</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Document understanding, briefings, risk scoring, trend analysis.
+                          </p>
+                        </li>
+                        <li className="rounded-lg border border-border bg-muted/40 p-3">
+                          <p className="font-medium text-foreground">OpenAI, L.L.C. - GPT</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Prescription interpretation, clinical reasoning, summaries.
+                          </p>
+                        </li>
+                        <li className="rounded-lg border border-border bg-muted/40 p-3">
+                          <p className="font-medium text-foreground">OpenAI, L.L.C. - Whisper</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Voice note transcription (only when you record one).
+                          </p>
+                        </li>
+                      </ul>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed mt-3">
+                        None of these providers receive your name, email, phone, ABHA ID, or account
+                        identifiers, and none retain your data for model training. Details in the{" "}
+                        <LegalLink section="privacy">Privacy Policy</LegalLink>, Section 7.
+                      </p>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  You can withdraw this any time from Settings.
+                </p>
+              </div>
+              <label htmlFor="ai-processing" className="sr-only">
+                I consent to AI processing
+              </label>
+              <Checkbox
+                id="ai-processing"
+                checked={aiAccepted}
+                onCheckedChange={(v) => setAiAccepted(v === true)}
+                className="mt-0.5 shrink-0"
+              />
+            </div>
+          </div>
 
           <Button
             onClick={handleAccept}
