@@ -2,9 +2,12 @@
 // Body: { plan: 'individual'|'family', cycle: 'monthly'|'yearly' }
 // Amount is derived server-side so the client cannot tamper with pricing.
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID');
 const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET');
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 
 // Prices in paise. Keep in sync with src/lib/plans.ts
 const PRICE_TABLE: Record<string, Record<string, number>> = {
