@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { withGuardrails } from "../_shared/guardrails.ts";
 import { requirePlan } from "../_shared/plan-gate.ts";
 import { aiCacheGet, aiCacheKey, aiCachePut } from "../_shared/ai-cache.ts";
+import { requireAiConsent } from "../_shared/consent-gate.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,6 +41,9 @@ serve(async (req) => {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+
+    const _consentBlock = await requireAiConsent(user.id);
+    if (_consentBlock) return _consentBlock;
 
     try {
       await checkRateLimit(user.id, 'interpret-prescription', 30);

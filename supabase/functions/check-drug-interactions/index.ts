@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { withGuardrails } from "../_shared/guardrails.ts";
 import { requirePlan } from "../_shared/plan-gate.ts";
 import { callLovableAi, logFunctionCall, newRequestId } from "../_shared/observability.ts";
+import { requireAiConsent } from "../_shared/consent-gate.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -56,6 +57,9 @@ serve(async (req) => {
       }));
     }
     userId = user.id;
+
+    const _consentBlock = await requireAiConsent(user.id);
+    if (_consentBlock) return finish(_consentBlock);
 
     try {
       await checkRateLimit(user.id, fnName, 50);
