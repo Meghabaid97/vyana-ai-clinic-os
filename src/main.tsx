@@ -4,14 +4,12 @@ import { Capacitor } from "@capacitor/core";
 import App from "./App.tsx";
 import { supabase } from "@/integrations/supabase/client";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
-// Pastel-era typography: Outfit (display) + DM Sans (body)
-import "@fontsource/outfit/400.css";
-import "@fontsource/outfit/500.css";
-import "@fontsource/outfit/600.css";
-import "@fontsource/outfit/700.css";
-import "@fontsource/dm-sans/400.css";
-import "@fontsource/dm-sans/500.css";
-import "@fontsource/dm-sans/700.css";
+// Calm Clinical typography: Plus Jakarta Sans everywhere
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
+import "@fontsource/plus-jakarta-sans/800.css";
 import "./index.css";
 
 if (Capacitor.isNativePlatform()) {
