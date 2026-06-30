@@ -343,7 +343,7 @@ const AppShellInner = () => {
 
       {/* ============ CONTENT ============ */}
       {/* Mobile: full-bleed scroll. Desktop: centered max-width container */}
-      <main className="flex-1 min-h-0 w-full max-w-full overflow-x-hidden overflow-y-auto lg:overflow-visible lg:min-h-0 pb-[calc(54px+env(safe-area-inset-bottom)+8px)] lg:pb-10 [-webkit-overflow-scrolling:touch] [overscroll-behavior-y:contain]">
+      <main className="flex-1 min-h-0 w-full max-w-full overflow-x-hidden overflow-y-auto lg:overflow-visible lg:min-h-0 pb-[calc(72px+env(safe-area-inset-bottom)+16px)] lg:pb-10 [-webkit-overflow-scrolling:touch] [overscroll-behavior-y:contain]">
         <PullToRefresh>
           <div className="w-full max-w-full lg:max-w-[1400px] lg:mx-auto lg:px-6 lg:py-6">
             <PastDueBanner />
