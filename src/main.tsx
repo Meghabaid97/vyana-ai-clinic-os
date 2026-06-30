@@ -61,8 +61,13 @@ const parseCallbackParams = (parsedUrl: URL) => {
   const payload = directQueryParams.get("payload");
 
   if (payload) {
-    const normalized = payload.trim().replace(/^[?#]/, "");
-    new URLSearchParams(normalized).forEach((value, key) => payloadParams.set(key, value));
+    const trimmed = payload.trim();
+    const hashIndex = trimmed.indexOf("#");
+    const queryPart = (hashIndex >= 0 ? trimmed.slice(0, hashIndex) : trimmed).replace(/^\?/, "");
+    const hashPart = hashIndex >= 0 ? trimmed.slice(hashIndex + 1) : trimmed.replace(/^#/, "");
+
+    new URLSearchParams(queryPart).forEach((value, key) => payloadParams.set(key, value));
+    new URLSearchParams(hashPart).forEach((value, key) => payloadParams.set(key, value));
   }
 
   return {
