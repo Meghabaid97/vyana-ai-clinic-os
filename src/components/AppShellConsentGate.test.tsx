@@ -77,39 +77,37 @@ describe("AppShell consent gate — strict terms acceptance enforcement", () => 
     localStorage.clear();
   });
 
-  it("redirects /app to /welcome when session exists but consents are missing", async () => {
+  const renderAt = (path: string) =>
     render(
-      <MemoryRouter initialEntries={["/app"]}>
+      <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/app" element={<AppShell />}>
             <Route index element={<div data-testid="app-home">APP HOME</div>} />
-            <Route
-              path="trends"
-              element={<div data-testid="app-trends">TRENDS</div>}
-            />
+            <Route path="trends" element={<div data-testid="app-trends">TRENDS</div>} />
+            <Route path="records" element={<div data-testid="app-records">RECORDS</div>} />
+            <Route path="briefing" element={<div data-testid="app-briefing">BRIEFING</div>} />
           </Route>
-          <Route
-            path="/welcome"
-            element={<div data-testid="welcome">WELCOME GATE</div>}
-          />
+          <Route path="/welcome" element={<div data-testid="welcome">WELCOME GATE</div>} />
           <Route path="/auth" element={<div data-testid="auth">AUTH</div>} />
         </Routes>
       </MemoryRouter>,
     );
 
-    // Gate must intercept and land on /welcome
-    await waitFor(() => {
-      expect(screen.getByTestId("welcome")).toBeInTheDocument();
-    });
-
-    // App home content must NOT be reachable
+  it("redirects /app to /welcome when consents are missing", async () => {
+    renderAt("/app");
+    await waitFor(() => expect(screen.getByTestId("welcome")).toBeInTheDocument());
     expect(screen.queryByTestId("app-home")).toBeNull();
-    expect(screen.queryByTestId("app-trends")).toBeNull();
-
-    // Bottom tab navigation (rendered by AppShell) must NOT be in the DOM
     expect(screen.queryByRole("navigation")).toBeNull();
-
-    // The auth gate must NOT have fired (session was valid)
     expect(screen.queryByTestId("auth")).toBeNull();
+  });
+
+  it.each([
+    ["trends", "app-trends"],
+    ["records", "app-records"],
+    ["briefing", "app-briefing"],
+  ])("blocks /app/%s deep-link until consents are accepted", async (sub, testid) => {
+    renderAt(`/app/${sub}`);
+    await waitFor(() => expect(screen.getByTestId("welcome")).toBeInTheDocument());
+    expect(screen.queryByTestId(testid)).toBeNull();
   });
 });
