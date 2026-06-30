@@ -52,6 +52,21 @@
 
   <body>
     <div id="root"></div>
+    <script>
+      // Capture the OAuth payload from /oauth-bridge BEFORE the Supabase
+      // client (loaded by the module bundle below) parses and strips the
+      // hash via its detectSessionInUrl behavior. Without this snapshot the
+      // native deep link arrives empty and the user is bounced back to /auth.
+      (function () {
+        try {
+          if (window.location.pathname === "/oauth-bridge") {
+            window.__VYANA_OAUTH_PAYLOAD__ =
+              (window.location.search || "") + (window.location.hash || "");
+          }
+        } catch (_) {}
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+
