@@ -4,6 +4,7 @@ import { withGuardrails } from "../_shared/guardrails.ts";
 import { requirePlan } from "../_shared/plan-gate.ts";
 import { aiCacheGet, aiCacheKey, aiCachePut } from "../_shared/ai-cache.ts";
 import { requireAiConsent } from "../_shared/consent-gate.ts";
+import { enforceRateLimit } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

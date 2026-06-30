@@ -1254,6 +1254,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_buckets: {
+        Row: {
+          bucket: string
+          tokens: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bucket: string
+          tokens: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bucket?: string
+          tokens?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       shared_record_links: {
         Row: {
           created_at: string
@@ -1562,6 +1583,20 @@ export type Database = {
       cancel_subscription: { Args: never; Returns: Json }
       cleanup_expired_support_tickets: { Args: never; Returns: undefined }
       consume_invite_token: { Args: { _token: string }; Returns: boolean }
+      consume_rate_limit: {
+        Args: {
+          _bucket: string
+          _capacity: number
+          _cost?: number
+          _refill_per_sec: number
+          _user_id: string
+        }
+        Returns: {
+          allowed: boolean
+          retry_after_sec: number
+          tokens_remaining: number
+        }[]
+      }
       current_user_email: { Args: never; Returns: string }
       decline_family_invite: { Args: { _token: string }; Returns: undefined }
       decrypt_health_record_phi: {
