@@ -35,7 +35,8 @@ const closeInAppBrowser = async () => {
     if (sessionStorage.getItem(NATIVE_BROWSER_OPEN_KEY) !== "1") return;
     sessionStorage.removeItem(NATIVE_BROWSER_OPEN_KEY);
   } catch {
-    // If storage is unavailable, still avoid blocking the auth flow.
+    // If storage is unavailable, do not risk calling close on a missing window.
+    return;
   }
 
   try {
