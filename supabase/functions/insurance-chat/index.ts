@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { withGuardrails } from "../_shared/guardrails.ts";
 import { requirePlan } from "../_shared/plan-gate.ts";
+import { requireAiConsent } from "../_shared/consent-gate.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,6 +24,9 @@ serve(async (req) => {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+
+    const _consentBlock = await requireAiConsent(user.id);
+    if (_consentBlock) return _consentBlock;
 
     // Pro-only: insurance / claim AI assistant.
     const planGate = await requirePlan(supabaseClient, { feature: "pro", featureLabel: "Claim assistant" });
