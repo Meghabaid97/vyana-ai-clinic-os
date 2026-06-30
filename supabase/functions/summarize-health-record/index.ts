@@ -272,7 +272,7 @@ ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` 
 
     const summary = sections.join('\n\n');
 
-    return new Response(JSON.stringify({
+    const payload = {
       summary,
       documentType: extracted.documentType || null,
       reportDate: normalizedStudyDate,
@@ -291,8 +291,10 @@ ${extracted.radiologyImpression.map((item: string) => `- ${item}`).join('\n')}` 
         recommendations: extracted.recommendations || [],
         provider: extracted.provider || null,
       },
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    };
+    await aiCachePut('summarize-health-record', cacheKey, payload);
+    return new Response(JSON.stringify(payload), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-AI-Cache': 'MISS' },
     });
   } catch (error: unknown) {
     console.error('Error in summarize-health-record:', error);
