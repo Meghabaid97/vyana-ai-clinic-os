@@ -36,6 +36,80 @@ const calculateAgeFromDob = (dob: string | null | undefined): number | null => {
   return Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 };
 
+const AiConsentToggle = () => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [granted, setGranted] = useState(false);
+
+  const load = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setLoading(false); return; }
+    const { data } = await supabase
+      .from("consent_log")
+      .select("granted, granted_at")
+      .eq("user_id", session.user.id)
+      .eq("consent_type", "ai_processing")
+      .order("granted_at", { ascending: false })
+      .limit(1);
+    setGranted(Boolean(data?.[0]?.granted));
+    setLoading(false);
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const handleToggle = async (next: boolean) => {
+    setSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("not_authenticated");
+      const ua = typeof navigator !== "undefined" ? navigator.userAgent : null;
+      const { error } = await supabase.from("consent_log").insert({
+        user_id: session.user.id,
+        consent_type: "ai_processing",
+        granted: next,
+        policy_version: "1.0",
+        user_agent: ua,
+        withdrawn_at: next ? null : new Date().toISOString(),
+        context: { source: "profile_privacy_toggle", explicit: true },
+      });
+      if (error) throw error;
+      setGranted(next);
+      toast({
+        title: next ? "AI processing enabled" : "AI processing withdrawn",
+        description: next
+          ? "Vyana can now process your health content with AI."
+          : "Future AI processing has been stopped. The rest of the app keeps working.",
+      });
+    } catch {
+      toast({ title: "Could not update consent", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="flex items-start justify-between py-3.5 border-b border-border gap-4">
+      <div className="flex items-start gap-3 flex-1 min-w-0">
+        <Sparkles className="h-5 w-5 text-muted-foreground mt-0.5" />
+        <div className="text-left">
+          <p className="text-[15px] font-medium text-foreground">AI processing consent</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Allow Vyana to send your health content to AI providers (Google Gemini, OpenAI) for briefings, summaries, and document understanding. You can withdraw anytime.
+          </p>
+        </div>
+      </div>
+      <Switch
+        checked={granted}
+        disabled={loading || saving}
+        onCheckedChange={handleToggle}
+        aria-label="AI processing consent"
+      />
+    </div>
+  );
+};
+
+
 const PatientProfileEdit = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
