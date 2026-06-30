@@ -4,15 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Loader2, Calendar, Heart, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LegalLink } from "@/components/LegalLink";
+
 
 const POLICY_VERSION = "v1.0";
 
