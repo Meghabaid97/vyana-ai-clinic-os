@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowUp, ArrowDown, Minus, Upload, Loader2, Sparkles } from "lucide-react";
+import { ArrowUp, ArrowDown, Minus, Upload, Loader2, Sparkles, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   vitalStatus,
