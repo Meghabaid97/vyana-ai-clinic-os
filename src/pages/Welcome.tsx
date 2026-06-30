@@ -260,8 +260,8 @@ const Welcome = () => {
               (uploaded documents, vitals, medications, symptoms, voice notes) over
               encrypted connections via the Lovable AI Gateway. Your name, email, phone,
               ABHA ID, and account identifiers are never sent. Providers do not retain
-              the data for training. You can withdraw this any time from Settings — the
-              rest of the app keeps working.
+              the data for training. You can withdraw this any time from Settings. The rest of
+              the app keeps working.
             </DialogDescription>
           </DialogHeader>
           <ul className="space-y-3 text-sm">
