@@ -55,7 +55,20 @@ const SymptomJournal = lazy(() => import("./pages/SymptomJournal"));
 const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 const Upgrade = lazy(() => import("./pages/Upgrade"));
 
-const queryClient = new QueryClient();
+// Sensible defaults: health data changes slowly within a session, so cache
+// for 5 minutes and don't refetch on every window focus (mobile WebView fires
+// focus events on every tab/keyboard return, which was hammering the API).
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,        // 5 min — fits Trends/Records/Briefing read patterns
+      gcTime: 30 * 60 * 1000,          // keep in memory 30 min for cheap back-nav
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: 'always',
+      retry: 1,
+    },
+  },
+});
 
 const ShareIntentBridge = () => {
   const navigate = useNavigate();
