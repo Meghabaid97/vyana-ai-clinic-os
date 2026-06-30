@@ -699,8 +699,6 @@ const PatientProfileEdit = () => {
         <p className="text-[11px] text-muted-foreground mt-1">{t("prof.ver")} 1.0.0</p>
         <div className="flex items-center justify-center gap-6 mt-4">
           {[
-            { icon: Lock, label: t("prof.footer.privacy"), path: "/legal#privacy" as string | null, onClick: undefined as undefined | (() => void) },
-            { icon: FileText, label: t("prof.footer.terms"), path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
             { icon: Star, label: t("prof.footer.rate"), path: null as string | null, onClick: handleRateApp },
           ].map((item, i) => (
             <div key={i} className="flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => { if (item.onClick) item.onClick(); else if (item.path) navigate(item.path); }}>
