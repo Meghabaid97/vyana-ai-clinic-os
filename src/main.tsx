@@ -147,9 +147,9 @@ const handleOAuthCallback = async (url: string) => {
     sessionStorage.removeItem("vyana-oauth-state");
 
     if (accessToken && refreshToken) {
-      // Redirect immediately so the user sees the app, then set the session in
-      // the background. AppShell's auth listener will pick it up.
-      void supabase.auth.setSession({
+      // Set the session before redirecting. If we redirect first, the WebView
+      // reload can interrupt token persistence and leave the user spinning.
+      await supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
       });
@@ -158,7 +158,7 @@ const handleOAuthCallback = async (url: string) => {
     }
 
     if (authCode) {
-      void supabase.auth.exchangeCodeForSession(authCode);
+      await supabase.auth.exchangeCodeForSession(authCode);
       safeRedirect("/welcome");
       return;
     }
