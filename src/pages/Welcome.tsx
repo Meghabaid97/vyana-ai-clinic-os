@@ -195,9 +195,6 @@ const Welcome = () => {
             <Heart className="h-6 w-6" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif text-foreground">A few quick confirmations</h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            Two final checks before we store any health information.
-          </p>
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
@@ -217,7 +214,7 @@ const Welcome = () => {
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="ai" className="border-0">
                     <AccordionTrigger className="py-0 text-sm font-medium text-foreground leading-snug hover:no-underline [&>svg]:ml-2">
-                      I consent to AI processing by the services below
+                      I consent to processing by services below
                     </AccordionTrigger>
                     <AccordionContent className="pb-0 pt-3">
                       <p className="text-xs text-muted-foreground leading-relaxed mb-3">
