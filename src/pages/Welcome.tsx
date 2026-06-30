@@ -232,7 +232,7 @@ const Welcome = () => {
                 </button>
               </>
             }
-            body="Click the link to see what health content is sent and which AI providers process it."
+            body="You can withdraw this any time from Settings."
           />
 
           <Button
@@ -260,25 +260,25 @@ const Welcome = () => {
               (uploaded documents, vitals, medications, symptoms, voice notes) over
               encrypted connections via the Lovable AI Gateway. Your name, email, phone,
               ABHA ID, and account identifiers are never sent. Providers do not retain
-              the data for training. You can withdraw this any time from Settings — the
-              rest of the app keeps working.
+              the data for training. You can withdraw this any time from Settings. The rest of
+              the app keeps working.
             </DialogDescription>
           </DialogHeader>
           <ul className="space-y-3 text-sm">
             <li className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="font-medium text-foreground">Google LLC — Gemini</p>
+              <p className="font-medium text-foreground">Google LLC - Gemini</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Document understanding, briefings, risk scoring, trend analysis.
               </p>
             </li>
             <li className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="font-medium text-foreground">OpenAI, L.L.C. — GPT</p>
+              <p className="font-medium text-foreground">OpenAI, L.L.C. - GPT</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Prescription interpretation, clinical reasoning, summaries.
               </p>
             </li>
             <li className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="font-medium text-foreground">OpenAI, L.L.C. — Whisper</p>
+              <p className="font-medium text-foreground">OpenAI, L.L.C. - Whisper</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Voice note transcription (only when you record one).
               </p>
