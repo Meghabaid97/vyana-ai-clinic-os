@@ -232,18 +232,7 @@ const Welcome = () => {
                 </button>
               </>
             }
-            body={
-              <>
-                To generate briefings, interpret prescriptions, score risks, and analyze
-                trends, Vyana sends the specific health content you choose to process
-                (uploaded documents, vitals, medications, symptoms, voice notes) over
-                encrypted connections. Your name, email, phone, ABHA ID, and account
-                identifiers are <strong>never</strong> sent. Providers do not retain the
-                data for training. You can withdraw this any time from Settings — the
-                rest of the app keeps working. Details in the{" "}
-                <LegalLink section="privacy">Privacy Policy</LegalLink>, Section 7.
-              </>
-            }
+            body="Click the link to see what health content is sent and which AI providers process it."
           />
 
           <Button
