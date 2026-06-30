@@ -255,8 +255,13 @@ const Welcome = () => {
           <DialogHeader>
             <DialogTitle>AI services Vyana uses</DialogTitle>
             <DialogDescription>
-              Health content you choose to process is sent to these providers via the
-              Lovable AI Gateway, over encrypted connections.
+              To generate briefings, interpret prescriptions, score risks, and analyze
+              trends, Vyana sends the specific health content you choose to process
+              (uploaded documents, vitals, medications, symptoms, voice notes) over
+              encrypted connections via the Lovable AI Gateway. Your name, email, phone,
+              ABHA ID, and account identifiers are never sent. Providers do not retain
+              the data for training. You can withdraw this any time from Settings — the
+              rest of the app keeps working.
             </DialogDescription>
           </DialogHeader>
           <ul className="space-y-3 text-sm">
@@ -281,7 +286,8 @@ const Welcome = () => {
           </ul>
           <p className="text-[11px] text-muted-foreground leading-relaxed">
             None of these providers receive your name, email, phone, ABHA ID, or account
-            identifiers, and none retain your data for model training.
+            identifiers, and none retain your data for model training. Details in the{" "}
+            <LegalLink section="privacy">Privacy Policy</LegalLink>, Section 7.
           </p>
         </DialogContent>
       </Dialog>
