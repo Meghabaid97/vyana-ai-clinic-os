@@ -26,6 +26,27 @@ Deno.serve(async (req) => {
       });
     }
 
+    // SECURITY: require a valid Supabase JWT — derive user_id from the
+    // verified token, NEVER from the request body. Prevents anonymous users
+    // creating orders and prevents attributing orders to another user.
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    const { data: claims, error: claimsErr } = await supabase.auth.getClaims(token);
+    if (claimsErr || !claims?.claims?.sub) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const userId = claims.claims.sub as string;
+
     let body: any;
     try {
       body = await req.json();
@@ -38,7 +59,6 @@ Deno.serve(async (req) => {
 
     const plan = String(body?.plan ?? '');
     const cycle = String(body?.cycle ?? '');
-    const userId = typeof body?.user_id === 'string' ? body.user_id : null;
 
     if (!PRICE_TABLE[plan] || !PRICE_TABLE[plan][cycle]) {
       return new Response(
@@ -49,8 +69,7 @@ Deno.serve(async (req) => {
 
     const amount = PRICE_TABLE[plan][cycle];
     const receipt = `vy_${plan}_${cycle}_${crypto.randomUUID().slice(0, 12)}`;
-    const notes: Record<string, string> = { plan, cycle, one_time: 'true' };
-    if (userId) notes.user_id = userId;
+    const notes: Record<string, string> = { plan, cycle, one_time: 'true', user_id: userId };
 
     const auth = btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`);
     const rzpResp = await fetch('https://api.razorpay.com/v1/orders', {
