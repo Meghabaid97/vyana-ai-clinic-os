@@ -221,6 +221,16 @@ const Welcome = () => {
                     </AccordionTrigger>
                     <AccordionContent className="pb-0 pt-3">
                       <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                        Vyana uses secure processing endpoints from Google Gemini and OpenAI to
+                        extract and organize information from the medical documents you upload,
+                        building your health timeline and clinical summaries. Your documents are
+                        heavily encrypted during transmission. Your personal profile identity
+                        (like name or email) is completely stripped out, and our partners are
+                        contractually prohibited from using your data to train their models. You
+                        can withdraw this consent anytime in Settings → Privacy, and all future AI
+                        processing will stop.
+                      </p>
+                      <p className="text-xs text-muted-foreground leading-relaxed mb-3">
                         To generate briefings, interpret prescriptions, score risks, and analyze
                         trends, Vyana sends the specific health content you choose to process
                         (uploaded documents, vitals, medications, symptoms, voice notes) over
