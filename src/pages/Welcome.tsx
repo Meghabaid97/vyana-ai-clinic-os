@@ -203,6 +203,21 @@ const Welcome = () => {
   return (
     <div className="min-h-[100svh] bg-background px-4 py-6 sm:py-12 safe-area-top safe-area-bottom">
       <div className="w-full max-w-lg mx-auto">
+        {consentMissingFromGate && (
+          <div
+            role="alert"
+            data-testid="consent-missing-banner"
+            className="mb-5 flex items-start gap-3 rounded-xl border border-amber-300/60 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 p-4"
+          >
+            <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
+            <div className="text-sm leading-snug">
+              <strong className="font-semibold">Consent required.</strong> You were
+              brought back here because one or more consents are missing or were
+              withdrawn. We cannot show Trends, Records, Briefing, or store any new
+              health information until you re-confirm below.
+            </div>
+          </div>
+        )}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 text-primary mb-3">
             <Heart className="h-6 w-6" />
