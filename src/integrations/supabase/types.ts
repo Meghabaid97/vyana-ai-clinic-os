@@ -65,6 +65,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          expires_at: string
+          function_name: string
+          hits: number
+          id: string
+          last_hit_at: string | null
+          response: Json
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          expires_at?: string
+          function_name: string
+          hits?: number
+          id?: string
+          last_hit_at?: string | null
+          response: Json
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          expires_at?: string
+          function_name?: string
+          hits?: number
+          id?: string
+          last_hit_at?: string | null
+          response?: Json
+        }
+        Relationships: []
+      }
       ai_usage_logs: {
         Row: {
           completion_tokens: number | null
