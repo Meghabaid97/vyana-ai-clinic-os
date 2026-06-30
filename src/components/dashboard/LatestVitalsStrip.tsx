@@ -257,60 +257,60 @@ const LatestVitalsStrip = ({ patientId }: Props) => {
             </div>
           )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
-            {tiles.map(({ def, values, latest, prior }) => {
-              const status = vitalStatus(latest, def.range);
-              const tone = STATUS_TONE[status];
-              const delta = prior != null ? latest - prior : null;
-              const dir = delta == null || Math.abs(delta) < 0.0001 ? "flat" : delta > 0 ? "up" : "down";
-              const DirIcon = dir === "up" ? ArrowUp : dir === "down" ? ArrowDown : Minus;
-              return (
-                <button
-                  key={def.key}
-                  onClick={() => handleNav(def.key)}
-                  className="group rounded-2xl border border-border bg-card p-3 sm:p-3.5 text-left transition-all hover:border-primary/40 hover:shadow-sm"
-                >
-                  <div className="flex items-start gap-2">
-                    <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-muted flex items-center justify-center text-base sm:text-lg shrink-0">
-                      {def.emoji}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-[10.5px] sm:text-[11px] font-medium text-muted-foreground truncate">{def.label}</p>
-                        <span
-                          aria-hidden
-                          className={`h-1.5 w-1.5 rounded-full shrink-0 ${tone.bar} ${status !== "normal" ? "vital-status-dot" : ""}`}
-                        />
+          {/* Pastel bento — rotating soft surfaces, white icon chip, big value, chevron */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {(() => {
+              const SURFACES = [
+                "bg-[hsl(var(--surface-blush))]",
+                "bg-[hsl(var(--surface-mint))]",
+                "bg-[hsl(var(--surface-sky))]",
+                "bg-[hsl(var(--surface-lavender))]",
+                "bg-[hsl(var(--surface-peach))]",
+                "bg-[hsl(var(--surface-butter))]",
+              ];
+              return tiles.map(({ def, values, latest, prior }, idx) => {
+                const status = vitalStatus(latest, def.range);
+                const tone = STATUS_TONE[status];
+                const delta = prior != null ? latest - prior : null;
+                const dir = delta == null || Math.abs(delta) < 0.0001 ? "flat" : delta > 0 ? "up" : "down";
+                const DirIcon = dir === "up" ? ArrowUp : dir === "down" ? ArrowDown : Minus;
+                const surface = SURFACES[idx % SURFACES.length];
+                return (
+                  <button
+                    key={def.key}
+                    onClick={() => handleNav(def.key)}
+                    className={`group ${surface} p-4 rounded-[1.75rem] flex flex-col justify-between min-h-[10rem] text-left transition-transform hover:-translate-y-0.5 active:translate-y-0`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-sm text-lg">
+                        {def.emoji}
                       </div>
+                      <ChevronRight className="h-4 w-4 text-foreground/30 group-hover:text-foreground/60 transition-colors" />
+                    </div>
+                    <div className="mt-3">
                       <div className="flex items-baseline gap-1">
-                        <span className="text-[17px] sm:text-[19px] font-bold text-foreground leading-none">
+                        <span className="text-[26px] font-bold text-foreground leading-none tracking-tight">
                           {fmt(def.key, latest, def.decimals ?? 1)}
                         </span>
-                        <span className="text-[10px] text-muted-foreground truncate">{def.unit}</span>
+                        <span className="text-[11px] font-medium text-muted-foreground">{def.unit}</span>
+                      </div>
+                      <p className="text-[11.5px] font-medium text-muted-foreground mt-1 truncate">{def.label}</p>
+                      <div className="mt-2 flex items-center gap-1.5">
+                        <span className={`text-[9.5px] font-semibold rounded-full px-1.5 py-0.5 ${tone.chip}`}>
+                          {STATUS_COPY[status]}
+                        </span>
+                        <span className="ml-auto flex items-center gap-0.5 text-[10px] font-medium text-muted-foreground">
+                          <DirIcon className="h-3 w-3" />
+                          {delta != null && dir !== "flat" ? Math.abs(delta).toFixed(def.decimals ?? 1) : "·"}
+                        </span>
                       </div>
                     </div>
-                    <div className="ml-auto shrink-0 self-start pt-0.5">
-                      <Sparkline values={values.map((v) => v.value)} tone={status} />
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-2">
-                    <span className={`text-[9.5px] sm:text-[10px] font-semibold rounded-full px-1.5 py-0.5 whitespace-nowrap ${tone.chip}`}>
-                      {STATUS_COPY[status]}
-                    </span>
-                    <span className="ml-auto flex items-center gap-0.5 text-[10px] font-medium text-muted-foreground">
-                      <DirIcon className="h-3 w-3" />
-                      {delta != null && dir !== "flat" ? Math.abs(delta).toFixed(def.decimals ?? 1) : "·"}
-                    </span>
-                  </div>
-
-                  <div className="mt-2.5">
-                    <RangeBar value={latest} axis={def.axis} range={def.range} status={status} />
-                  </div>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              });
+            })()}
           </div>
+
 
           {/* Color legend — quietly explains the dot colors used on each tile */}
           <ul
