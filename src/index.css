@@ -72,14 +72,6 @@
     --status-watch:  35 88% 45%;      /* warm amber */
     --status-high:   0 65% 50%;       /* terracotta-leaning red */
     --status-low:    205 60% 45%;     /* muted indigo */
-
-    /* Pastel bento card surfaces — used only as tile backgrounds on the dashboard. */
-    --surface-blush:    8 100% 97%;   /* #FFF0F0 */
-    --surface-mint:    140 70% 97%;   /* #F0FFF4 */
-    --surface-sky:     204 100% 97%;  /* #F0F9FF */
-    --surface-lavender:250 100% 98%;  /* #F5F3FF */
-    --surface-peach:    33 100% 96%;  /* #FFF3E6 */
-    --surface-butter:   48 100% 95%;  /* #FFF8E1 */
   }
 
   .dark {
