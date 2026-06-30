@@ -12,6 +12,7 @@ import {
   FileText, Heart, Calendar, HelpCircle, BookOpen, Star,
   Lock, MapPin, Share2, KeyRound, Download, Trash2, Sparkles,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
@@ -34,6 +35,80 @@ const calculateAgeFromDob = (dob: string | null | undefined): number | null => {
   if (Number.isNaN(d.getTime())) return null;
   return Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 };
+
+const AiConsentToggle = () => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [granted, setGranted] = useState(false);
+
+  const load = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setLoading(false); return; }
+    const { data } = await supabase
+      .from("consent_log")
+      .select("granted, granted_at")
+      .eq("user_id", session.user.id)
+      .eq("consent_type", "ai_processing")
+      .order("granted_at", { ascending: false })
+      .limit(1);
+    setGranted(Boolean(data?.[0]?.granted));
+    setLoading(false);
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const handleToggle = async (next: boolean) => {
+    setSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("not_authenticated");
+      const ua = typeof navigator !== "undefined" ? navigator.userAgent : null;
+      const { error } = await supabase.from("consent_log").insert({
+        user_id: session.user.id,
+        consent_type: "ai_processing",
+        granted: next,
+        policy_version: "1.0",
+        user_agent: ua,
+        withdrawn_at: next ? null : new Date().toISOString(),
+        context: { source: "profile_privacy_toggle", explicit: true },
+      });
+      if (error) throw error;
+      setGranted(next);
+      toast({
+        title: next ? "AI processing enabled" : "AI processing withdrawn",
+        description: next
+          ? "Vyana can now process your health content with AI."
+          : "Future AI processing has been stopped. The rest of the app keeps working.",
+      });
+    } catch {
+      toast({ title: "Could not update consent", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="flex items-start justify-between py-3.5 border-b border-border gap-4">
+      <div className="flex items-start gap-3 flex-1 min-w-0">
+        <Sparkles className="h-5 w-5 text-muted-foreground mt-0.5" />
+        <div className="text-left">
+          <p className="text-[15px] font-medium text-foreground">AI processing consent</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Allow Vyana to send your health content to AI providers (Google Gemini, OpenAI) for briefings, summaries, and document understanding. You can withdraw anytime.
+          </p>
+        </div>
+      </div>
+      <Switch
+        checked={granted}
+        disabled={loading || saving}
+        onCheckedChange={handleToggle}
+        aria-label="AI processing consent"
+      />
+    </div>
+  );
+};
+
 
 const PatientProfileEdit = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -549,6 +624,12 @@ const PatientProfileEdit = () => {
         ))}
       </section>
 
+      {/* Privacy & Security */}
+      <section className="px-5 pt-6">
+        <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">Privacy & security</p>
+        <AiConsentToggle />
+      </section>
+
       {/* Privacy & Data Rights (DPDPA 2023) */}
       <section className="px-5 pt-6">
         <p className="text-[11px] font-medium tracking-widest uppercase text-muted-foreground mb-2">Your data rights</p>
@@ -618,8 +699,6 @@ const PatientProfileEdit = () => {
         <p className="text-[11px] text-muted-foreground mt-1">{t("prof.ver")} 1.0.0</p>
         <div className="flex items-center justify-center gap-6 mt-4">
           {[
-            { icon: Lock, label: t("prof.footer.privacy"), path: "/legal#privacy" as string | null, onClick: undefined as undefined | (() => void) },
-            { icon: FileText, label: t("prof.footer.terms"), path: "/legal" as string | null, onClick: undefined as undefined | (() => void) },
             { icon: Star, label: t("prof.footer.rate"), path: null as string | null, onClick: handleRateApp },
           ].map((item, i) => (
             <div key={i} className="flex flex-col items-center gap-1.5 cursor-pointer" onClick={() => { if (item.onClick) item.onClick(); else if (item.path) navigate(item.path); }}>
