@@ -237,11 +237,13 @@ const Welcome = () => {
 
           <div className="rounded-xl border border-border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
             <div className="flex items-start gap-3">
-              <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <div className="shrink-0 mt-0.5">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
               <div className="flex-1 min-w-0">
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="ai" className="border-0">
-                    <AccordionTrigger className="py-0 text-sm font-medium text-foreground leading-snug hover:no-underline [&>svg]:ml-2">
+                    <AccordionTrigger className="py-0 text-sm font-medium text-foreground leading-snug hover:no-underline text-left items-start [&>svg]:ml-2">
                       I consent to processing by services below
                     </AccordionTrigger>
                     <AccordionContent className="pb-0 pt-3">
