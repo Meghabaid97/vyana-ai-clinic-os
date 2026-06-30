@@ -288,47 +288,6 @@ const Welcome = () => {
         </div>
       </div>
 
-      <Dialog open={servicesOpen} onOpenChange={setServicesOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>AI services Vyana uses</DialogTitle>
-            <DialogDescription>
-              To generate briefings, interpret prescriptions, score risks, and analyze
-              trends, Vyana sends the specific health content you choose to process
-              (uploaded documents, vitals, medications, symptoms, voice notes) over
-              encrypted connections via the Lovable AI Gateway. Your name, email, phone,
-              ABHA ID, and account identifiers are never sent. Providers do not retain
-              the data for training. You can withdraw this any time from Settings. The rest of
-              the app keeps working.
-            </DialogDescription>
-          </DialogHeader>
-          <ul className="space-y-3 text-sm">
-            <li className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="font-medium text-foreground">Google LLC - Gemini</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Document understanding, briefings, risk scoring, trend analysis.
-              </p>
-            </li>
-            <li className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="font-medium text-foreground">OpenAI, L.L.C. - GPT</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Prescription interpretation, clinical reasoning, summaries.
-              </p>
-            </li>
-            <li className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="font-medium text-foreground">OpenAI, L.L.C. - Whisper</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Voice note transcription (only when you record one).
-              </p>
-            </li>
-          </ul>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            None of these providers receive your name, email, phone, ABHA ID, or account
-            identifiers, and none retain your data for model training. Details in the{" "}
-            <LegalLink section="privacy">Privacy Policy</LegalLink>, Section 7.
-          </p>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
