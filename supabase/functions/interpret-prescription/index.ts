@@ -237,8 +237,9 @@ Extract all medications with dosage, frequency, duration, and instructions. Hand
 
     result.disclaimer = "AI-interpreted prescription. Always verify with the prescribing doctor before use.";
 
+    await aiCachePut('interpret-prescription', cacheKey, result);
     return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-AI-Cache": "MISS" },
     });
   } catch (error) {
     console.error("Error in interpret-prescription:", error);
