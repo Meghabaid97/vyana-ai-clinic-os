@@ -194,7 +194,7 @@ const Welcome = () => {
           <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 text-primary mb-3">
             <Heart className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif text-foreground">AI Features & Privacy Consent</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif text-foreground">A few quick confirmations</h1>
           <p className="text-sm text-muted-foreground mt-2">
             Two final checks before we store any health information.
           </p>
