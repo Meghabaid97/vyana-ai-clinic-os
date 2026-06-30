@@ -6,7 +6,7 @@ import { ArrowRight, Upload, UserCog, X, UserCircle2 } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
 import TrustReassuranceStrip from "@/components/dashboard/TrustReassuranceStrip";
-import MoodCheckIn from "@/components/dashboard/MoodCheckIn";
+import DashboardMoodPill from "@/components/dashboard/DashboardMoodPill";
 import ContextualNudgeCard from "@/components/dashboard/ContextualNudgeCard";
 import FamilyViralityCard from "@/components/dashboard/FamilyViralityCard";
 
@@ -303,7 +303,7 @@ const AppHome = () => {
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:mt-5 lg:auto-rows-min">
         {/* Daily mood check-in — one-tap, sits right under the briefing */}
         <div className="lg:col-span-6">
-          <MoodCheckIn />
+          <DashboardMoodPill patientId={profile?.id ?? null} patientName={profile?.name} />
           <ContextualNudgeCard patientId={profile?.id ?? null} city={profile?.city ?? null} />
           <FamilyViralityCard recordCount={totalRecords} />
         </div>

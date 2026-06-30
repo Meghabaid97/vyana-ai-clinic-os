@@ -4,12 +4,9 @@ import { Capacitor } from "@capacitor/core";
 import App from "./App.tsx";
 import { supabase } from "@/integrations/supabase/client";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
-// Calm Clinical typography: Plus Jakarta Sans everywhere
-import "@fontsource/plus-jakarta-sans/400.css";
-import "@fontsource/plus-jakarta-sans/500.css";
-import "@fontsource/plus-jakarta-sans/600.css";
-import "@fontsource/plus-jakarta-sans/700.css";
-import "@fontsource/plus-jakarta-sans/800.css";
+// Instrument Serif + Inter are loaded once via <link> in index.html.
+// Don't re-import @fontsource/instrument-serif here — it ships the same
+// font files a second time and blocks first paint.
 import "./index.css";
 
 if (Capacitor.isNativePlatform()) {
