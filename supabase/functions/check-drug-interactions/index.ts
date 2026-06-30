@@ -57,6 +57,9 @@ serve(async (req) => {
     }
     userId = user.id;
 
+    const _consentBlock = await requireAiConsent(user.id);
+    if (_consentBlock) return finish(_consentBlock);
+
     try {
       await checkRateLimit(user.id, fnName, 50);
     } catch (e) {
