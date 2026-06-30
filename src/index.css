@@ -2,13 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Vyana — Pastel Mood era: cream canvas, rose primary, lavender + peach accents */
+/* Vyana — Calm Clinical: lavender-tinted canvas, deep-navy ink, pastel functional cards */
 
 @layer base {
   :root {
-    /* Typography — rounded modern */
-    --font-heading: 'Outfit', ui-sans-serif, system-ui, sans-serif;
-    --font-body: 'DM Sans', ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    /* Typography — clean modern sans */
+    --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Plus Jakarta Sans', ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 
     /* Motion */
     --duration-instant: 100ms;
@@ -20,58 +20,58 @@
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
 
-    /* Canvas — warm cream #FDF2EC */
-    --background: 24 73% 95%;
-    --foreground: 0 0% 10%;            /* near-black ink #1A1A1A */
+    /* Canvas — ultra-soft lavender off-white #F4F5FA */
+    --background: 230 27% 97%;
+    --foreground: 227 28% 16%;          /* deep charcoal navy #1E2235 */
 
-    /* Cards lift to pure white for the candy-card feel */
+    /* Cards — pure white, no border, soft pastel shadow */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 227 28% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 227 28% 16%;
 
-    /* Primary — rose for CTAs (deeper than #FFD4E5 for contrast) */
-    --primary: 340 78% 68%;
+    /* Primary — soft coral #F3C0B6 lifted slightly for CTA contrast */
+    --primary: 8 75% 70%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary — lavender pastel #E0D4FF */
-    --secondary: 254 100% 92%;
-    --secondary-foreground: 260 35% 22%;
+    /* Secondary — periwinkle #C8D1F7 */
+    --secondary: 227 80% 88%;
+    --secondary-foreground: 227 45% 25%;
 
-    /* Accent — peach pastel #FFC4A3 */
-    --accent: 20 100% 82%;
-    --accent-foreground: 18 60% 22%;
+    /* Accent — lilac #EBE6FF */
+    --accent: 252 100% 95%;
+    --accent-foreground: 260 40% 30%;
 
-    --muted: 24 60% 92%;
-    --muted-foreground: 0 0% 38%;
+    --muted: 230 25% 94%;
+    --muted-foreground: 227 15% 42%;
 
     --destructive: 0 72% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 24 40% 88%;
-    --input: 24 40% 88%;
-    --ring: 340 78% 68%;
+    --border: 230 25% 90%;
+    --input: 230 25% 90%;
+    --ring: 8 75% 70%;
 
-    /* Chunky, friendly corners */
-    --radius: 1.25rem;
+    /* Calm Clinical: 24px corners on cards (1.5rem) */
+    --radius: 1.5rem;
 
-    /* Dark surface — deep plum for editorial sections */
-    --surface-dark: 260 28% 14%;
-    --surface-dark-foreground: 24 73% 96%;
-    --surface-dark-muted: 24 30% 75%;
-    --surface-dark-border: 260 20% 30%;
+    /* Dark dock — floating bottom navigation */
+    --surface-dark: 227 30% 15%;
+    --surface-dark-foreground: 230 27% 97%;
+    --surface-dark-muted: 230 20% 70%;
+    --surface-dark-border: 227 20% 28%;
 
-    --sidebar-background: 24 73% 95%;
-    --sidebar-foreground: 0 0% 10%;
-    --sidebar-primary: 340 78% 68%;
+    --sidebar-background: 230 27% 97%;
+    --sidebar-foreground: 227 28% 16%;
+    --sidebar-primary: 8 75% 70%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 254 100% 92%;
-    --sidebar-accent-foreground: 260 35% 22%;
-    --sidebar-border: 24 40% 88%;
-    --sidebar-ring: 340 78% 68%;
+    --sidebar-accent: 252 100% 95%;
+    --sidebar-accent-foreground: 260 40% 30%;
+    --sidebar-border: 230 25% 90%;
+    --sidebar-ring: 8 75% 70%;
 
-    /* Clinical status — keep readable, tuned to pastel canvas */
+    /* Clinical status */
     --status-normal: 152 50% 42%;
     --status-watch:  35 90% 50%;
     --status-high:   0 72% 60%;
@@ -79,42 +79,42 @@
   }
 
   .dark {
-    --background: 260 22% 10%;
-    --foreground: 24 40% 95%;
+    --background: 227 30% 10%;
+    --foreground: 230 27% 97%;
 
-    --card: 260 20% 14%;
-    --card-foreground: 24 40% 95%;
+    --card: 227 25% 14%;
+    --card-foreground: 230 27% 97%;
 
-    --popover: 260 20% 14%;
-    --popover-foreground: 24 40% 95%;
+    --popover: 227 25% 14%;
+    --popover-foreground: 230 27% 97%;
 
-    --primary: 340 78% 72%;
+    --primary: 8 75% 72%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 254 30% 22%;
-    --secondary-foreground: 24 40% 95%;
+    --secondary: 227 30% 22%;
+    --secondary-foreground: 230 27% 95%;
 
-    --accent: 20 60% 30%;
-    --accent-foreground: 24 40% 95%;
+    --accent: 252 30% 25%;
+    --accent-foreground: 230 27% 95%;
 
-    --muted: 260 15% 18%;
-    --muted-foreground: 24 20% 72%;
+    --muted: 227 20% 18%;
+    --muted-foreground: 230 15% 72%;
 
     --destructive: 0 63% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 260 15% 22%;
-    --input: 260 15% 22%;
-    --ring: 340 78% 72%;
+    --border: 227 20% 22%;
+    --input: 227 20% 22%;
+    --ring: 8 75% 72%;
 
-    --sidebar-background: 260 22% 10%;
-    --sidebar-foreground: 24 40% 95%;
-    --sidebar-primary: 340 78% 72%;
+    --sidebar-background: 227 30% 10%;
+    --sidebar-foreground: 230 27% 97%;
+    --sidebar-primary: 8 75% 72%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 254 30% 22%;
-    --sidebar-accent-foreground: 24 40% 95%;
-    --sidebar-border: 260 15% 22%;
-    --sidebar-ring: 340 78% 72%;
+    --sidebar-accent: 252 30% 25%;
+    --sidebar-accent-foreground: 230 27% 95%;
+    --sidebar-border: 227 20% 22%;
+    --sidebar-ring: 8 75% 72%;
   }
 }
 
@@ -122,40 +122,60 @@
   * {
     @apply border-border;
   }
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
   html, body, #root {
     min-height: 100%;
-    /* Prevent any rogue child from horizontally shifting the whole viewport */
     max-width: 100vw;
     overflow-x: hidden;
   }
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
-    font-feature-settings: "ss01", "cv11";
   }
-  /* Pastel era: drop the film grain — clean canvas suits the candy cards */
   body::after { content: none; }
 }
 
 @layer utilities {
-  /* Pastel surface helpers — soft tinted cards à la mood-gradient inspo */
-  .surface-blush   { background-color: hsl(340 100% 94%); color: hsl(340 40% 25%); }
-  .surface-lavender{ background-color: hsl(254 100% 92%); color: hsl(260 40% 25%); }
-  .surface-peach   { background-color: hsl(20 100% 88%);  color: hsl(18 50% 22%); }
-  .surface-mint    { background-color: hsl(152 55% 88%);  color: hsl(152 40% 20%); }
-  .surface-butter  { background-color: hsl(45 100% 88%);  color: hsl(35 50% 22%); }
-  .surface-sky     { background-color: hsl(200 90% 90%);  color: hsl(210 50% 22%); }
-  /* Soft pastel shadow for the lifted-candy-card feel */
-  .shadow-pastel {
-    box-shadow: 0 6px 20px -8px hsl(340 50% 60% / 0.18), 0 2px 6px -2px hsl(0 0% 0% / 0.04);
+  /* Calm Clinical functional pastel surfaces — borderless, 24px radius cards */
+  .surface-periwinkle { background-color: #D6E0FF; color: hsl(227 45% 22%); }
+  .surface-sky        { background-color: #C8D1F7; color: hsl(227 45% 22%); }
+  .surface-mint       { background-color: #E1F2E5; color: hsl(152 40% 18%); }
+  .surface-sage       { background-color: #BCE8E4; color: hsl(178 40% 18%); }
+  .surface-coral      { background-color: #F9DBDB; color: hsl(8 45% 25%); }
+  .surface-terracotta { background-color: #F3C0B6; color: hsl(8 50% 22%); }
+  .surface-lilac      { background-color: #EBE6FF; color: hsl(260 40% 25%); }
+  .surface-butter     { background-color: #FBEFC8; color: hsl(40 55% 22%); }
+
+  /* The flagship card primitive — 24px radius, no border, soft shadow */
+  .calm-card {
+    border-radius: 1.5rem;
+    border: 0;
+    box-shadow: 0 4px 16px -8px hsl(227 30% 30% / 0.08), 0 1px 3px hsl(227 30% 30% / 0.04);
+    background-color: hsl(var(--card));
   }
-  /* Editorial serif, for headers, big numbers, narrative accents */
+
+  /* Pill-shaped icon button inside cards (Like2.jpeg micro-interaction) */
+  .pill-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.25rem;
+    min-width: 2.25rem;
+    padding: 0 0.75rem;
+    border-radius: 9999px;
+    background-color: hsl(0 0% 100% / 0.7);
+    color: hsl(var(--foreground));
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+  .pill-icon-btn:hover { background-color: hsl(0 0% 100% / 0.95); }
+
+  .shadow-pastel {
+    box-shadow: 0 6px 20px -8px hsl(227 30% 30% / 0.12), 0 2px 6px -2px hsl(0 0% 0% / 0.04);
+  }
   .font-display {
     font-family: var(--font-heading);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
   .font-numeral {
     font-family: var(--font-heading);
