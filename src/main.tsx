@@ -4,9 +4,14 @@ import { Capacitor } from "@capacitor/core";
 import App from "./App.tsx";
 import { supabase } from "@/integrations/supabase/client";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
-// Instrument Serif + Inter are loaded once via <link> in index.html.
-// Don't re-import @fontsource/instrument-serif here — it ships the same
-// font files a second time and blocks first paint.
+// Pastel-era typography: Outfit (display) + DM Sans (body)
+import "@fontsource/outfit/400.css";
+import "@fontsource/outfit/500.css";
+import "@fontsource/outfit/600.css";
+import "@fontsource/outfit/700.css";
+import "@fontsource/dm-sans/400.css";
+import "@fontsource/dm-sans/500.css";
+import "@fontsource/dm-sans/700.css";
 import "./index.css";
 
 if (Capacitor.isNativePlatform()) {
