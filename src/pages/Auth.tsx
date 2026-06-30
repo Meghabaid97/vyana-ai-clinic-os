@@ -644,9 +644,9 @@ const Auth = () => {
 
         <p className="pt-4 text-[11px] text-muted-foreground text-center leading-relaxed">
           By continuing you agree to our{" "}
-          <LegalLink section="terms" className="text-primary hover:underline">Terms</LegalLink>{" "}
-          and{" "}
-          <LegalLink section="privacy" className="text-primary hover:underline">Privacy Policy</LegalLink>.
+          <LegalLink section="terms" className="text-primary hover:underline">Terms</LegalLink>,{" "}
+          <LegalLink section="privacy" className="text-primary hover:underline">Privacy Policy</LegalLink>, and
+          consent to processing of your health data under India&apos;s DPDPA, 2023.
         </p>
       </div>
 

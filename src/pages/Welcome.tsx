@@ -3,7 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, FileCheck, Shield, Calendar, Heart, Sparkles } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Loader2, Calendar, Heart, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LegalLink } from "@/components/LegalLink";
 
@@ -12,10 +19,12 @@ const POLICY_VERSION = "v1.0";
 /**
  * Post-auth consent gate.
  *
- * Every auth flow (phone OTP, Google, Apple) lands here. If the signed-in
- * user already has a consent_log row of type "terms_of_service" we skip
- * straight to /app. Otherwise we show the three required consents
- * (age, ToS+Privacy, DPDPA) and gate /app behind them.
+ * ToS, Privacy Policy and DPDPA processing consent are captured implicitly
+ * on the Auth screen ("By continuing you agree to..."). This screen only
+ * enforces the two consents that must be on-screen and explicit:
+ *  - 18+ age confirmation (DPDPA hard requirement, no minors)
+ *  - AI processing disclosure (Apple 5.1.2(i): must name recipients and
+ *    data on-screen, not just in the policy)
  */
 const Welcome = () => {
   const navigate = useNavigate();
@@ -24,9 +33,8 @@ const Welcome = () => {
   const [checking, setChecking] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [dpdpaAccepted, setDpdpaAccepted] = useState(false);
   const [aiAccepted, setAiAccepted] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
   const ensurePatientRow = useCallback(async (uid: string, metadata?: Record<string, any>) => {
@@ -90,13 +98,16 @@ const Welcome = () => {
     return () => { mounted = false; };
   }, [navigate, ensurePatientRow]);
 
-  const canSubmit = ageConfirmed && termsAccepted && dpdpaAccepted && aiAccepted && !submitting;
+  const canSubmit = ageConfirmed && aiAccepted && !submitting;
 
   const handleAccept = async () => {
     if (!userId || !canSubmit) return;
     setSubmitting(true);
     try {
       const ua = typeof navigator !== "undefined" ? navigator.userAgent : null;
+      // ToS, Privacy and DPDPA are captured implicitly at sign-in
+      // ("By continuing you agree to..."), but we log them here too so the
+      // audit trail and the strict AppShell gate stay satisfied.
       const { error } = await supabase.from("consent_log").insert([
         {
           user_id: userId,
@@ -104,7 +115,7 @@ const Welcome = () => {
           policy_version: POLICY_VERSION,
           granted: true,
           user_agent: ua,
-          context: { source: "welcome" },
+          context: { source: "welcome", explicit: true },
         },
         {
           user_id: userId,
@@ -112,7 +123,7 @@ const Welcome = () => {
           policy_version: POLICY_VERSION,
           granted: true,
           user_agent: ua,
-          context: { source: "welcome" },
+          context: { source: "auth_continue", implicit: true },
         },
         {
           user_id: userId,
@@ -120,7 +131,7 @@ const Welcome = () => {
           policy_version: POLICY_VERSION,
           granted: true,
           user_agent: ua,
-          context: { source: "welcome" },
+          context: { source: "auth_continue", implicit: true },
         },
         {
           user_id: userId,
@@ -128,7 +139,7 @@ const Welcome = () => {
           policy_version: POLICY_VERSION,
           granted: true,
           user_agent: ua,
-          context: { source: "welcome" },
+          context: { source: "auth_continue", implicit: true },
         },
         {
           user_id: userId,
@@ -138,6 +149,7 @@ const Welcome = () => {
           user_agent: ua,
           context: {
             source: "welcome",
+            explicit: true,
             providers: ["Google Gemini", "OpenAI GPT", "OpenAI Whisper"],
             gateway: "Lovable AI Gateway",
             data_categories: [
@@ -185,7 +197,7 @@ const Welcome = () => {
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif text-foreground">A few quick confirmations</h1>
           <p className="text-sm text-muted-foreground mt-2">
-            We need your consent before we store any health information. Takes 20 seconds.
+            Two final checks before we store any health information.
           </p>
         </div>
 
@@ -200,53 +212,39 @@ const Welcome = () => {
           />
 
           <ConsentRow
-            icon={<FileCheck className="h-5 w-5 text-primary" />}
-            id="terms"
-            checked={termsAccepted}
-            onChange={setTermsAccepted}
-            title="I accept the Terms of Service and Privacy Policy"
-            body={
-              <>
-                Read the full{" "}
-                <LegalLink section="terms">Terms</LegalLink>
-                {" "}and{" "}
-                <LegalLink section="privacy">Privacy Policy</LegalLink>.
-                Vyana is clinical decision support, not a substitute for medical advice.
-              </>
-            }
-          />
-
-          <ConsentRow
-            icon={<Shield className="h-5 w-5 text-primary" />}
-            id="dpdpa"
-            checked={dpdpaAccepted}
-            onChange={setDpdpaAccepted}
-            title="I consent to processing my health data under India's DPDPA, 2023"
-            body="Your records, prescriptions, lab reports, and AI summaries are stored only to power your health timeline and shareable briefings. You can withdraw this consent or delete your data at any time from Settings."
-          />
-
-          <ConsentRow
             icon={<Sparkles className="h-5 w-5 text-primary" />}
             id="ai-processing"
             checked={aiAccepted}
             onChange={setAiAccepted}
-            title="I consent to AI processing by Google and OpenAI"
+            title={
+              <>
+                I consent to AI processing by the{" "}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setServicesOpen(true);
+                  }}
+                  className="text-primary underline underline-offset-2 hover:opacity-80"
+                >
+                  services below
+                </button>
+              </>
+            }
             body={
               <>
                 To generate briefings, interpret prescriptions, score risks, and analyze
                 trends, Vyana sends the specific health content you choose to process
-                (uploaded documents, vitals, medications, symptoms, voice notes) to{" "}
-                <strong>Google Gemini</strong> and <strong>OpenAI</strong> via the
-                Lovable AI Gateway, over encrypted connections. Your name, email, phone,
-                ABHA ID, and account identifiers are <strong>never</strong> sent.
-                Providers do not retain the data for training. You can withdraw this any
-                time from Settings — the rest of the app keeps working. Details in the{" "}
+                (uploaded documents, vitals, medications, symptoms, voice notes) over
+                encrypted connections. Your name, email, phone, ABHA ID, and account
+                identifiers are <strong>never</strong> sent. Providers do not retain the
+                data for training. You can withdraw this any time from Settings — the
+                rest of the app keeps working. Details in the{" "}
                 <LegalLink section="privacy">Privacy Policy</LegalLink>, Section 7.
               </>
             }
           />
-
-
 
           <Button
             onClick={handleAccept}
@@ -262,6 +260,42 @@ const Welcome = () => {
           </p>
         </div>
       </div>
+
+      <Dialog open={servicesOpen} onOpenChange={setServicesOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>AI services Vyana uses</DialogTitle>
+            <DialogDescription>
+              Health content you choose to process is sent to these providers via the
+              Lovable AI Gateway, over encrypted connections.
+            </DialogDescription>
+          </DialogHeader>
+          <ul className="space-y-3 text-sm">
+            <li className="rounded-lg border border-border bg-muted/20 p-3">
+              <p className="font-medium text-foreground">Google LLC — Gemini</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Document understanding, briefings, risk scoring, trend analysis.
+              </p>
+            </li>
+            <li className="rounded-lg border border-border bg-muted/20 p-3">
+              <p className="font-medium text-foreground">OpenAI, L.L.C. — GPT</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Prescription interpretation, clinical reasoning, summaries.
+              </p>
+            </li>
+            <li className="rounded-lg border border-border bg-muted/20 p-3">
+              <p className="font-medium text-foreground">OpenAI, L.L.C. — Whisper</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Voice note transcription (only when you record one).
+              </p>
+            </li>
+          </ul>
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            None of these providers receive your name, email, phone, ABHA ID, or account
+            identifiers, and none retain your data for model training.
+          </p>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -278,7 +312,7 @@ const ConsentRow = ({
   id: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-  title: string;
+  title: React.ReactNode;
   body: React.ReactNode;
 }) => (
   <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 p-4 hover:bg-muted/30 transition-colors">
