@@ -86,9 +86,10 @@ const handleOAuthCallback = async (url: string) => {
   if (wasUrlAlreadyHandled(url)) return;
   markUrlHandled(url);
 
-  try {
-    await closeInAppBrowser();
+  // Fire-and-forget close so a missing browser window can never halt the flow.
+  void closeInAppBrowser();
 
+  try {
     const parsedUrl = new URL(url);
     const hashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ""));
     const queryParams = parsedUrl.searchParams;
@@ -104,45 +105,38 @@ const handleOAuthCallback = async (url: string) => {
     }
     sessionStorage.removeItem("vyana-oauth-state");
 
-    // Give the Supabase client a tick to initialize before we touch it. On a
-    // cold native launch, the deep-link listener fires before the auth client
-    // has finished hydrating from storage; without this buffer setSession /
-    // exchangeCodeForSession can race and silently no-op.
-    await delay(400);
-
     if (accessToken && refreshToken) {
-      await supabase.auth.setSession({
+      // Redirect immediately so the user sees the app, then set the session in
+      // the background. AppShell's auth listener will pick it up.
+      void supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
       });
-      const session = await waitForSession();
-      if (session) safeRedirect("/welcome");
+      safeRedirect("/welcome");
       return;
     }
 
     if (authCode) {
-      const { error } = await supabase.auth.exchangeCodeForSession(authCode);
-      if (error) throw error;
-      const session = await waitForSession();
-      if (session) safeRedirect("/welcome");
+      void supabase.auth.exchangeCodeForSession(authCode);
+      safeRedirect("/welcome");
       return;
     }
 
-    // No tokens AND no code in the callback URL (the bare `vyana://oauth-callback/`
-    // case from the logs). The session may already have been set by the in-app
-    // browser before it closed — wait for it to settle before deciding.
-    // Do NOT bounce to /splash on miss, that re-triggers getLaunchUrl → loop.
-    const session = await waitForSession();
+    // No tokens AND no code in the callback URL. Session may already be set by
+    // the in-app browser. Wait briefly, then redirect regardless so the user
+    // never sees an endless spinner.
+    const session = await waitForSession(1500);
     if (session) {
       safeRedirect("/welcome");
+    } else {
+      safeRedirect("/auth");
     }
-    // Else: leave the user on whatever page they're on (typically /auth) and
-    // let them retry. The Auth page already has a timeout + error UI.
   } catch (error) {
     console.error("Failed to handle OAuth callback", error);
-    // Don't redirect on failure — that re-enters the loop. Surface via console.
+    safeRedirect("/auth");
   }
 };
+
 
 void CapacitorApp.addListener("appUrlOpen", ({ url }) => {
   if (!url || !isOAuthCallbackUrl(url)) return;
