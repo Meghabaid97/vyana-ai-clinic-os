@@ -12,6 +12,7 @@ import {
   FileText, Heart, Calendar, HelpCircle, BookOpen, Star,
   Lock, MapPin, Share2, KeyRound, Download, Trash2, Sparkles,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
