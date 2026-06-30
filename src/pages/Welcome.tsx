@@ -195,6 +195,9 @@ const Welcome = () => {
             <Heart className="h-6 w-6" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif text-foreground">A few quick confirmations</h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            Two final checks before we store any health information.
+          </p>
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
