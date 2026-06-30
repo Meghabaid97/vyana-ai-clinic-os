@@ -303,7 +303,7 @@ const AppHome = () => {
       <div className="lg:grid lg:grid-cols-6 lg:gap-5 lg:mt-5 lg:auto-rows-min">
         {/* Daily mood check-in — one-tap, sits right under the briefing */}
         <div className="lg:col-span-6">
-          <DashboardMoodPill patientId={profile?.id ?? null} patientName={profile?.name} />
+          <MoodCheckIn />
           <ContextualNudgeCard patientId={profile?.id ?? null} city={profile?.city ?? null} />
           <FamilyViralityCard recordCount={totalRecords} />
         </div>
