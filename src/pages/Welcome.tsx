@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,7 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Loader2, Calendar, Heart, Sparkles } from "lucide-react";
+import { Loader2, Calendar, Heart, Sparkles, ShieldAlert } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LegalLink } from "@/components/LegalLink";
 
@@ -28,6 +28,10 @@ const POLICY_VERSION = "v1.0";
  */
 const Welcome = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const consentMissingFromGate = Boolean(
+    (location.state as { consentMissing?: boolean } | null)?.consentMissing,
+  );
   const { toast } = useToast();
 
   const [checking, setChecking] = useState(true);
@@ -75,27 +79,36 @@ const Welcome = () => {
 
       const { data: consents } = await supabase
         .from("consent_log")
-        .select("consent_type")
+        .select("consent_type, granted, created_at")
         .eq("user_id", session.user.id)
-        .eq("granted", true);
+        .order("created_at", { ascending: false });
 
-      const types = new Set((consents ?? []).map((c) => c.consent_type));
-      const allGranted =
-        types.has("age_18_confirmation") &&
-        types.has("terms_of_service") &&
-        types.has("dpdpa_data_processing") &&
-        types.has("ai_processing");
+      const latest = new Map<string, boolean>();
+      for (const row of (consents ?? []) as Array<{ consent_type: string; granted: boolean }>) {
+        if (!latest.has(row.consent_type)) latest.set(row.consent_type, !!row.granted);
+      }
+      const required = [
+        "age_18_confirmation",
+        "terms_of_service",
+        "dpdpa_data_processing",
+        "ai_processing",
+      ];
+      const allGranted = required.every((t) => latest.get(t));
 
-      if (allGranted) {
+      if (allGranted && !consentMissingFromGate) {
         // Make sure a patient row exists even for users who consented previously.
         await ensurePatientRow(session.user.id, session.user.user_metadata);
         navigate("/app", { replace: true });
         return;
       }
+      // Pre-tick boxes the user has previously granted so they can just
+      // re-confirm the one that was withdrawn.
+      setAgeConfirmed(Boolean(latest.get("age_18_confirmation")));
+      setAiAccepted(Boolean(latest.get("ai_processing")));
       setChecking(false);
     })();
     return () => { mounted = false; };
-  }, [navigate, ensurePatientRow]);
+  }, [navigate, ensurePatientRow, consentMissingFromGate]);
 
   const canSubmit = ageConfirmed && aiAccepted && !submitting;
 
@@ -190,6 +203,21 @@ const Welcome = () => {
   return (
     <div className="min-h-[100svh] bg-background px-4 py-6 sm:py-12 safe-area-top safe-area-bottom">
       <div className="w-full max-w-lg mx-auto">
+        {consentMissingFromGate && (
+          <div
+            role="alert"
+            data-testid="consent-missing-banner"
+            className="mb-5 flex items-start gap-3 rounded-xl border border-amber-300/60 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 p-4"
+          >
+            <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
+            <div className="text-sm leading-snug">
+              <strong className="font-semibold">Consent required.</strong> You were
+              brought back here because one or more consents are missing or were
+              withdrawn. We cannot show Trends, Records, Briefing, or store any new
+              health information until you re-confirm below.
+            </div>
+          </div>
+        )}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 text-primary mb-3">
             <Heart className="h-6 w-6" />

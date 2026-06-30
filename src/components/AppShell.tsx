@@ -92,25 +92,26 @@ const AppShellInner = () => {
     };
 
     // Hard consent gate: even with a valid session, missing required consents
-    // forces the user back to /welcome. Cannot be bypassed by reopening the app.
+    // forces the user back to /welcome. Reads the LATEST row per consent_type
+    // so a withdrawal from Settings -> Privacy takes effect on the next launch.
     const enforceConsent = async (userId: string) => {
       if (consentCheckedForUser === userId) return;
       consentCheckedForUser = userId;
       const { data: consents, error } = await supabase
         .from("consent_log")
-        .select("consent_type")
+        .select("consent_type, granted, created_at")
         .eq("user_id", userId)
-        .eq("granted", true);
+        .order("created_at", { ascending: false });
       if (cancelled) return;
       if (error) return; // fail-open on network blip; next route check will retry
-      const types = new Set((consents ?? []).map((c) => c.consent_type));
-      const allGranted =
-        types.has("age_18_confirmation") &&
-        types.has("terms_of_service") &&
-        types.has("dpdpa_data_processing") &&
-        types.has("ai_processing");
-      if (!allGranted) {
-        navigate("/welcome", { replace: true });
+      const latest = new Map<string, boolean>();
+      for (const row of (consents ?? []) as Array<{ consent_type: string; granted: boolean }>) {
+        if (!latest.has(row.consent_type)) latest.set(row.consent_type, !!row.granted);
+      }
+      const required = ["age_18_confirmation", "terms_of_service", "dpdpa_data_processing", "ai_processing"];
+      const missing = required.filter((t) => !latest.get(t));
+      if (missing.length > 0) {
+        navigate("/welcome", { replace: true, state: { consentMissing: true, missing } });
       }
     };
 
