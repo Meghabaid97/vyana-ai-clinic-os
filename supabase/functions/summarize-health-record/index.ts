@@ -96,7 +96,7 @@ serve(async (req) => {
         `Confidence: low`,
       ].filter(Boolean).join('\n\n');
 
-      return new Response(JSON.stringify({
+      const filmOnlyPayload = {
         summary: filmOnlySummary,
         documentType: 'Radiology film/photo only',
         importantFindings: [],
@@ -113,8 +113,10 @@ serve(async (req) => {
           recommendations: [],
           provider: null,
         },
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      };
+      await aiCachePut('summarize-health-record', cacheKey, filmOnlyPayload);
+      return new Response(JSON.stringify(filmOnlyPayload), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-AI-Cache': 'MISS' },
       });
     }
 
