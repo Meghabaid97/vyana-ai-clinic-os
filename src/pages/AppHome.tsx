@@ -6,7 +6,7 @@ import { ArrowRight, Upload, UserCog, X, UserCircle2 } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
 import TrustReassuranceStrip from "@/components/dashboard/TrustReassuranceStrip";
-import DashboardMoodPill from "@/components/dashboard/DashboardMoodPill";
+import MoodCheckIn from "@/components/dashboard/MoodCheckIn";
 import ContextualNudgeCard from "@/components/dashboard/ContextualNudgeCard";
 import FamilyViralityCard from "@/components/dashboard/FamilyViralityCard";
 
