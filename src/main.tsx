@@ -15,6 +15,9 @@ if (Capacitor.isNativePlatform()) {
 
 const OAUTH_CALLBACK_HOST = "oauth-callback";
 const NATIVE_OAUTH_PROTOCOLS = new Set(["vyana:"]);
+const NATIVE_BROWSER_OPEN_KEY = "vyana-native-oauth-browser-open";
+const OAUTH_ERROR_KEY = "vyana-oauth-error";
+const OAUTH_FAILED_EVENT = "vyana-oauth-failed";
 
 const isOAuthCallbackUrl = (url: string) => {
   try {
@@ -26,11 +29,51 @@ const isOAuthCallbackUrl = (url: string) => {
 };
 
 const closeInAppBrowser = async () => {
+  if (!Capacitor.isNativePlatform()) return;
+
+  try {
+    if (sessionStorage.getItem(NATIVE_BROWSER_OPEN_KEY) !== "1") return;
+    sessionStorage.removeItem(NATIVE_BROWSER_OPEN_KEY);
+  } catch {
+    // If storage is unavailable, do not risk calling close on a missing window.
+    return;
+  }
+
   try {
     await NativeBrowser.close();
   } catch {
-    // Browser plugin not available — ignore.
+    // Browser plugin not available or no active SafariViewController — ignore.
   }
+};
+
+const notifyOAuthFailure = (message: string) => {
+  try {
+    sessionStorage.setItem(OAUTH_ERROR_KEY, message);
+  } catch {
+    // Ignore storage errors.
+  }
+  window.dispatchEvent(new CustomEvent(OAUTH_FAILED_EVENT, { detail: { message } }));
+};
+
+const parseCallbackParams = (parsedUrl: URL) => {
+  const directHashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ""));
+  const directQueryParams = parsedUrl.searchParams;
+  const payloadParams = new URLSearchParams();
+  const payload = directQueryParams.get("payload");
+
+  if (payload) {
+    const trimmed = payload.trim();
+    const hashIndex = trimmed.indexOf("#");
+    const queryPart = (hashIndex >= 0 ? trimmed.slice(0, hashIndex) : trimmed).replace(/^\?/, "");
+    const hashPart = hashIndex >= 0 ? trimmed.slice(hashIndex + 1) : trimmed.replace(/^#/, "");
+
+    new URLSearchParams(queryPart).forEach((value, key) => payloadParams.set(key, value));
+    new URLSearchParams(hashPart).forEach((value, key) => payloadParams.set(key, value));
+  }
+
+  return {
+    get: (key: string) => payloadParams.get(key) ?? directHashParams.get(key) ?? directQueryParams.get(key),
+  };
 };
 
 // Persist across WebView reloads so the same launch URL is never processed twice.
@@ -91,14 +134,18 @@ const handleOAuthCallback = async (url: string) => {
 
   try {
     const parsedUrl = new URL(url);
-    const hashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ""));
-    const queryParams = parsedUrl.searchParams;
+    const params = parseCallbackParams(parsedUrl);
 
-    const accessToken = hashParams.get("access_token") ?? queryParams.get("access_token");
-    const refreshToken = hashParams.get("refresh_token") ?? queryParams.get("refresh_token");
-    const authCode = queryParams.get("code") ?? hashParams.get("code");
-    const returnedState = hashParams.get("state") ?? queryParams.get("state");
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    const authCode = params.get("code");
+    const returnedState = params.get("state");
+    const callbackError = params.get("error_description") ?? params.get("error");
     const expectedState = sessionStorage.getItem("vyana-oauth-state");
+
+    if (callbackError) {
+      throw new Error(callbackError);
+    }
 
     if (expectedState && returnedState && returnedState !== expectedState) {
       throw new Error("OAuth state mismatch");
@@ -106,9 +153,9 @@ const handleOAuthCallback = async (url: string) => {
     sessionStorage.removeItem("vyana-oauth-state");
 
     if (accessToken && refreshToken) {
-      // Redirect immediately so the user sees the app, then set the session in
-      // the background. AppShell's auth listener will pick it up.
-      void supabase.auth.setSession({
+      // Set the session before redirecting. If we redirect first, the WebView
+      // reload can interrupt token persistence and leave the user spinning.
+      await supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
       });
@@ -117,7 +164,7 @@ const handleOAuthCallback = async (url: string) => {
     }
 
     if (authCode) {
-      void supabase.auth.exchangeCodeForSession(authCode);
+      await supabase.auth.exchangeCodeForSession(authCode);
       safeRedirect("/welcome");
       return;
     }
@@ -129,10 +176,12 @@ const handleOAuthCallback = async (url: string) => {
     if (session) {
       safeRedirect("/welcome");
     } else {
+      notifyOAuthFailure("Google sign-in did not return a session. Please try again.");
       safeRedirect("/auth");
     }
   } catch (error) {
     console.error("Failed to handle OAuth callback", error);
+    notifyOAuthFailure("Google sign-in could not be completed. Please try again.");
     safeRedirect("/auth");
   }
 };
