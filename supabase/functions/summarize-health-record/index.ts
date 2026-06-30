@@ -64,6 +64,26 @@ serve(async (req) => {
 
     console.log('Summarizing health record:', fileName, fileType);
 
+    // Cache lookup — keyed only by content + extraction-affecting inputs,
+    // so re-uploads / regenerations of the same file are free.
+    const cacheKey = await aiCacheKey({
+      fn: 'summarize-health-record',
+      v: 1,
+      fileType,
+      category: category ?? null,
+      radiologyModality: radiologyModality ?? null,
+      radiologyUploadKind: radiologyUploadKind ?? null,
+      userNotes: trimmedNotes,
+      fileContent: fileContent ?? null,
+    });
+    const cached = await aiCacheGet(cacheKey ? 'summarize-health-record' : '', cacheKey);
+    if (cached) {
+      console.log('[ai-cache] HIT summarize-health-record', cacheKey.slice(0, 12));
+      return new Response(JSON.stringify(cached), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-AI-Cache': 'HIT' },
+      });
+    }
+
     const isRadiology = category === 'radiology_imaging' || /\b(x[-\s]?ray|ct|mri|ultrasound|sonography|radiology|imaging|scan)\b/i.test(fileName || '');
 
     const isFilmOnlyRadiology = isRadiology && radiologyUploadKind === 'film_only';
