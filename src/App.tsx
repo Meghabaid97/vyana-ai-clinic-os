@@ -33,6 +33,7 @@ const HealthTrends = lazy(() => import("./pages/HealthTrends"));
 
 const PatientHealthRecords = lazy(() => import("./pages/PatientHealthRecords"));
 const PatientProfileEdit = lazy(() => import("./pages/PatientProfileEdit"));
+const PrivacySettings = lazy(() => import("./pages/PrivacySettings"));
 const PatientBriefing = lazy(() => import("./pages/PatientBriefing"));
 const DoctorVisitMode = lazy(() => import("./pages/DoctorVisitMode"));
 
@@ -108,6 +109,7 @@ const App = () => (
               <Route path="records" element={<PatientHealthRecords />} />
               <Route path="story" element={<WhyVyana />} />
               <Route path="profile" element={<PatientProfileEdit />} />
+              <Route path="privacy" element={<PrivacySettings />} />
               <Route path="timeline" element={<PatientTimeline />} />
               <Route path="vaccinations" element={<Vaccinations />} />
               <Route path="medications" element={<MedicationReminders />} />
