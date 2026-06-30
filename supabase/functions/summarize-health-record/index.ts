@@ -76,7 +76,7 @@ serve(async (req) => {
       userNotes: trimmedNotes,
       fileContent: fileContent ?? null,
     });
-    const cached = await aiCacheGet(cacheKey ? 'summarize-health-record' : '', cacheKey);
+    const cached = await aiCacheGet('summarize-health-record', cacheKey);
     if (cached) {
       console.log('[ai-cache] HIT summarize-health-record', cacheKey.slice(0, 12));
       return new Response(JSON.stringify(cached), {
