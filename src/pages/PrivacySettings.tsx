@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Loader2, Sparkles, ShieldCheck } from "lucide-react";
 import { LegalLink } from "@/components/LegalLink";
 
 const POLICY_VERSION = "v1.0";
