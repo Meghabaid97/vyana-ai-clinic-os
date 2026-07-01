@@ -264,18 +264,20 @@ const AppShellInner = () => {
             <HouseholdSwitcher variant="desktop" />
             <HeaderLocationSelector pincode={location_.pincode} city={location_.city} onLocationChange={handleLocationChange} />
             <LanguageSelector />
-            <button
-              onClick={() => vtNavigate("/app/upgrade")}
-              className={cn(
-                "inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[13px] font-semibold transition-opacity",
-                is_pro
-                  ? "bg-primary/10 text-primary hover:bg-primary/20"
-                  : "bg-primary text-primary-foreground hover:opacity-90"
-              )}
-            >
-              <Sparkles className="h-4 w-4" />
-              {is_pro ? "Pro" : "Upgrade to Pro"}
-            </button>
+            {!HIDE_PAID_UI && (
+              <button
+                onClick={() => vtNavigate("/app/upgrade")}
+                className={cn(
+                  "inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[13px] font-semibold transition-opacity",
+                  is_pro
+                    ? "bg-primary/10 text-primary hover:bg-primary/20"
+                    : "bg-primary text-primary-foreground hover:opacity-90"
+                )}
+              >
+                <Sparkles className="h-4 w-4" />
+                {is_pro ? "Pro" : "Upgrade to Pro"}
+              </button>
+            )}
             <button
               onClick={() => setTourOpen(true)}
               aria-label="Take the tour"
