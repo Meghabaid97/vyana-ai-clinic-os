@@ -42,6 +42,9 @@ export default function Billing() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
+  // Apple 3.1.1 — no purchase surface on native.
+  if (HIDE_PAID_UI) return <Navigate to="/app" replace />;
+
   const load = async () => {
     setLoading(true);
     setErr(null);
