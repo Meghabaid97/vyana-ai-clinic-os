@@ -219,19 +219,21 @@ const AppShellInner = () => {
           {/* RIGHT — compact icon cluster (iOS 24pt standard) */}
           <div className="flex items-center gap-0.5 shrink-0">
             <HouseholdSwitcher variant="mobile" />
-            <button
-              onClick={() => vtNavigate("/app/upgrade")}
-              aria-label={is_pro ? "Pro plan active" : "Upgrade to Pro"}
-              className={cn(
-                "inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-[12px] font-semibold transition-colors",
-                is_pro
-                  ? "bg-primary/10 text-primary active:bg-primary/20"
-                  : "bg-primary text-primary-foreground active:opacity-90"
-              )}
-            >
-              <Sparkles className="h-[14px] w-[14px]" />
-              {is_pro ? "Pro" : "Upgrade"}
-            </button>
+            {!HIDE_PAID_UI && (
+              <button
+                onClick={() => vtNavigate("/app/upgrade")}
+                aria-label={is_pro ? "Pro plan active" : "Upgrade to Pro"}
+                className={cn(
+                  "inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-[12px] font-semibold transition-colors",
+                  is_pro
+                    ? "bg-primary/10 text-primary active:bg-primary/20"
+                    : "bg-primary text-primary-foreground active:opacity-90"
+                )}
+              >
+                <Sparkles className="h-[14px] w-[14px]" />
+                {is_pro ? "Pro" : "Upgrade"}
+              </button>
+            )}
             <button
               onClick={() => setTourOpen(true)}
               aria-label="Take the tour"
