@@ -233,6 +233,10 @@ function SwitchPlanDialog({ ent, onChanged }: { ent: ReturnType<typeof useEntitl
 }
 
 export default function Upgrade() {
+  // Apple 3.1.1 — the native app must never surface a purchase or an external
+  // "manage subscription" affordance. Redirect to home on iOS/Android.
+  if (HIDE_PAID_UI) return <Navigate to="/app" replace />;
+
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const ent = useEntitlements();
   const isNative = Capacitor.isNativePlatform();
