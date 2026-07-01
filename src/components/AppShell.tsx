@@ -11,6 +11,10 @@ import { ActivePatientProvider, useActivePatient } from "@/contexts/ActivePatien
 import HouseholdSwitcher from "@/components/HouseholdSwitcher";
 import PastDueBanner from "@/components/PastDueBanner";
 import { useEntitlements } from "@/hooks/useEntitlements";
+import { Capacitor } from "@capacitor/core";
+
+// Apple 3.1.1: no purchase surface on native builds.
+const HIDE_PAID_UI = typeof window !== "undefined" && Capacitor.isNativePlatform();
 
 const LanguageSelector = lazy(() => import("@/components/LanguageSelector"));
 const HeaderLocationSelector = lazy(() => import("@/components/HeaderLocationSelector"));
