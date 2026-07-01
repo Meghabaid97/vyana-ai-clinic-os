@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
+
+const HIDE_PAID_UI = typeof window !== "undefined" && Capacitor.isNativePlatform();
 import { Check, ShieldCheck, Sparkles, Loader2, RotateCcw, XCircle, Repeat, ReceiptText } from "lucide-react";
 import { PlanCard } from "@/components/paywall/PlanCard";
 import { NativeUpgradeNotice } from "@/components/paywall/NativeUpgradeNotice";
