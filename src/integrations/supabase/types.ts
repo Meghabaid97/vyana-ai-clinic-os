@@ -1006,6 +1006,65 @@ export type Database = {
           },
         ]
       }
+      integrity_check_events: {
+        Row: {
+          action: string
+          bucket: string | null
+          created_at: string
+          entity: string
+          entity_id: string
+          id: string
+          new_path: string | null
+          notes: Json
+          old_path: string | null
+          owner_user_id: string | null
+          patient_id: string | null
+          run_id: string
+          visibility_check: string | null
+          visibility_error: string | null
+        }
+        Insert: {
+          action: string
+          bucket?: string | null
+          created_at?: string
+          entity: string
+          entity_id: string
+          id?: string
+          new_path?: string | null
+          notes?: Json
+          old_path?: string | null
+          owner_user_id?: string | null
+          patient_id?: string | null
+          run_id: string
+          visibility_check?: string | null
+          visibility_error?: string | null
+        }
+        Update: {
+          action?: string
+          bucket?: string | null
+          created_at?: string
+          entity?: string
+          entity_id?: string
+          id?: string
+          new_path?: string | null
+          notes?: Json
+          old_path?: string | null
+          owner_user_id?: string | null
+          patient_id?: string | null
+          run_id?: string
+          visibility_check?: string | null
+          visibility_error?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrity_check_events_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "integrity_check_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       integrity_check_runs: {
         Row: {
           details: Json
