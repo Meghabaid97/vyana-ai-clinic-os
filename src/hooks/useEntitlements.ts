@@ -146,6 +146,10 @@ function initOnce() {
 }
 
 export function useEntitlements() {
+  if (IS_NATIVE) {
+    // Static Pro snapshot on iOS/Android — no RPC, no paywall, no purchase surface.
+    return { ...NATIVE_PRO, loading: false, refresh: async () => {} };
+  }
   initOnce();
   const [, force] = useState(0);
   const mountedRef = useRef(true);
