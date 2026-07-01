@@ -285,7 +285,9 @@ const PatientProfileEdit = () => {
 
   const menuItems = [
     { icon: KeyRound, label: t("prof.menu.account"), desc: t("prof.menu.accountDesc"), path: null as string | null, onClick: () => setAccountMode(!accountMode) },
-    { icon: Sparkles, label: "Subscription", desc: "Manage your plan, renewal and cancellation", path: "/app/upgrade" as string | null, onClick: undefined as undefined | (() => void) },
+    ...(HIDE_PAID_UI ? [] : [
+      { icon: Sparkles, label: "Subscription", desc: "Manage your plan, renewal and cancellation", path: "/app/upgrade" as string | null, onClick: undefined as undefined | (() => void) },
+    ]),
     { icon: Shield, label: t("prof.menu.emergency"), desc: t("prof.menu.emergencyDesc"), path: "/app/emergency-contacts" as string | null, onClick: undefined as undefined | (() => void) },
     { icon: Lock, label: t("prof.menu.privacy"), desc: t("prof.menu.privacyDesc"), path: "/app/privacy" as string | null, onClick: undefined as undefined | (() => void) },
   ];
