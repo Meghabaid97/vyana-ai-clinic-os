@@ -124,9 +124,11 @@ Deno.serve(async (req) => {
         : null;
 
       if (candidate && candidate !== r.file_path) {
+        // Only touch file_path. Never overwrite extraction_status — that
+        // column is owned by the AI extraction pipeline (succeeded/failed).
         const { error: upErr } = await admin
           .from("health_records")
-          .update({ file_path: candidate, extraction_status: "path_repaired" })
+          .update({ file_path: candidate })
           .eq("id", r.id);
         if (upErr) {
           log({
@@ -150,14 +152,12 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      await admin
-        .from("health_records")
-        .update({ extraction_status: "missing_file" })
-        .eq("id", r.id);
+      // Non-destructive: audit-log only. Do NOT mutate the row.
       log({
         run_id: runId, entity: "health_records", entity_id: r.id, action: "flagged_missing",
         patient_id: r.patient_id, owner_user_id: ownerId, bucket: "health-records",
         old_path: r.file_path, visibility_check: "skipped",
+
       });
     }
 
