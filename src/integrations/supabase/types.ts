@@ -1006,6 +1006,57 @@ export type Database = {
           },
         ]
       }
+      integrity_check_runs: {
+        Row: {
+          details: Json
+          error: string | null
+          finished_at: string | null
+          id: string
+          missing_health_files: number
+          missing_symptom_files: number
+          orphan_health_objects: number
+          orphan_symptom_objects: number
+          repaired_health_files: number
+          repaired_symptom_files: number
+          scanned_records: number
+          scanned_symptom_photos: number
+          started_at: string
+          status: string
+        }
+        Insert: {
+          details?: Json
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          missing_health_files?: number
+          missing_symptom_files?: number
+          orphan_health_objects?: number
+          orphan_symptom_objects?: number
+          repaired_health_files?: number
+          repaired_symptom_files?: number
+          scanned_records?: number
+          scanned_symptom_photos?: number
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          details?: Json
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          missing_health_files?: number
+          missing_symptom_files?: number
+          orphan_health_objects?: number
+          orphan_symptom_objects?: number
+          repaired_health_files?: number
+          repaired_symptom_files?: number
+          scanned_records?: number
+          scanned_symptom_photos?: number
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       journal_preferences: {
         Row: {
           auto_cadence: boolean
