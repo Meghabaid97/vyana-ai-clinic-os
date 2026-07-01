@@ -1,6 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import type { PlanId } from "@/lib/plans";
+
+// iOS App Store compliance (Guideline 3.1.1): the native app cannot offer or
+// unlock paid content. Every native user gets full feature access with no
+// paywall triggers. Web keeps normal Razorpay-backed entitlements.
+const IS_NATIVE = typeof window !== "undefined" && Capacitor.isNativePlatform();
+
+const NATIVE_PRO: Entitlements = {
+  authenticated: true,
+  plan: "family",
+  status: "active",
+  is_pro: true,
+  current_period_end: null,
+  briefings_used: 0,
+  briefings_limit: null,
+  briefings_remaining: null,
+  docs_used: 0,
+  docs_limit: null,
+  docs_remaining: null,
+  family_used: 0,
+  family_limit: 999,
+  family_remaining: 999,
+};
 
 export interface Entitlements {
   authenticated: boolean;
@@ -123,6 +146,10 @@ function initOnce() {
 }
 
 export function useEntitlements() {
+  if (IS_NATIVE) {
+    // Static Pro snapshot on iOS/Android — no RPC, no paywall, no purchase surface.
+    return { ...NATIVE_PRO, loading: false, refresh: async () => {} };
+  }
   initOnce();
   const [, force] = useState(0);
   const mountedRef = useRef(true);

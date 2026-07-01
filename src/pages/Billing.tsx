@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 import { ArrowLeft, Loader2, ExternalLink, ReceiptText, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useEntitlements } from "@/hooks/useEntitlements";
+
+const HIDE_PAID_UI = typeof window !== "undefined" && Capacitor.isNativePlatform();
 
 interface Item {
   id: string;
@@ -38,6 +41,9 @@ export default function Billing() {
   const [items, setItems] = useState<Item[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
+
+  // Apple 3.1.1 — no purchase surface on native.
+  if (HIDE_PAID_UI) return <Navigate to="/app" replace />;
 
   const load = async () => {
     setLoading(true);
