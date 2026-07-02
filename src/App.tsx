@@ -2,11 +2,12 @@ import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { initShareIntent } from "@/lib/shareIntent";
 import NativeBootGuard from "@/components/NativeBootGuard";
 import ChunkErrorBoundary from "@/components/ChunkErrorBoundary";
+import { supabase } from "@/integrations/supabase/client";
 
 // Eager: minimal route shell only
 const Index = lazy(() => import("./pages/Index"));
@@ -78,6 +79,39 @@ const ShareIntentBridge = () => {
   return null;
 };
 
+const AUTH_CACHE_USER_KEY = "vyana-auth-cache-user";
+const ACTIVE_PATIENT_KEY = "vyana_active_patient_id";
+
+const AppDataCacheBoundary = () => {
+  const client = useQueryClient();
+
+  useEffect(() => {
+    const clearAppCaches = (nextUserId: string | null) => {
+      const previousUserId = localStorage.getItem(AUTH_CACHE_USER_KEY);
+      if (previousUserId !== nextUserId) {
+        client.clear();
+        localStorage.removeItem(ACTIVE_PATIENT_KEY);
+        if (nextUserId) localStorage.setItem(AUTH_CACHE_USER_KEY, nextUserId);
+        else localStorage.removeItem(AUTH_CACHE_USER_KEY);
+      }
+    };
+
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      clearAppCaches(session?.user.id ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED" || event === "INITIAL_SESSION") {
+        clearAppCaches(session?.user.id ?? null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [client]);
+
+  return null;
+};
+
 const RouteFallback = () => (
   <div className="min-h-[40vh] w-full flex items-center justify-center">
     <div className="h-6 w-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
@@ -86,6 +120,7 @@ const RouteFallback = () => (
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <AppDataCacheBoundary />
     <TooltipProvider>
       <Toaster />
       <Sonner />

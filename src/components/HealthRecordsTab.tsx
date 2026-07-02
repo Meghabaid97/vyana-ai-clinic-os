@@ -129,7 +129,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
   const [selectedDoctors, setSelectedDoctors] = useState<Set<string>>(new Set());
   const [showSummaryDialog, setShowSummaryDialog] = useState(false);
   const [viewingSummary, setViewingSummary] = useState<HealthRecord | null>(null);
-  const [activeCategory, setActiveCategory] = useState<RecordCategory>("discharge_summary");
+  const [activeCategory, setActiveCategory] = useState<RecordCategory | "all">("all");
   const [uploadCategory, setUploadCategory] = useState<RecordCategory>("discharge_summary");
   const [radiologyModality, setRadiologyModality] = useState<string>("CT");
   const [radiologyUploadKind, setRadiologyUploadKind] = useState<RadiologyUploadKind>("report_with_optional_films");
@@ -636,11 +636,17 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     return <RecordsTabSkeleton />;
   }
 
-  const filteredRecords = records.filter(r => (r.category || "other") === activeCategory);
+  const recordTabs = [
+    { id: "all" as const, label: "All Records", shortLabel: "All", icon: FolderOpen },
+    ...RECORD_CATEGORIES,
+  ];
+  const filteredRecords = activeCategory === "all"
+    ? records
+    : records.filter(r => (r.category || "other") === activeCategory);
   const countsByCategory = RECORD_CATEGORIES.reduce<Record<string, number>>((acc, c) => {
     acc[c.id] = records.filter(r => (r.category || "other") === c.id).length;
     return acc;
-  }, {});
+  }, { all: records.length });
 
   return (
     <div className="space-y-4">
@@ -761,9 +767,9 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
       </div>
 
       {/* Category Tabs */}
-      <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as RecordCategory)}>
+      <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as RecordCategory | "all")}>
         <TabsList className="w-full h-auto flex flex-wrap gap-1 bg-muted/60 p-1 rounded-xl">
-          {RECORD_CATEGORIES.map(c => (
+          {recordTabs.map(c => (
             <TabsTrigger
               key={c.id}
               value={c.id}
@@ -778,7 +784,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           ))}
         </TabsList>
 
-        {RECORD_CATEGORIES.map(c => (
+        {recordTabs.map(c => (
           <TabsContent key={c.id} value={c.id} className="mt-3">
             {filteredRecords.length === 0 ? (
               <Card className="p-8 text-center rounded-2xl border-border bg-card shadow-none">
@@ -790,7 +796,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
                   Upload to keep this category organized and ready to share with doctors.
                 </p>
                 <Button
-                  onClick={() => { setUploadCategory(c.id); fileInputRef.current?.click(); }}
+                  onClick={() => { if (c.id !== "all") setUploadCategory(c.id); fileInputRef.current?.click(); }}
                   variant="outline"
                   className="rounded-xl"
                 >
