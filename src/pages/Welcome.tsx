@@ -218,14 +218,11 @@ const Welcome = () => {
             </div>
           </div>
         )}
-        <div className="relative text-center mb-8 pt-4 pb-2">
-          <div className="v-hero-halo" aria-hidden />
-          <div className="relative inline-flex items-center justify-center h-14 w-14 rounded-full text-white mb-4 shadow-[var(--shadow-cta)] bg-gradient-primary">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 text-primary mb-3">
             <Heart className="h-6 w-6" />
           </div>
-          <h1 className="v-display relative text-[34px] sm:text-[40px] leading-[1.05]">
-            A few quick<br />confirmations
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-serif text-foreground">A few quick confirmations</h1>
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
