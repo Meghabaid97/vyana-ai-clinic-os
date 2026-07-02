@@ -87,12 +87,12 @@ const AppDataCacheBoundary = () => {
 
   useEffect(() => {
     const clearAppCaches = (nextUserId: string | null) => {
-      const previousUserId = sessionStorage.getItem(AUTH_CACHE_USER_KEY);
+      const previousUserId = localStorage.getItem(AUTH_CACHE_USER_KEY);
       if (previousUserId !== nextUserId) {
         client.clear();
         localStorage.removeItem(ACTIVE_PATIENT_KEY);
-        if (nextUserId) sessionStorage.setItem(AUTH_CACHE_USER_KEY, nextUserId);
-        else sessionStorage.removeItem(AUTH_CACHE_USER_KEY);
+        if (nextUserId) localStorage.setItem(AUTH_CACHE_USER_KEY, nextUserId);
+        else localStorage.removeItem(AUTH_CACHE_USER_KEY);
       }
     };
 
