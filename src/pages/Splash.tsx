@@ -37,12 +37,13 @@ const Splash = () => {
     <div className="min-h-[100svh] bg-background">
       <div className="relative mx-auto box-border h-[100svh] w-full max-w-sm safe-area-top safe-area-bottom px-6">
         <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
-          <div className="w-full max-w-xs">
-            <h1 className="text-[2.8rem] font-bold leading-none tracking-[-0.06em] text-foreground sm:text-5xl">
-            V<span className="text-primary">yana</span>
+          <div className="relative w-full max-w-xs">
+            <div className="v-hero-halo" aria-hidden />
+            <h1 className="v-display relative text-[3.4rem] sm:text-6xl">
+              V<span className="text-gradient-primary">yana</span>
             </h1>
-            <p className="mt-5 text-[0.95rem] font-semibold leading-tight text-foreground sm:text-xl">
-              Your health story. <span className="text-primary">Always with you.</span>
+            <p className="relative mt-5 text-[1rem] font-semibold leading-tight text-foreground sm:text-xl">
+              Your health story. <span className="text-gradient-primary">Always with you.</span>
             </p>
           </div>
         </div>

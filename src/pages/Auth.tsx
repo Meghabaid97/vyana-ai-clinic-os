@@ -490,14 +490,15 @@ const Auth = () => {
         </button>
 
         <div className="flex-1 flex flex-col justify-center min-h-min py-6">
-          <div className="mb-7">
-            <h1 className="text-3xl font-semibold text-foreground tracking-tight">
+          <div className="relative mb-8 pt-6 text-center">
+            <div className="v-hero-halo v-hero-halo-sm" aria-hidden />
+            <h1 className="v-display relative text-[44px] sm:text-5xl">
               {isSignup ? "Create your account" : "Welcome back"}
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="relative mt-3 text-[15px] text-muted-foreground">
               {isSignup
                 ? "Start carrying your health story in seconds."
-                : "Sign in to pick up your health story where you left off."}
+                : "Sign in to pick up your health story."}
             </p>
           </div>
 
