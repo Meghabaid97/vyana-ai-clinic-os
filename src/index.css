@@ -21,8 +21,8 @@
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
 
     /* Peach canvas — base for all screens */
-    --background: 28 55% 94%;
-    --foreground: 24 15% 15%;
+    --background: 24 70% 92%;
+    --foreground: 24 25% 10%;
 
     /* White surface — all cards, pills, inputs */
     --card: 0 0% 100%;
