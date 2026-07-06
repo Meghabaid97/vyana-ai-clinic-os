@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { useHealthRecordsSync } from "@/hooks/useHealthRecordsSync";
+import { logHealthRecordsAccess, assertRecordsBelongToPatient } from "@/lib/healthRecordsAudit";
 import { ArrowRight, Upload, UserCog, X, UserCircle2 } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
@@ -112,14 +113,22 @@ const AppHome = () => {
       if (!promptAlreadyDismissed) setRequiredOpen(true);
     }
 
-    const { data: r } = await supabase
+    const { data: r, error: rErr } = await supabase
       .from("health_records")
-      .select("uploaded_at")
+      .select("id, patient_id, uploaded_at")
       .eq("patient_id", p.id)
       .order("uploaded_at", { ascending: true });
-    setRecordCount(r?.length || 0);
-    setRecordDates((r || []).map(x =>
-      new Date(x.uploaded_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+    const safe = assertRecordsBelongToPatient(r ?? [], p.id, "AppHome.loadData");
+    void logHealthRecordsAccess({
+      op: "select",
+      patientId: p.id,
+      where: "AppHome.loadData",
+      count: safe.length,
+      error: rErr,
+    });
+    setRecordCount(safe.length);
+    setRecordDates(safe.map((x) =>
+      new Date((x as { uploaded_at: string }).uploaded_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
     ));
 
     if (p.national_health_id) {

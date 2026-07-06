@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { useHealthRecordsSync } from "@/hooks/useHealthRecordsSync";
+import { logHealthRecordsAccess, assertRecordsBelongToPatient } from "@/lib/healthRecordsAudit";
 import {
   Activity, FileText, Pill, Stethoscope, TrendingUp,
   Calendar, Loader2, ChevronDown, ChevronUp,
@@ -44,13 +45,21 @@ const PatientTimeline = () => {
     const allEvents: TimelineEvent[] = [];
 
     // Health records
-    const { data: records } = await supabase
+    const { data: records, error: recErr } = await supabase
       .from("health_records")
-      .select("id, file_name, uploaded_at, ai_summary, document_type, important_findings, medications, allergies, diagnoses, extracted_vitals")
+      .select("id, patient_id, file_name, uploaded_at, ai_summary, document_type, important_findings, medications, allergies, diagnoses, extracted_vitals")
       .eq("patient_id", patient.id)
       .order("uploaded_at", { ascending: false });
+    const safeRecords = assertRecordsBelongToPatient(records ?? [], patient.id, "PatientTimeline.loadTimeline");
+    void logHealthRecordsAccess({
+      op: "select",
+      patientId: patient.id,
+      where: "PatientTimeline.loadTimeline",
+      count: safeRecords.length,
+      error: recErr,
+    });
 
-    (records || []).forEach((r) => {
+    safeRecords.forEach((r: any) => {
       const details: string[] = [];
       if (r.ai_summary) {
         const lines = r.ai_summary.split("\n").filter((l: string) => l.startsWith("- ")).slice(0, 5);
