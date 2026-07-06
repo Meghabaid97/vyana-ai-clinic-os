@@ -2,6 +2,9 @@
 // Renders mini sparklines for the 3 free vitals and a list of locked premium vitals,
 // driven by the user's REAL vital history (no fake data).
 import { useState, useMemo } from "react";
+import { Capacitor } from "@capacitor/core";
+
+const IS_NATIVE_APP = typeof window !== "undefined" && Capacitor.isNativePlatform();
 import { Lock, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
