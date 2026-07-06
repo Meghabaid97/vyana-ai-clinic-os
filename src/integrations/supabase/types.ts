@@ -1009,6 +1009,45 @@ export type Database = {
           },
         ]
       }
+      health_records_access_audit: {
+        Row: {
+          auth_uid: string | null
+          extra: Json
+          had_grant: boolean
+          id: string
+          mismatch: boolean
+          op: string
+          patient_id: string | null
+          patient_owner_user_id: string | null
+          record_id: string | null
+          ts: string
+        }
+        Insert: {
+          auth_uid?: string | null
+          extra?: Json
+          had_grant?: boolean
+          id?: string
+          mismatch?: boolean
+          op: string
+          patient_id?: string | null
+          patient_owner_user_id?: string | null
+          record_id?: string | null
+          ts?: string
+        }
+        Update: {
+          auth_uid?: string | null
+          extra?: Json
+          had_grant?: boolean
+          id?: string
+          mismatch?: boolean
+          op?: string
+          patient_id?: string | null
+          patient_owner_user_id?: string | null
+          record_id?: string | null
+          ts?: string
+        }
+        Relationships: []
+      }
       integrity_check_events: {
         Row: {
           action: string
