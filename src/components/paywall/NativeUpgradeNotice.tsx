@@ -1,30 +1,27 @@
-import { Sparkles, Globe } from "lucide-react";
+import { Info } from "lucide-react";
 
 /**
- * iOS / Android "reader app" notice.
- * Per Apple Guideline 3.1.1, native builds must NOT link out to external
- * checkout. We display informational text only — no clickable link, no
- * button that navigates to a web checkout, no pricing CTA.
+ * iOS / Android notice shown where the web build would render an upsell.
  *
- * Users manage Vyana Pro by visiting vyana.care in any browser.
+ * Apple Guideline 3.1.1 (and 3.1.3) forbids directing users to any external
+ * purchase mechanism from inside the app — no mention of subscriptions,
+ * pricing, upgrading, buying, or the vyana.care website. We cannot even
+ * imply that the feature can be unlocked elsewhere.
+ *
+ * If the signed-in account already has entitlements, the feature renders
+ * normally; this component is only shown when it does not, and simply
+ * states that the feature is not available on this account.
  */
 export function NativeUpgradeNotice() {
   return (
     <div className="rounded-2xl border border-border bg-card p-5 text-center">
-      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold mb-3">
-        <Sparkles className="h-3 w-3" /> Vyana Pro
+      <div className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-muted mb-3">
+        <Info className="h-4 w-4 text-muted-foreground" />
       </div>
-      <h3 className="text-base font-bold">Pro features are managed on the web</h3>
+      <h3 className="text-base font-bold">Not available on this account</h3>
       <p className="text-[13px] text-muted-foreground mt-2 leading-relaxed">
-        Vyana Pro features can be unlocked by managing your account
-        subscription on{" "}
-        <span className="font-semibold text-foreground">vyana.care</span>{" "}
-        via any desktop or mobile browser.
+        This feature isn't enabled for your account.
       </p>
-      <div className="mt-4 flex items-center justify-center gap-2 text-[11.5px] text-muted-foreground">
-        <Globe className="h-3.5 w-3.5" />
-        <span>Sign in with the same account to unlock Pro on this device.</span>
-      </div>
     </div>
   );
 }
