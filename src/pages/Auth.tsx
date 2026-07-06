@@ -3,7 +3,7 @@ import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Chrome, Apple, X, Loader2, AlertCircle, Check, Mail } from "lucide-react";
+import { Chrome, X, Loader2, AlertCircle, Check, Mail } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 import { useLanguage } from "@/lib/i18n";
 import { NativeBrowser } from "@/lib/nativeCapacitorPlugins";
