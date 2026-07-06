@@ -118,6 +118,37 @@ const RouteFallback = () => (
   </div>
 );
 
+/**
+ * Force a full remount of the routed tree whenever the authenticated user
+ * changes. Without this, React keeps `useState` inside route components
+ * (records list, active patient prop, realtime channel subscriptions)
+ * across sign-out/sign-in in the same tab — which briefly renders the
+ * previous account's data under the new account before the fresh fetch
+ * completes. Re-keying the tree by `auth.uid` guarantees a clean slate.
+ */
+const AuthScopedTree = ({ children }: { children: ReactNode }) => {
+  const [userId, setUserId] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user.id ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId((prev) => {
+        const next = session?.user.id ?? null;
+        return prev === next ? prev : next;
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Hold render until we know the auth state, so the first mount already has
+  // the correct key and we don't get an initial "signed-out" render followed
+  // by a full remount when the session hydrates.
+  if (userId === undefined) return <RouteFallback />;
+  return <div key={userId ?? "anon"} className="contents">{children}</div>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppDataCacheBoundary />
