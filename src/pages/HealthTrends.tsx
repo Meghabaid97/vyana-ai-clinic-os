@@ -300,7 +300,21 @@ const HealthTrends = () => {
           : Promise.resolve({ count: 0 } as any),
       ]);
 
-      const sorted = ((recordsRes.data || []) as HealthRecord[]).slice().sort((a, b) => {
+      const rawRecords = (recordsRes.data || []) as HealthRecord[];
+      const safeRecords = assertRecordsBelongToPatient(
+        rawRecords as unknown as Array<{ patient_id?: string | null; id?: string }>,
+        patient.id,
+        "HealthTrends.loadTrends",
+      ) as unknown as HealthRecord[];
+      void logHealthRecordsAccess({
+        op: "select",
+        patientId: patient.id,
+        where: "HealthTrends.loadTrends",
+        count: safeRecords.length,
+        error: (recordsRes as { error?: unknown }).error,
+      });
+
+      const sorted = safeRecords.slice().sort((a, b) => {
         const aDate = a.radiology_study_date
           ? new Date(`${a.radiology_study_date}T12:00:00Z`).getTime()
           : recordClinicalTime(a);
