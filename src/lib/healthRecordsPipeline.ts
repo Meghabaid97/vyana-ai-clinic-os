@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { logEvent } from "@/lib/analytics";
+import { logHealthRecordsAccess } from "@/lib/healthRecordsAudit";
 
 /**
  * Shared pipeline: saves a file to health-records storage + health_records table,
@@ -42,6 +43,15 @@ export async function saveToHealthRecords(
     .select("id")
     .single();
 
+  void logHealthRecordsAccess({
+    op: "insert",
+    patientId,
+    where: "healthRecordsPipeline.saveToHealthRecords",
+    recordId: record?.id ?? null,
+    error: dbError,
+    extra: { category, file_type: file.type, size: file.size },
+  });
+
   if (dbError) throw dbError;
   void logEvent("doc_uploaded", { category, file_type: file.type, size: file.size }, patientId);
   return { recordId: record.id, filePath };
@@ -80,14 +90,31 @@ export async function summarizeHealthRecord(
 
   if (error || !data?.summary) {
     void logEvent("doc_extraction_failed", { recordId, reason: error?.message ?? "no_summary" });
-    await supabase.from("health_records").update({ extraction_status: "failed" }).eq("id", recordId);
+    const { error: failErr } = await supabase
+      .from("health_records")
+      .update({ extraction_status: "failed" })
+      .eq("id", recordId);
+    void logHealthRecordsAccess({
+      op: "update",
+      patientId: null,
+      where: "healthRecordsPipeline.summarizeHealthRecord::fail",
+      recordId,
+      error: failErr ?? error,
+    });
     return null;
   }
 
-  await supabase
+  const { error: updErr } = await supabase
     .from("health_records")
     .update({ ai_summary: data.summary, processed_at: new Date().toISOString(), extraction_status: "succeeded" })
     .eq("id", recordId);
+  void logHealthRecordsAccess({
+    op: "update",
+    patientId: null,
+    where: "healthRecordsPipeline.summarizeHealthRecord::success",
+    recordId,
+    error: updErr,
+  });
   void logEvent("doc_extracted", { recordId });
 
   // Trigger insight detection (non-blocking)

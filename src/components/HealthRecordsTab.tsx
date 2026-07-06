@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useHealthRecordsSync } from "@/hooks/useHealthRecordsSync";
+import { logHealthRecordsAccess, assertRecordsBelongToPatient } from "@/lib/healthRecordsAudit";
 import {
   Loader2,
   Upload,
@@ -235,8 +236,27 @@ const HealthRecordsTab = ({ patientId, doctors }: HealthRecordsTabProps) => {
         .order("uploaded_at", { ascending: false });
 
       if (error) throw error;
-      setRecords((data || []) as unknown as HealthRecord[]);
+      const rows = (data || []) as unknown as HealthRecord[];
+      // Tripwire: if RLS ever regresses, drop foreign rows before render.
+      const safe = assertRecordsBelongToPatient(
+        rows as unknown as Array<{ patient_id?: string | null; id?: string }>,
+        patientId,
+        "HealthRecordsTab.loadRecords",
+      ) as unknown as HealthRecord[];
+      void logHealthRecordsAccess({
+        op: "select",
+        patientId,
+        where: "HealthRecordsTab.loadRecords",
+        count: safe.length,
+      });
+      setRecords(safe);
     } catch (error: any) {
+      void logHealthRecordsAccess({
+        op: "select",
+        patientId,
+        where: "HealthRecordsTab.loadRecords",
+        error,
+      });
       console.error("Error loading health records:", error);
     } finally {
       setIsLoading(false);
@@ -324,6 +344,15 @@ const HealthRecordsTab = ({ patientId, doctors }: HealthRecordsTabProps) => {
           })
           .select()
           .single();
+
+        void logHealthRecordsAccess({
+          op: "insert",
+          patientId,
+          where: "HealthRecordsTab.handleFileUpload",
+          recordId: (insertedRecord as { id?: string } | null)?.id ?? null,
+          error: dbError,
+          extra: { file_type: file.type, category: uploadCategory },
+        });
 
         if (dbError) throw dbError;
         uploadedRecords.push(insertedRecord as unknown as HealthRecord);
@@ -614,6 +643,14 @@ const HealthRecordsTab = ({ patientId, doctors }: HealthRecordsTabProps) => {
         .from("health_records")
         .delete()
         .eq("id", record.id);
+
+      void logHealthRecordsAccess({
+        op: "delete",
+        patientId,
+        where: "HealthRecordsTab.deleteRecord",
+        recordId: record.id,
+        error,
+      });
 
       if (error) throw error;
 
