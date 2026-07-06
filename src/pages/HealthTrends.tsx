@@ -223,6 +223,10 @@ const HealthTrends = () => {
     return () => off();
   }, []);
 
+  // Cross-device sync — refetch trends when a record changes for this patient.
+  useHealthRecordsSync(patientId, () => { void loadTrends(); });
+
+
   // Deep-link: scroll to a specific vital when ?vital=key is present
   useEffect(() => {
     const target = searchParams.get("vital");
