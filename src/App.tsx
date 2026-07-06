@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -118,6 +118,37 @@ const RouteFallback = () => (
   </div>
 );
 
+/**
+ * Force a full remount of the routed tree whenever the authenticated user
+ * changes. Without this, React keeps `useState` inside route components
+ * (records list, active patient prop, realtime channel subscriptions)
+ * across sign-out/sign-in in the same tab — which briefly renders the
+ * previous account's data under the new account before the fresh fetch
+ * completes. Re-keying the tree by `auth.uid` guarantees a clean slate.
+ */
+const AuthScopedTree = ({ children }: { children: ReactNode }) => {
+  const [userId, setUserId] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user.id ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId((prev) => {
+        const next = session?.user.id ?? null;
+        return prev === next ? prev : next;
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Hold render until we know the auth state, so the first mount already has
+  // the correct key and we don't get an initial "signed-out" render followed
+  // by a full remount when the session hydrates.
+  if (userId === undefined) return <RouteFallback />;
+  return <div key={userId ?? "anon"} className="contents">{children}</div>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppDataCacheBoundary />
@@ -129,58 +160,60 @@ const App = () => (
         <ShareIntentBridge />
         <ChunkErrorBoundary>
           <Suspense fallback={<RouteFallback />}>
-            <Routes>
-            {/* Public */}
-            <Route path="/" element={<Index />} />
-            <Route path="/splash" element={<Splash />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/oauth-bridge" element={<OAuthBridge />} />
-            <Route path="/welcome" element={<Welcome />} />
+            <AuthScopedTree>
+              <Routes>
+              {/* Public */}
+              <Route path="/" element={<Index />} />
+              <Route path="/splash" element={<Splash />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/oauth-bridge" element={<OAuthBridge />} />
+              <Route path="/welcome" element={<Welcome />} />
 
-            <Route path="/request-access" element={<RequestAccess />} />
-            <Route path="/access-pending" element={<AccessPending />} />
-            <Route path="/admin/waitlist" element={<AdminWaitlist />} />
-            <Route path="/admin/metrics" element={<AdminMetrics />} />
-            <Route path="/admin/payments" element={<AdminPayments />} />
-            <Route path="/admin/observability" element={<AdminObservability />} />
-            <Route path="/why-vyana" element={<WhyVyana />} />
-            <Route path="/abha-guide" element={<AbhaGuide />} />
-            <Route path="/legal" element={<Legal />} />
-            <Route path="/unsubscribe" element={<Unsubscribe />} />
-            <Route path="/layout-qa" element={<LayoutQA />} />
+              <Route path="/request-access" element={<RequestAccess />} />
+              <Route path="/access-pending" element={<AccessPending />} />
+              <Route path="/admin/waitlist" element={<AdminWaitlist />} />
+              <Route path="/admin/metrics" element={<AdminMetrics />} />
+              <Route path="/admin/payments" element={<AdminPayments />} />
+              <Route path="/admin/observability" element={<AdminObservability />} />
+              <Route path="/why-vyana" element={<WhyVyana />} />
+              <Route path="/abha-guide" element={<AbhaGuide />} />
+              <Route path="/legal" element={<Legal />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
+              <Route path="/layout-qa" element={<LayoutQA />} />
 
-            {/* Patient app with bottom tabs */}
-            <Route path="/app" element={<AppShell />}>
-              <Route index element={<AppHome />} />
-              <Route path="trends" element={<HealthTrends />} />
-              <Route path="records" element={<PatientHealthRecords />} />
-              <Route path="story" element={<WhyVyana />} />
-              <Route path="profile" element={<PatientProfileEdit />} />
-              <Route path="privacy" element={<PrivacySettings />} />
-              <Route path="timeline" element={<PatientTimeline />} />
-              <Route path="vaccinations" element={<Vaccinations />} />
-              <Route path="medications" element={<MedicationReminders />} />
-              <Route path="prescription-reader" element={<PrescriptionInterpreter />} />
-              <Route path="share" element={<ShareRecords />} />
-              <Route path="briefing" element={<DoctorVisitMode />} />
-              <Route path="visit" element={<DoctorVisitMode />} />
-              <Route path="recovery" element={<ClaimAssistant />} />
-              <Route path="support" element={<Support />} />
-              <Route path="domain-checklist" element={<DomainChecklist />} />
-              <Route path="journal" element={<SymptomJournal />} />
-              <Route path="emergency-contacts" element={<EmergencyContacts />} />
-              <Route path="share-receive" element={<ShareReceive />} />
-              <Route path="accept-invite/:token" element={<AcceptInvite />} />
-              <Route path="upgrade" element={<Upgrade />} />
-              <Route path="billing" element={<Billing />} />
-            </Route>
+              {/* Patient app with bottom tabs */}
+              <Route path="/app" element={<AppShell />}>
+                <Route index element={<AppHome />} />
+                <Route path="trends" element={<HealthTrends />} />
+                <Route path="records" element={<PatientHealthRecords />} />
+                <Route path="story" element={<WhyVyana />} />
+                <Route path="profile" element={<PatientProfileEdit />} />
+                <Route path="privacy" element={<PrivacySettings />} />
+                <Route path="timeline" element={<PatientTimeline />} />
+                <Route path="vaccinations" element={<Vaccinations />} />
+                <Route path="medications" element={<MedicationReminders />} />
+                <Route path="prescription-reader" element={<PrescriptionInterpreter />} />
+                <Route path="share" element={<ShareRecords />} />
+                <Route path="briefing" element={<DoctorVisitMode />} />
+                <Route path="visit" element={<DoctorVisitMode />} />
+                <Route path="recovery" element={<ClaimAssistant />} />
+                <Route path="support" element={<Support />} />
+                <Route path="domain-checklist" element={<DomainChecklist />} />
+                <Route path="journal" element={<SymptomJournal />} />
+                <Route path="emergency-contacts" element={<EmergencyContacts />} />
+                <Route path="share-receive" element={<ShareReceive />} />
+                <Route path="accept-invite/:token" element={<AcceptInvite />} />
+                <Route path="upgrade" element={<Upgrade />} />
+                <Route path="billing" element={<Billing />} />
+              </Route>
 
-            {/* Patient standalone pages */}
-            <Route path="/emergency-access/:token" element={<EmergencyAccess />} />
+              {/* Patient standalone pages */}
+              <Route path="/emergency-access/:token" element={<EmergencyAccess />} />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthScopedTree>
           </Suspense>
         </ChunkErrorBoundary>
       </BrowserRouter>
