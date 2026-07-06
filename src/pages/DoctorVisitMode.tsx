@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
+
+const IS_NATIVE_APP = typeof window !== "undefined" && Capacitor.isNativePlatform();
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient } from "@/lib/activePatient";
