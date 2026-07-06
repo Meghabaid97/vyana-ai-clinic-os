@@ -6,6 +6,7 @@ const IS_NATIVE_APP = typeof window !== "undefined" && Capacitor.isNativePlatfor
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient } from "@/lib/activePatient";
+import { logHealthRecordsAccess } from "@/lib/healthRecordsAudit";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Sparkles, AlertTriangle, Pill, Activity,
@@ -178,11 +179,30 @@ const DoctorVisitMode = () => {
         patient.national_health_id
           ? supabase.from("consultations").select("*").eq("patient_national_health_id", patient.national_health_id).order("created_at", { ascending: false }).limit(10)
           : Promise.resolve({ data: [] as any[] }),
-        supabase.from("health_records").select("file_name, ai_summary, medications, uploaded_at").eq("patient_id", patient.id).order("uploaded_at", { ascending: false }).limit(20),
+        supabase.from("health_records").select("patient_id, file_name, ai_summary, medications, uploaded_at").eq("patient_id", patient.id).order("uploaded_at", { ascending: false }).limit(20),
         supabase.from("vital_history").select("*").eq("patient_id", patient.id).order("recorded_at", { ascending: true }),
         supabase.from("medication_reminders").select("*").eq("patient_id", patient.id),
         supabase.from("symptom_logs").select("*").eq("patient_id", patient.id).gte("logged_at", ninetyDaysAgo).order("logged_at", { ascending: false }).limit(100),
       ]);
+
+      void logHealthRecordsAccess({
+        op: "select",
+        patientId: patient.id,
+        where: "DoctorVisitMode.generate",
+        count: (recRes.data as unknown[] | null)?.length ?? 0,
+        error: (recRes as { error?: unknown }).error,
+      });
+      const foreign = (recRes.data as Array<{ patient_id?: string }> | null)?.filter(
+        (r) => r.patient_id && r.patient_id !== patient.id,
+      );
+      if (foreign && foreign.length > 0) {
+        console.error("[hr-audit] LEAK", {
+          where: "DoctorVisitMode.generate",
+          requested_patient_id: patient.id,
+          leaked_count: foreign.length,
+        });
+        (recRes as { data: unknown }).data = [];
+      }
 
       setSymptomFreshness(summarizeFreshness((sympRes.data as any) || []));
 

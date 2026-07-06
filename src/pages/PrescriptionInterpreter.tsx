@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
+import { logHealthRecordsAccess, assertRecordsBelongToPatient } from "@/lib/healthRecordsAudit";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -109,13 +110,22 @@ const PrescriptionInterpreter = () => {
     if (savedRxRecords.length === 0 && patientCtx) {
       setLoadingSavedRx(true);
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("health_records")
-          .select("id, file_name, file_path, file_type, uploaded_at")
+          .select("id, patient_id, file_name, file_path, file_type, uploaded_at")
           .eq("patient_id", patientCtx.patientId)
           .eq("category", "prescription")
           .order("uploaded_at", { ascending: false });
-        setSavedRxRecords(data || []);
+        const safe = assertRecordsBelongToPatient(data ?? [], patientCtx.patientId, "PrescriptionInterpreter.openSavedRxPicker");
+        void logHealthRecordsAccess({
+          op: "select",
+          patientId: patientCtx.patientId,
+          where: "PrescriptionInterpreter.openSavedRxPicker",
+          count: safe.length,
+          error,
+          extra: { category: "prescription" },
+        });
+        setSavedRxRecords(safe);
       } finally {
         setLoadingSavedRx(false);
       }
