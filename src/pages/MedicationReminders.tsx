@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
+import { logHealthRecordsAccess, assertRecordsBelongToPatient } from "@/lib/healthRecordsAudit";
 import {
   Pill, Plus, Trash2, Clock, Bell, Loader2, ToggleLeft, ToggleRight, FileText, Sparkles,
 } from "lucide-react";
@@ -104,7 +105,7 @@ const MedicationReminders = () => {
         .order("created_at", { ascending: false }),
       supabase
         .from("health_records")
-        .select("id, file_name, medications, uploaded_at")
+        .select("id, patient_id, file_name, medications, uploaded_at")
         .eq("patient_id", patient.id)
         .not("medications", "is", null)
         .order("uploaded_at", { ascending: false }),
@@ -112,9 +113,21 @@ const MedicationReminders = () => {
 
     setReminders((rems as Reminder[] | null) || []);
 
+    const safeRecs = assertRecordsBelongToPatient(
+      (recs as Array<{ id: string; patient_id?: string; file_name: string; medications: unknown }> | null) ?? [],
+      patient.id,
+      "MedicationReminders.load",
+    );
+    void logHealthRecordsAccess({
+      op: "select",
+      patientId: patient.id,
+      where: "MedicationReminders.load",
+      count: safeRecs.length,
+    });
+
     // Flatten + dedupe meds across records, keep most recent source
     const seen = new Map<string, ExtractedMed>();
-    for (const rec of (recs as Array<{ id: string; file_name: string; medications: unknown }> | null) || []) {
+    for (const rec of safeRecs) {
       const meds = Array.isArray(rec.medications) ? rec.medications : [];
       for (const m of meds) {
         if (typeof m !== "string" || !m.trim()) continue;

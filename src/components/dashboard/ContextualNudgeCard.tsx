@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { X } from "lucide-react";
 import { pickContextualNudge, type Nudge } from "@/lib/contextualNudges";
+import { logHealthRecordsAccess, assertRecordsBelongToPatient } from "@/lib/healthRecordsAudit";
 
 interface Props {
   patientId: string | null;
@@ -21,15 +22,23 @@ const ContextualNudgeCard = ({ patientId, city }: Props) => {
     let cancelled = false;
     (async () => {
       // Pull diagnoses from any recent health_records for this patient
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("health_records")
-        .select("diagnoses")
+        .select("patient_id, diagnoses")
         .eq("patient_id", patientId)
         .order("uploaded_at", { ascending: false })
         .limit(20);
       if (cancelled) return;
+      const safe = assertRecordsBelongToPatient(data ?? [], patientId, "ContextualNudgeCard.load");
+      void logHealthRecordsAccess({
+        op: "select",
+        patientId,
+        where: "ContextualNudgeCard.load",
+        count: safe.length,
+        error,
+      });
       const dx: string[] = [];
-      for (const row of data || []) {
+      for (const row of safe) {
         const arr = (row as { diagnoses: unknown }).diagnoses;
         if (Array.isArray(arr)) {
           for (const d of arr) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
+import { logHealthRecordsAccess } from "@/lib/healthRecordsAudit";
 import {
   Link2, Copy, Clock, CheckCircle, Plus, Loader2, Share2, QrCode, MessageCircle, Mail,
 } from "lucide-react";
@@ -61,6 +62,15 @@ const ShareRecords = () => {
       .from("health_records")
       .select("id", { count: "exact", head: true })
       .eq("patient_id", patientId);
+
+    void logHealthRecordsAccess({
+      op: "select",
+      patientId,
+      where: "ShareRecords.createLink.preflightCount",
+      count: count ?? 0,
+      error: countError,
+      extra: { head: true },
+    });
 
     if (countError) {
       return { ok: false, kind: "error", message: countError.message };

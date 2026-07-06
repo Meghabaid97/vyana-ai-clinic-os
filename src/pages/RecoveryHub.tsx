@@ -5,6 +5,7 @@ import { Capacitor } from "@capacitor/core";
 const IS_NATIVE_APP = typeof window !== "undefined" && Capacitor.isNativePlatform();
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
+import { logHealthRecordsAccess, assertRecordsBelongToPatient } from "@/lib/healthRecordsAudit";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -237,12 +238,20 @@ const ClaimAssistant = () => {
     if (healthRecords.length === 0 && patientId) {
       setLoadingRecords(true);
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("health_records")
-          .select("id, file_name, file_path, file_type, file_size, uploaded_at, category")
+          .select("id, patient_id, file_name, file_path, file_type, file_size, uploaded_at, category")
           .eq("patient_id", patientId)
           .order("uploaded_at", { ascending: false });
-        setHealthRecords(data || []);
+        const safe = assertRecordsBelongToPatient(data ?? [], patientId, "RecoveryHub.openRecordsPicker");
+        void logHealthRecordsAccess({
+          op: "select",
+          patientId,
+          where: "RecoveryHub.openRecordsPicker",
+          count: safe.length,
+          error,
+        });
+        setHealthRecords(safe);
       } catch (err) {
         console.error("Failed to load health records:", err);
       } finally {
