@@ -216,7 +216,9 @@ export function TrendsTeaser({ vitalHistory }: Props) {
       </section>
 
       <p className="text-[11px] text-center text-muted-foreground italic">
-        Showing 3 of 33 vitals. Upgrade to track your full health story.
+        {IS_NATIVE_APP
+          ? "Showing 3 of 33 vitals."
+          : "Showing 3 of 33 vitals. Upgrade to track your full health story."}
       </p>
 
       <PaywallSheet
