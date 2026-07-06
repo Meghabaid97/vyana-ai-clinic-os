@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
+
+const IS_NATIVE_APP = typeof window !== "undefined" && Capacitor.isNativePlatform();
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { useToast } from "@/hooks/use-toast";
@@ -547,16 +550,20 @@ const ClaimAssistant = () => {
             ))}
           </ul>
 
-          <Button
-            onClick={() => setPaywallOpen(true)}
-            className="w-full h-11 rounded-xl text-sm font-semibold"
-          >
-            <Sparkles className="h-4 w-4 mr-2" />
-            Unlock with Vyana Pro
-          </Button>
-          <p className="text-[11px] text-muted-foreground text-center">
-            Starts at ₹99/month. Cancel anytime.
-          </p>
+          {!IS_NATIVE_APP && (
+            <>
+              <Button
+                onClick={() => setPaywallOpen(true)}
+                className="w-full h-11 rounded-xl text-sm font-semibold"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Unlock with Vyana Pro
+              </Button>
+              <p className="text-[11px] text-muted-foreground text-center">
+                Starts at ₹99/month. Cancel anytime.
+              </p>
+            </>
+          )}
         </section>
 
         <PaywallSheet

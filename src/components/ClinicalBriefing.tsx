@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Capacitor } from "@capacitor/core";
+
+const IS_NATIVE_APP = typeof window !== "undefined" && Capacitor.isNativePlatform();
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -203,15 +206,21 @@ const ClinicalBriefing = ({ consultations, patientHealthId, patientId }: Clinica
             <h3 className="text-sm font-bold text-foreground">30-Second Clinical Briefing</h3>
             <p className="text-xs text-muted-foreground">
               {outOfBriefings
-                ? "Free includes 1 briefing per month. Upgrade for unlimited."
+                ? (IS_NATIVE_APP
+                    ? "This feature isn't available on your account."
+                    : "Free includes 1 briefing per month. Upgrade for unlimited.")
                 : !ent.is_pro
                   ? `Free: ${ent.briefings_remaining ?? 0} briefing left this month`
                   : "AI-generated patient summary with SOAP notes, trends & red flags"}
             </p>
           </div>
         </div>
-        <Button onClick={() => medAck.run(generateBriefing)} className="w-full gap-2" size="sm">
-          {outOfBriefings ? <><Lock className="h-4 w-4" /> Unlock briefing · ₹99/mo</> : <><Sparkles className="h-4 w-4" /> Generate Briefing</>}
+        <Button onClick={() => medAck.run(generateBriefing)} disabled={IS_NATIVE_APP && outOfBriefings} className="w-full gap-2" size="sm">
+          {outOfBriefings
+            ? (IS_NATIVE_APP
+                ? <><Lock className="h-4 w-4" /> Not available</>
+                : <><Lock className="h-4 w-4" /> Unlock briefing · ₹99/mo</>)
+            : <><Sparkles className="h-4 w-4" /> Generate Briefing</>}
         </Button>
       </Card>
       <MedicalAckDialog state={medAck} />

@@ -2,6 +2,9 @@
 // Renders mini sparklines for the 3 free vitals and a list of locked premium vitals,
 // driven by the user's REAL vital history (no fake data).
 import { useState, useMemo } from "react";
+import { Capacitor } from "@capacitor/core";
+
+const IS_NATIVE_APP = typeof window !== "undefined" && Capacitor.isNativePlatform();
 import { Lock, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -213,7 +216,9 @@ export function TrendsTeaser({ vitalHistory }: Props) {
       </section>
 
       <p className="text-[11px] text-center text-muted-foreground italic">
-        Showing 3 of 33 vitals. Upgrade to track your full health story.
+        {IS_NATIVE_APP
+          ? "Showing 3 of 33 vitals."
+          : "Showing 3 of 33 vitals. Upgrade to track your full health story."}
       </p>
 
       <PaywallSheet

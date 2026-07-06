@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
+
+const IS_NATIVE_APP = typeof window !== "undefined" && Capacitor.isNativePlatform();
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient } from "@/lib/activePatient";
@@ -443,12 +446,15 @@ const DoctorVisitMode = () => {
               One scrollable sheet your doctor can read in under a minute. Conditions, what changed, medications, ready to share.
             </p>
 
-            <Button onClick={() => medAck.run(generate)} disabled={loading} size="lg" className="mt-5 w-full gap-2">
+            <Button onClick={() => medAck.run(generate)} disabled={loading || (IS_NATIVE_APP && outOfBriefings)} size="lg" className="mt-5 w-full gap-2">
               {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Building your brief...</>
-                       : outOfBriefings ? <><Lock className="h-4 w-4" /> Unlock briefings · Upgrade to Pro</>
-                       : <><Sparkles className="h-4 w-4" /> Generate my visit brief</>}
+                       : outOfBriefings
+                         ? (IS_NATIVE_APP
+                             ? <><Lock className="h-4 w-4" /> Not available on this account</>
+                             : <><Lock className="h-4 w-4" /> Unlock briefings · Upgrade to Pro</>)
+                         : <><Sparkles className="h-4 w-4" /> Generate my visit brief</>}
             </Button>
-            {!ent.is_pro && (
+            {!ent.is_pro && !IS_NATIVE_APP && (
               <p className="mt-2 text-[11.5px] text-center text-muted-foreground">
                 {outOfBriefings
                   ? "You've used your free briefing. Pro unlocks unlimited."
