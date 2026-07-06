@@ -85,7 +85,7 @@ const PrescriptionInterpreter = () => {
   const [showRecordsPicker, setShowRecordsPicker] = useState(false);
   const [savedRxRecords, setSavedRxRecords] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; uploaded_at: string }>>([]);
   const [loadingSavedRx, setLoadingSavedRx] = useState(false);
-  const [patientCtx, setPatientCtx] = useState<{ patientId: string; userId: string } | null>(null);
+  const [patientCtx, setPatientCtx] = useState<{ patientId: string } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
@@ -96,7 +96,7 @@ const PrescriptionInterpreter = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       const patient = await fetchActivePatient<{ id: string }>("id");
-      if (patient) setPatientCtx({ patientId: patient.id, userId: session.user.id });
+      if (patient) setPatientCtx({ patientId: patient.id });
       else setPatientCtx(null);
     };
     void init();
@@ -259,7 +259,7 @@ const PrescriptionInterpreter = () => {
 
       // Persist this prescription to Health Records under the "prescription" category (background, non-blocking).
       if (imageFile && patientCtx) {
-        saveToHealthRecords(imageFile, patientCtx.patientId, patientCtx.userId, "prescription")
+        saveToHealthRecords(imageFile, patientCtx.patientId, "prescription")
           .catch(err => console.error("Failed to save prescription to records:", err));
       }
 

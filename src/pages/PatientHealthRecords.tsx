@@ -24,7 +24,6 @@ interface DoctorInfo {
 
 const PatientHealthRecords = () => {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [doctors, setDoctors] = useState<DoctorInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -41,7 +40,6 @@ const PatientHealthRecords = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth"); return; }
-      setUserId(session.user.id);
 
       const patientData = await fetchActivePatient<PatientProfile>("*");
 
@@ -88,7 +86,7 @@ const PatientHealthRecords = () => {
         subtitle={profile ? t("hr.subtitleReady") : t("hr.subtitleEmpty")}
       />
 
-      {profile && userId ? (
+      {profile ? (
         <Suspense
           fallback={
             <div className="flex items-center justify-center rounded-2xl border border-border bg-card py-12">
@@ -96,7 +94,7 @@ const PatientHealthRecords = () => {
             </div>
           }
         >
-          <HealthRecordsTab patientId={profile.id} userId={userId} doctors={doctors} />
+          <HealthRecordsTab patientId={profile.id} doctors={doctors} />
         </Suspense>
       ) : (
         <>

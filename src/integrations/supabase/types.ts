@@ -915,6 +915,7 @@ export type Database = {
           imaging_discussion_points: Json
           important_findings: Json
           medications: Json
+          owner_user_id: string
           patient_id: string
           processed_at: string | null
           radiology_body_part: string | null
@@ -949,6 +950,7 @@ export type Database = {
           imaging_discussion_points?: Json
           important_findings?: Json
           medications?: Json
+          owner_user_id?: string
           patient_id: string
           processed_at?: string | null
           radiology_body_part?: string | null
@@ -983,6 +985,7 @@ export type Database = {
           imaging_discussion_points?: Json
           important_findings?: Json
           medications?: Json
+          owner_user_id?: string
           patient_id?: string
           processed_at?: string | null
           radiology_body_part?: string | null

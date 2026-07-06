@@ -144,7 +144,6 @@ const ClaimAssistant = () => {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [savingToRecords, setSavingToRecords] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [savedRecordIds, setSavedRecordIds] = useState<Set<string>>(new Set());
   const [remindersCreated, setRemindersCreated] = useState(0);
   const ent = useEntitlements();
@@ -173,7 +172,6 @@ const ClaimAssistant = () => {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth"); return; }
-      setUserId(session.user.id);
       const patient = await fetchActivePatient<{ id: string }>("id");
       if (patient) setPatientId(patient.id);
       else setPatientId(null);
@@ -209,10 +207,10 @@ const ClaimAssistant = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
 
     // Auto-save each file to health records in background, tagged with the chosen category
-    if (patientId && userId) {
+    if (patientId) {
       for (const doc of newDocs) {
         const recordCategory = mapDocCategoryToRecord(doc.category);
-        saveToHealthRecords(doc.file, patientId, userId, recordCategory)
+        saveToHealthRecords(doc.file, patientId, recordCategory)
           .then(async (result) => {
             if (!result) return;
             setSavedRecordIds(prev => new Set([...prev, doc.id]));
