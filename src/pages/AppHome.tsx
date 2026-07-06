@@ -84,6 +84,10 @@ const AppHome = () => {
     return () => { subscription.unsubscribe(); off(); };
   }, []);
 
+  // Cross-device sync: refetch dashboard counts on visibility/focus + realtime.
+  useHealthRecordsSync(profile?.id ?? null, () => { void loadData(); });
+
+
   const loadData = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
