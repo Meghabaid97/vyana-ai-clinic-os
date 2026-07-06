@@ -87,7 +87,6 @@ interface DoctorForConsent {
 
 interface HealthRecordsTabProps {
   patientId: string;
-  userId: string;
   doctors: DoctorForConsent[];
 }
 
@@ -118,7 +117,7 @@ const namesLooselyMatch = (a: string, b: string): boolean => {
   return false;
 };
 
-const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps) => {
+const HealthRecordsTab = ({ patientId, doctors }: HealthRecordsTabProps) => {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -284,6 +283,18 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
         ...(imageFiles.length > 0 ? [await imageFilesToPdf(imageFiles)] : []),
       ];
 
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) throw authError || new Error("Not signed in");
+
+      const { data: ownedPatient, error: patientError } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("id", patientId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (patientError) throw patientError;
+      if (!ownedPatient) throw new Error("This profile does not belong to the signed-in account");
+
       const uploadedRecords: HealthRecord[] = [];
       for (const [index, file] of uploadFiles.entries()) {
         setBatchScanItems((items) => items.map((item, itemIndex) => {
@@ -292,7 +303,7 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
           return item;
         }));
 
-        const filePath = `${userId}/${Date.now()}_${index}_${file.name}`;
+        const filePath = `${user.id}/${Date.now()}_${index}_${file.name}`;
         const { error: uploadError } = await supabase.storage
           .from("health-records")
           .upload(filePath, file);

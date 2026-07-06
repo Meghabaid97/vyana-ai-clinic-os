@@ -96,7 +96,7 @@ const ShareReceive = () => {
       if (pErr) throw pErr;
       if (!patient) throw new Error("Patient profile not found");
 
-      const result = await saveToHealthRecords(file, patient.id, user.id);
+      const result = await saveToHealthRecords(file, patient.id);
       if (!result) throw new Error("Save failed");
 
       setSavedRecordId(result.recordId);

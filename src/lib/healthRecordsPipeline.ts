@@ -8,10 +8,21 @@ import { logEvent } from "@/lib/analytics";
 export async function saveToHealthRecords(
   file: File,
   patientId: string,
-  userId: string,
   category: string = "other",
 ): Promise<{ recordId: string; filePath: string } | null> {
-  const filePath = `${userId}/${Date.now()}_${file.name}`;
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) throw authError || new Error("Not signed in");
+
+  const { data: ownedPatient, error: patientError } = await supabase
+    .from("patients")
+    .select("id")
+    .eq("id", patientId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (patientError) throw patientError;
+  if (!ownedPatient) throw new Error("This profile does not belong to the signed-in account");
+
+  const filePath = `${user.id}/${Date.now()}_${file.name}`;
 
   const { error: uploadError } = await supabase.storage
     .from("health-records")
