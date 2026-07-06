@@ -39,10 +39,31 @@ const COPY: Record<PaywallReason, { title: string; body: string }> = {
   },
 };
 
+// Apple 3.1.1 — on iOS/Android we must not describe pricing, upgrades, or
+// external purchase paths. Show a neutral message instead.
+const NATIVE_COPY: Record<PaywallReason, { title: string; body: string }> = {
+  briefing: {
+    title: "Not available on this account",
+    body: "This feature isn't enabled for your account.",
+  },
+  family: {
+    title: "Not available on this account",
+    body: "This feature isn't enabled for your account.",
+  },
+  docs: {
+    title: "Not available on this account",
+    body: "This feature isn't enabled for your account.",
+  },
+  feature: {
+    title: "Not available on this account",
+    body: "This feature isn't enabled for your account.",
+  },
+};
+
 export function PaywallSheet({ open, onOpenChange, reason, familyOnly, preview, onSuccess }: Props) {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
-  const copy = COPY[reason];
   const isNative = Capacitor.isNativePlatform();
+  const copy = isNative ? NATIVE_COPY[reason] : COPY[reason];
 
   useEffect(() => {
     if (open) void logEvent("paywall_viewed", { reason, familyOnly: !!familyOnly, native: isNative });
