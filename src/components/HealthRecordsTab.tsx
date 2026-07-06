@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useHealthRecordsSync } from "@/hooks/useHealthRecordsSync";
 import {
   Loader2,
   Upload,
@@ -210,34 +211,8 @@ const HealthRecordsTab = ({ patientId, userId, doctors }: HealthRecordsTabProps)
     loadPatientName();
   }, [patientId]);
 
-  // Cross-device sync: refetch when the tab becomes visible or window regains
-  // focus (covers switching from web -> iOS), and subscribe to Postgres
-  // changes for this patient so uploads/edits from another device appear live.
-  useEffect(() => {
-    if (!patientId) return;
-
-    const onVisible = () => {
-      if (document.visibilityState === "visible") void loadRecords();
-    };
-    const onFocus = () => { void loadRecords(); };
-    document.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("focus", onFocus);
-
-    const channel = supabase
-      .channel(`health_records:${patientId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "health_records", filter: `patient_id=eq.${patientId}` },
-        () => { void loadRecords(); },
-      )
-      .subscribe();
-
-    return () => {
-      document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("focus", onFocus);
-      void supabase.removeChannel(channel);
-    };
-  }, [patientId]);
+  // Cross-device sync: refetch on visibility/focus + realtime Postgres changes.
+  useHealthRecordsSync(patientId, () => { void loadRecords(); });
 
   const loadPatientName = async () => {
     try {

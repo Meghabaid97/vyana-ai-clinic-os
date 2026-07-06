@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
+import { useHealthRecordsSync } from "@/hooks/useHealthRecordsSync";
 import { ArrowRight, Upload, UserCog, X, UserCircle2 } from "lucide-react";
 import DashboardBriefingHero from "@/components/dashboard/DashboardBriefingHero";
 import LatestVitalsStrip from "@/components/dashboard/LatestVitalsStrip";
@@ -82,6 +83,10 @@ const AppHome = () => {
     });
     return () => { subscription.unsubscribe(); off(); };
   }, []);
+
+  // Cross-device sync: refetch dashboard counts on visibility/focus + realtime.
+  useHealthRecordsSync(profile?.id ?? null, () => { void loadData(); });
+
 
   const loadData = async () => {
     const { data: { session } } = await supabase.auth.getSession();

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
+import { useHealthRecordsSync } from "@/hooks/useHealthRecordsSync";
 import {
   Activity, FileText, Pill, Stethoscope, TrendingUp,
   Calendar, Loader2, ChevronDown, ChevronUp,
@@ -22,6 +23,7 @@ const PatientTimeline = () => {
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [patientId, setPatientId] = useState<string | null>(null);
 
   useEffect(() => {
     void loadTimeline();
@@ -29,11 +31,15 @@ const PatientTimeline = () => {
     return () => off();
   }, []);
 
+  // Cross-device sync: refetch when a record changes for the active patient.
+  useHealthRecordsSync(patientId, () => { void loadTimeline(); });
+
   const loadTimeline = async () => {
     const patient = await fetchActivePatient<{ id: string; national_health_id: string | null }>(
       "id, national_health_id"
     );
     if (!patient) { setLoading(false); return; }
+    setPatientId(patient.id);
 
     const allEvents: TimelineEvent[] = [];
 
