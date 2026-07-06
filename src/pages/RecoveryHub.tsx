@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
+
+const IS_NATIVE_APP = typeof window !== "undefined" && Capacitor.isNativePlatform();
 import { supabase } from "@/integrations/supabase/client";
 import { fetchActivePatient, onActivePatientChange } from "@/lib/activePatient";
 import { useToast } from "@/hooks/use-toast";
