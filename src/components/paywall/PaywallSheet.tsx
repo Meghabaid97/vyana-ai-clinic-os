@@ -62,8 +62,8 @@ const NATIVE_COPY: Record<PaywallReason, { title: string; body: string }> = {
 
 export function PaywallSheet({ open, onOpenChange, reason, familyOnly, preview, onSuccess }: Props) {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
-  const copy = isNative ? NATIVE_COPY[reason] : COPY[reason];
   const isNative = Capacitor.isNativePlatform();
+  const copy = isNative ? NATIVE_COPY[reason] : COPY[reason];
 
   useEffect(() => {
     if (open) void logEvent("paywall_viewed", { reason, familyOnly: !!familyOnly, native: isNative });
