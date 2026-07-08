@@ -8,6 +8,10 @@ import { initShareIntent } from "@/lib/shareIntent";
 import NativeBootGuard from "@/components/NativeBootGuard";
 import ChunkErrorBoundary from "@/components/ChunkErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
+
+// Apple 3.1.1: no purchase surface exists on native builds.
+const IS_NATIVE = typeof window !== "undefined" && Capacitor.isNativePlatform();
 
 // Eager: minimal route shell only
 const Index = lazy(() => import("./pages/Index"));
