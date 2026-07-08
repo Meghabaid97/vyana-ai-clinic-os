@@ -208,8 +208,8 @@ const App = () => (
                 <Route path="emergency-contacts" element={<EmergencyContacts />} />
                 <Route path="share-receive" element={<ShareReceive />} />
                 <Route path="accept-invite/:token" element={<AcceptInvite />} />
-                <Route path="upgrade" element={<Upgrade />} />
-                <Route path="billing" element={<Billing />} />
+                {!IS_NATIVE && <Route path="upgrade" element={<Upgrade />} />}
+                {!IS_NATIVE && <Route path="billing" element={<Billing />} />}
               </Route>
 
               {/* Patient standalone pages */}
