@@ -183,7 +183,7 @@ const App = () => (
               <Route path="/why-vyana" element={<WhyVyana />} />
               <Route path="/abha-guide" element={<AbhaGuide />} />
               <Route path="/legal" element={<Legal />} />
-              <Route path="/unsubscribe" element={<Unsubscribe />} />
+              {!IS_NATIVE && <Route path="/unsubscribe" element={<Unsubscribe />} />}
               <Route path="/layout-qa" element={<LayoutQA />} />
 
               {/* Patient app with bottom tabs */}
