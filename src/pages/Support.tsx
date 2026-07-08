@@ -20,12 +20,16 @@ interface Ticket {
   expires_at: string;
 }
 
+import { Capacitor } from "@capacitor/core";
+
+const IS_NATIVE = typeof window !== "undefined" && Capacitor.isNativePlatform();
+
 const CATEGORIES = [
   { value: "general", label: "General question" },
   { value: "bug", label: "Something is broken" },
   { value: "feature", label: "Feature request" },
   { value: "data", label: "Wrong data / records issue" },
-  { value: "billing", label: "Billing or account" },
+  ...(IS_NATIVE ? [] : [{ value: "billing", label: "Billing or account" }]),
   { value: "other", label: "Other" },
 ];
 
