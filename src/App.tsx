@@ -8,6 +8,10 @@ import { initShareIntent } from "@/lib/shareIntent";
 import NativeBootGuard from "@/components/NativeBootGuard";
 import ChunkErrorBoundary from "@/components/ChunkErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
+
+// Apple 3.1.1: no purchase surface exists on native builds.
+const IS_NATIVE = typeof window !== "undefined" && Capacitor.isNativePlatform();
 
 // Eager: minimal route shell only
 const Index = lazy(() => import("./pages/Index"));
@@ -179,7 +183,7 @@ const App = () => (
               <Route path="/why-vyana" element={<WhyVyana />} />
               <Route path="/abha-guide" element={<AbhaGuide />} />
               <Route path="/legal" element={<Legal />} />
-              <Route path="/unsubscribe" element={<Unsubscribe />} />
+              {!IS_NATIVE && <Route path="/unsubscribe" element={<Unsubscribe />} />}
               <Route path="/layout-qa" element={<LayoutQA />} />
 
               {/* Patient app with bottom tabs */}
@@ -204,8 +208,8 @@ const App = () => (
                 <Route path="emergency-contacts" element={<EmergencyContacts />} />
                 <Route path="share-receive" element={<ShareReceive />} />
                 <Route path="accept-invite/:token" element={<AcceptInvite />} />
-                <Route path="upgrade" element={<Upgrade />} />
-                <Route path="billing" element={<Billing />} />
+                {!IS_NATIVE && <Route path="upgrade" element={<Upgrade />} />}
+                {!IS_NATIVE && <Route path="billing" element={<Billing />} />}
               </Route>
 
               {/* Patient standalone pages */}
